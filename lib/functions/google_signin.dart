@@ -4,22 +4,37 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
+import '../routes/dashboard.dart';
 import '../widgets/snackbar.dart';
 
 class Authentication {
-  static Future<FirebaseApp> initializeFirebase({required BuildContext context, required Function pushLogin}) async {
+  static Future<FirebaseApp> initializeFirebase({required BuildContext context}) async {
     FirebaseApp firebaseApp = await Firebase.initializeApp();
 
     User? user = FirebaseAuth.instance.currentUser;
     
     if (user != null) { 
-       pushLogin();
+      void pushLogin_() {
+        Navigator.pushReplacement(context, MaterialPageRoute(
+          builder: (context) => DashboardRoute(user: user, loginWith: 'Google'))
+        );
+      }
+      print(user.displayName);
+      pushLogin_();
     }
 
     return firebaseApp;
   }
 
-  static Future<User?> signInWithGoogle({required BuildContext context, required Function pushLogin}) async {
+  static void pushLogin(BuildContext context,User? user) {
+    if (user != null) {
+      Navigator.pushReplacement(context, MaterialPageRoute(
+        builder: (context) => DashboardRoute(user: user, loginWith: 'Google'))
+      );
+    }
+  }
+
+  static Future<User?> signInWithGoogle({required BuildContext context}) async {
     FirebaseAuth auth = FirebaseAuth.instance;
     User? user;
     
@@ -30,6 +45,12 @@ class Authentication {
 
     void hideSnackBar_() {
       hideSnackBar(context);
+    }
+
+    void pushLogin_(User user) {
+      Navigator.pushReplacement(context, MaterialPageRoute(
+        builder: (context) => DashboardRoute(user: user, loginWith: 'Google'))
+      );
     }
 
     // if it's a web browser
@@ -43,7 +64,7 @@ class Authentication {
       } catch (e) {
         debugPrint(e.toString());
       } finally {
-        pushLogin();
+        pushLogin(context, user);
         showSnackBar_('Masuk sebagai ${user!.displayName}.');
       }
     } else {
@@ -75,7 +96,7 @@ class Authentication {
               return null;
           } finally {
             hideSnackBar_();
-            pushLogin();
+            pushLogin_(user!);
             showSnackBar_('Masuk sebagai ${user!.displayName}.');
           }
         }
@@ -98,8 +119,7 @@ class Authentication {
       if (!kIsWeb) {
         await googleSignIn.signOut();
       }
-      showSnackBar_('Signing out...', true);
-      await FirebaseAuth.instance.signOut();
+      await FirebaseAuth.instance.signOut().whenComplete(() => hideSnackBar(context));
     } catch (e) {
       showSnackBar_('Error signing out. Try again.');
     }

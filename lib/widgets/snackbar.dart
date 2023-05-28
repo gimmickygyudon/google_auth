@@ -24,6 +24,7 @@ SnackBar snackBarAuth(BuildContext context, String content) {
 
 SnackBar snackBarAuthProgress(BuildContext context, String content) {
   return SnackBar(
+    duration: const Duration(days: 365),
     padding: const EdgeInsets.fromLTRB(0, 0, 0, 6),
     backgroundColor: Theme.of(context).colorScheme.inverseSurface,
     content: Column(
