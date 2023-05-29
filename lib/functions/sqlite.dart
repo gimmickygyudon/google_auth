@@ -8,12 +8,12 @@ import 'package:sqflite/sqflite.dart';
 class UserLog {
   final int? id_olog;
   final String date_time;
-  final String from_sender, remarks, source;
+  final String form_sender, remarks, source;
 
   const UserLog({
     required this.id_olog,
     required this.date_time,
-    required this.from_sender,
+    required this.form_sender,
     required this.remarks,
     required this.source,
   });
@@ -22,7 +22,7 @@ class UserLog {
     return {
       'id_olog': id_olog,
       'date_time': date_time,
-      'from_sender': from_sender,
+      'form_sender': form_sender,
       'remarks': remarks,
       'source': source,
     };
@@ -30,7 +30,7 @@ class UserLog {
 
   @override
   String toString() {
-    return '{id_olog: $id_olog, date_time: $date_time, from_sender: $from_sender, remarks: $remarks, source: $source}';
+    return '{id_olog: $id_olog, date_time: $date_time, form_sender: $form_sender, remarks: $remarks, source: $source}';
   }
 
   static Future<Database> initializeDatabase() async {
@@ -48,7 +48,7 @@ class UserLog {
       singleInstance: true,
       onCreate: (db, version) {
         return db.execute(
-          'CREATE TABLE olog(id_olog INTEGER PRIMARY KEY AUTOINCREMENT, date_time DATETIME, from_sender TEXT, remarks TEXT, source TEXT)',
+          'CREATE TABLE olog(id_olog INTEGER PRIMARY KEY AUTOINCREMENT, date_time DATETIME, form_sender TEXT, remarks TEXT, source TEXT)',
         );
       },
       version: 1,
@@ -74,22 +74,20 @@ class UserLog {
     if (source != null) {
       return maps.where((element) => element['source'] == source).map((item) {
         return UserLog(
-          id_olog: item['id_olog'], 
-          date_time: item['date_time'], 
-          from_sender: item['from_sender'], 
-          remarks: item['remarks'], 
-          source: item['source']
-        );
+            id_olog: item['id_olog'],
+            date_time: item['date_time'],
+            form_sender: item['form_sender'],
+            remarks: item['remarks'],
+            source: item['source']);
       }).toList();
     } else {
       return List.generate(maps.length, (i) {
         return UserLog(
-          id_olog: maps[i]['id_olog'],
-          date_time: maps[i]['date_time'],
-          from_sender: maps[i]['from_sender'],
-          remarks: maps[i]['remarks'],
-          source: maps[i]['source']
-        );
+            id_olog: maps[i]['id_olog'],
+            date_time: maps[i]['date_time'],
+            form_sender: maps[i]['form_sender'],
+            remarks: maps[i]['remarks'],
+            source: maps[i]['source']);
       });
     }
   }
@@ -121,12 +119,11 @@ class UserLog {
       // check if email already exist.
       if (data.isEmpty) {
         UserLog newUser = UserLog(
-          id_olog: null, 
+          id_olog: null,
           date_time: currentUser['date'],
-          from_sender: currentUser['loginWith'], 
-          remarks: currentUser['name'], 
-          source: currentUser['email']
-        );
+          form_sender: currentUser['loginWith'],
+          remarks: currentUser['name'],
+          source: currentUser['email']);
         UserLog.insert(newUser);
         print('input success');
       }

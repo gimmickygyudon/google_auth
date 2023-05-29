@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_auth/functions/mysql_client.dart';
 import 'package:intl/intl.dart';
 
 import '../functions/google_signin.dart';
@@ -22,13 +23,13 @@ class _DashboardRouteState extends State<DashboardRoute> {
 
   @override
   void initState() {
-    logDateStamp = DateFormat('kk:mm d/M/y').format(DateTime.now());
+    logDateStamp = DateFormat('kk:mm y/M/d').format(DateTime.now());
 
     Map<String, dynamic> currentUser = {
       'email': widget.user.email,
       'name': widget.user.displayName,
       'loginWith': 'Google',
-      'date': DateFormat.yMd().format(DateTime.now())
+      'date': DateFormat('y-MM-d H:m:ss').format(DateTime.now())
     };
     UserLog.log_user(widget.user.email!, currentUser);
     super.initState();
@@ -49,7 +50,7 @@ class _DashboardRouteState extends State<DashboardRoute> {
               currentAccountPicture: CircleAvatar(backgroundImage: NetworkImage(widget.user.photoURL!)),
               currentAccountPictureSize: const Size(58, 58),
               accountName: Text(widget.user.displayName!, style: TextStyle(color: Theme.of(context).colorScheme.surface)),
-              accountEmail: Text(widget.user.email!, style: TextStyle(color: Theme.of(context).colorScheme.surfaceVariant, fontSize: 12))
+              accountEmail: Text(widget.user.email!, style: TextStyle(color: Theme.of(context).colorScheme.surfaceVariant,fontSize: 12))
             ),
           ],
         ),
@@ -58,7 +59,7 @@ class _DashboardRouteState extends State<DashboardRoute> {
         toolbarHeight: kToolbarHeight + 10,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
-            bottomLeft: Radius.circular(12), 
+            bottomLeft: Radius.circular(12),
             bottomRight: Radius.circular(12)
           )
         ),
@@ -100,7 +101,7 @@ class _DashboardRouteState extends State<DashboardRoute> {
                     ),
                   ),
                   title: Text(widget.user.displayName!, style: const TextStyle(letterSpacing: 0.5)),
-                  subtitle: Text(widget.user.email!, 
+                  subtitle: Text(widget.user.email!,
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.secondary,
                       fontSize: 10,
@@ -109,11 +110,7 @@ class _DashboardRouteState extends State<DashboardRoute> {
                   ),
                 )
               ),
-              const PopupMenuItem(
-                enabled: false,
-                height: 0,
-                child: PopupMenuDivider()
-              ),
+              const PopupMenuItem(enabled: false, height: 0, child: PopupMenuDivider()),
               PopupMenuItem(
                 onTap: () async {
                   hideSnackBar(context);
@@ -157,6 +154,35 @@ class _DashboardRouteState extends State<DashboardRoute> {
                       print(await UserLog.retrieve());
                     },
                     child: const Text('Retrieve')
+                  ),
+                  ElevatedButton(
+                    onPressed: () async {
+                      UserLog.retrieve(widget.user.email).then((value) {
+                        Map<String, dynamic> item = {
+                          'date_time': value.first.date_time,
+                          'form_sender': value.first.form_sender,
+                          'remarks': value.first.remarks,
+                          'source': value.first.source
+                        };
+                        Mysql1.insert(item);
+                      });
+                    },
+                    child: const Text('Insert')
+                  ),
+                  ElevatedButton(
+                    onPressed: () async {
+                      UserLog.retrieve(widget.user.email).then((value) {
+                        Map<String, dynamic> item = {
+                          'id_olog': value.first.id_olog,
+                          'date_time': value.first.date_time,
+                          'form_sender': value.first.form_sender,
+                          'remarks': value.first.remarks,
+                          'source': value.first.source
+                        };
+                        Mysql1.update(item);
+                      });
+                    },
+                    child: const Text('Update')
                   ),
                 ],
               )
