@@ -150,21 +150,25 @@ class _DashboardRouteState extends State<DashboardRoute> {
                 children: [
                   ElevatedButton(
                     onPressed: () async {
-                      UserLog.retrieve();
-                      print(await UserLog.retrieve());
+                      UserLog.retrieve(widget.user.email).then((value) {
+                        (MySQL.retrieve(value.last.source)).then((value) => print(value));
+                      });
                     },
                     child: const Text('Retrieve')
                   ),
                   ElevatedButton(
                     onPressed: () async {
-                      UserLog.retrieve(widget.user.email).then((value) {
-                        Map<String, dynamic> item = {
-                          'date_time': value.first.date_time,
-                          'form_sender': value.first.form_sender,
-                          'remarks': value.first.remarks,
-                          'source': value.first.source
-                        };
-                        Mysql1.insert(item);
+                      UserLog.retrieve(widget.user.email).then((value) async {
+                        MySQL.retrieve(value.last.source).then((value) {
+                          Map<String, dynamic> item = {
+                            'id_olog': value['id_olog'] + 1,
+                            'date_time': DateFormat('y-MM-d H:m:ss').format(DateTime.now()),
+                            'form_sender': value['form_sender'],
+                            'remarks': value['remarks'],
+                            'source': value['source']
+                          };
+                          MySQL.insert(item);
+                        });
                       });
                     },
                     child: const Text('Insert')
@@ -173,13 +177,12 @@ class _DashboardRouteState extends State<DashboardRoute> {
                     onPressed: () async {
                       UserLog.retrieve(widget.user.email).then((value) {
                         Map<String, dynamic> item = {
-                          'id_olog': value.first.id_olog,
-                          'date_time': value.first.date_time,
-                          'form_sender': value.first.form_sender,
-                          'remarks': value.first.remarks,
-                          'source': value.first.source
+                          'id_olog': value.last.id_olog,
+                          'date_time': value.last.date_time,
+                          'form_sender': value.last.form_sender,
+                          'remarks': value.last.remarks,
+                          'source': value.last.source
                         };
-                        Mysql1.update(item);
                       });
                     },
                     child: const Text('Update')
