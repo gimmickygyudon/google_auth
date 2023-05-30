@@ -2,8 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
+import 'routes/start_page.dart';
 import 'functions/google_signin.dart';
-import 'routes/login_page.dart';
 
 void main() async {
   runApp(const MyApp());
@@ -56,7 +56,7 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 800),
-        child: _isLoggedIn ? Center(child: Image.asset('assets/temp_image.png')) : const LoginRoute()
+        child: _isLoggedIn ? Center(child: Image.asset('assets/temp_image.png')) : const StartPageRoute()
       ),
     );
   }
