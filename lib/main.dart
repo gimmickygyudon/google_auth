@@ -48,6 +48,9 @@ class _MyHomePageState extends State<MyHomePage> {
   void initFirebaseApp() async {
     firebaseApp = await Authentication.initializeFirebase(context: context).whenComplete(() {
       if (FirebaseAuth.instance.currentUser == null) setState(() => _isLoggedIn = false);
+
+      // TODO: disable auto login for debug
+      setState(() => _isLoggedIn = false);
     });
   }
 

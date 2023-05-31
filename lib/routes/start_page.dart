@@ -1,11 +1,11 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../functions/google_signin.dart';
+import '../functions/push.dart';
+import '../functions/validate.dart';
 import '../widgets/button.dart';
 import '../widgets/snackbar.dart';
-import 'login_page.dart';
 
 class StartPageRoute extends StatefulWidget {
   const StartPageRoute({super.key});
@@ -15,13 +15,13 @@ class StartPageRoute extends StatefulWidget {
 }
 
 class _StartPageRouteState extends State<StartPageRoute> {
-  late bool loggingIn, isValid;
+  late bool loggingIn, isValidated;
   late TextEditingController _phonenumberController;
 
   @override
   void initState() {
     loggingIn = false;
-    isValid = false;
+    isValidated = false;
     _phonenumberController = TextEditingController();
     super.initState();
   }
@@ -32,32 +32,30 @@ class _StartPageRouteState extends State<StartPageRoute> {
     super.dispose();
   }
 
-  void pushLogin() {
-    Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginRoute()));
-  }
-
-  void validate() {
-    if (_phonenumberController.text.trim().isEmpty) {
-      setState(() => isValid = false);      
-    } else {
-      setState(() => isValid = true); 
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(systemOverlayStyle: SystemUiOverlayStyle.dark),
+      appBar: AppBar(
+        systemOverlayStyle: SystemUiOverlayStyle.dark,
+        toolbarHeight: 0,
+        shadowColor: Theme.of(context).colorScheme.shadow,
+        surfaceTintColor: Colors.transparent,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(12),
+            bottomRight: Radius.circular(12)
+          )
+        ),
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 48),
         child: Column(
           children: [
+            const SizedBox(height: kToolbarHeight),
             const Image(image: AssetImage('assets/Logo Indostar.png')),
-            const SizedBox(height: 32),
+            const SizedBox(height: 12),
             Column(
               children: [
-                // Text('Hai, Customer', style: Theme.of(context).textTheme.headlineLarge),
-                // const SizedBox(height: 12),
                 Text('Mulailah mengelola bisnis anda dengan aman dan cepat.', 
                   style: Theme.of(context).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w400, color: Theme.of(context).colorScheme.secondary), textAlign: TextAlign.center
                 ),
@@ -87,7 +85,9 @@ class _StartPageRouteState extends State<StartPageRoute> {
                       TextField(
                         controller: _phonenumberController,
                         onChanged: (value) {
-                          validate();
+                          setState(() {
+                            isValidated = InputForm.validate(_phonenumberController.text.trim().isNotEmpty);
+                          });
                         },
                         keyboardType: TextInputType.phone,
                         inputFormatters: [FilteringTextInputFormatter.digitsOnly],
@@ -98,14 +98,16 @@ class _StartPageRouteState extends State<StartPageRoute> {
                       ),
                       const SizedBox(height: 12),
                       ElevatedButton(
-                        onPressed: isValid ? () => pushLogin() : null,
+                        onPressed: isValidated ? () {
+                          InputForm.checkUser(context, _phonenumberController.text, 'Nomor');
+                        } : null,
                         style: ButtonStyle(
                           elevation: MaterialStateProperty.resolveWith((states) {
                             if (states.contains(MaterialState.disabled)) return null;
                             return states.contains(MaterialState.pressed) ? 1 : 8;
                           }),
-                          visualDensity: const VisualDensity(horizontal: 2, vertical: 2),
-                          shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
+                          visualDensity: VisualDensity.standard,
+                          shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
                           backgroundColor: MaterialStateProperty.resolveWith((states) {
                             return states.contains(MaterialState.disabled) ? null : Theme.of(context).colorScheme.primary;
                           }),
@@ -121,7 +123,9 @@ class _StartPageRouteState extends State<StartPageRoute> {
                       const SizedBox(height: 16),
                       Text('Sudah mempunyai akun Customer Indostar?', style: Theme.of(context).textTheme.bodySmall, textAlign: TextAlign.center),
                       TextButton(
-                        onPressed: () {}, 
+                        onPressed: () {
+                          pushLogin(context);
+                        }, 
                         child: Text('Klik Disini', style: Theme.of(context).textTheme.titleSmall?.copyWith(color: Theme.of(context).colorScheme.primary), textAlign: TextAlign.center)
                       )
                     ],
@@ -138,30 +142,26 @@ class _StartPageRouteState extends State<StartPageRoute> {
               ]
             ),
             const SizedBox(height: 42),
-            FutureBuilder(
-              future: Authentication.initializeFirebase(context: context),
-              builder: (context, snapshot) {
-                if (snapshot.hasError) {
-                  return const Text('Error initializing Firebase | Check your internet connectivity');
-                } else if (snapshot.connectionState == ConnectionState.done) {
-                  if (FirebaseAuth.instance.currentUser == null) {
-                    return GoogleSignInButton(
-                      isLoading: loggingIn,
-                      onPressed: () async {
-                        hideSnackBar(context);
-                        setState(() => loggingIn = true);
-                        await Authentication.signInWithGoogle(context: context).then((value) {
-                          if (value == null) setState(() => loggingIn = false);
-                        });
-                      }
-                    );
+            GoogleSignInButton(
+              isLoading: loggingIn,
+              onPressed: () async {
+                hideSnackBar(context);
+                setState(() => loggingIn = true);
+                await Authentication.signInWithGoogle(context: context).then((value) {
+                  if (value == null) { 
+                    setState(() => loggingIn = false); 
                   } else {
-                    CircularProgressIndicator(color: Theme.of(context).colorScheme.primary);
+                    setState(() => loggingIn = false); 
+                    Map<String, dynamic> source = {
+                      'user_email': value.email,
+                      'user_name': value.displayName,
+                    };
+                    print(source);
+                    InputForm.checkUser(context, value.email!, 'Google', source);
                   }
-                }
-                return CircularProgressIndicator(color: Theme.of(context).colorScheme.primary);
-              },
-            ),
+                });
+              }
+            )
           ],
         ),
       ),

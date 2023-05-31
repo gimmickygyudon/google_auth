@@ -1,8 +1,11 @@
 // ignore_for_file: non_constant_identifier_names
 
 import 'dart:async';
+import 'dart:convert';
 
+import 'package:email_validator/email_validator.dart';
 import 'package:path/path.dart';
+import 'package:crypto/crypto.dart';
 import 'package:sqflite/sqflite.dart';
 
 class UserLog {
@@ -128,5 +131,112 @@ class UserLog {
         print('input success');
       }
     });
+  }
+}
+
+class UserRegister {
+  final int? id_ousr;
+  final String login_type;
+  final String user_email, user_name, phone_number, user_password;
+
+  const UserRegister({
+    required this.id_ousr,
+    required this.login_type,
+    required this.user_email,
+    required this.user_name,
+    required this.phone_number,
+    required this.user_password
+  });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id_ousr': id_ousr,
+      'login_type': login_type,
+      'user_email': user_email,
+      'user_name': user_name,
+      'phone_number': phone_number,
+      'user_password': user_password
+    };
+  }
+
+  @override
+  String toString() {
+    return '{id_ousr: $id_ousr, login_type: $login_type, user_email: $user_email, user_name: $user_name, phone_number: $phone_number, user_password: $user_password}';
+  }
+
+  static Future<Database> initializeDatabase() async {
+    var databasesPath = await getDatabasesPath();
+    print(databasesPath);
+    String path = join(databasesPath, 'ousr.db');
+    Database database;
+
+    // Check if the database exists
+    bool exists = await databaseExists(path);
+
+    if (exists) print('file exists');
+    database = await openDatabase(
+      join(await getDatabasesPath(), 'ousr.db'),
+      singleInstance: true,
+      onCreate: (db, version) {
+        return db.execute(
+          'CREATE TABLE ousr(id_ousr INTEGER PRIMARY KEY AUTOINCREMENT, login_type TEXT, user_email TEXT, user_name TEXT, phone_number TEXT, user_password TEXT)',
+        );
+      },
+      version: 1,
+    );
+
+    return database;
+  }
+
+  static Future<Map> insert(UserRegister user) async {
+    var userMap = user.toMap();
+    userMap['user_password'] = userMap['user_password'] = md5.convert(utf8.encode(user.user_password)).toString();
+
+    print(userMap);
+    
+    await UserRegister.initializeDatabase().then((db) async {
+      db.insert(
+        'ousr',
+        userMap,
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    });
+
+    return userMap;
+  }
+
+  static Future<List<UserRegister>> retrieve([String? source]) async {
+    final db = await UserRegister.initializeDatabase();
+
+    final List<Map<String, dynamic>> maps = await db.query('ousr');
+
+    if (source != null) {
+      bool isEmail = EmailValidator.validate(source);
+      String item = isEmail ? 'user_email' : 'phone_number';
+
+      return maps.where((element) => element[item] == source).map((value) {
+        print(value);
+        return UserRegister(
+          id_ousr: value['id_ousr'], 
+          login_type: value['login_type'],
+          user_email: value['user_email'], 
+          user_name: value['user_name'], 
+          phone_number: value['phone_number'], 
+          user_password: value['user_password']
+        );
+      }).toList();
+    } else {
+      return List.generate(maps.length, (i) {
+        print(maps[i]);
+        return UserRegister(
+          id_ousr: maps[i]['id_ousr'], 
+          login_type: maps[i]['login_type'],
+          user_email: maps[i]['user_email'], 
+          user_name: maps[i]['user_name'], 
+          phone_number: maps[i]['phone_number'], 
+          user_password: maps[i]['user_password']
+        );
+      });
+    }
   }
 }

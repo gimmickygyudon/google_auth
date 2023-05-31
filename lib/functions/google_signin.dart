@@ -13,15 +13,15 @@ class Authentication {
 
     User? user = FirebaseAuth.instance.currentUser;
     
-    if (user != null) { 
-      void pushLogin_() {
-        Navigator.pushReplacement(context, MaterialPageRoute(
-          builder: (context) => DashboardRoute(user: user, loginWith: 'Google'))
-        );
-      }
-      print(user.displayName);
-      pushLogin_();
-    }
+    // if (user != null) { 
+    //   void pushLogin_() {
+    //     Navigator.pushReplacement(context, MaterialPageRoute(
+    //       builder: (context) => DashboardRoute(user: user, loginWith: 'Google'))
+    //     );
+    //   }
+    //   print(user.displayName);
+    //   pushLogin_();
+    // }
 
     return firebaseApp;
   }
@@ -53,7 +53,7 @@ class Authentication {
       );
     }
 
-    // if it's a web browser
+     // if it's a web browser
     if (kIsWeb) {
       GoogleAuthProvider authProvider = GoogleAuthProvider();
 
@@ -64,7 +64,7 @@ class Authentication {
       } catch (e) {
         debugPrint(e.toString());
       } finally {
-        pushLogin(context, user);
+        // pushLogin(context, user);
         showSnackBar_('Masuk sebagai ${user!.displayName}.');
       }
     } else {
@@ -96,8 +96,8 @@ class Authentication {
               return null;
           } finally {
             hideSnackBar_();
-            pushLogin_(user!);
-            showSnackBar_('Masuk sebagai ${user!.displayName}.');
+            // pushLogin_(user!);
+            // showSnackBar_('Masuk sebagai ${user!.displayName}.');
           }
         }
         return null;

@@ -1,13 +1,16 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_auth/functions/validate.dart';
 
 import '../functions/google_signin.dart';
 import '../widgets/button.dart';
 import '../widgets/snackbar.dart';
 
 class LoginRoute extends StatefulWidget {
-  const LoginRoute({super.key});
+  const LoginRoute({super.key, this.source, this.from});
+
+  final Map? source;
+  final String? from;
 
   @override
   State<LoginRoute> createState() => _LoginRouteState();
@@ -23,7 +26,9 @@ class _LoginRouteState extends State<LoginRoute> {
     visibility = false;
     isValidated = false;
 
-    _usernameController = TextEditingController();
+    _usernameController = TextEditingController(
+      text: widget.source?[widget.from == 'Email' ? 'user_email' : 'phone_number']
+    );
     _passwordController = TextEditingController();
     super.initState();
   }
@@ -35,32 +40,40 @@ class _LoginRouteState extends State<LoginRoute> {
     super.dispose();
   }
 
-  void validate() {
-    if (_usernameController.text.trim().isNotEmpty && _passwordController.text.trim().isNotEmpty) {
-      setState(() => isValidated = true);
-    } else {
-      setState(() => isValidated = false);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(systemOverlayStyle: SystemUiOverlayStyle.dark),
+      appBar: AppBar(
+        systemOverlayStyle: SystemUiOverlayStyle.dark,
+        shadowColor: Theme.of(context).colorScheme.shadow,
+        surfaceTintColor: Colors.transparent,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(12),
+            bottomRight: Radius.circular(12)
+          )
+        ),
+      ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 48),
         child: Column(
           children: [
             Column(
               children: [
-                Text('Hello Again', style: Theme.of(context).textTheme.headlineLarge),
+                const Image(image: AssetImage('assets/Logo Indostar.png')),
                 const SizedBox(height: 12),
                 Text('Mulailah mengelola bisnis anda dengan aman dan cepat.', 
                   style: Theme.of(context).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w400, color: Theme.of(context).colorScheme.secondary), textAlign: TextAlign.center
                 ),
               ],
             ),
-            const SizedBox(height: 60),
+            SizedBox(height: widget.source != null ? 40 : 60),
+            if (widget.source != null) ...[
+              Icon(Icons.account_circle, size: 48, color: Theme.of(context).colorScheme.secondary),
+              const SizedBox(height: 4),
+              Text(widget.source?['user_name'], style: Theme.of(context).textTheme.bodyLarge),
+              const SizedBox(height: 30),
+            ],
             Theme(
               data: Theme.of(context).copyWith(
                 inputDecorationTheme: InputDecorationTheme(
@@ -79,25 +92,39 @@ class _LoginRouteState extends State<LoginRoute> {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      TextField(
+                      TextFormField(
                         controller: _usernameController,
-                        onChanged: (value) => validate(),
+                        onChanged: (value) => setState(() {
+                          isValidated = InputForm.validate(
+                            _usernameController.text.trim().isNotEmpty && _passwordController.text.trim().isNotEmpty
+                          );
+                        }),
+                        readOnly: widget.source == null ? false : true,
+                        autofocus: widget.source == null ? true : false,
+                        textInputAction: isValidated ? TextInputAction.done : TextInputAction.next,
                         decoration: InputDecoration(
-                          labelText: 'Username',
-                          enabledBorder: _usernameController.text.trim().isNotEmpty ? OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2)) : null
+                          labelText: 'Email / No. HP',
+                          enabledBorder: _usernameController.text.trim().isNotEmpty ? OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).colorScheme.primary.withOpacity(0.5), width: 1)) : null,
+                          focusedBorder: _usernameController.text.trim().isNotEmpty ? OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2)) : null
                         )
                       ),
                       const SizedBox(height: 20),
                       TextField(
                         controller: _passwordController,
-                        onChanged: (value) => validate(),
+                        onChanged: (value) => setState(() {
+                          isValidated = InputForm.validate(
+                            _usernameController.text.trim().isNotEmpty && _passwordController.text.trim().isNotEmpty
+                          );
+                        }),
+                        autofocus: widget.source == null ? false : true,
                         obscureText: visibility ? false : true,
                         autocorrect: false,
                         enableSuggestions: false,
                         decoration: InputDecoration(
                           labelText: 'Kata Sandi',
                           suffixIcon: Icon(visibility ? Icons.visibility_outlined : Icons.visibility_off_outlined),
-                          enabledBorder: _passwordController.text.trim().isNotEmpty ? OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2)) : null
+                          enabledBorder: _passwordController.text.trim().isNotEmpty ? OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).colorScheme.primary.withOpacity(0.5), width: 1)) : null,
+                          focusedBorder: _passwordController.text.trim().isNotEmpty ? OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2)) : null
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -149,30 +176,16 @@ class _LoginRouteState extends State<LoginRoute> {
               ]
             ),
             const SizedBox(height: 42),
-            FutureBuilder(
-              future: Authentication.initializeFirebase(context: context),
-              builder: (context, snapshot) {
-                if (snapshot.hasError) {
-                  return const Text('Error initializing Firebase | Check your internet connectivity');
-                } else if (snapshot.connectionState == ConnectionState.done) {
-                  if (FirebaseAuth.instance.currentUser == null) {
-                    return GoogleSignInButton(
-                      isLoading: loggingIn,
-                      onPressed: () async {
-                        hideSnackBar(context);
-                        setState(() => loggingIn = true);
-                        await Authentication.signInWithGoogle(context: context).then((value) {
-                          if (value == null) setState(() => loggingIn = false);
-                        });
-                      }
-                    );
-                  } else {
-                    CircularProgressIndicator(color: Theme.of(context).colorScheme.primary);
-                  }
-                }
-                return CircularProgressIndicator(color: Theme.of(context).colorScheme.primary);
-              },
-            ),
+            GoogleSignInButton(
+              isLoading: loggingIn,
+              onPressed: () async {
+                hideSnackBar(context);
+                setState(() => loggingIn = true);
+                await Authentication.signInWithGoogle(context: context).then((value) {
+                  if (value == null) setState(() => loggingIn = false);
+                });
+              }
+            )
           ],
         ),
       ),
