@@ -28,6 +28,9 @@ class InputForm {
           case 'Email':
             pushRegister(context, logintype_, value);
             break;
+          case 'Nomor':
+            pushRegister(context, logintype_, value);
+            break;
           case 'Google':
             pushRegisterGoogle(context, logintype_, source);
             break;

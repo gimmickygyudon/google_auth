@@ -36,7 +36,7 @@ class _DialogRegisteredUserState extends State<DialogRegisteredUser> {
         ),
         TextButton(
           onPressed: () => widget.callback(context, widget.source, widget.from), 
-          child: const Text('Gunakan Akun')
+          child: const Text('Ya, Itu Saya')
         )
       ],
       content: Column(

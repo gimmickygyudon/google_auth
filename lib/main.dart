@@ -14,14 +14,17 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Customer',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
+    return MediaQuery(
+      data: MediaQuery.of(context).copyWith(textScaleFactor: 1.1),
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Customer',
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+          useMaterial3: true,
+        ),
+        home: const MyHomePage(title: 'Customer'),
       ),
-      home: const MyHomePage(title: 'Customer'),
     );
   }
 }

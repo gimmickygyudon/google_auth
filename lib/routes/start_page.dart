@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../functions/google_signin.dart';
 import '../functions/push.dart';
 import '../functions/validate.dart';
+import '../styles/theme.dart';
 import '../widgets/button.dart';
 import '../widgets/snackbar.dart';
 
@@ -64,16 +65,7 @@ class _StartPageRouteState extends State<StartPageRoute> {
             const SizedBox(height: 100),
             Theme(
               data: Theme.of(context).copyWith(
-                inputDecorationTheme: InputDecorationTheme(
-                  isDense: true,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                  focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2)),
-                  filled: true,
-                  fillColor: Theme.of(context).hoverColor,
-                  labelStyle: TextStyle(fontSize: 12, fontWeight: FontWeight.w400, letterSpacing: 0, color: Theme.of(context).colorScheme.secondary),
-                  floatingLabelStyle: TextStyle(fontWeight: FontWeight.w500, letterSpacing: 0, color: Theme.of(context).colorScheme.primary)
-                )
+                inputDecorationTheme: Themes.inputDecorationThemeForm(context: context)
               ),
               child: StatefulBuilder(
                 builder: (context, setState) {
@@ -91,9 +83,10 @@ class _StartPageRouteState extends State<StartPageRoute> {
                         },
                         keyboardType: TextInputType.phone,
                         inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                        decoration: InputDecoration(
-                          labelText: 'Nomor HP',
-                          enabledBorder: _phonenumberController.text.trim().isNotEmpty ? OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2)) : null
+                        decoration: Styles.inputDecorationForm(
+                          context: context, 
+                          placeholder: 'Nomor HP',
+                          condition: _phonenumberController.text.trim().isNotEmpty
                         )
                       ),
                       const SizedBox(height: 12),
@@ -101,23 +94,7 @@ class _StartPageRouteState extends State<StartPageRoute> {
                         onPressed: isValidated ? () {
                           InputForm.checkUser(context, _phonenumberController.text, 'Nomor');
                         } : null,
-                        style: ButtonStyle(
-                          elevation: MaterialStateProperty.resolveWith((states) {
-                            if (states.contains(MaterialState.disabled)) return null;
-                            return states.contains(MaterialState.pressed) ? 1 : 8;
-                          }),
-                          visualDensity: VisualDensity.standard,
-                          shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
-                          backgroundColor: MaterialStateProperty.resolveWith((states) {
-                            return states.contains(MaterialState.disabled) ? null : Theme.of(context).colorScheme.primary;
-                          }),
-                          foregroundColor: MaterialStateProperty.resolveWith((states) {
-                            return states.contains(MaterialState.disabled) ? null : Theme.of(context).colorScheme.surface;
-                          }),
-                          overlayColor: MaterialStateProperty.resolveWith((states) {
-                            return states.contains(MaterialState.disabled) ? null : Theme.of(context).colorScheme.inversePrimary;
-                          }),
-                        ),
+                        style: Styles.buttonForm(context: context),
                         child: const Text('Masuk')
                       ),
                       const SizedBox(height: 16),

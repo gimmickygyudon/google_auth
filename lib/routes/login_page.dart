@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_auth/functions/validate.dart';
+import 'package:google_auth/styles/theme.dart';
+import 'package:google_auth/widgets/checkbox.dart';
 
 import '../functions/google_signin.dart';
 import '../widgets/button.dart';
@@ -76,16 +78,7 @@ class _LoginRouteState extends State<LoginRoute> {
             ],
             Theme(
               data: Theme.of(context).copyWith(
-                inputDecorationTheme: InputDecorationTheme(
-                  isDense: true,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
-                  focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2)),
-                  filled: true,
-                  fillColor: Theme.of(context).hoverColor,
-                  labelStyle: TextStyle(fontSize: 12, fontWeight: FontWeight.w400, letterSpacing: 0, color: Theme.of(context).colorScheme.secondary),
-                  floatingLabelStyle: TextStyle(fontWeight: FontWeight.w500, letterSpacing: 0, color: Theme.of(context).colorScheme.primary)
-                )
+                inputDecorationTheme: Themes.inputDecorationThemeForm(context: context)
               ),
               child: StatefulBuilder(
                 builder: (context, setState) {
@@ -102,10 +95,10 @@ class _LoginRouteState extends State<LoginRoute> {
                         readOnly: widget.source == null ? false : true,
                         autofocus: widget.source == null ? true : false,
                         textInputAction: isValidated ? TextInputAction.done : TextInputAction.next,
-                        decoration: InputDecoration(
-                          labelText: 'Email / No. HP',
-                          enabledBorder: _usernameController.text.trim().isNotEmpty ? OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).colorScheme.primary.withOpacity(0.5), width: 1)) : null,
-                          focusedBorder: _usernameController.text.trim().isNotEmpty ? OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2)) : null
+                        decoration: Styles.inputDecorationForm(
+                          context: context, 
+                          placeholder: 'Email / No. HP', 
+                          condition: _usernameController.text.trim().isNotEmpty
                         )
                       ),
                       const SizedBox(height: 20),
@@ -120,25 +113,17 @@ class _LoginRouteState extends State<LoginRoute> {
                         obscureText: visibility ? false : true,
                         autocorrect: false,
                         enableSuggestions: false,
-                        decoration: InputDecoration(
-                          labelText: 'Kata Sandi',
-                          suffixIcon: Icon(visibility ? Icons.visibility_outlined : Icons.visibility_off_outlined),
-                          enabledBorder: _passwordController.text.trim().isNotEmpty ? OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).colorScheme.primary.withOpacity(0.5), width: 1)) : null,
-                          focusedBorder: _passwordController.text.trim().isNotEmpty ? OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2)) : null
-                        ),
+                        decoration: Styles.inputDecorationForm(
+                          context: context, 
+                          placeholder: 'Kata Sandi', 
+                          condition: _usernameController.text.trim().isNotEmpty,
+                          visibility: visibility
+                        )
                       ),
                       const SizedBox(height: 4),
-                      Theme(
-                        data: Theme.of(context).copyWith(splashFactory: NoSplash.splashFactory),
-                        child: CheckboxListTile(
-                          onChanged: (value) => setState(() => visibility = value!),
-                          value: visibility, 
-                          contentPadding: EdgeInsets.zero,
-                          visualDensity: const VisualDensity(vertical: -4, horizontal: -4),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                          title: Text('Tampilkan Sandi', style: Theme.of(context).textTheme.bodySmall?.copyWith(letterSpacing: 0)),
-                          controlAffinity: ListTileControlAffinity.leading,
-                        ),
+                      CheckboxPassword(
+                        onChanged: (value) => setState(() => visibility = value!), 
+                        visibility: visibility
                       ),
                       const SizedBox(height: 24),
                       ElevatedButton(
