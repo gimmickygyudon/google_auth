@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'routes/start_page.dart';
 import 'functions/google_signin.dart';
@@ -59,10 +60,13 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 800),
-        child: _isLoggedIn ? Center(child: Image.asset('assets/temp_image.png')) : const StartPageRoute()
+    return AnnotatedRegion(
+      value: SystemUiOverlayStyle.dark,
+      child: Scaffold(
+        body: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 800),
+          child: _isLoggedIn ? Center(child: Image.asset('assets/temp_image.png')) : const StartPageRoute()
+        ),
       ),
     );
   }

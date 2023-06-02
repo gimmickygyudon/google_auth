@@ -13,7 +13,9 @@ class Authentication {
 
     User? user = FirebaseAuth.instance.currentUser;
     
-    // if (user != null) { 
+    // TODO: DO THIS LATER
+    Authentication.signOut(context: context, pushLogout: () {});
+    // if (user != null) {
     //   void pushLogin_() {
     //     Navigator.pushReplacement(context, MaterialPageRoute(
     //       builder: (context) => DashboardRoute(user: user, loginWith: 'Google'))
@@ -125,8 +127,9 @@ class Authentication {
     }
     finally { 
       hideSnackBar(context);
-      pushLogout(); 
-      showSnackBar_('Berhasil Keluar.');
+      // TODO: DO THIS LATER
+      // pushLogout(); 
+      // showSnackBar_('Berhasil Keluar.');
     }
   }
 }

@@ -72,3 +72,36 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
     );
   }
 }
+
+class EmailSignInButton extends StatelessWidget {
+  const EmailSignInButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedButton(
+      onPressed: () {},
+      style: ButtonStyle(
+        side: MaterialStatePropertyAll(BorderSide(color: Theme.of(context).colorScheme.outline.withOpacity(0.5))),
+        shape: MaterialStateProperty.all(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(40),
+          ),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+        child: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.email_outlined),
+            Padding(
+              padding: const EdgeInsets.only(left: 10),
+              child: Text('Masuk dengan Email', style: Theme.of(context).textTheme.labelSmall),
+            )
+          ]
+        ),
+      ),
+    );
+  }
+}

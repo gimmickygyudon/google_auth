@@ -14,8 +14,13 @@ class InputForm {
     return isValidated;
   }
 
-  static void checkUser(BuildContext context, String value, String logintype_, [Map? source]) {
-    UserRegister.retrieve(value).then((item) {
+  static void checkUser({
+    required BuildContext context, 
+    Map? source, 
+    required String logintype,
+    required String user
+  }) {
+    UserRegister.retrieve(user).then((item) {
       if (item.isNotEmpty) { 
         Map<String, dynamic> source = {
           'user_email': item.last.user_email,
@@ -24,15 +29,18 @@ class InputForm {
         };
         showRegisteredUser(context, source, pushLogin, 'Nomor');
       } else {
-        switch (logintype_) {
+        switch (logintype) {
           case 'Email':
-            pushRegister(context, logintype_, value);
+            pushRegister(context, logintype, user);
+            break;
+          case 'Nomor':
+            pushRegister(context, logintype, user);
             break;
           case 'Nomor':
             pushRegister(context, logintype_, value);
             break;
           case 'Google':
-            pushRegisterGoogle(context, logintype_, source);
+            pushRegisterGoogle(context, logintype, source);
             break;
           default:
         }

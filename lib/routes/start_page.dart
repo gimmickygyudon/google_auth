@@ -35,111 +35,142 @@ class _StartPageRouteState extends State<StartPageRoute> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        systemOverlayStyle: SystemUiOverlayStyle.dark,
-        toolbarHeight: 0,
-        shadowColor: Theme.of(context).colorScheme.shadow,
-        surfaceTintColor: Colors.transparent,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            bottomLeft: Radius.circular(12),
-            bottomRight: Radius.circular(12)
-          )
+    return AnnotatedRegion(
+      value: SystemUiOverlayStyle.dark,
+      child: Scaffold(
+        appBar: AppBar(
+          toolbarHeight: 0,
+          shadowColor: Theme.of(context).colorScheme.shadow,
+          surfaceTintColor: Colors.transparent,
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(12),
+                  bottomRight: Radius.circular(12))),
         ),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 48),
-        child: Column(
-          children: [
-            const SizedBox(height: kToolbarHeight),
-            const Image(image: AssetImage('assets/Logo Indostar.png')),
-            const SizedBox(height: 12),
-            Column(
-              children: [
-                Text('Mulailah mengelola bisnis anda dengan aman dan cepat.', 
-                  style: Theme.of(context).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w400, color: Theme.of(context).colorScheme.secondary), textAlign: TextAlign.center
-                ),
-              ],
-            ),
-            const SizedBox(height: 100),
-            Theme(
-              data: Theme.of(context).copyWith(
-                inputDecorationTheme: Themes.inputDecorationThemeForm(context: context)
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 48),
+          child: Column(
+            children: [
+              const SizedBox(height: kToolbarHeight),
+              const Image(image: AssetImage('assets/Logo Indostar.png')),
+              const SizedBox(height: 12),
+              Column(
+                children: [
+                  Text('Mulailah mengelola bisnis anda dengan aman dan cepat.',
+                      style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          fontWeight: FontWeight.w400,
+                          color: Theme.of(context).colorScheme.secondary),
+                      textAlign: TextAlign.center),
+                ],
               ),
-              child: StatefulBuilder(
-                builder: (context, setState) {
+              const SizedBox(height: 140),
+              Theme(
+                data: Theme.of(context).copyWith(
+                    inputDecorationTheme:
+                        Themes.inputDecorationThemeForm(context: context)),
+                child: StatefulBuilder(builder: (context, setState) {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Text('Silakan masuk dengan menggunakkan nomor handphone Anda.', textAlign: TextAlign.center, style: Theme.of(context).textTheme.labelSmall),
+                      Text(
+                          'Silakan masuk dengan menggunakkan nomor handphone Anda.',
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context)
+                              .textTheme
+                              .labelSmall
+                              ?.copyWith(
+                                  color:
+                                      Theme.of(context).colorScheme.secondary)),
                       const SizedBox(height: 16),
                       TextField(
                         controller: _phonenumberController,
                         onChanged: (value) {
                           setState(() {
-                            isValidated = InputForm.validate(_phonenumberController.text.trim().isNotEmpty);
+                            isValidated = InputForm.validate(
+                                _phonenumberController.text.trim().isNotEmpty);
                           });
                         },
-                        keyboardType: TextInputType.phone,
-                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly
+                        ],
                         decoration: Styles.inputDecorationForm(
-                          context: context, 
-                          placeholder: 'Nomor HP',
-                          condition: _phonenumberController.text.trim().isNotEmpty
-                        )
+                            context: context,
+                            placeholder: 'Nomor HP',
+                            icon: const Icon(Icons.phone),
+                            condition:
+                                _phonenumberController.text.trim().isNotEmpty),
+                        keyboardType: TextInputType.phone,
                       ),
                       const SizedBox(height: 12),
                       ElevatedButton(
-                        onPressed: isValidated ? () {
-                          InputForm.checkUser(context, _phonenumberController.text, 'Nomor');
-                        } : null,
-                        style: Styles.buttonForm(context: context),
-                        child: const Text('Masuk')
-                      ),
+                          onPressed: isValidated
+                              ? () {
+                                  InputForm.checkUser(
+                                      context: context,
+                                      user: _phonenumberController.text,
+                                      logintype: 'Nomor');
+                                }
+                              : null,
+                          style: Styles.buttonForm(context: context),
+                          child: const Text('Masuk')),
                       const SizedBox(height: 16),
-                      Text('Sudah mempunyai akun Customer Indostar?', style: Theme.of(context).textTheme.bodySmall, textAlign: TextAlign.center),
+                      Text('Sudah mempunyai akun Customer Indostar?',
+                          style: Theme.of(context).textTheme.bodySmall,
+                          textAlign: TextAlign.center),
                       TextButton(
-                        onPressed: () {
-                          pushLogin(context);
-                        }, 
-                        child: Text('Klik Disini', style: Theme.of(context).textTheme.titleSmall?.copyWith(color: Theme.of(context).colorScheme.primary), textAlign: TextAlign.center)
-                      )
+                          onPressed: () {
+                            pushLogin(context);
+                          },
+                          child: Text('Klik Disini',
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .titleSmall
+                                  ?.copyWith(
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .primary),
+                              textAlign: TextAlign.center))
                     ],
                   );
-                }
+                }),
               ),
-            ),
-            const SizedBox(height: 32),
-            Row(
-              children: [
+              const SizedBox(height: 32),
+              Row(children: [
                 const Expanded(child: Divider(endIndent: 8)),
-                Text('Lanjutkan dengan', style: Theme.of(context).textTheme.labelSmall?.copyWith(color: Theme.of(context).colorScheme.outline, fontWeight: FontWeight.w400)),
+                Text('Lanjutkan dengan',
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: Theme.of(context).colorScheme.outline,
+                        fontWeight: FontWeight.w400)),
                 const Expanded(child: Divider(indent: 8)),
-              ]
-            ),
-            const SizedBox(height: 42),
-            GoogleSignInButton(
-              isLoading: loggingIn,
-              onPressed: () async {
-                hideSnackBar(context);
-                setState(() => loggingIn = true);
-                await Authentication.signInWithGoogle(context: context).then((value) {
-                  if (value == null) { 
-                    setState(() => loggingIn = false); 
-                  } else {
-                    setState(() => loggingIn = false); 
-                    Map<String, dynamic> source = {
-                      'user_email': value.email,
-                      'user_name': value.displayName,
-                    };
-                    print(source);
-                    InputForm.checkUser(context, value.email!, 'Google', source);
-                  }
-                });
-              }
-            )
-          ],
+              ]),
+              const SizedBox(height: 42),
+              GoogleSignInButton(
+                  isLoading: loggingIn,
+                  onPressed: () async {
+                    hideSnackBar(context);
+                    setState(() => loggingIn = true);
+                    await Authentication.signInWithGoogle(context: context)
+                        .then((value) {
+                      if (value == null) {
+                        setState(() => loggingIn = false);
+                      } else {
+                        setState(() => loggingIn = false);
+                        Map<String, dynamic> source = {
+                          'user_email': value.email,
+                          'user_name': value.displayName,
+                          'photo_url': value.photoURL,
+                        };
+                        print(source);
+                        InputForm.checkUser(
+                            context: context,
+                            user: value.email!,
+                            logintype: 'Google',
+                            source: source);
+                      }
+                    });
+                  })
+            ],
+          ),
         ),
       ),
     );
