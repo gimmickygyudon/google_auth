@@ -1,10 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:google_auth/widgets/profile.dart';
 
-Future<void> showRegisteredUser(BuildContext context, Map<String, dynamic> source, Function callback, String from) {
+import '../styles/theme.dart';
+
+Future<void> showRegisteredUser(BuildContext context, { 
+    required Map<String, dynamic> source, 
+    required Function callback, 
+    required String from 
+  }) {
   return showDialog(
     context: context, 
     builder: (BuildContext context) {
       return DialogRegisteredUser(source: source, callback: callback, from: from,);
+    }
+  );
+}
+
+Future <void> showUnRegisteredUser(BuildContext context, { 
+    required String value, 
+    required Function callback, 
+    required String from,
+    Map? source
+  }) {
+  return showDialog(
+    context: context, 
+    builder: (BuildContext context) {
+      return DialogUnRegisteredUser(
+        value: value, 
+        callback: callback, 
+        from: from, 
+        source: source
+      );
     }
   );
 }
@@ -36,7 +62,7 @@ class _DialogRegisteredUserState extends State<DialogRegisteredUser> {
         ),
         TextButton(
           onPressed: () => widget.callback(context, widget.source, widget.from), 
-          child: const Text('Ya, Itu Saya')
+          child: const Text('Masuk')
         )
       ],
       content: Column(
@@ -47,11 +73,80 @@ class _DialogRegisteredUserState extends State<DialogRegisteredUser> {
             onTap: () {},
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.account_circle, size: 36),
+            leading: const Icon(Icons.account_circle, size: 42),
             title: Text(widget.source['user_name'], style: Theme.of(context).textTheme.bodyLarge),
             subtitle: Text(widget.source[widget.from == 'Nomor' ? 'phone_number' : 'user_email'], style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.secondary)),
           ),
           Text('Apakah itu anda ?', style: Theme.of(context).textTheme.bodyMedium)
+        ],
+      ),
+    );
+  }
+}
+
+class DialogUnRegisteredUser extends StatefulWidget {
+  const DialogUnRegisteredUser({super.key, required this.value, required this.callback, required this.from, this.source});
+
+  final String value;
+  final Function callback;
+  final String from;
+  final Map? source;
+
+  @override
+  State<DialogUnRegisteredUser> createState() => _DialogUnRegisteredUserState();
+}
+
+class _DialogUnRegisteredUserState extends State<DialogUnRegisteredUser> {
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      surfaceTintColor: Colors.transparent,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      title: Text('Akun dengan ${widget.from} tersebut belum terdaftar', style: Theme.of(context).textTheme.titleMedium),
+      actions: [
+        TextButton(
+          style: ButtonStyle(foregroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.secondary)),
+          onPressed: () => Navigator.pop(context), 
+          child: const Text('Batal')
+        ),
+        TextButton(
+          onPressed: () {
+            Navigator.pop(context);
+            widget.callback();
+          }, 
+          child: const Text('Masuk')
+        )
+      ],
+      content: widget.from == 'Google' 
+      ? Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(height: 20),
+          UserProfile(source: widget.source),
+          const SizedBox(height: 10),
+        ],
+      )
+      : Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(height: 20),
+          TextFormField(
+            canRequestFocus: false,
+            readOnly: true,
+            initialValue: widget.value,
+            decoration: Styles.inputDecorationForm(
+              context: context, 
+              icon: Icon(widget.from == 'Nomor' ? Icons.phone : Icons.email_outlined),
+              placeholder: '', 
+              condition: false
+            ),
+          ),
+          const SizedBox(height: 24),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Text('Apakah anda ingin melanjutkan untuk mendaftar ?', style: Theme.of(context).textTheme.bodySmall),
+          )
         ],
       ),
     );

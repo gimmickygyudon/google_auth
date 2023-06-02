@@ -8,7 +8,7 @@ void hideSnackBar(BuildContext context) {
   ScaffoldMessenger.of(context).hideCurrentSnackBar();
 }
 
-SnackBar snackBarAuth(BuildContext context, String content) {
+SnackBar snackBarAuth({required BuildContext context, required String content}) {
   return SnackBar(
     padding: const EdgeInsets.fromLTRB(0, 0, 0, 6),
     backgroundColor: Theme.of(context).colorScheme.inverseSurface,

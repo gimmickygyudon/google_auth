@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'routes/start_page.dart';
-import 'functions/google_signin.dart';
+import 'functions/authentication.dart';
 
 void main() async {
   runApp(const MyApp());

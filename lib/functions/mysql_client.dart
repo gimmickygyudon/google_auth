@@ -6,77 +6,24 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class MySQL {
-  final int? id_olog;
-  final String date_time;
-  final String form_sender;
-  final String remarks;
-  final String source;
 
-  const MySQL({required this.id_olog, required this.date_time, required this.form_sender, required this.remarks, required this.source});
-
-  factory MySQL.fromJson(Map<String, dynamic> json) {
-    return MySQL(
-      id_olog: json['id_olog'],
-      date_time: json['date_time'],
-      form_sender: json['form_sender'],
-      remarks: json['remarks'],
-      source: json['source'],
-    );
-  }
-  // static Future<MySqlConnection> intializeDatabase() async {
-  //   var settings = ConnectionSettings(
-  //     host: '192.168.1.16',
-  //     port: 3306,
-  //     user: 'mysql_user',
-  //     password: '1BM123',
-  //     db: 'indostar',
-  //     useSSL: false
-  //   );
-  //   MySqlConnection conn = await MySqlConnection.connect(settings);
-  //   return conn;
-  // }
-
-  // static Future<void> insert(Map<String, dynamic> item) async {
-  //   intializeDatabase().then((conn) async {
-  //     await conn.query(
-  //       'insert into olog (id_olog, date_time, form_sender, remarks, source) values (?, ?, ?, ? , ?)', 
-  //       [null, item['date_time'], item['form_sender'], item['remarks'], item['source']]
-  //     );
-  //   });
-  // }
-
-  // static Future<void> update(Map<String, dynamic> item) async {
-  //   intializeDatabase().then((conn) async {
-  //     await conn.query(
-  //       'update olog set date_time=?, form_sender=?, remarks=?, source=? where id_olog=?',
-  //       [item['date_time'], item['form_sender'], item['remarks'], item['source'], item['id_olog']]
-  //     );
-  //   });
-  //   print(item['id_olog']);
-  // }
-
-  // static Future<void> retrieve(String? source) async {
-  //   intializeDatabase().then((conn) async {
-  //     await conn.query('select * from olog where source = ?', [source]);
-  //   });
-  // }
-
-  static Future<MySQL> insert(Map<String, dynamic> item) async {
-    item['id_olog'] = null;
+  static Future<Map> insert(Map<String, dynamic> item, String api) async {
+    item['id_$api'] = null;
 
     print(jsonEncode(item));
     final response = await http.post(
-      Uri.parse('http://192.168.1.19:8080/api/olog'),
+      Uri.parse('http://192.168.1.19:8080/api/$api'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
       body: jsonEncode(item),
     );
 
+    print(response.statusCode);
     if (response.statusCode == 201) {
       // If the server did return a 201 CREATED response,
-      // then parse the JSON.
-      return MySQL.fromJson(jsonDecode(response.body));
+      // then parse the JSON.MySQL.fromJson(
+      return jsonDecode(response.body);
     } else {
       // If the server did not return a 201 CREATED response,
       // then throw an exception.
@@ -84,12 +31,12 @@ class MySQL {
     }
   }
 
-  static Future<List<Map<String, dynamic>>> retrieveAll() async {
+  static Future<List<Map<String, dynamic>>> retrieveAll(String api) async {
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
     };
 
-    var url = Uri.http('192.168.1.19:8080', '/api/olog');
+    var url = Uri.http('192.168.1.19:8080', '/api/$api');
 
     final response = await http.get(url, headers: requestHeaders);
     if (response.statusCode == 200) {
@@ -107,7 +54,7 @@ class MySQL {
     }
   }
 
-  static Future<Map> retrieve(String source) async {
+  static Future<Map> retrieve(String source, String api) async {
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
     };
@@ -116,23 +63,24 @@ class MySQL {
       'source': source,
     };
 
-    var url = Uri.http('192.168.1.19:8080', '/api/olog', queryParameters);
+    var url = Uri.http('192.168.1.19:8080', '/api/$api', queryParameters);
     Map data = {};
 
     final response = await http.get(url, headers: requestHeaders);
-    if (response.statusCode == 404) {
-      data = await UserLog.retrieve(source).then((value) {
-        data = {
-          'id_olog': value.last.id_olog,
-          'date_time': value.last.date_time,
-          'form_sender': value.last.form_sender,
-          'remarks': value.last.remarks,
-          'source': value.last.source
-        };
+    // if (response.statusCode == 404) {
+    //   data = await UserLog.retrieve(source).then((value) {
+    //     data = {
+    //       'id_olog': value.last.id_olog,
+    //       'date_time': value.last.date_time,
+    //       'form_sender': value.last.form_sender,
+    //       'remarks': value.last.remarks,
+    //       'source': value.last.source
+    //     };
         
-        return data;
-      });       
-    } else if (response.statusCode == 200) {
+    //     return data;
+    //   });       
+    // } else 
+    if (response.statusCode == 200) {
       List<dynamic> data = (json.decode(response.body)) as List;
       
       return data.last; 

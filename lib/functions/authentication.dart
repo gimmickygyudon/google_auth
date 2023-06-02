@@ -14,6 +14,7 @@ class Authentication {
     User? user = FirebaseAuth.instance.currentUser;
     
     // TODO: DO THIS LATER
+    // ignore: use_build_context_synchronously
     Authentication.signOut(context: context, pushLogout: () {});
     // if (user != null) {
     //   void pushLogin_() {
@@ -26,6 +27,10 @@ class Authentication {
     // }
 
     return firebaseApp;
+  }
+
+  static void initializeUser() {
+    // TODO: DO THIS FIRST
   }
 
   static void pushLogin(BuildContext context,User? user) {
@@ -42,7 +47,10 @@ class Authentication {
     
     // can't include BuildContext inside async gaps
     void showSnackBar_(content, [bool progress = false]) {
-      showSnackBar(context, progress ? snackBarAuthProgress(context, content) : snackBarAuth(context, content)); 
+      showSnackBar(context, progress 
+        ? snackBarAuthProgress(context, content) 
+        : snackBarAuth(context:  context, content:  content)
+      ); 
     }
 
     void hideSnackBar_() {
@@ -113,9 +121,12 @@ class Authentication {
     final GoogleSignIn googleSignIn = GoogleSignIn();
 
     // can't include BuildContext inside async gaps
-    void showSnackBar_(content, [bool progress = false]) {
-      showSnackBar(context, progress ? snackBarAuthProgress(context, content) : snackBarAuth(context, content)); 
-    }
+    // void showSnackBar_(content, [bool progress = false]) {
+    //   showSnackBar(context, progress 
+    //     ? snackBarAuthProgress(context, content) 
+    //     : snackBarAuth(context: context, content: content)
+    //   ); 
+    // }
 
     try {
       if (!kIsWeb) {
@@ -123,10 +134,10 @@ class Authentication {
       }
       await FirebaseAuth.instance.signOut().whenComplete(() => hideSnackBar(context));
     } catch (e) {
-      showSnackBar_('Error signing out. Try again.');
+      // showSnackBar_('Error signing out. Try again.');
     }
     finally { 
-      hideSnackBar(context);
+      // hideSnackBar(context);
       // TODO: DO THIS LATER
       // pushLogout(); 
       // showSnackBar_('Berhasil Keluar.');

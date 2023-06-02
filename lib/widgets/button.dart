@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../functions/google_signin.dart';
+import '../functions/authentication.dart';
 
 class GoogleSignInButton extends StatefulWidget {
   const GoogleSignInButton({super.key, required this.onPressed, required this.isLoading});
@@ -74,12 +74,14 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
 }
 
 class EmailSignInButton extends StatelessWidget {
-  const EmailSignInButton({super.key});
+  const EmailSignInButton({super.key, required this.onPressed});
+
+  final Function onPressed;
 
   @override
   Widget build(BuildContext context) {
     return OutlinedButton(
-      onPressed: () {},
+      onPressed: () => onPressed(),
       style: ButtonStyle(
         side: MaterialStatePropertyAll(BorderSide(color: Theme.of(context).colorScheme.outline.withOpacity(0.5))),
         shape: MaterialStateProperty.all(

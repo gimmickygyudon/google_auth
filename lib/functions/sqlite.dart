@@ -190,7 +190,7 @@ class UserRegister {
 
   static Future<Map> insert(UserRegister user) async {
     var userMap = user.toMap();
-    userMap['user_password'] = userMap['user_password'] = md5.convert(utf8.encode(user.user_password)).toString();
+    userMap['user_password'] = md5.convert(utf8.encode(user.user_password)).toString();
 
     print(userMap);
     
