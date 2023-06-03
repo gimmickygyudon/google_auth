@@ -66,7 +66,7 @@ class _RegisterRouteState extends State<RegisterRoute> {
 
   void validate() {
     setState(() {
-      isValidated = InputForm.validate(
+      isValidated = Validate.validate(
         _usernameController.text.trim().isNotEmpty &&
         _emailController.text.trim().isNotEmpty &&
         _phonenumberController.text.trim().isNotEmpty &&
@@ -276,7 +276,7 @@ class _RegisterRouteState extends State<RegisterRoute> {
                                   'photo_url': value.photoURL,
                                 };
                                 debugPrint(source.toString());
-                                InputForm.checkUser(
+                                Validate.checkUser(
                                   context: context,
                                   user: value.email!,
                                   logintype: 'Google',
@@ -288,7 +288,7 @@ class _RegisterRouteState extends State<RegisterRoute> {
                         )
                       : EmailSignInButton(
                         onPressed: () {
-                          InputForm.checkUser(
+                          Validate.checkUser(
                             context: context, 
                             logintype: 'Email', 
                             user: _emailController.text,

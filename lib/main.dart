@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 import 'functions/push.dart';
 import 'routes/start_page.dart';
@@ -45,6 +46,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
+    initializeDateFormatting();
     initUser();
     super.initState();
   }
@@ -52,13 +54,12 @@ class _MyHomePageState extends State<MyHomePage> {
   void initUser() async {
     Authentication.initializeFirebase().whenComplete(() {
       // if (FirebaseAuth.instance.currentUser == null) setState(() => _isLoggedIn = false);
-      // display logo at start loading user
       setState(() => _isLoggedIn = false);
     });
 
     Authentication.initializeUser().then((user) async {
       if (user != null) {
-        Authentication.signIn(user).whenComplete(() => pushDashboard(context, loginWith: user['login_type'], source: user));
+        Authentication.signIn(user as Map<String, dynamic>).whenComplete(() => pushDashboard(context));
       } 
       setState(() => _isLoggedIn = false);
     });

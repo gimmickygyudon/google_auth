@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_auth/functions/push.dart';
 import 'package:google_auth/functions/validate.dart';
+import 'package:google_auth/strings/user.dart';
 import 'package:google_auth/styles/theme.dart';
 import 'package:google_auth/widgets/checkbox.dart';
 import 'package:google_auth/widgets/profile.dart';
@@ -30,9 +31,10 @@ class _LoginRouteState extends State<LoginRoute> {
     visibility = false;
     isValidated = false;
 
-    _usernameController = TextEditingController(
-      text: widget.source?[widget.logintype == 'Email' ? 'user_email' : 'phone_number']
-    );
+    String? username = widget.source?['phone_number'];
+    username ??= widget.source?['user_email'];
+
+    _usernameController = TextEditingController(text: username);
     _passwordController = TextEditingController();
     super.initState();
   }
@@ -46,7 +48,7 @@ class _LoginRouteState extends State<LoginRoute> {
 
   void login(BuildContext context) {
     String logintype() => RegExp(r'^[0-9]+$').hasMatch(_usernameController.text) ? 'Nomor' : 'Email';
-    InputForm.checkUser(
+    Validate.checkUser(
       context: context, 
       logintype: widget.logintype == null ? logintype() : widget.logintype!,
       login: true,
@@ -101,7 +103,7 @@ class _LoginRouteState extends State<LoginRoute> {
                       TextFormField(
                         controller: _usernameController,
                         onChanged: (value) => setState(() {
-                          isValidated = InputForm.validate(
+                          isValidated = Validate.validate(
                             _usernameController.text.trim().isNotEmpty &&
                             _passwordController.text.trim().isNotEmpty
                           );
@@ -122,7 +124,7 @@ class _LoginRouteState extends State<LoginRoute> {
                       TextField(
                         controller: _passwordController,
                         onChanged: (value) => setState(() {
-                          isValidated = InputForm.validate(
+                          isValidated = Validate.validate(
                             _usernameController.text.trim().isNotEmpty &&
                             _passwordController.text.trim().isNotEmpty
                           );

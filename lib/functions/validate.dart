@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
-import 'package:google_auth/functions/authentication.dart';
-import 'package:intl/intl.dart';
 
+import 'package:google_auth/functions/authentication.dart';
 import 'package:google_auth/widgets/snackbar.dart';
+import '../strings/user.dart';
 import '../widgets/dialog.dart';
 import 'push.dart';
 import 'sqlite.dart';
 
-class InputForm {
+class Validate {
 
   static bool validate(bool condition) {
     bool isValidated = false;
@@ -44,34 +44,37 @@ class InputForm {
     bool? skipDialog, bool? login,
     String? password
   }) {
+
+    void pushDashboard_({required Map source}) {
+      pushDashboard(context);
+    }
+
+    String? photourl; 
+    if(source != null) photourl = source.containsKey('photo_url') ? source['photo_url'] : null;
+
+    // TODO: retrieve still using local database
     UserRegister.retrieve(user).then((item) async {
-      void pushDashboard_({required String logintype, required Map source}) {
-        pushDashboard(context, loginWith: logintype, source: source);
-      }
-
       if (item.isNotEmpty) { 
-        Map<String, dynamic> source_ = {
-          'user_email': item.last.user_email,
-          'user_name': item.last.user_name,
-          'phone_number': item.last.phone_number
-        };
-        // TODO: quick fix later
-        if (source != null) if (source.containsKey('photo_url')) source_.addAll({'photo_url': source['photo_url']});
-
         if (login == true) {
-          if (await InputForm.checkPassword(context, user: user, password: password!)) {
-            // TODO: make currentUser global variable
-            Map<String, dynamic> currentUser = {
-              'id_olog': null,
-              'date_time': DateFormat('y-MM-d H:m:ss').format(DateTime.now()),
-              'form_sender': logintype,
-              'remarks': source_['user_name'],
-              'source': source_['user_email']
-            };
-            Authentication.signIn(source_).whenComplete(() => pushDashboard_(logintype: logintype, source: source_));
+          if (await Validate.checkPassword(context, user: user, password: password!)) {
+            currentUser = currentUserFormat(
+              id_ousr: item.last.id_ousr, 
+              login_type: logintype, 
+              user_email: item.last.user_email, 
+              user_name: item.last.user_name, 
+              phone_number: item.last.phone_number, 
+              user_password: item.last.user_password
+            );
+            Authentication.signIn(currentUser).whenComplete(() => pushDashboard_(source: currentUser));
           }
         } else {
-          pushLogin(context, source: source_, logintype: logintype);
+          Map<String, dynamic> source = {
+            'user_name': item.last.user_name,
+            'user_email': item.last.user_email,
+            'phone_number': item.last.phone_number,
+          };
+          if (photourl != null) source.addAll({'photo_url': photourl});
+          pushLogin(context, source: source, logintype: logintype);
         }
 
       } else {

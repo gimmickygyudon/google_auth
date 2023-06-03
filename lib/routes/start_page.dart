@@ -85,11 +85,11 @@ class _StartPageRouteState extends State<StartPageRoute> {
                         controller: _phonenumberController,
                         onChanged: (value) {
                           setState(() {
-                            isValidated = InputForm.validate(_phonenumberController.text.trim().isNotEmpty);
+                            isValidated = Validate.validate(_phonenumberController.text.trim().isNotEmpty);
                           });
                         },
                         onSubmitted: isValidated ? (value) {
-                          InputForm.checkUser(
+                          Validate.checkUser(
                             context: context,
                             user: value,
                             logintype: 'Nomor'
@@ -108,7 +108,7 @@ class _StartPageRouteState extends State<StartPageRoute> {
                       const SizedBox(height: 12),
                       ElevatedButton(
                         onPressed: isValidated ? () {
-                          InputForm.checkUser(
+                          Validate.checkUser(
                             context: context,
                             user: _phonenumberController.text,
                             logintype: 'Nomor'
@@ -164,8 +164,7 @@ class _StartPageRouteState extends State<StartPageRoute> {
                         'user_name': value.displayName,
                         'photo_url': value.photoURL,
                       };
-                      debugPrint(source.toString());
-                      InputForm.checkUser(
+                      Validate.checkUser(
                         context: context,
                         user: value.email!,
                         logintype: 'Google',

@@ -4,8 +4,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import 'package:google_sign_in/google_sign_in.dart';
+
+import 'package:google_auth/strings/user.dart';
 
 class Authentication {
   static Future<FirebaseApp> initializeFirebase() async {
@@ -29,15 +30,23 @@ class Authentication {
 
     if (loginSession != '{}' && loginSession != null) {      
       jsonData = jsonDecode(loginSession);
+      
+      currentUser = currentUserFormat(
+        id_ousr: jsonData?['id_ousr'], 
+        login_type: jsonData?['login_type'], 
+        user_email: jsonData?['user_email'], 
+        user_name: jsonData?['user_name'], 
+        phone_number: jsonData?['phone_number'], 
+        user_password: jsonData?['user_password']
+      );
     }
-    
-    print('Login Session: $jsonData');
     return jsonData;
   }
 
-  static Future<void> signIn(Map source) async {
+  static Future<void> signIn(Map<String, dynamic> source) async {
     final prefs = await SharedPreferences.getInstance();
     prefs.setString('Login Session', jsonEncode(source));
+    currentUser = source;
     debugPrint('Login Session: $source');
   }
 
@@ -50,6 +59,7 @@ class Authentication {
     });
 
     prefs.remove('Login Session');
+    currentUser.clear();
     debugPrint('Sign Out Session Deleted');
   }
 
