@@ -7,11 +7,9 @@ import 'package:google_auth/widgets/checkbox.dart';
 import 'package:google_auth/widgets/dialog.dart';
 import 'package:google_auth/widgets/profile.dart';
 
-import '../functions/authentication.dart';
 import '../functions/push.dart';
 import '../styles/theme.dart';
 import '../widgets/button.dart';
-import '../widgets/snackbar.dart';
 
 class RegisterRoute extends StatefulWidget {
   const RegisterRoute({super.key, this.value, required this.logintype, this.source});
@@ -186,6 +184,7 @@ class _RegisterRouteState extends State<RegisterRoute> {
                               context: context,
                               placeholder: 'No. Handphone',
                               icon: const Icon(Icons.phone),
+                              isPhone: true,
                               condition: _phonenumberController.text.trim().isNotEmpty
                             ),
                             keyboardType: TextInputType.phone,
@@ -259,44 +258,12 @@ class _RegisterRouteState extends State<RegisterRoute> {
                         const Expanded(child: Divider(indent: 12)),
                     ]),
                     const SizedBox(height: 42),
-                    widget.logintype != 'Google'
-                      ? GoogleSignInButton(
-                          isLoading: loggingIn,
-                          onPressed: () async {
-                            hideSnackBar(context);
-                            setState(() => loggingIn = true);
-                            await Authentication.signInWithGoogle().then((value) {
-                              if (value == null) {
-                                setState(() => loggingIn = false);
-                              } else {
-                                setState(() => loggingIn = false);
-                                Map<String, dynamic> source = {
-                                  'user_email': value.email,
-                                  'user_name': value.displayName,
-                                  'photo_url': value.photoURL,
-                                };
-                                debugPrint(source.toString());
-                                Validate.checkUser(
-                                  context: context,
-                                  user: value.email!,
-                                  logintype: 'Google',
-                                  source: source
-                                );
-                              }
-                            });
-                          }
-                        )
-                      : EmailSignInButton(
-                        onPressed: () {
-                          Validate.checkUser(
-                            context: context, 
-                            logintype: 'Email', 
-                            user: _emailController.text,
-                            source: widget.source,
-                            skipDialog: true
-                          );
-                        },
-                      )
+                    LoginsButton(
+                      logintype: widget.logintype, 
+                      loggingIn: loggingIn, 
+                      source: widget.source, 
+                      usernameController: _emailController
+                    )
                   ],
                 ),
               ),

@@ -1,8 +1,9 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_auth/functions/push.dart';
 import 'package:google_auth/functions/validate.dart';
-import 'package:google_auth/strings/user.dart';
 import 'package:google_auth/styles/theme.dart';
 import 'package:google_auth/widgets/checkbox.dart';
 import 'package:google_auth/widgets/profile.dart';
@@ -46,8 +47,8 @@ class _LoginRouteState extends State<LoginRoute> {
     super.dispose();
   }
 
+  String logintype() => RegExp(r'^[0-9]+$').hasMatch(_usernameController.text) ? 'Nomor' : 'Email';
   void login(BuildContext context) {
-    String logintype() => RegExp(r'^[0-9]+$').hasMatch(_usernameController.text) ? 'Nomor' : 'Email';
     Validate.checkUser(
       context: context, 
       logintype: widget.logintype == null ? logintype() : widget.logintype!,
@@ -62,8 +63,9 @@ class _LoginRouteState extends State<LoginRoute> {
     return Scaffold(
       appBar: AppBar(
         systemOverlayStyle: SystemUiOverlayStyle.dark,
-        shadowColor: Theme.of(context).colorScheme.shadow,
         surfaceTintColor: Colors.transparent,
+        toolbarHeight: 0,
+        scrolledUnderElevation: 0,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
             bottomLeft: Radius.circular(12),
@@ -78,6 +80,7 @@ class _LoginRouteState extends State<LoginRoute> {
             children: [
               Column(
                 children: [
+                  const SizedBox(height: kToolbarHeight),
                   const Image(image: AssetImage('assets/Logo Indostar.png')),
                   const SizedBox(height: 12),
                   Text('Mulailah mengelola bisnis anda dengan aman dan cepat.',
@@ -115,6 +118,7 @@ class _LoginRouteState extends State<LoginRoute> {
                         decoration: Styles.inputDecorationForm(
                           context: context,
                           placeholder: 'Email / No. HP',
+                          isPhone: logintype() == 'Nomor' ? true : false,
                           icon: const Icon(Icons.person),
                           condition: _usernameController.text.trim().isNotEmpty
                         ),
@@ -169,30 +173,28 @@ class _LoginRouteState extends State<LoginRoute> {
                   );
                 }),
               ),
-              const SizedBox(height: 32),
-              Row(
-                children: [
-                  const Expanded(child: Divider(endIndent: 8)),
-                  Text('Lanjutkan dengan',
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: Theme.of(context).colorScheme.outline,
-                      fontWeight: FontWeight.w400
-                    )
-                  ),
-                  const Expanded(child: Divider(indent: 8)),
-                ]
-              ),
-              const SizedBox(height: 42),
-              GoogleSignInButton(
-                isLoading: loggingIn,
-                onPressed: () async {
-                  hideSnackBar(context);
-                  setState(() => loggingIn = true);
-                  await Authentication.signInWithGoogle().then((value) {
-                    if (value == null) setState(() => loggingIn = false);
-                  });
-                }
-              )
+              if (widget.logintype != 'Google') ...[
+                const SizedBox(height: 32),
+                Row(
+                  children: [
+                    const Expanded(child: Divider(endIndent: 8)),
+                    Text('Lanjutkan dengan',
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: Theme.of(context).colorScheme.outline,
+                        fontWeight: FontWeight.w400
+                      )
+                    ),
+                    const Expanded(child: Divider(indent: 8)),
+                  ]
+                ),
+                const SizedBox(height: 42),
+                LoginsButton(
+                  logintype: widget.logintype, 
+                  loggingIn: loggingIn, 
+                  source: widget.source, 
+                  usernameController: _usernameController
+                )
+              ]
             ],
           ),
         ),

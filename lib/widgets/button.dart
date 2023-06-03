@@ -1,6 +1,78 @@
 import 'package:flutter/material.dart';
 
 import '../functions/authentication.dart';
+import '../functions/validate.dart';
+import 'snackbar.dart';
+
+class LoginsButton extends StatefulWidget {
+  const LoginsButton({
+    super.key, 
+    required this.logintype, 
+    required this.loggingIn, 
+    required this.source, 
+    required this.usernameController
+  });
+  
+  final String? logintype;
+  final bool loggingIn;
+  final Map? source;
+  final TextEditingController usernameController;
+
+  @override
+  State<LoginsButton> createState() => _LoginsButtonState();
+}
+
+class _LoginsButtonState extends State<LoginsButton> {
+  late bool loggingIn;
+
+  @override
+  void initState() {
+    loggingIn = widget.loggingIn;
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.logintype != 'Google'
+    ? GoogleSignInButton(
+        isLoading: widget.loggingIn,
+        onPressed: () async {
+          hideSnackBar(context);
+          setState(() => loggingIn = true);
+          await Authentication.signInWithGoogle().then((value) {
+            if (value == null) {
+              setState(() => loggingIn = false);
+            } else {
+              setState(() => loggingIn = false);
+              Map<String, dynamic> source = {
+                'user_email': value.email,
+                'user_name': value.displayName,
+                'photo_url': value.photoURL,
+              };
+              debugPrint(source.toString());
+              Validate.checkUser(
+                context: context,
+                user: value.email!,
+                logintype: 'Google',
+                source: source
+              );
+            }
+          });
+        }
+      )
+    : EmailSignInButton(
+      onPressed: () {
+        Validate.checkUser(
+          context: context, 
+          logintype: 'Email', 
+          user: widget.usernameController.text,
+          source: widget.source,
+          skipDialog: true
+        );
+      },
+    );
+  }
+}
 
 class GoogleSignInButton extends StatefulWidget {
   const GoogleSignInButton({super.key, required this.onPressed, required this.isLoading});

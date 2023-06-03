@@ -64,13 +64,25 @@ class Styles {
       required bool condition,
       Icon? icon,
       bool? visibility,
-      bool? visibilityDisabled
+      bool? visibilityDisabled,
+      bool? isPhone,
     }) {
       bool? visibility_ = visibility;
       if (visibilityDisabled == true) visibility_ = false;
       return InputDecoration(
         labelText: placeholder,
-        prefixIcon: icon,
+        prefixIcon: isPhone == true ? Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(left: 16, top: 2),
+              child: Image.asset('assets/Flag_of_Indonesia.svg.png', width: 24),
+            ),
+            const SizedBox(width: 12),
+            Text('+62', style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 2)),
+            const SizedBox(width: 8),
+          ],
+        ) : icon,
         suffixIcon: visibility_ != null
           ? visibility_
             ? const Icon(Icons.visibility_outlined)

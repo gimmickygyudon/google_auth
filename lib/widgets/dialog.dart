@@ -152,6 +152,7 @@ class _DialogUnRegisteredUserState extends State<DialogUnRegisteredUser> {
             decoration: Styles.inputDecorationForm(
               context: context, 
               icon: Icon(widget.from == 'Nomor' ? Icons.phone : Icons.email_outlined),
+              isPhone: widget.from == 'Nomor' ? true : false,
               placeholder: '', 
               condition: false
             ),

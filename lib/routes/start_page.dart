@@ -40,6 +40,7 @@ class _StartPageRouteState extends State<StartPageRoute> {
       child: Scaffold(
         appBar: AppBar(
           toolbarHeight: 0,
+          scrolledUnderElevation: 0,
           shadowColor: Theme.of(context).colorScheme.shadow,
           surfaceTintColor: Colors.transparent,
           shape: const RoundedRectangleBorder(
@@ -101,6 +102,7 @@ class _StartPageRouteState extends State<StartPageRoute> {
                           context: context,
                           placeholder: 'Nomor HP',
                           icon: const Icon(Icons.phone),
+                          isPhone: true,
                           condition: _phonenumberController.text.trim().isNotEmpty
                         ),
                         keyboardType: TextInputType.phone,
