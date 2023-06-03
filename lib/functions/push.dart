@@ -21,6 +21,10 @@ void pushLogin(BuildContext context, { Map? source, String? logintype }) {
   }));
 }
 
+void pushLogout(BuildContext context) {
+  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginRoute()));
+}
+
 void pushRegister(BuildContext context, String logintype, [String? value, Map? source]) {
   Navigator.push(context, MaterialPageRoute(builder: (context) {
     return RegisterRoute(

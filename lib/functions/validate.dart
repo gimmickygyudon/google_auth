@@ -9,10 +9,6 @@ import 'sqlite.dart';
 
 class InputForm {
 
-  static void signin(BuildContext context, {required String logintype, required Map source}) {
-    pushDashboard(context, loginWith: logintype, source: source);
-  }
-
   static bool validate(bool condition) {
     bool isValidated = false;
     if (condition) {
@@ -30,6 +26,7 @@ class InputForm {
       if (passwordMD5 == item.last.user_password) {
         return true;
       } else {
+        hideSnackBar(context);
         showSnackBar(context, snackBarAuth(context: context, content: string));
         return false;
       }
@@ -42,27 +39,31 @@ class InputForm {
     Map? source, 
     required String logintype,
     required String user,
-    bool? skipDialog, bool? login, String? photo,
+    bool? skipDialog, bool? login,
     String? password
   }) {
     UserRegister.retrieve(user).then((item) async {
+      void pushDashboard_({required String logintype, required Map source}) {
+        pushDashboard(context, loginWith: logintype, source: source);
+      }
+
       if (item.isNotEmpty) { 
-        Map<String, dynamic> source = {
+        Map<String, dynamic> source_ = {
           'user_email': item.last.user_email,
           'user_name': item.last.user_name,
           'phone_number': item.last.phone_number
         };
-        if (photo != null) {
-          Map<String, dynamic> photourl = { 'photo_url': photo };
-          source.addAll(photourl);
-        }
-        if (login == true ) {
+        // TODO: quick fix later
+        if (source != null) if (source.containsKey('photo_url')) source_.addAll({'photo_url': source['photo_url']});
+
+        if (login == true) {
           if (await InputForm.checkPassword(context, user: user, password: password!)) {
-            signin(context, logintype: logintype, source: source);
+            pushDashboard_(logintype: logintype, source: source_);
           }
         } else {
-          pushLogin(context, source: source, logintype: logintype);
+          pushLogin(context, source: source_, logintype: logintype);
         }
+
       } else {
         void showRegister(Function callback, String from) {
           showUnRegisteredUser(context, 

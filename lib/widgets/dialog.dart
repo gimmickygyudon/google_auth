@@ -11,7 +11,7 @@ Future<void> showRegisteredUser(BuildContext context, {
   return showDialog(
     context: context, 
     builder: (BuildContext context) {
-      return DialogRegisteredUser(source: source, callback: callback, from: from,);
+      return DialogRegisteredUser(source: source, callback: callback, from: from);
     }
   );
 }
@@ -97,6 +97,20 @@ class DialogUnRegisteredUser extends StatefulWidget {
 }
 
 class _DialogUnRegisteredUserState extends State<DialogUnRegisteredUser> {
+  late FocusNode _focusNode;
+
+  @override
+  void initState() {
+    _focusNode = FocusNode(canRequestFocus: false);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -132,8 +146,8 @@ class _DialogUnRegisteredUserState extends State<DialogUnRegisteredUser> {
         children: [
           const SizedBox(height: 20),
           TextFormField(
-            canRequestFocus: false,
             readOnly: true,
+            focusNode: _focusNode,
             initialValue: widget.value,
             decoration: Styles.inputDecorationForm(
               context: context, 

@@ -1,11 +1,10 @@
 // ignore_for_file: non_constant_identifier_names
 
 // import 'package:mysql1/mysql1.dart';
-import 'package:google_auth/functions/sqlite.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-class MySQL {
+class SQL {
 
   static Future<Map> insert(Map<String, dynamic> item, String api) async {
     item['id_$api'] = null;
@@ -67,22 +66,9 @@ class MySQL {
     Map data = {};
 
     final response = await http.get(url, headers: requestHeaders);
-    // if (response.statusCode == 404) {
-    //   data = await UserLog.retrieve(source).then((value) {
-    //     data = {
-    //       'id_olog': value.last.id_olog,
-    //       'date_time': value.last.date_time,
-    //       'form_sender': value.last.form_sender,
-    //       'remarks': value.last.remarks,
-    //       'source': value.last.source
-    //     };
-        
-    //     return data;
-    //   });       
-    // } else 
+
     if (response.statusCode == 200) {
       List<dynamic> data = (json.decode(response.body)) as List;
-      
       return data.last; 
     }
 

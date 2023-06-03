@@ -10,6 +10,7 @@ void hideSnackBar(BuildContext context) {
 
 SnackBar snackBarAuth({required BuildContext context, required String content}) {
   return SnackBar(
+    action: SnackBarAction(label: 'OK', onPressed: () => hideSnackBar(context)),
     padding: const EdgeInsets.fromLTRB(0, 0, 0, 6),
     backgroundColor: Theme.of(context).colorScheme.inverseSurface,
     content: Padding(

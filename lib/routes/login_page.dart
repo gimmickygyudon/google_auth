@@ -186,7 +186,7 @@ class _LoginRouteState extends State<LoginRoute> {
                 onPressed: () async {
                   hideSnackBar(context);
                   setState(() => loggingIn = true);
-                  await Authentication.signInWithGoogle(context: context).then((value) {
+                  await Authentication.signInWithGoogle().then((value) {
                     if (value == null) setState(() => loggingIn = false);
                   });
                 }

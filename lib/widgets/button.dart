@@ -17,7 +17,7 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: Authentication.initializeFirebase(context: context),
+      future: Authentication.initializeFirebase(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return const Text('Error initializing Firebase | Check your internet connectivity');

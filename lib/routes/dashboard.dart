@@ -1,12 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:google_auth/functions/mysql_client.dart';
-import 'package:google_auth/widgets/image.dart';
 import 'package:intl/intl.dart';
 
+import 'package:google_auth/functions/sql_client.dart';
+import 'package:google_auth/functions/push.dart';
+import 'package:google_auth/widgets/image.dart';
 import '../functions/authentication.dart';
 import '../functions/sqlite.dart';
-import '../routes/login_page.dart';
 import '../widgets/snackbar.dart';
 
 class DashboardRoute extends StatefulWidget {
@@ -28,8 +28,9 @@ class _DashboardRouteState extends State<DashboardRoute> {
   void initState() {
     logDateStamp = DateFormat('kk:mm y/M/d').format(DateTime.now());
     logDateSqlStamp = DateFormat('y-MM-d H:m:ss').format(DateTime.now());
-    
+ 
     if (widget.source == null) {
+    // TODO: deprecated condition
       currentUser = {
         'email': widget.user?.email,
         'name': widget.user?.displayName,
@@ -46,17 +47,29 @@ class _DashboardRouteState extends State<DashboardRoute> {
       };
     }
     UserLog.log_user(currentUser['email'], currentUser);
+    initloginSession();
     super.initState();
   }
 
-  void pushLogout() {
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const LoginRoute()));
+  void initloginSession() {
+    UserRegister.retrieve(currentUser['email']).then((value) async {
+      Map<String, dynamic> item = {
+        'id_ousr': (value.last.id_ousr! + 1),
+        'login_type': value.last.login_type,
+        'user_email': value.last.user_email,
+        'user_name': value.last.user_name,
+        'phone_number': value.last.phone_number,
+        'user_password': value.last.user_password
+      };
+      if(widget.source != null) if(widget.source!.containsKey('photo_url')) item.addAll({'photo_url': widget.source?['photo_url']});
+      Authentication.signIn(item);
+    });
   }
 
   // TODO: MOVE THIS SOMEWHERE
   void insertOLOG() {
     UserLog.retrieve(currentUser['email']).then((value) async {
-      MySQL.retrieve(value.last.source, 'olog').then((value) {
+      SQL.retrieve(value.last.source, 'olog').then((value) {
         Map<String, dynamic> item = {
           'id_olog': value['id_olog'] + 1,
           'date_time': DateFormat('y-MM-d H:m:ss').format(DateTime.now()),
@@ -64,7 +77,7 @@ class _DashboardRouteState extends State<DashboardRoute> {
           'remarks': value['remarks'],
           'source': value['source']
         };
-        MySQL.insert(item, 'olog');
+        SQL.insert(item, 'olog');
       });
     }); 
   }
@@ -79,7 +92,7 @@ class _DashboardRouteState extends State<DashboardRoute> {
         'phone_number': value.last.phone_number,
         'user_password': value.last.user_password
       };
-      MySQL.insert(item, 'ousr'); 
+      SQL.insert(item, 'ousr');
     });
   }
 
@@ -91,7 +104,7 @@ class _DashboardRouteState extends State<DashboardRoute> {
           padding: EdgeInsets.zero,
           children: [
             UserAccountsDrawerHeader(
-              currentAccountPicture: PhotoProfile(photo: currentUser['photo'], size: 58, color: Theme.of(context).colorScheme.surface),
+              currentAccountPicture: PhotoProfile(photo: widget.source?['photo_url'], size: 58, color: Theme.of(context).colorScheme.surface),
               currentAccountPictureSize: const Size(58, 58),
               accountName: Text(currentUser['name'], style: TextStyle(color: Theme.of(context).colorScheme.surface)),
               accountEmail: Text(currentUser['email'], style: TextStyle(color: Theme.of(context).colorScheme.surfaceVariant,fontSize: 12))
@@ -152,11 +165,8 @@ class _DashboardRouteState extends State<DashboardRoute> {
               ),
               const PopupMenuItem(enabled: false, height: 0, child: PopupMenuDivider()),
               PopupMenuItem(
-                onTap: () async {
-                  hideSnackBar(context);
-                  await Authentication.signOut(context: context, pushLogout: pushLogout);
-                  // TODO: remove later
-                  pushLogout();
+                onTap: () {
+                  Authentication.signOut().whenComplete(() => pushLogout(context));
                 },
                 child: const ListTile(
                   dense: true,
@@ -190,7 +200,7 @@ class _DashboardRouteState extends State<DashboardRoute> {
                       // UserLog.retrieve(currentUser['email']).then((value) {
                       //   (MySQL.retrieve(value.last.source)).then((value) => print(value));
                       // });
-                      MySQL.retrieve(currentUser['email'], 'ousr').then((value) => print(value));
+                      SQL.retrieve(currentUser['email'], 'ousr').then((value) => print(value));
                     },
                     child: const Text('Retrieve')
                   ),

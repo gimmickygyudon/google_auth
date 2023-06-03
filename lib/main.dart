@@ -1,8 +1,8 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'functions/push.dart';
 import 'routes/start_page.dart';
 import 'functions/authentication.dart';
 
@@ -45,15 +45,21 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   void initState() {
-    initFirebaseApp();
+    initUser();
     super.initState();
   }
 
-  void initFirebaseApp() async {
-    firebaseApp = await Authentication.initializeFirebase(context: context).whenComplete(() {
-      if (FirebaseAuth.instance.currentUser == null) setState(() => _isLoggedIn = false);
+  void initUser() async {
+    Authentication.initializeFirebase().whenComplete(() {
+      // if (FirebaseAuth.instance.currentUser == null) setState(() => _isLoggedIn = false);
+      // display logo at start loading user
+      setState(() => _isLoggedIn = false);
+    });
 
-      // TODO: disable auto login for debug
+    Authentication.initializeUser().then((user) async {
+      if (user != null) {
+        Authentication.signIn(user).whenComplete(() => pushDashboard(context, loginWith: user['login_type'], source: user));
+      } 
       setState(() => _isLoggedIn = false);
     });
   }

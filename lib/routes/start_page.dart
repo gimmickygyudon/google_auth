@@ -154,7 +154,7 @@ class _StartPageRouteState extends State<StartPageRoute> {
                 onPressed: () async {
                   hideSnackBar(context);
                   setState(() => loggingIn = true);
-                  await Authentication.signInWithGoogle(context: context).then((value) {
+                  await Authentication.signInWithGoogle().then((value) {
                     if (value == null) {
                       setState(() => loggingIn = false);
                     } else {
@@ -164,13 +164,12 @@ class _StartPageRouteState extends State<StartPageRoute> {
                         'user_name': value.displayName,
                         'photo_url': value.photoURL,
                       };
-                      print(source);
+                      debugPrint(source.toString());
                       InputForm.checkUser(
                         context: context,
                         user: value.email!,
                         logintype: 'Google',
                         source: source,
-                        photo: value.photoURL
                       );
                     }
                   });
