@@ -24,7 +24,12 @@ class Authentication {
 
   static Future<Map?> initializeUser() async {
     final prefs = await SharedPreferences.getInstance();
-    var jsonData = jsonDecode(prefs.getString('Login Session') ?? '{}');
+    String? loginSession = prefs.getString('Login Session');
+    Map? jsonData;
+
+    if (loginSession != '{}' && loginSession != null) {      
+      jsonData = jsonDecode(loginSession);
+    }
     
     print('Login Session: $jsonData');
     return jsonData;

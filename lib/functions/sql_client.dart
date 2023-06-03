@@ -1,6 +1,4 @@
-// ignore_for_file: non_constant_identifier_names
 
-// import 'package:mysql1/mysql1.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -9,7 +7,7 @@ class SQL {
   static Future<Map> insert(Map<String, dynamic> item, String api) async {
     item['id_$api'] = null;
 
-    print(jsonEncode(item));
+    print('sql_client(insert): ${jsonEncode(item)}');
     final response = await http.post(
       Uri.parse('http://192.168.1.19:8080/api/$api'),
       headers: <String, String>{
@@ -18,7 +16,6 @@ class SQL {
       body: jsonEncode(item),
     );
 
-    print(response.statusCode);
     if (response.statusCode == 201) {
       // If the server did return a 201 CREATED response,
       // then parse the JSON.MySQL.fromJson(

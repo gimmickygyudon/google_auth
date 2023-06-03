@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:google_auth/widgets/snackbar.dart';
 import 'dart:convert';
 import 'package:crypto/crypto.dart';
+import 'package:google_auth/functions/authentication.dart';
+import 'package:intl/intl.dart';
 
+import 'package:google_auth/widgets/snackbar.dart';
 import '../widgets/dialog.dart';
 import 'push.dart';
 import 'sqlite.dart';
@@ -58,7 +60,15 @@ class InputForm {
 
         if (login == true) {
           if (await InputForm.checkPassword(context, user: user, password: password!)) {
-            pushDashboard_(logintype: logintype, source: source_);
+            // TODO: make currentUser global variable
+            Map<String, dynamic> currentUser = {
+              'id_olog': null,
+              'date_time': DateFormat('y-MM-d H:m:ss').format(DateTime.now()),
+              'form_sender': logintype,
+              'remarks': source_['user_name'],
+              'source': source_['user_email']
+            };
+            Authentication.signIn(source_).whenComplete(() => pushDashboard_(logintype: logintype, source: source_));
           }
         } else {
           pushLogin(context, source: source_, logintype: logintype);

@@ -2,11 +2,14 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:email_validator/email_validator.dart';
 import 'package:path/path.dart';
 import 'package:crypto/crypto.dart';
 import 'package:sqflite/sqflite.dart';
+
+import 'sql_client.dart';
 
 class UserLog {
   final int? id_olog;
@@ -38,14 +41,14 @@ class UserLog {
 
   static Future<Database> initializeDatabase() async {
     var databasesPath = await getDatabasesPath();
-    print(databasesPath);
+    // print('sqlite(initializeDatabase): $databasesPath');
     String path = join(databasesPath, 'olog.db');
     Database database;
 
     // Check if the database exists
     bool exists = await databaseExists(path);
 
-    if (exists) print('file exists');
+    // if (exists) print('sqlite(initializeDatabase): file exists');
     database = await openDatabase(
       join(await getDatabasesPath(), 'olog.db'),
       singleInstance: true,
@@ -77,20 +80,22 @@ class UserLog {
     if (source != null) {
       return maps.where((element) => element['source'] == source).map((item) {
         return UserLog(
-            id_olog: item['id_olog'],
-            date_time: item['date_time'],
-            form_sender: item['form_sender'],
-            remarks: item['remarks'],
-            source: item['source']);
+          id_olog: item['id_olog'],
+          date_time: item['date_time'],
+          form_sender: item['form_sender'],
+          remarks: item['remarks'],
+          source: item['source']
+        );
       }).toList();
     } else {
       return List.generate(maps.length, (i) {
         return UserLog(
-            id_olog: maps[i]['id_olog'],
-            date_time: maps[i]['date_time'],
-            form_sender: maps[i]['form_sender'],
-            remarks: maps[i]['remarks'],
-            source: maps[i]['source']);
+          id_olog: maps[i]['id_olog'],
+          date_time: maps[i]['date_time'],
+          form_sender: maps[i]['form_sender'],
+          remarks: maps[i]['remarks'],
+          source: maps[i]['source']
+        );
       });
     }
   }
@@ -116,19 +121,21 @@ class UserLog {
     );
   }
 
-  static void log_user(String email, Map<String, dynamic> currentUser) {
-    UserLog.retrieve(currentUser['email']).then((value) {
-      String? data = value.where((element) => element.source == currentUser['email']).toString().replaceAll('(', '').replaceAll(')', '');
+  static void log_user(String email, Map<String, dynamic> logUser) {
+    UserRegister.retrieve(email).then((value) {
+      print(value);
+      String? data = value.where((element) => element.user_email == logUser['source']).toString().replaceAll('(', '').replaceAll(')', '');
       // check if email already exist.
-      if (data.isEmpty) {
+      if (data.isNotEmpty) {
         UserLog newUser = UserLog(
           id_olog: null,
-          date_time: currentUser['date'],
-          form_sender: currentUser['loginWith'],
-          remarks: currentUser['name'],
-          source: currentUser['email']);
+          date_time: logUser['date_time'],
+          form_sender: logUser['form_sender'],
+          remarks: logUser['remarks'],
+          source: logUser['source']);
         UserLog.insert(newUser);
-        print('input success');
+        SQL.insert(logUser, 'olog');
+        print('current user(log_user): $logUser');
       }
     });
   }
@@ -166,14 +173,14 @@ class UserRegister {
 
   static Future<Database> initializeDatabase() async {
     var databasesPath = await getDatabasesPath();
-    print(databasesPath);
+    // print('sqlite(initializeDatabase): $databasesPath');
     String path = join(databasesPath, 'ousr.db');
     Database database;
 
     // Check if the database exists
     bool exists = await databaseExists(path);
 
-    if (exists) print('file exists');
+    // if (exists) print('sqlite(initializeDatabase): file exists');
     database = await openDatabase(
       join(await getDatabasesPath(), 'ousr.db'),
       singleInstance: true,
@@ -192,7 +199,7 @@ class UserRegister {
     var userMap = user.toMap();
     userMap['user_password'] = md5.convert(utf8.encode(user.user_password)).toString();
 
-    print(userMap);
+    print('sqlite(insert): $userMap');
     
     await UserRegister.initializeDatabase().then((db) async {
       db.insert(
@@ -215,7 +222,7 @@ class UserRegister {
       String item = isEmail ? 'user_email' : 'phone_number';
 
       return maps.where((element) => element[item] == source).map((value) {
-        print(value);
+        // print('sqlite(retrieve): $value');
         return UserRegister(
           id_ousr: value['id_ousr'], 
           login_type: value['login_type'],
@@ -227,7 +234,7 @@ class UserRegister {
       }).toList();
     } else {
       return List.generate(maps.length, (i) {
-        print(maps[i]);
+        print('sqlite(retrieve): ${maps[i]}');
         return UserRegister(
           id_ousr: maps[i]['id_ousr'], 
           login_type: maps[i]['login_type'],
