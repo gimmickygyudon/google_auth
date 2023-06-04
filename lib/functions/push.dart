@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_auth/routes/beranda/customer.dart';
 import 'package:google_auth/routes/start_page.dart';
 
 import '../routes/dashboard.dart';
@@ -47,6 +48,14 @@ void pushDashboard(BuildContext context) {
   Navigator.pushReplacement(context, MaterialPageRoute(
     builder: (context) {
       return const DashboardRoute();
+    })
+  ); 
+}
+
+void pushAddCustomer(BuildContext context) {
+  Navigator.push(context, MaterialPageRoute(
+    builder: (context) {
+      return const AddCustomerRoute();
     })
   ); 
 }

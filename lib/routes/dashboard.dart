@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:google_auth/functions/sql_client.dart';
 import 'package:google_auth/routes/beranda/dashboard.dart';
 import 'package:google_auth/widgets/bottomNavigationBar.dart';
-import '../functions/authentication.dart';
-import '../functions/push.dart';
+import 'package:google_auth/widgets/profile.dart';
 import '../functions/sqlite.dart';
 import '../strings/user.dart';
 import '../widgets/image.dart';
@@ -17,12 +16,26 @@ class DashboardRoute extends StatefulWidget {
 }
 
 class _DashboardRouteState extends State<DashboardRoute> {
-  final int currentPage = 0;
+  int currentPage = 4;
+  late PageController _pageController;
 
   @override
   void initState() {
+    _pageController = PageController(initialPage: currentPage);
     logUser();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  void changePage(int page) {
+    setState(() {
+      currentPage = page;     
+    });
   }
 
   void logUser() {
@@ -47,7 +60,7 @@ class _DashboardRouteState extends State<DashboardRoute> {
         'phone_number': value.last.phone_number,
         'user_password': value.last.user_password
       };
-      SQL.insert(item, 'ousr');
+      SQL.insert(item: item, api: 'ousr');
     });
   }
 
@@ -55,7 +68,7 @@ class _DashboardRouteState extends State<DashboardRoute> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBody: true,
-      endDrawer: Drawer(
+      drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
@@ -79,60 +92,57 @@ class _DashboardRouteState extends State<DashboardRoute> {
             bottomRight: Radius.circular(12)
           )
         ),
-        title: Text(currentUser['user_name'], style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Theme.of(context).colorScheme.surface)),
-        leadingWidth: 28,
+        flexibleSpace: FlexibleSpaceBar(
+          background: ClipRRect(
+            borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(12), bottomRight: Radius.circular(12)),
+            child: Container(
+              foregroundDecoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.bottomCenter,
+                  end: Alignment.topCenter,
+                  colors: [
+                    Theme.of(context).colorScheme.primary.withOpacity(0.65),
+                    Theme.of(context).colorScheme.primary,
+                  ]
+                )
+              ),
+              child: Image.asset('assets/dashboard_header.png', fit: BoxFit.cover)
+            )
+          )
+        ),
+        title: Row(
+          children: [
+            IconButton(
+              style: const ButtonStyle(visualDensity: VisualDensity.compact),
+              onPressed: () {}, icon: const Icon(Icons.search), color: Theme.of(context).colorScheme.surface
+            ),
+            const SizedBox(width: 4),
+            Text('Hi, ${currentUser['user_name']}',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.surface)
+            ),
+          ],
+        ),
+        titleSpacing: 12,
         backgroundColor: Theme.of(context).colorScheme.primary,
         actions: [
           IconButton(onPressed: () {}, icon: const Icon(Icons.notifications_none), color: Theme.of(context).colorScheme.surface),
-          PopupMenuButton(
-            padding: EdgeInsets.zero,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                child: ListTile(
-                  dense: true,
-                  contentPadding: EdgeInsets.zero,
-                  leading: PhotoProfile(photo: currentUser['photo'], size: 36),
-                  title: Text(currentUser['user_name'], style: const TextStyle(letterSpacing: 0.5)),
-                  subtitle: Text(currentUser['user_email'],
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.secondary,
-                      fontSize: 10,
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                  trailing: const Icon(Icons.settings_outlined),
-                )
-              ),
-              const PopupMenuItem(enabled: false, height: 0, child: PopupMenuDivider()),
-              PopupMenuItem(
-                onTap: () {
-                  Authentication.signOut().whenComplete(() => pushLogout(context));
-                },
-                child: const ListTile(
-                  dense: true,
-                  contentPadding: EdgeInsets.zero,
-                  leading: Icon(Icons.logout),
-                  title: Text('Logout  /  Keluar')
-                )
-              ),
-              PopupMenuItem(
-                enabled: false,
-                height: 28,
-                child: Text('v1.0.0+1 • Logged in $DateNow', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w400)),
-              )
-            ],
-            child: PhotoProfile(photo: currentUser['photo_url'], size: 32, color: Theme.of(context).colorScheme.surface),
-          ),
+          const SizedBox(width: 6),
+          const ProfileMenu(),
           const SizedBox(width: 12),
         ],
       ),
       body: PageView(
-        children: const [
-          BerandaRoute()
+        controller: _pageController,
+        onPageChanged: (value) => setState(() => changePage(value)),
+        children: [
+          Container(),
+          Container(),
+          Container(),
+          Container(),
+          const BerandaRoute()
         ]
       ),
-      bottomNavigationBar: BottomNavigation(currentPage: currentPage)
+      bottomNavigationBar: BottomNavigation(currentPage: currentPage, pageController: _pageController, changePage: changePage)
     );
   }
 }

@@ -1,21 +1,28 @@
 import 'package:flutter/material.dart';
 
-class BottomNavigation extends StatelessWidget {
-  BottomNavigation({super.key, required this.currentPage});
+class BottomNavigation extends StatefulWidget {
+  const BottomNavigation({super.key, required this.currentPage, required this.pageController, required this.changePage});
   
   final int currentPage;
+  final PageController pageController;
+  final Function changePage;
 
+  @override
+  State<BottomNavigation> createState() => _BottomNavigationState();
+}
+
+class _BottomNavigationState extends State<BottomNavigation> {
   // TODO: move somewhere
   final List<Map<String, dynamic>> bottomMenu = [
     {
-      'icon': Icons.cottage,
-      'icon_outline': Icons.cottage_outlined,
-      'title': 'Beranda'
+      'icon': Icons.notes,
+      'icon_outline': Icons.notes_rounded,
+      'title': 'Menu'
     },
     {
-      'icon': Icons.shopping_bag,
-      'icon_outline': Icons.shopping_bag_outlined,
-      'title': 'Belanja'
+      'icon': Icons.toll,
+      'icon_outline': Icons.toll_outlined,
+      'title': 'Keluhan'
     },
     {
       'icon': Icons.star,
@@ -23,14 +30,14 @@ class BottomNavigation extends StatelessWidget {
       'title': 'Promo'
     },
     {
-      'icon': Icons.question_mark,
-      'icon_outline': Icons.question_mark,
-      'title': 'Keluhan'
+      'icon': Icons.shopping_bag,
+      'icon_outline': Icons.shopping_bag_outlined,
+      'title': 'Belanja'
     },
     {
-      'icon': Icons.notes,
-      'icon_outline': Icons.notes_rounded,
-      'title': 'Menu'
+      'icon': Icons.cottage,
+      'icon_outline': Icons.cottage_outlined,
+      'title': 'Beranda'
     },
   ];
 
@@ -53,7 +60,7 @@ class BottomNavigation extends StatelessWidget {
         ]
       ),
       child: BottomNavigationBar(
-        currentIndex: currentPage,
+        currentIndex: widget.currentPage,
         showUnselectedLabels: true,
         selectedItemColor: Theme.of(context).colorScheme.primary,
         unselectedItemColor: Theme.of(context).colorScheme.secondary,
@@ -61,8 +68,20 @@ class BottomNavigation extends StatelessWidget {
         unselectedLabelStyle: Theme.of(context).textTheme.bodySmall,
         onTap: (value) {
           switch (value) {
+            case 0:
+              Scaffold.of(context).openDrawer();
+              break;
+            case 1:
+              widget.pageController.animateToPage(1, duration: const Duration(milliseconds: 400), curve: Curves.easeInOut);
+              break;
+            case 2:
+              widget.pageController.animateToPage(2, duration: const Duration(milliseconds: 400), curve: Curves.easeInOut);
+              break;
+            case 3:
+              widget.pageController.animateToPage(3, duration: const Duration(milliseconds: 400), curve: Curves.easeInOut);
+              break;
             case 4:
-              Scaffold.of(context).openEndDrawer();
+              widget.pageController.animateToPage(4, duration: const Duration(milliseconds: 400), curve: Curves.easeInOut);
               break;
             default:
           }
@@ -70,7 +89,7 @@ class BottomNavigation extends StatelessWidget {
         items: [
           for(int i = 0; i < bottomMenu.length; i++)
           BottomNavigationBarItem(
-            icon: Icon(currentPage != i ? bottomMenu[i]['icon_outline'] : bottomMenu[i]['icon']), 
+            icon: Icon(widget.currentPage != i ? bottomMenu[i]['icon_outline'] : bottomMenu[i]['icon']), 
             label: bottomMenu[i]['title']
           )
         ]

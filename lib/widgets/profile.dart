@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../functions/authentication.dart';
+import '../functions/push.dart';
+import '../strings/user.dart';
+import 'image.dart';
+
 class UserProfile extends StatelessWidget {
   const UserProfile({super.key, required this.source});
 
@@ -36,9 +41,56 @@ class UserProfile extends StatelessWidget {
           ],
         ),
         if (source?['photo_url'] != null) const SizedBox(height: 12),
-        Text(source?['user_name'], style: Theme.of(context).textTheme.bodyLarge),
+        Text(source?['user_name'], style: Theme.of(context).textTheme.titleMedium),
         Text(source?['user_email'], style: Theme.of(context).textTheme.bodySmall),
       ],
+    );
+  }
+}
+
+class ProfileMenu extends StatelessWidget {
+  const ProfileMenu({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return PopupMenuButton(
+      padding: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      itemBuilder: (context) => [
+        PopupMenuItem(
+          height: 0,
+          child: ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: PhotoProfile(photo: currentUser['photo'], size: 40),
+            title: Text(currentUser['user_name']),
+            titleTextStyle: Theme.of(context).textTheme.titleSmall,
+            subtitle: Text(currentUser['user_email']),
+            subtitleTextStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: Theme.of(context).colorScheme.secondary,
+              fontSize: 11,
+            ),
+            trailing: const Icon(Icons.settings),
+          )
+        ),
+        const PopupMenuItem(enabled: false, height: 0, child: PopupMenuDivider()),
+        PopupMenuItem(
+          onTap: () {
+            Authentication.signOut().whenComplete(() => pushStart(context));
+          },
+          child: const ListTile(
+            dense: true,
+            contentPadding: EdgeInsets.only(left: 6),
+            leading: Icon(Icons.logout),
+            title: Text('Logout  /  Keluar')
+          )
+        ),
+        PopupMenuItem(
+          enabled: false,
+          height: 28,
+          child: Text('v1.0.0+1 • Logged in $DateNow', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w400)),
+        )
+      ],
+      child: PhotoProfile(photo: currentUser['photo_url'], size: 32, color: Theme.of(context).colorScheme.surface),
     );
   }
 }

@@ -2,6 +2,21 @@ import 'package:flutter/material.dart';
 
 class Themes {
 
+  static AppBarTheme appBarTheme(BuildContext context) {
+    return AppBarTheme(
+      scrolledUnderElevation: 8,
+      shadowColor: Theme.of(context).colorScheme.shadow.withOpacity(0.5),
+      surfaceTintColor: Theme.of(context).colorScheme.inversePrimary,
+      titleTextStyle: Theme.of(context).textTheme.titleMedium,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          bottomLeft: Radius.circular(12),
+          bottomRight: Radius.circular(12)
+        )
+      ),
+    );
+  }
+
   static Widget bottomFloatingBar({required BuildContext context, required Widget child, required bool isVisible, EdgeInsets? padding}) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 6),
@@ -17,29 +32,29 @@ class Themes {
 
   static InputDecorationTheme inputDecorationThemeForm({required BuildContext context}) {
     return InputDecorationTheme(
-        isDense: true,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2)
-        ),
-        filled: true,
-        fillColor: Theme.of(context).hoverColor,
-        labelStyle: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w400,
-          letterSpacing: 0,
-          color: Theme.of(context).colorScheme.secondary
-        ),
-        floatingLabelStyle: TextStyle(
-          fontWeight: FontWeight.w500,
-          letterSpacing: 0,
-          color: Theme.of(context).colorScheme.primary
-        )
+      isDense: true,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2)
+      ),
+      filled: true,
+      fillColor: Theme.of(context).hoverColor,
+      labelStyle: TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w400,
+        letterSpacing: 0,
+        color: Theme.of(context).colorScheme.secondary
+      ),
+      floatingLabelStyle: TextStyle(
+        fontWeight: FontWeight.w500,
+        letterSpacing: 0,
+        color: Theme.of(context).colorScheme.primary
+      )
     );
   }
 }
@@ -107,6 +122,7 @@ class Styles {
             : const Icon(Icons.visibility_off_outlined)
           : null,
         errorMaxLines: 3,
+        fillColor: condition ? Theme.of(context).colorScheme.inversePrimary.withOpacity(0.15) : Theme.of(context).hoverColor,
         errorStyle: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.red, fontSize: 11),
         errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide(color: Theme.of(context).colorScheme.error, width: 2)

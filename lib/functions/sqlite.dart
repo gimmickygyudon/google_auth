@@ -71,7 +71,7 @@ class UserLog {
     );
 
     UserRegister.retrieve(user.source).then((value) {
-      SQL.insert(user.toMap(), 'olog');
+      SQL.insert(item: user.toMap(), api: 'olog');
     });
   }
 

@@ -2,14 +2,19 @@
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+String server = 'http://192.168.1.19:8080';
+
+// Server Lokal
+// String server = 'http://192.168.1.106:8080';
+
 class SQL {
 
-  static Future<Map> insert(Map<String, dynamic> item, String api) async {
+  static Future<Map> insert({required Map<String, dynamic> item, required String api}) async {
     item['id_$api'] = null;
 
     print('sql_client(insert): ${jsonEncode(item)}');
     final response = await http.post(
-      Uri.parse('http://192.168.1.19:8080/api/$api'),
+      Uri.parse('$server/api/$api'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
@@ -32,7 +37,7 @@ class SQL {
       'Content-Type': 'application/json',
     };
 
-    var url = Uri.http('192.168.1.19:8080', '/api/$api');
+    var url = Uri.parse('$server/api/$api');
 
     final response = await http.get(url, headers: requestHeaders);
     if (response.statusCode == 200) {
@@ -50,16 +55,14 @@ class SQL {
     }
   }
 
-  static Future<Map> retrieve(String source, String api) async {
+  static Future<Map> retrieve({required String query, required String value, required String api}) async {
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
     };
 
-    final queryParameters = {
-      'source': source,
-    };
+    String queryParameters = '?$query=$value';
 
-    var url = Uri.http('192.168.1.19:8080', '/api/$api', queryParameters);
+    var url = Uri.parse('$server/api/$api$queryParameters');
     Map data = {};
 
     final response = await http.get(url, headers: requestHeaders);

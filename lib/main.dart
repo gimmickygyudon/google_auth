@@ -1,6 +1,5 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:intl/date_symbol_data_local.dart';
 
 import 'functions/push.dart';
@@ -22,7 +21,7 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'Customer',
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.orange),
           useMaterial3: true,
         ),
         home: const MyHomePage(title: 'Customer'),
@@ -59,6 +58,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     Authentication.initializeUser().then((user) async {
       if (user != null) {
+        // TODO: problem later when user already deleted.
         Authentication.signIn(user as Map<String, dynamic>).whenComplete(() => pushDashboard(context));
       } 
       setState(() => _isLoggedIn = false);
@@ -67,14 +67,11 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return AnnotatedRegion(
-      value: SystemUiOverlayStyle.dark,
-      child: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 800),
-        child: _isLoggedIn 
-        ? Container(color: Theme.of(context).colorScheme.background,child: Center(child: Image.asset('assets/temp_image.png'))) 
-        : const StartPageRoute()
-      ),
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 800),
+      child: _isLoggedIn 
+      ? Scaffold(backgroundColor: Theme.of(context).colorScheme.background, body: Center(child: Image.asset('assets/temp_image.png'))) 
+      : const StartPageRoute()
     );
   }
 }

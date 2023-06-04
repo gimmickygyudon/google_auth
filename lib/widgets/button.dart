@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_auth/functions/push.dart';
 
 import '../functions/authentication.dart';
 import '../functions/validate.dart';
@@ -64,13 +65,7 @@ class _LoginsButtonState extends State<LoginsButton> {
     : EmailSignInButton(
       borderRadius: widget.borderRadius,
       onPressed: () {
-        Validate.checkUser(
-          context: context, 
-          logintype: 'Email', 
-          user: widget.usernameController.text,
-          source: widget.source,
-          skipDialog: true
-        );
+        pushLogin(context, logintype: 'Email');
       },
     );
   }
