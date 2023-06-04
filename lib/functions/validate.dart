@@ -45,9 +45,7 @@ class Validate {
     String? password
   }) {
 
-    void pushDashboard_({required Map source}) {
-      pushDashboard(context);
-    }
+    void pushDashboard_({required Map source}) => pushDashboard(context);
 
     String? photourl; 
     if(source != null) photourl = source.containsKey('photo_url') ? source['photo_url'] : null;
@@ -76,7 +74,6 @@ class Validate {
           if (photourl != null) source.addAll({'photo_url': photourl});
           pushLogin(context, source: source, logintype: logintype);
         }
-
       } else {
         void showRegister(Function callback, String from) {
           showUnRegisteredUser(context, 

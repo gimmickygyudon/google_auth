@@ -8,15 +8,15 @@ class LoginsButton extends StatefulWidget {
   const LoginsButton({
     super.key, 
     required this.logintype, 
-    required this.loggingIn, 
     required this.source, 
-    required this.usernameController
+    required this.usernameController, 
+    this.borderRadius
   });
   
   final String? logintype;
-  final bool loggingIn;
   final Map? source;
   final TextEditingController usernameController;
+  final double? borderRadius;
 
   @override
   State<LoginsButton> createState() => _LoginsButtonState();
@@ -27,7 +27,7 @@ class _LoginsButtonState extends State<LoginsButton> {
 
   @override
   void initState() {
-    loggingIn = widget.loggingIn;
+    loggingIn = false;
     super.initState();
   }
 
@@ -35,7 +35,8 @@ class _LoginsButtonState extends State<LoginsButton> {
   Widget build(BuildContext context) {
     return widget.logintype != 'Google'
     ? GoogleSignInButton(
-        isLoading: widget.loggingIn,
+        borderRadius: widget.borderRadius,
+        isLoading: loggingIn,
         onPressed: () async {
           hideSnackBar(context);
           setState(() => loggingIn = true);
@@ -61,6 +62,7 @@ class _LoginsButtonState extends State<LoginsButton> {
         }
       )
     : EmailSignInButton(
+      borderRadius: widget.borderRadius,
       onPressed: () {
         Validate.checkUser(
           context: context, 
@@ -75,10 +77,11 @@ class _LoginsButtonState extends State<LoginsButton> {
 }
 
 class GoogleSignInButton extends StatefulWidget {
-  const GoogleSignInButton({super.key, required this.onPressed, required this.isLoading});
+  const GoogleSignInButton({super.key, required this.onPressed, required this.isLoading, this.borderRadius});
 
   final Function onPressed;
   final bool isLoading;
+  final double? borderRadius;
 
   @override
   State<GoogleSignInButton> createState() => _GoogleSignInButtonState();
@@ -101,7 +104,7 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
                 side: MaterialStatePropertyAll(BorderSide(color: Theme.of(context).colorScheme.outline.withOpacity(0.5))),
                 shape: MaterialStateProperty.all(
                   RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(40),
+                    borderRadius: BorderRadius.circular(widget.borderRadius ?? 40),
                   ),
                 ),
               ),
@@ -122,7 +125,7 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
                     ),
                     Padding(
                       padding: const EdgeInsets.only(left: 10),
-                      child: Text('Signing in...', style: Theme.of(context).textTheme.labelSmall),
+                      child: Text('Tunggu Sebentar...', style: Theme.of(context).textTheme.labelSmall),
                     )
                   ] 
                   : <Widget>[
@@ -146,9 +149,10 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
 }
 
 class EmailSignInButton extends StatelessWidget {
-  const EmailSignInButton({super.key, required this.onPressed});
+  const EmailSignInButton({super.key, required this.onPressed, this.borderRadius});
 
   final Function onPressed;
+  final double? borderRadius;
 
   @override
   Widget build(BuildContext context) {
@@ -158,7 +162,7 @@ class EmailSignInButton extends StatelessWidget {
         side: MaterialStatePropertyAll(BorderSide(color: Theme.of(context).colorScheme.outline.withOpacity(0.5))),
         shape: MaterialStateProperty.all(
           RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(40),
+            borderRadius: BorderRadius.circular(borderRadius ?? 40),
           ),
         ),
       ),

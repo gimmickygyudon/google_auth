@@ -1,6 +1,20 @@
 import 'package:flutter/material.dart';
 
 class Themes {
+
+  static Widget bottomFloatingBar({required BuildContext context, required Widget child, required bool isVisible, EdgeInsets? padding}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 26, vertical: 6),
+      margin: padding,
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.only(topLeft: Radius.circular(16), topRight: Radius.circular(16)),
+        color: Theme.of(context).colorScheme.background,
+        boxShadow: isVisible == true ? [BoxShadow(spreadRadius: -8, offset: const Offset(0, 0), blurRadius: 8, color: Theme.of(context).shadowColor)] : null
+      ),
+      child: child,
+    );
+  }
+
   static InputDecorationTheme inputDecorationThemeForm({required BuildContext context}) {
     return InputDecorationTheme(
         isDense: true,
@@ -31,6 +45,7 @@ class Themes {
 }
 
 class Styles {
+
   static ButtonStyle buttonForm({required BuildContext context}) {
     return ButtonStyle(
       visualDensity: VisualDensity.standard,
@@ -76,10 +91,13 @@ class Styles {
           children: [
             Padding(
               padding: const EdgeInsets.only(left: 16, top: 2),
-              child: Image.asset('assets/Flag_of_Indonesia.svg.png', width: 24),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: Image.asset('assets/Flag_of_Indonesia.svg.png', width: 24)
+              ),
             ),
             const SizedBox(width: 12),
-            Text('+62', style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 2)),
+            Text('+62', style: Theme.of(context).textTheme.bodyLarge),
             const SizedBox(width: 8),
           ],
         ) : icon,

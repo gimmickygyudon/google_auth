@@ -50,10 +50,16 @@ class _DialogRegisteredUserState extends State<DialogRegisteredUser> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      surfaceTintColor: Colors.transparent,
-      contentPadding: const EdgeInsets.fromLTRB(24, 12, 24, 16),
+      surfaceTintColor: Theme.of(context).colorScheme.inversePrimary,
+      contentPadding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      title: Text('${widget.from} sudah terdaftar sebelumnya', style: Theme.of(context).textTheme.titleMedium),
+      title: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(child: Text('${widget.from} sudah terdaftar sebelumnya', style: Theme.of(context).textTheme.titleMedium)),
+        ],
+      ),
       actions: [
         TextButton(
           style: ButtonStyle(foregroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.secondary)),
@@ -61,22 +67,16 @@ class _DialogRegisteredUserState extends State<DialogRegisteredUser> {
           child: const Text('Batal')
         ),
         TextButton(
-          onPressed: () => widget.callback(context, widget.source, widget.from), 
-          child: const Text('Masuk')
+          onPressed: () => widget.callback(context, source: widget.source, logintype: widget.from), 
+          child: const Text('Ya, Itu Saya')
         )
       ],
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          ListTile(
-            onTap: () {},
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.account_circle, size: 42),
-            title: Text(widget.source['user_name'], style: Theme.of(context).textTheme.bodyLarge),
-            subtitle: Text(widget.source[widget.from == 'Nomor' ? 'phone_number' : 'user_email'], style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.secondary)),
-          ),
+          Center(child: UserProfile(source: widget.source)),
+          const SizedBox(height: 24),
           Text('Apakah itu anda ?', style: Theme.of(context).textTheme.bodyMedium)
         ],
       ),
@@ -145,16 +145,20 @@ class _DialogUnRegisteredUserState extends State<DialogUnRegisteredUser> {
         mainAxisSize: MainAxisSize.min,
         children: [
           const SizedBox(height: 20),
-          TextFormField(
-            readOnly: true,
-            focusNode: _focusNode,
-            initialValue: widget.value,
-            decoration: Styles.inputDecorationForm(
-              context: context, 
-              icon: Icon(widget.from == 'Nomor' ? Icons.phone : Icons.email_outlined),
-              isPhone: widget.from == 'Nomor' ? true : false,
-              placeholder: '', 
-              condition: false
+          Theme(
+            data: Theme.of(context).copyWith(inputDecorationTheme: Themes.inputDecorationThemeForm(context: context)),
+            child: TextFormField(
+              readOnly: true,
+              focusNode: _focusNode,
+              initialValue: widget.value,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.4),
+              decoration: Styles.inputDecorationForm(
+                context: context, 
+                icon: Icon(widget.from == 'Nomor' ? Icons.phone : Icons.email_outlined),
+                isPhone: widget.from == 'Nomor' ? true : false,
+                placeholder: '', 
+                condition: false
+              ),
             ),
           ),
           const SizedBox(height: 24),

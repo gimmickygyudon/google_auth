@@ -85,17 +85,28 @@ class _RegisterRouteState extends State<RegisterRoute> {
       phone_number: _phonenumberController.text,
       user_password: _repasswordController.text);
     UserRegister.retrieve(_emailController.text).then((value) {
-      if (value.isNotEmpty) {
+      if (value.isEmpty) {
+        UserRegister.retrieve(_phonenumberController.text).then((value) {
+          if (value.isNotEmpty) {
+            Map<String, dynamic> source = {
+              'user_email': value.last.user_email,
+              'user_name': value.last.user_name,
+              'phone_number': value.last.phone_number
+            };
+            showRegisteredUser(context, source: source, callback: pushLogin, from: 'Nomor');
+          } else {
+            UserRegister.insert(user).then((user) {
+              pushLogin(context, source: user, logintype: 'Nomor');
+            });
+          } 
+        });
+      } else {
         Map<String, dynamic> source = {
           'user_email': value.last.user_email,
           'user_name': value.last.user_name,
           'phone_number': value.last.phone_number
         };
         showRegisteredUser(context, source: source, callback: pushLogin, from: 'Email');
-      } else {
-        UserRegister.insert(user).then((user) {
-          pushLogin(context, source: user, logintype: 'Nomor');
-        });
       }
     });
   }
@@ -107,15 +118,15 @@ class _RegisterRouteState extends State<RegisterRoute> {
     appBar: AppBar(
       title: Text('Daftar Akun', style: Theme.of(context).textTheme.titleMedium),
       shadowColor: Theme.of(context).colorScheme.shadow,
+      surfaceTintColor: Theme.of(context).colorScheme.inversePrimary,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.only(
           bottomLeft: Radius.circular(12),
           bottomRight: Radius.circular(12)
         )
       ),
-      surfaceTintColor: Colors.transparent,
       actions: const [
-        Image(image: AssetImage('assets/logo IBM p C.png'), height: 25),
+        Image(image: AssetImage('assets/Logo Indostar.png'), height: 16),
         SizedBox(width: 12)
       ],
     ),
@@ -180,6 +191,7 @@ class _RegisterRouteState extends State<RegisterRoute> {
                             autofocus: widget.source != null ? true : false,
                             inputFormatters: [ FilteringTextInputFormatter.digitsOnly ],
                             textInputAction: TextInputAction.next,
+                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.4),
                             decoration: Styles.inputDecorationForm(
                               context: context,
                               placeholder: 'No. Handphone',
@@ -260,7 +272,6 @@ class _RegisterRouteState extends State<RegisterRoute> {
                     const SizedBox(height: 42),
                     LoginsButton(
                       logintype: widget.logintype, 
-                      loggingIn: loggingIn, 
                       source: widget.source, 
                       usernameController: _emailController
                     )
@@ -270,8 +281,9 @@ class _RegisterRouteState extends State<RegisterRoute> {
             ),
           ),
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+        Themes.bottomFloatingBar(
+          context: context,
+          isVisible: _keyboardVisible,
           child: ButtonRegister(
             isVisible: _keyboardVisible,
             enable: isValidated,
@@ -302,8 +314,12 @@ class ButtonRegister extends StatelessWidget {
     return Visibility(
       visible: isVisible,
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          TextButton(
+            onPressed: () => pushStart(context),
+            child: const Text('Kembali')
+          ),
           ElevatedButton(
             onPressed: enable ? () => onPressed() : null,
             style: Styles.buttonForm(context: context).copyWith(visualDensity: const VisualDensity(vertical: 1, horizontal: 2)),

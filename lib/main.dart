@@ -69,11 +69,11 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return AnnotatedRegion(
       value: SystemUiOverlayStyle.dark,
-      child: Scaffold(
-        body: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 800),
-          child: _isLoggedIn ? Center(child: Image.asset('assets/temp_image.png')) : const StartPageRoute()
-        ),
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 800),
+        child: _isLoggedIn 
+        ? Container(color: Theme.of(context).colorScheme.background,child: Center(child: Image.asset('assets/temp_image.png'))) 
+        : const StartPageRoute()
       ),
     );
   }

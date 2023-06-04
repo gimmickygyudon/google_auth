@@ -204,6 +204,7 @@ class UserRegister {
     if (source != null) {
       bool isEmail = EmailValidator.validate(source);
       String item = isEmail ? 'user_email' : 'phone_number';
+      print('isEmail: $item');
 
       return maps.where((element) => element[item] == source).map((value) {
         return UserRegister(
