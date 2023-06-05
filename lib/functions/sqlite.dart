@@ -125,6 +125,33 @@ class UserLog {
   }
 }
 
+class UserReport {
+  final int? id_osfb;
+  final String document_date;
+  final int id_ousr;
+  final String remarks;
+
+  const UserReport({
+    required this.id_osfb, 
+    required this.document_date, 
+    required this.id_ousr, 
+    required this.remarks,
+  });
+  
+  Map<String, dynamic> toMap() {
+    return {
+      'id_osfb': id_osfb,
+      'document_date': document_date,
+      'id_ousr': id_ousr,
+      'remarks': remarks,
+    };
+  }
+  
+  @override
+  String toString() {
+    return '{id_ousr: $id_ousr, document_date: $document_date, id_ousr: $id_ousr, remarks: $remarks}';
+  }
+}
 
 class UserRegister {
   final int? id_ousr;

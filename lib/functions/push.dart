@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_auth/routes/beranda/customer.dart';
+import 'package:google_auth/routes/keluhan/report_page.dart';
 import 'package:google_auth/routes/start_page.dart';
 
 import '../routes/dashboard.dart';
@@ -56,6 +57,14 @@ void pushAddCustomer(BuildContext context) {
   Navigator.push(context, MaterialPageRoute(
     builder: (context) {
       return const AddCustomerRoute();
+    })
+  ); 
+}
+
+void pushReportPage(BuildContext context, Map laporan, List<Map> laporanList) {
+  Navigator.push(context, MaterialPageRoute(
+    builder: (context) {
+      return LaporanRoute(laporan: laporan, laporanList: laporanList);
     })
   ); 
 }

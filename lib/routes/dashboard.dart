@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:google_auth/functions/sql_client.dart';
 import 'package:google_auth/routes/beranda/dashboard.dart';
+import 'package:google_auth/routes/keluhan/dashboard.dart';
 import 'package:google_auth/widgets/bottomNavigationBar.dart';
 import 'package:google_auth/widgets/profile.dart';
 import '../functions/sqlite.dart';
@@ -67,7 +68,6 @@ class _DashboardRouteState extends State<DashboardRoute> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      extendBody: true,
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
@@ -136,7 +136,7 @@ class _DashboardRouteState extends State<DashboardRoute> {
         onPageChanged: (value) => setState(() => changePage(value)),
         children: [
           Container(),
-          Container(),
+          const KeluhanRoute(),
           Container(),
           Container(),
           const BerandaRoute()

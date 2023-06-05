@@ -20,8 +20,8 @@ class _BottomNavigationState extends State<BottomNavigation> {
       'title': 'Menu'
     },
     {
-      'icon': Icons.toll,
-      'icon_outline': Icons.toll_outlined,
+      'icon': Icons.help,
+      'icon_outline': Icons.help_outline,
       'title': 'Keluhan'
     },
     {

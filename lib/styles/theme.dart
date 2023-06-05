@@ -96,11 +96,16 @@ class Styles {
       bool? visibility,
       bool? visibilityDisabled,
       bool? isPhone,
+      String? prefixText,
+      FloatingLabelBehavior? floatingLabelBehavior
     }) {
       bool? visibility_ = visibility;
       if (visibilityDisabled == true) visibility_ = false;
       return InputDecoration(
         labelText: placeholder,
+        alignLabelWithHint: true,
+        floatingLabelBehavior: floatingLabelBehavior,
+        suffixText: prefixText,
         prefixIcon: isPhone == true ? Row(
           mainAxisSize: MainAxisSize.min,
           children: [
