@@ -97,9 +97,17 @@ class Styles {
       bool? visibilityDisabled,
       bool? isPhone,
       String? prefixText,
+      Widget? suffixIcon,
       FloatingLabelBehavior? floatingLabelBehavior
     }) {
       bool? visibility_ = visibility;
+
+      if (visibility != null) {
+          visibility_ == true
+            ? suffixIcon = const Icon(Icons.visibility_outlined)
+            : suffixIcon = const Icon(Icons.visibility_off_outlined);
+      } 
+
       if (visibilityDisabled == true) visibility_ = false;
       return InputDecoration(
         labelText: placeholder,
@@ -121,11 +129,7 @@ class Styles {
             const SizedBox(width: 8),
           ],
         ) : icon,
-        suffixIcon: visibility_ != null
-          ? visibility_
-            ? const Icon(Icons.visibility_outlined)
-            : const Icon(Icons.visibility_off_outlined)
-          : null,
+        suffixIcon: suffixIcon,
         errorMaxLines: 3,
         fillColor: condition ? Theme.of(context).colorScheme.inversePrimary.withOpacity(0.15) : Theme.of(context).hoverColor,
         errorStyle: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.red, fontSize: 11),

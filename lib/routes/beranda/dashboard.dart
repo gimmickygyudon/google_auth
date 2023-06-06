@@ -60,54 +60,63 @@ class _BerandaRouteState extends State<BerandaRoute> {
                 ),
                 const SizedBox(height: 12),
                 SizedBox(
-                  height: 195,
+                  height: 200,
                   child: Card(
                     color: Theme.of(context).hoverColor,
                     elevation: 0,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text('Perolehan Kamu', style: Theme.of(context).textTheme.titleSmall),
-                          Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              child: ListView(
-                                scrollDirection: Axis.horizontal,
-                                shrinkWrap: true,
-                                children: const [
-                                  IconButtonText(icon: Icons.scale, label: 'Jumlah', value: '0 Ton'),
-                                  SizedBox(width: 10),
-                                  IconButtonText(icon: Icons.card_giftcard, label: 'Piutang', value: 'Rp. 0'),
-                                  SizedBox(width: 10),
-                                  IconButtonText(icon: Icons.local_shipping, label: 'Antrean', value: '150'),
-                                ],
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          width: 1, 
+                          color: Theme.of(context).colorScheme.outline.withOpacity(0.05)
+                        )
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text('Perolehan Kamu', style: Theme.of(context).textTheme.titleSmall),
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 8),
+                                child: ListView(
+                                  scrollDirection: Axis.horizontal,
+                                  shrinkWrap: true,
+                                  children: const [
+                                    IconButtonText(icon: Icons.scale, label: 'Jumlah', value: '0 Ton'),
+                                    SizedBox(width: 10),
+                                    IconButtonText(icon: Icons.card_giftcard, label: 'Piutang', value: 'Rp. 0'),
+                                    SizedBox(width: 10),
+                                    IconButtonText(icon: Icons.local_shipping, label: 'Antrean', value: '150'),
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: TextButton(
-                              style: ButtonStyle(
-                                visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
-                                padding: const MaterialStatePropertyAll(EdgeInsets.only(left: 6)),
-                                textStyle: MaterialStatePropertyAll(Theme.of(context).textTheme.labelSmall?.copyWith(letterSpacing: 0.25)),
-                                iconSize: const MaterialStatePropertyAll(16)
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: TextButton(
+                                style: ButtonStyle(
+                                  visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+                                  padding: const MaterialStatePropertyAll(EdgeInsets.only(left: 6)),
+                                  textStyle: MaterialStatePropertyAll(Theme.of(context).textTheme.labelSmall?.copyWith(letterSpacing: 0.25)),
+                                  iconSize: const MaterialStatePropertyAll(16)
+                                ),
+                                onPressed: () {}, 
+                                child: const Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text('Rincian Pencapaian'),
+                                    SizedBox(width: 4),
+                                    Icon(Icons.arrow_forward)
+                                  ],
+                                ),
                               ),
-                              onPressed: () {}, 
-                              child: const Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text('Rincian Pencapaian'),
-                                  SizedBox(width: 4),
-                                  Icon(Icons.arrow_forward)
-                                ],
-                              ),
-                            ),
-                          )
-                        ],
+                            )
+                          ],
+                        ),
                       ),
                     ),
                   ),

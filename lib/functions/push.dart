@@ -61,7 +61,7 @@ void pushAddCustomer(BuildContext context) {
   ); 
 }
 
-void pushReportPage(BuildContext context, Map laporan, List<Map> laporanList) {
+void pushReportPage({required BuildContext context, Map? laporan, required List<Map> laporanList}) {
   Navigator.push(context, MaterialPageRoute(
     builder: (context) {
       return LaporanRoute(laporan: laporan, laporanList: laporanList);

@@ -14,19 +14,19 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
   final List<Map> laporanList = [
     {
       'name': 'Harga',
-      'icon': Icons.payments_outlined
+      'icon': Icons.payment_outlined
     },
     {
       'name': 'Kualitas',
-      'icon': Icons.high_quality_outlined
+      'icon': Icons.layers_outlined
     },
     {
       'name': 'Pelayanan',
-      'icon': Icons.diversity_3_outlined
+      'icon': Icons.groups_outlined
     },
     {
       'name': 'Purna Jual',
-      'icon': Icons.support_agent_outlined
+      'icon': Icons.local_shipping_outlined
     },
     {
       'name': 'Promo',
@@ -53,7 +53,7 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
             pinned: true,
             floating: true,
             automaticallyImplyLeading: false,
-            toolbarHeight: kToolbarHeight + 100,
+            toolbarHeight: kToolbarHeight + 110,
             title: Padding(
               padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 26),
               child: Column(
@@ -62,20 +62,38 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Umpan Balik', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w500)),
+                      const SizedBox(height: 12),
+                      Text('Umpan Balik', 
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          letterSpacing: 0
+                        )
+                      ),
                       const SizedBox(height: 4),
-                      Text('Kritik adalah ketaksetujuan orang, bukan karena memiliki kesalahan.', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.secondary)),
+                      ConstrainedBox(
+                        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width),
+                        child: Flexible(
+                          child: Text('Kritik adalah ketaksetujuan orang, bukan\nkarena memiliki kesalahan.', 
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context).colorScheme.secondary
+                            )
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                   Column(
                     children: [
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 12),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Chip(label: Text('0 Laporan')),
-                          const SizedBox(width: 12),
-                          ElevatedButton.icon(onPressed: () {}, icon: const Icon(Icons.add), label: const Text('Buat')),
+                          const SizedBox(width: 0),
+                          ElevatedButton.icon(
+                            onPressed: () => pushReportPage(context: context, laporanList: laporanList), 
+                            icon: const Icon(Icons.add), 
+                            label: const Text('Buat'),
+                            style: Styles.buttonForm(context: context),
+                          ),
                         ],
                       ),
                     ],
@@ -92,7 +110,7 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
             ),
           ),
           SliverPadding(
-            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 26),
+            padding: const EdgeInsets.symmetric(vertical: 26, horizontal: 36),
             sliver: SliverToBoxAdapter(
               child: SizedBox(
                 height: MediaQuery.of(context).size.height - kToolbarHeight - 100,
@@ -105,7 +123,9 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
                         GridView(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
-                          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(maxCrossAxisExtent: 160, mainAxisSpacing: 20, crossAxisSpacing: 20),
+                          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                            maxCrossAxisExtent: 160, mainAxisSpacing: 20, crossAxisSpacing: 20
+                          ),
                           children: laporanList.map((item) { 
                             return LaporanCard(
                               laporanList: laporanList, 
@@ -134,15 +154,14 @@ class LaporanCard extends StatelessWidget {
     required this.laporanList, 
     required this.pushReportPage, 
     required this.item,
-    this.disableHero,
     this.isSelected
   });
 
   final List<Map> laporanList;
   final Function? pushReportPage;
-  final bool? disableHero;
   final bool? isSelected;
   final Map item;
+  final double? size = 30;
 
   @override
   Widget build(BuildContext context) {
@@ -153,32 +172,50 @@ class LaporanCard extends StatelessWidget {
       color: Theme.of(context).colorScheme.inversePrimary.withOpacity(isSelected == true ? 0.25 : 0.05),
         child: InkWell(
           onTap: pushReportPage != null ? () {
-             pushReportPage!(context, item, laporanList);
+             pushReportPage!(context: context, laporan: item, laporanList: laporanList);
           } : null,
-          splashColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.5),
-          highlightColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.5),
+          splashColor: isSelected == true 
+            ? Theme.of(context).colorScheme.inversePrimary.withOpacity(0.05)
+            : Theme.of(context).colorScheme.inversePrimary.withOpacity(0.5),
+          highlightColor: isSelected == true 
+            ? Theme.of(context).colorScheme.inversePrimary.withOpacity(0.05)
+            : Theme.of(context).colorScheme.inversePrimary.withOpacity(0.5),
           child: Container(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               width: isSelected == true ? 2 : 1, 
-              color: isSelected == true ? Theme.of(context).colorScheme.inversePrimary : Theme.of(context).colorScheme.outlineVariant.withOpacity(0.25)
+              color: isSelected == true ? Theme.of(context).colorScheme.inversePrimary : Theme.of(context).colorScheme.outlineVariant.withOpacity(1)
             )
           ),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Icon(item['icon'], 
-                size: 36, 
+                size: size, 
                 color: Theme.of(context).colorScheme.primary
               ),
-              const SizedBox(height: 12),
-              Text(item['name'], 
-                style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: Theme.of(context).colorScheme.primary
-                )
-              )
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Text(item['name'], 
+                        style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.primary,
+                          letterSpacing: 0
+                        )
+                      ),
+                      const SizedBox(width: 4),
+                      if(isSelected == null) Icon(Icons.arrow_forward, size: 16, color: Theme.of(context).colorScheme.primary)
+                    ],
+                  ),
+                  if(isSelected == true) Icon(Icons.check_circle, size: 18, color: Theme.of(context).colorScheme.primary)
+                ],
+              ),
             ],
           ),
         ),
