@@ -1,13 +1,39 @@
 
+import 'dart:io';
+
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-// String server = 'http://192.168.1.19:8080';
+String server = 'http://192.168.1.19:8080';
 
 // Server Lokal
-String server = 'http://192.168.1.106:8080';
+// String server = 'http://192.168.1.106:8080';
 
 class SQL {
+
+  static void insertMultiPart({required String api, required Map<String, String> item, required String filePath}) async {
+    Map<String, String> requestHeaders = {
+      // "Authorization": "Bearer $token",
+      "Content-type": "multipart/form-data"
+    };
+
+    final request = http.MultipartRequest(
+      'POST', Uri.parse('$server/api/$api'),
+    );
+
+    request.files.add(
+      http.MultipartFile.fromBytes('file', File(filePath).readAsBytesSync(), filename: item['file_name'])
+    );
+    
+    request.headers.addAll(requestHeaders);
+    request.fields.addAll(item);
+    var res = await request.send();
+    print("This is response:"+res.toString());
+  //   request.headers.addAll(requestHeaders);
+  //   request.fields.addAll(body);
+  //   var res = await request.send();
+  // }
+  }
 
   static Future<Map> insert({required Map<String, dynamic> item, required String api}) async {
     item['id_$api'] = null;

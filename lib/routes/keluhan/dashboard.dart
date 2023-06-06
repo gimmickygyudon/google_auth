@@ -71,12 +71,10 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
                       const SizedBox(height: 4),
                       ConstrainedBox(
                         constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width),
-                        child: Flexible(
-                          child: Text('Kritik adalah ketaksetujuan orang, bukan\nkarena memiliki kesalahan.', 
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context).colorScheme.secondary
-                            )
-                          ),
+                        child: Text('Kritik adalah ketaksetujuan orang, bukan\nkarena memiliki kesalahan.', 
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.secondary
+                          )
                         ),
                       ),
                     ],

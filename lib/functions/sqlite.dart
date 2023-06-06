@@ -8,6 +8,7 @@ import 'package:path/path.dart';
 import 'package:crypto/crypto.dart';
 import 'package:sqflite/sqflite.dart';
 
+import '../strings/user.dart';
 import 'sql_client.dart';
 
 class UserLog {
@@ -153,6 +154,66 @@ class UserReport {
   }
 }
 
+class UserReport1 {
+  final int? id_sfb1;
+  final String id_osfb;
+  final String type_feed;
+  final String description;
+
+  const UserReport1({
+    required this.id_sfb1,
+    required this.id_osfb,
+    required this.type_feed,
+    required this.description,
+  });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id_sfb1': id_sfb1,
+      'id_osfb': id_osfb,
+      'type_feed': type_feed,
+      'description': description,
+    };
+  }
+  
+  @override
+  String toString() {
+    return '{id_sfb1: $id_sfb1, id_osfb: $id_osfb, type_feed: $type_feed, description: $description}';
+  }
+}
+
+class UserReport2 {
+  final int? id_sfb2;
+  final String id_osfb;
+  final String type;
+  final String file_name;
+  final String file_type;
+
+  const UserReport2({
+    this.id_sfb2,
+    required this.id_osfb,
+    required this.type,
+    required this.file_name,
+    required this.file_type,
+  });
+  
+  Map<String, String> toMap() {
+    return {
+      'id_sfb2': 'NULL',
+      'id_osfb': id_osfb,
+      'type': type,
+      'file_name': file_name,
+      'file_type': file_type,
+    };
+  }
+  
+  @override
+  String toString() {
+    return '{id_sfb2: $id_sfb2, id_osfb: $id_osfb, type: $type, file_name: $file_name, file_type: $file_type}';
+  }
+}
+
+
 class UserRegister {
   final int? id_ousr;
   final String login_type;
@@ -184,13 +245,7 @@ class UserRegister {
   }
 
   static Future<Database> initializeDatabase() async {
-    var databasesPath = await getDatabasesPath();
-    // print('sqlite(initializeDatabase): $databasesPath');
-    String path = join(databasesPath, 'ousr.db');
     Database database;
-
-    // Check if the database exists
-    await databaseExists(path).then((value) => print('sqlite(initializeDatabase): file exists'));
 
     database = await openDatabase(
       join(await getDatabasesPath(), 'ousr.db'),

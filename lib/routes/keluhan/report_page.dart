@@ -1,6 +1,8 @@
 import 'dart:async';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:google_auth/functions/file_pickers.dart';
 import 'package:google_auth/functions/sqlite.dart';
 import 'package:google_auth/routes/keluhan/dashboard.dart';
 import 'package:google_auth/strings/user.dart';
@@ -24,6 +26,7 @@ class _LaporanRouteState extends State<LaporanRoute> {
   late String laporan;
   List<Map> laporanList = List.empty(growable: true);
   List<Map> laporanList_ = List.empty(growable: true);
+  List<PlatformFile> fileList = List.empty(growable: true);
   late ScrollController _scrollController;
   GlobalKey selectedKey = GlobalKey();
   bool empty = true;
@@ -66,19 +69,70 @@ class _LaporanRouteState extends State<LaporanRoute> {
     }
   }
 
+  String setLaporan(String laporan) {
+    switch (laporan) {
+      case 'Harga':
+        return 'Price';
+      case 'Kualitas':
+        return 'Quality';
+      case 'Pelayanan':
+        return 'After Sales';
+      default:
+        return laporan;
+    }
+  }
+
   void sendReport() {
     SQL.insert(
+      api: 'osfb',
       item: UserReport(
         id_osfb: null,
         document_date: DateNowSQL,
         id_ousr: currentUser['id_ousr'], 
-        remarks: currentUser['name']
-      ).toMap(), 
-      api: 'osfb'
+        remarks: currentUser['user_name']
+      ).toMap()
     ).then((value) {
-      if (value.isNotEmpty) showSnackBar(context, snackBarAuth(context: context, content: 'Terima Kasih atas Umpan Balik Anda.'));
+      if (value.isNotEmpty) { 
+        SQL.insert(
+          api: 'sfb1',
+          item: UserReport1(
+            id_sfb1: null, 
+            id_osfb: value['id_ousr'].toString(), 
+            type_feed: setLaporan(laporan), 
+            description: _detailController.text
+          ).toMap(), 
+        ).then((value) {
+          if (fileList.isNotEmpty) {
+            for (var file in fileList) { 
+              SQL.insertMultiPart(
+                api: 'sfb2',
+                filePath: file.path!,
+                item: UserReport2(
+                  id_sfb2: null, 
+                  id_osfb: value['id_ousr'].toString(), 
+                  type: 'STOCk', 
+                  file_name: file.name, 
+                  file_type: file.extension!, 
+                ).toMap(), 
+              );
+              // SQL.insert(
+              //   api: 'sfb2', 
+              //   item: UserReport2(
+              //     id_sfb2: null, 
+              //     id_osfb: value['id_ousr'].toString(), 
+              //     type: 'STOCk', 
+              //     file_name: file.name, 
+              //     file_type: file.extension!, 
+              //   ).toMap()
+              // ); 
+            }
+          }
+        });
+      }
     });
   }
+
+  // showSnackBar(context, snackBarAuth(context: context, content: 'Terima Kasih atas Umpan Balik Anda.')); 
 
   @override
   Widget build(BuildContext context) {
@@ -102,7 +156,7 @@ class _LaporanRouteState extends State<LaporanRoute> {
             Expanded(
               child: SingleChildScrollView(
                 child: ConstrainedBox(
-                  constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height - kToolbarHeight ),
+                  constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height - kToolbarHeight),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -118,7 +172,7 @@ class _LaporanRouteState extends State<LaporanRoute> {
                                 : _detailController.text.isEmpty
                                 ? Padding(
                                   padding: const EdgeInsets.symmetric(vertical: 32),
-                                  child: Center(child: Image.asset('assets/report_page.png', height: 160)),
+                                  child: Center(child: Image.asset('assets/report_page.png', height: 150)),
                                 )
                                 : const SenderHeader()
                           ),
@@ -138,7 +192,7 @@ class _LaporanRouteState extends State<LaporanRoute> {
                       Flexible(
                         flex: 3,
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 16),
+                          padding: const EdgeInsets.fromLTRB(30, 16, 30, 10),
                           child: TextField(
                             controller: _detailController,
                             keyboardType: TextInputType.multiline,
@@ -158,10 +212,29 @@ class _LaporanRouteState extends State<LaporanRoute> {
                               floatingLabelBehavior: FloatingLabelBehavior.never,
                               placeholder: 'Masukan Keluhan Anda...',
                               suffixIcon: Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
                                   TextButton.icon(
-                                    onPressed: () {}, 
+                                    onPressed: () {
+                                      pickFiles().then((value) {
+                                        for (var file in value) {
+                                          if (file != null) {
+
+                                            if (fileList.isNotEmpty) {
+                                              for (var element in fileList) { 
+                                                if (element.name != file.name) { 
+                                                  fileList.add(file); 
+                                                }
+                                              }
+                                            } else {
+                                              fileList.add(file);
+                                            }
+
+                                          }
+                                        }
+                                      }).whenComplete(() => setState(() {}));
+                                    }, 
                                     style: ButtonStyle(
                                       textStyle: MaterialStatePropertyAll(
                                         Theme.of(context).textTheme.labelMedium?.copyWith(letterSpacing: 0)
@@ -180,11 +253,38 @@ class _LaporanRouteState extends State<LaporanRoute> {
                           ),
                         ),
                       ),
+                      if (fileList.isNotEmpty) Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 30),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Wrap(
+                              direction: Axis.horizontal,
+                              children: fileList.map((file) {
+                                return SizedBox(
+                                  width: 140,
+                                  child: Chip(
+                                    onDeleted: () => setState(() {
+                                      fileList.removeWhere((element) => element.name == file.name);
+                                    }),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25.7)),
+                                    side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
+                                    deleteIconColor: Theme.of(context).colorScheme.tertiary,
+                                    avatar: const Icon(Icons.file_upload_outlined),
+                                    label: Text(file.name),
+                                    labelStyle: Theme.of(context).textTheme.labelMedium?.copyWith(letterSpacing: 0),
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                          ],
+                        ),
+                      ),
                       Expanded(
                         flex: 2,
                         child: ListView(
                           controller: _scrollController,
-                          padding: const EdgeInsets.symmetric(horizontal: 30),
+                          padding: const EdgeInsets.fromLTRB(30, 10, 30, 0),
                           shrinkWrap: true,
                           scrollDirection: Axis.horizontal,
                           children: laporanList.map((item) {
@@ -225,7 +325,7 @@ class _LaporanRouteState extends State<LaporanRoute> {
                           child: ButtonReport(
                             isVisible: MediaQuery.of(context).viewInsets.bottom != 0 ? false : true,
                             enable: _detailController.text.trim().isNotEmpty && laporan.isNotEmpty,
-                            onPressed: () {}
+                            onPressed: sendReport
                           ),
                         ),
                       )
@@ -240,7 +340,7 @@ class _LaporanRouteState extends State<LaporanRoute> {
               child: ButtonReport(
                 isVisible: MediaQuery.of(context).viewInsets.bottom != 0 ? true : false, 
                 enable: _detailController.text.trim().isNotEmpty && laporan.isNotEmpty,
-                onPressed: () {}
+                onPressed: sendReport
               ),
             ),
           ],
