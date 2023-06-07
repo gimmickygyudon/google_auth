@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_auth/functions/sqlite.dart';
 
 import '../../functions/push.dart';
 import '../../styles/theme.dart';
@@ -135,7 +136,15 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
                         ),
                       ],
                     ),
-                    const Placeholder()
+                    FutureBuilder(
+                      future: UserReport.getList(),
+                      builder: (context, snapshot) {
+                        return ListView.builder(
+                          itemBuilder: (context, index) {
+                            
+                        });
+                      },
+                    )
                   ]
                 ),
               ),
