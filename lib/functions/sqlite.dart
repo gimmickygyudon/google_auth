@@ -156,6 +156,12 @@ class UserReport {
   String toString() {
     return '{id_ousr: $id_ousr, document_date: $document_date, id_ousr: $id_ousr, remarks: $remarks}';
   }
+
+  static Future<List<Map>> getList() async {
+    List<Map> tickets = List.empty(growable: true);
+
+    return tickets;
+  }
 }
 
 class UserReport1 {

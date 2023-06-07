@@ -127,7 +127,7 @@ class _LaporanRouteState extends State<LaporanRoute> {
                 item: UserReport2(
                   id_sfb2: null, 
                   id_osfb: value['id_osfb'].toString(), 
-                  type: 'STOCK', 
+                  type: setLaporan(laporan),
                   file_name: file.name, 
                   file_type: file.extension!, 
                 ).toMap(), 
