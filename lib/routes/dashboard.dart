@@ -41,11 +41,12 @@ class _DashboardRouteState extends State<DashboardRoute> {
 
   void logUser() {
      UserLog userLog = UserLog(
-      id_olog: currentUser['id_ousr'], 
+      id_olog: null, 
       date_time: DateNowSQL, 
       form_sender: currentUser['login_type'],
       remarks: currentUser['user_name'], 
       source: currentUser['user_email'],
+      id_ousr: currentUser['id_ousr'].toString()
     );
     UserLog.insert(userLog);
   }

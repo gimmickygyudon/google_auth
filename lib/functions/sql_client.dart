@@ -11,9 +11,8 @@ String server = 'http://192.168.1.19:8080';
 
 class SQL {
 
-  static void insertMultiPart({required String api, required Map<String, String> item, required String filePath}) async {
+  static Future<void> insertMultiPart({required String api, required Map<String, String> item, required String filePath}) async {
     Map<String, String> requestHeaders = {
-      // "Authorization": "Bearer $token",
       "Content-type": "multipart/form-data"
     };
 
@@ -28,11 +27,7 @@ class SQL {
     request.headers.addAll(requestHeaders);
     request.fields.addAll(item);
     var res = await request.send();
-    print("This is response:"+res.toString());
-  //   request.headers.addAll(requestHeaders);
-  //   request.fields.addAll(body);
-  //   var res = await request.send();
-  // }
+    print("insertMultiPart:"+res.statusCode.toString());
   }
 
   static Future<Map> insert({required Map<String, dynamic> item, required String api}) async {
@@ -50,6 +45,7 @@ class SQL {
     if (response.statusCode == 201) {
       // If the server did return a 201 CREATED response,
       // then parse the JSON.MySQL.fromJson(
+      print('return: ${response.body}');
       return jsonDecode(response.body);
     } else {
       // If the server did not return a 201 CREATED response,
@@ -91,7 +87,12 @@ class SQL {
     var url = Uri.parse('$server/api/$api$queryParameters');
     Map data = {};
 
-    final response = await http.get(url, headers: requestHeaders);
+    final response = await http.get(url, headers: requestHeaders).timeout(
+      const Duration(seconds: 1), 
+      onTimeout: () {
+        return http.Response('Error', 408);
+      }, 
+    );
 
     if (response.statusCode == 200) {
       List<dynamic> data = (json.decode(response.body)) as List;

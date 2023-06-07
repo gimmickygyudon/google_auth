@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:responsive_framework/responsive_breakpoints.dart';
 
 import '../functions/push.dart';
 import '../functions/validate.dart';
@@ -79,12 +80,15 @@ class _LoginRouteState extends State<LoginRoute> {
                   child: Form(
                     child: Column(
                       children: [
-                        Flexible(
-                          flex: 3, 
+                         if(MediaQuery.of(context).size.height > 750) Flexible(
+                          flex: 2, 
                           child: Column(
                             children: [
-                              const SizedBox(height: kToolbarHeight),
-                              const Image(image: AssetImage('assets/Logo Indostar.png')),
+                              const SizedBox(height: 6),
+                              Image(
+                                image: const AssetImage('assets/Logo Indostar.png'),
+                                height: (MediaQuery.of(context).size.height > 750) ? null : 30,
+                              ),
                               const SizedBox(height: 12),
                               Text('Mulailah mengelola bisnis anda dengan aman dan cepat.',
                                 style: Theme.of(context).textTheme.labelLarge?.copyWith(
@@ -97,12 +101,18 @@ class _LoginRouteState extends State<LoginRoute> {
                           ),
                         ),
                         if (widget.source == null) Expanded(flex: 3, child: Image.asset('assets/start_page.png', fit: BoxFit.cover)),
-                        SizedBox(height: widget.source != null ? 40 : 20),
+                        SizedBox(
+                          height: widget.source != null 
+                          ? MediaQuery.of(context).size.height > 750 ? 40 : 20 
+                          : 20
+                        ),
                         if (widget.source != null) ...[
-                          Expanded(flex: 3, child: UserProfile(source: widget.source)),
+                          Expanded(
+                            flex: (MediaQuery.of(context).size.height > 750) ? 3 : 4, child: UserProfile(source: widget.source)
+                          ),
                         ],
                         Flexible(
-                          flex: widget.source != null ? 7 : 4,
+                          flex: widget.source != null ? 8 : 4,
                           child: Theme(
                             data: Theme.of(context).copyWith(inputDecorationTheme: Themes.inputDecorationThemeForm(context: context)),
                             child: StatefulBuilder(builder: (context, setState) {
@@ -171,8 +181,8 @@ class _LoginRouteState extends State<LoginRoute> {
                                     isValidated: isValidated, 
                                     loggingIn: loggingIn, 
                                     login: login
-                                  ),
-                                  if (widget.source != null) ...[
+                                  ), 
+                                  if (widget.source != null && MediaQuery.of(context).size.height > 750) ...[
                                     const SizedBox(height: 12),
                                     Padding(
                                       padding: const EdgeInsets.symmetric(vertical : 12),

@@ -55,14 +55,13 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
             automaticallyImplyLeading: false,
             toolbarHeight: kToolbarHeight + 110,
             title: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 26),
+              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(height: 12),
                       Text('Umpan Balik', 
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           letterSpacing: 0
@@ -121,8 +120,10 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
                         GridView(
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
-                          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                            maxCrossAxisExtent: 160, mainAxisSpacing: 20, crossAxisSpacing: 20
+                          gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                            maxCrossAxisExtent: 160, 
+                            mainAxisSpacing: (MediaQuery.of(context).size.height > 750) ? 20 : 10, 
+                            crossAxisSpacing: (MediaQuery.of(context).size.height > 750) ? 20 : 10
                           ),
                           children: laporanList.map((item) { 
                             return LaporanCard(

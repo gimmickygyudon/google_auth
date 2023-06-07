@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_auth/widgets/button.dart';
+import 'package:responsive_framework/responsive_breakpoints.dart';
 
 import '../functions/push.dart';
 import '../functions/validate.dart';
@@ -37,15 +40,13 @@ class _StartPageRouteState extends State<StartPageRoute> {
 
   @override
   Widget build(BuildContext context) {
-    _keyboardVisible = MediaQuery.of(context).viewInsets.bottom != 0;
-    return AnnotatedRegion(
+    print(MediaQuery.of(context).size.height);
+    _keyboardVisible = MediaQuery.of(context).viewInsets.bottom != 0; return AnnotatedRegion(
       value: SystemUiOverlayStyle.dark,
       child: Theme(
         data: Theme.of(context).copyWith(appBarTheme: Themes.appBarTheme(context)),
         child: Scaffold(
-          appBar: AppBar(
-            toolbarHeight: 0
-          ),
+          appBar: AppBar(toolbarHeight: 0),
           body: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.min,
@@ -54,16 +55,15 @@ class _StartPageRouteState extends State<StartPageRoute> {
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.symmetric(horizontal: 48),
                   child: SizedBox(
-                    height: MediaQuery.of(context).size.height - kToolbarHeight,
+                    height: MediaQuery.of(context).size.height,
                     child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Flexible(
+                        if(MediaQuery.of(context).size.height > 750) Flexible(
                           flex: 3, 
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const SizedBox(height: kToolbarHeight),
+                              const SizedBox(height: 12),
                               const Image(image: AssetImage('assets/Logo Indostar.png')),
                               const SizedBox(height: 12),
                               Text('Mulailah mengelola bisnis anda dengan aman dan cepat.',
@@ -76,7 +76,10 @@ class _StartPageRouteState extends State<StartPageRoute> {
                             ],
                           ),
                         ),
-                        Expanded(flex: 4, child: Image.asset('assets/bricklayer_3 @vector4stock.png', fit: BoxFit.cover)),
+                        Expanded(
+                          flex: (MediaQuery.of(context).size.height > 750) ? 4 : 2, 
+                          child: Image.asset('assets/bricklayer_3 @vector4stock.png', fit: BoxFit.cover)
+                        ),
                         Flexible(
                           flex: 6,
                           child: Theme(
@@ -215,17 +218,31 @@ class LoginButtonState extends State<LoginButton> {
     return Visibility(
       visible: widget.isVisible,
       child: ElevatedButton(
-        onPressed: isValidated ? () {
+        onPressed: isValidated && !isLoading ? () {
           setState(() => isLoading = true);
-          Validate.checkUser(
-            context: context,
-            user: widget.phonenumberController.text,
-            logintype: 'Nomor'
-          ).whenComplete(() => setState(() => isLoading = false));
+          Timer(const Duration(seconds: 2), () { 
+            Validate.checkUser(
+              context: context,
+              user: widget.phonenumberController.text,
+              logintype: 'Nomor'
+            ).whenComplete(() => setState(() => isLoading = false));
+          });
         }
         : null,
         style: Styles.buttonForm(context: context),
-        child: const Text('Masuk')
+        child: isLoading 
+          ? Row(
+              children: [
+                SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary, strokeWidth: 2)
+                ),
+                const SizedBox(width: 12),
+                const Text('Mencoba Masuk...')
+              ],
+            )
+          : const Text('Masuk')
       ),
     );
   }

@@ -19,7 +19,7 @@ class Authentication {
     }
 
     // TODO: DO THIS LATER (debug purpose)
-    Authentication.signOutGoogle();
+    // Authentication.signOutGoogle();
     return firebaseApp;
   }
 

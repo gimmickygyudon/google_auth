@@ -8,13 +8,13 @@ import 'package:path/path.dart';
 import 'package:crypto/crypto.dart';
 import 'package:sqflite/sqflite.dart';
 
-import '../strings/user.dart';
 import 'sql_client.dart';
 
 class UserLog {
   final int? id_olog;
   final String date_time;
   final String form_sender, remarks, source;
+  final String id_ousr;
 
   const UserLog({
     this.id_olog,
@@ -22,6 +22,7 @@ class UserLog {
     required this.form_sender,
     required this.remarks,
     required this.source,
+    required this.id_ousr,
   });
 
   Map<String, dynamic> toMap() {
@@ -31,12 +32,13 @@ class UserLog {
       'form_sender': form_sender,
       'remarks': remarks,
       'source': source,
+      'id_ousr': id_ousr
     };
   }
 
   @override
   String toString() {
-    return '{id_olog: $id_olog, date_time: $date_time, form_sender: $form_sender, remarks: $remarks, source: $source}';
+    return '{id_olog: $id_olog, date_time: $date_time, form_sender: $form_sender, remarks: $remarks, source: $source, id_ousr: $id_ousr}';
   }
 
   static Future<Database> initializeDatabase() async {
@@ -64,12 +66,12 @@ class UserLog {
   }
 
   static Future<void> insert(UserLog user) async {
-    final db = await UserLog.initializeDatabase();
-    await db.insert(
-      'olog',
-      user.toMap(),
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    // final db = await UserLog.initializeDatabase();
+    // await db.insert(
+    //   'olog',
+    //   user.toMap(),
+    //   conflictAlgorithm: ConflictAlgorithm.replace,
+    // );
 
     UserRegister.retrieve(user.source).then((value) {
       SQL.insert(item: user.toMap(), api: 'olog');
@@ -88,7 +90,8 @@ class UserLog {
           date_time: item['date_time'],
           form_sender: item['form_sender'],
           remarks: item['remarks'],
-          source: item['source']
+          source: item['source'],
+          id_ousr: item['id_ousr']
         );
       }).toList();
     } else {
@@ -98,7 +101,8 @@ class UserLog {
           date_time: maps[i]['date_time'],
           form_sender: maps[i]['form_sender'],
           remarks: maps[i]['remarks'],
-          source: maps[i]['source']
+          source: maps[i]['source'],
+          id_ousr: maps[i]['id_ousr']
         );
       });
     }
