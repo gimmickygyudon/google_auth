@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_auth/functions/sqlite.dart';
+import 'package:google_auth/strings/user.dart';
 
 import '../../functions/push.dart';
 import '../../styles/theme.dart';
@@ -36,11 +37,20 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
   ];
 
   late TabController _tabController;
+  List<String> sortList = ['Request', 'Nama', 'Tipe'];
+  late String sortValue;
 
   @override
   void initState() {
+    sortValue = sortList.first;
     _tabController = TabController(length: 2, vsync: this);
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   @override
@@ -65,7 +75,8 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
                     children: [
                       Text('Umpan Balik', 
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          letterSpacing: 0
+                          letterSpacing: -0.5,
+                          fontWeight: FontWeight.w500
                         )
                       ),
                       const SizedBox(height: 4),
@@ -108,7 +119,7 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
             ),
           ),
           SliverPadding(
-            padding: const EdgeInsets.symmetric(vertical: 26, horizontal: 36),
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 36),
             sliver: SliverToBoxAdapter(
               child: SizedBox(
                 height: MediaQuery.of(context).size.height - kToolbarHeight - 100,
@@ -119,6 +130,7 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         GridView(
+                          padding: const EdgeInsets.only(top: 16),
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
                           gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
@@ -139,10 +151,87 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
                     FutureBuilder(
                       future: UserReport.getList(),
                       builder: (context, snapshot) {
-                        return ListView.builder(
-                          itemBuilder: (context, index) {
-                            
-                        });
+                        return Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(Icons.check_circle, size: 20, color: Theme.of(context).colorScheme.secondary),
+                                    const SizedBox(width: 8),
+                                    DropdownButtonHideUnderline(
+                                      child: DropdownButton(
+                                        value: sortValue,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            sortValue = value!;
+                                          });
+                                        },
+                                        borderRadius: BorderRadius.circular(12),
+                                        items: sortList.map((item) {
+                                          return DropdownMenuItem(
+                                            value: item,
+                                            child: Text(item, style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                              color: Theme.of(context).colorScheme.secondary,
+                                            ))
+                                          );
+                                        }).toList(),
+                                      ),
+                                    )
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Text('4', style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                      color: Theme.of(context).colorScheme.secondary
+                                    )),
+                                    const SizedBox(width: 2),
+                                    Icon(Icons.local_shipping, size: 18, color: Theme.of(context).colorScheme.secondary),
+                                  ],
+                                )
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: 4,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemBuilder: (context, index) {
+                                return Column(
+                                  children: [
+                                    Row(
+                                      children: [
+                                        CircleAvatar(
+                                          radius: 18,
+                                          child: Icon(Icons.local_shipping, color: Theme.of(context).colorScheme.primary)
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Text('Purna Jual', style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                          color: Theme.of(context).colorScheme.primary,
+                                        ))
+                                      ],
+                                    ),
+                                    ListTile(
+                                      contentPadding: EdgeInsets.zero,
+                                      title: const Text('Contoh Pengiriman yang Kurang'),
+                                      titleTextStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                        letterSpacing: 0,
+                                        height: 2
+                                      ),
+                                      subtitle: Text(DateNow, style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                        color: Theme.of(context).colorScheme.secondary.withOpacity(0.75),
+                                      )),
+                                    ),
+                                    Divider(color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.25)),
+                                    const SizedBox(height: 12)
+                                  ],
+                                );
+                            }),
+                          ],
+                        );
                       },
                     )
                   ]
@@ -194,7 +283,7 @@ class LaporanCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               width: isSelected == true ? 2 : 1, 
-              color: isSelected == true ? Theme.of(context).colorScheme.inversePrimary : Theme.of(context).colorScheme.outlineVariant.withOpacity(1)
+              color: isSelected == true ? Theme.of(context).colorScheme.inversePrimary : Theme.of(context).colorScheme.primary.withOpacity(0.25)
             )
           ),
           child: Column(

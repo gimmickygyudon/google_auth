@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:responsive_framework/responsive_breakpoints.dart';
 
 import '../functions/push.dart';
 import '../functions/validate.dart';
@@ -81,10 +80,10 @@ class _LoginRouteState extends State<LoginRoute> {
                     child: Column(
                       children: [
                          if(MediaQuery.of(context).size.height > 750) Flexible(
-                          flex: 2, 
+                          flex: 3, 
                           child: Column(
                             children: [
-                              const SizedBox(height: 6),
+                              const SizedBox(height: 24),
                               Image(
                                 image: const AssetImage('assets/Logo Indostar.png'),
                                 height: (MediaQuery.of(context).size.height > 750) ? null : 30,

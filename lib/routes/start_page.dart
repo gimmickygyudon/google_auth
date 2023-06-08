@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_auth/widgets/button.dart';
-import 'package:responsive_framework/responsive_breakpoints.dart';
 
 import '../functions/push.dart';
 import '../functions/validate.dart';
@@ -40,7 +39,6 @@ class _StartPageRouteState extends State<StartPageRoute> {
 
   @override
   Widget build(BuildContext context) {
-    print(MediaQuery.of(context).size.height);
     _keyboardVisible = MediaQuery.of(context).viewInsets.bottom != 0; return AnnotatedRegion(
       value: SystemUiOverlayStyle.dark,
       child: Theme(
@@ -63,7 +61,7 @@ class _StartPageRouteState extends State<StartPageRoute> {
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const SizedBox(height: 12),
+                              const SizedBox(height: 24),
                               const Image(image: AssetImage('assets/Logo Indostar.png')),
                               const SizedBox(height: 12),
                               Text('Mulailah mengelola bisnis anda dengan aman dan cepat.',
@@ -232,6 +230,7 @@ class LoginButtonState extends State<LoginButton> {
         style: Styles.buttonForm(context: context),
         child: isLoading 
           ? Row(
+            mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 SizedBox(
                   width: 20,
