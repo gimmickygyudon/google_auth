@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:google_auth/functions/file_pickers.dart';
+import 'package:google_auth/functions/push.dart';
 import 'package:google_auth/functions/sqlite.dart';
 import 'package:google_auth/routes/keluhan/dashboard.dart';
 import 'package:google_auth/strings/user.dart';
@@ -137,7 +138,7 @@ class _LaporanRouteState extends State<LaporanRoute> {
         });
       }
     }).whenComplete(() {
-      Navigator.of(context).pop();
+      pushDashboard(context, currentPage: 1);
       showSnackBar(context, snackBarAuth(context: context, content: 'Terima Kasih atas Umpan Balik Anda.'));
     });
   }

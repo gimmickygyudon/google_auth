@@ -77,12 +77,16 @@ class SQL {
     }
   }
 
-  static Future<Map> retrieve({required String query, required String value, required String api}) async {
+  static Future<dynamic> retrieve({
+    required String api, 
+    required String param, 
+    required String query
+  }) async {
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
     };
 
-    String queryParameters = '?$query=$value';
+    String queryParameters = '?$query=$param';
 
     var url = Uri.parse('$server/api/$api$queryParameters');
     Map data = {};
@@ -96,7 +100,46 @@ class SQL {
 
     if (response.statusCode == 200) {
       List<dynamic> data = (json.decode(response.body)) as List;
-      return data.last; 
+      if (data.length == 1) return data.last;
+      return data;
+    }
+
+    return data;
+  }
+
+  static Future<List> retrieveJoin({
+    required String api, 
+    required String param, 
+    required String query,
+    int? limit,
+    int? offset,
+  }) async {
+    Map<String, String> requestHeaders = {
+      'Content-Type': 'application/json',
+    };
+
+    String queryParameters = '?$query=$param';
+    String? pageParameters() {
+      if (limit != null && offset != null)
+      {
+        return '&limit=$limit&offset=$offset';
+      }
+      return null;
+    }
+
+    var url = Uri.parse('$server/api/$api$queryParameters${pageParameters()}');
+    List<dynamic> data = [];
+
+    final response = await http.get(url, headers: requestHeaders).timeout(
+      const Duration(seconds: 1), 
+      onTimeout: () {
+        return http.Response('Error', 408);
+      }, 
+    );
+
+    if (response.statusCode == 200) {
+      List<dynamic> data = (json.decode(response.body))['rows'];
+      return data;
     }
 
     return data;

@@ -89,7 +89,15 @@ class _BottomNavigationState extends State<BottomNavigation> {
         items: [
           for(int i = 0; i < bottomMenu.length; i++)
           BottomNavigationBarItem(
-            icon: Icon(widget.currentPage != i ? bottomMenu[i]['icon_outline'] : bottomMenu[i]['icon']), 
+            activeIcon: Container(
+              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 20),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(20)
+              ),
+              child: Icon(bottomMenu[i]['icon'])
+            ),
+            icon: Icon(bottomMenu[i]['icon_outline']), 
             label: bottomMenu[i]['title']
           )
         ]

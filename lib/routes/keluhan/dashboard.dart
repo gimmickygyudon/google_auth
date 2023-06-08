@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_auth/functions/sqlite.dart';
-import 'package:google_auth/strings/user.dart';
+import 'package:intl/intl.dart';
 
 import '../../functions/push.dart';
 import '../../styles/theme.dart';
@@ -36,13 +36,30 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
     },
   ];
 
+  String getLaporan(String laporan) {
+    switch (laporan) {
+      case 'Price':
+        return 'Harga';
+      case 'Quality':
+        return 'Kualitas';
+      case 'Service':
+        return 'Pelayanan';
+      case 'After Sales':
+        return 'Purna Jual';
+      default:
+        return laporan;
+    }
+  }
+
   late TabController _tabController;
   List<String> sortList = ['Request', 'Nama', 'Tipe'];
   late String sortValue;
+  late ScrollController _scrollController;
 
   @override
   void initState() {
     sortValue = sortList.first;
+    _scrollController = ScrollController();
     _tabController = TabController(length: 2, vsync: this);
     super.initState();
   }
@@ -50,6 +67,7 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
   @override
   void dispose() {
     _tabController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -57,8 +75,9 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
   Widget build(BuildContext context) {
     return Theme(
       data: Theme.of(context).copyWith(appBarTheme: Themes.appBarTheme(context)),
-      child: CustomScrollView(
-        slivers: [
+      child: NestedScrollView(
+        controller: _scrollController,
+        headerSliverBuilder: (context, innerBoxIsScrolled) => [
           SliverAppBar(
             snap: true,
             pinned: true,
@@ -118,129 +137,199 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
               ]
             ),
           ),
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 36),
-            sliver: SliverToBoxAdapter(
-              child: SizedBox(
-                height: MediaQuery.of(context).size.height - kToolbarHeight - 100,
-                child: TabBarView(
-                  controller: _tabController,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        GridView(
-                          padding: const EdgeInsets.only(top: 16),
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                            maxCrossAxisExtent: 160, 
-                            mainAxisSpacing: (MediaQuery.of(context).size.height > 750) ? 20 : 10, 
-                            crossAxisSpacing: (MediaQuery.of(context).size.height > 750) ? 20 : 10
-                          ),
-                          children: laporanList.map((item) { 
-                            return LaporanCard(
-                              laporanList: laporanList, 
-                              pushReportPage: pushReportPage, 
-                              item: item
-                            );
-                          }).toList(),  
-                        ),
-                      ],
-                    ),
-                    FutureBuilder(
-                      future: UserReport.getList(),
+        ],
+        body: TabBarView(
+          controller: _tabController,
+          children: [
+            BuatLaporanWidget(scrollController: _scrollController, laporanList: laporanList),
+            CustomScrollView(
+              slivers: [
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 10),
+                  sliver: SliverToBoxAdapter(
+                    child: FutureBuilder(
+                      future: UserReport.getList(limit: 2, offset: 0),
                       builder: (context, snapshot) {
-                        return Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  children: [
-                                    Icon(Icons.check_circle, size: 20, color: Theme.of(context).colorScheme.secondary),
-                                    const SizedBox(width: 8),
-                                    DropdownButtonHideUnderline(
-                                      child: DropdownButton(
-                                        value: sortValue,
-                                        onChanged: (value) {
-                                          setState(() {
-                                            sortValue = value!;
-                                          });
-                                        },
-                                        borderRadius: BorderRadius.circular(12),
-                                        items: sortList.map((item) {
-                                          return DropdownMenuItem(
-                                            value: item,
-                                            child: Text(item, style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                              color: Theme.of(context).colorScheme.secondary,
-                                            ))
-                                          );
-                                        }).toList(),
-                                      ),
-                                    )
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    Text('4', style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                                      color: Theme.of(context).colorScheme.secondary
-                                    )),
-                                    const SizedBox(width: 2),
-                                    Icon(Icons.local_shipping, size: 18, color: Theme.of(context).colorScheme.secondary),
-                                  ],
-                                )
-                              ],
-                            ),
-                            const SizedBox(height: 16),
-                            ListView.builder(
-                              shrinkWrap: true,
-                              itemCount: 4,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemBuilder: (context, index) {
-                                return Column(
-                                  children: [
-                                    Row(
-                                      children: [
-                                        CircleAvatar(
-                                          radius: 18,
-                                          child: Icon(Icons.local_shipping, color: Theme.of(context).colorScheme.primary)
+                        if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
+                          return Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(Icons.check_circle, size: 20, color: Theme.of(context).colorScheme.secondary),
+                                      const SizedBox(width: 8),
+                                      DropdownButtonHideUnderline(
+                                        child: DropdownButton(
+                                          value: sortValue,
+                                          onChanged: (value) {
+                                            setState(() {
+                                              sortValue = value!;
+                                            });
+                                          },
+                                          borderRadius: BorderRadius.circular(12),
+                                          items: sortList.map((item) {
+                                            return DropdownMenuItem(
+                                              value: item,
+                                              child: Text(item, style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                                color: Theme.of(context).colorScheme.secondary,
+                                              ))
+                                            );
+                                          }).toList(),
                                         ),
-                                        const SizedBox(width: 12),
-                                        Text('Purna Jual', style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                                          color: Theme.of(context).colorScheme.primary,
-                                        ))
-                                      ],
-                                    ),
-                                    ListTile(
-                                      contentPadding: EdgeInsets.zero,
-                                      title: const Text('Contoh Pengiriman yang Kurang'),
-                                      titleTextStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                        letterSpacing: 0,
-                                        height: 2
-                                      ),
-                                      subtitle: Text(DateNow, style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                        color: Theme.of(context).colorScheme.secondary.withOpacity(0.75),
+                                      )
+                                    ],
+                                  ),
+                                  Row(
+                                    children: [
+                                      Text(snapshot.data!.length.toString(), style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                        color: Theme.of(context).colorScheme.secondary
                                       )),
-                                    ),
-                                    Divider(color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.25)),
-                                    const SizedBox(height: 12)
-                                  ],
-                                );
-                            }),
+                                      const SizedBox(width: 2),
+                                      Icon(Icons.question_answer, size: 18, color: Theme.of(context).colorScheme.secondary),
+                                    ],
+                                  )
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+                              ListView.builder(
+                                controller: _scrollController,
+                                shrinkWrap: true,
+                                itemCount: snapshot.data?.length,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemBuilder: (context, index) {
+                                  DateTime dateTime = DateTime.parse(snapshot.data?[index]['document_date']);
+                                  dateTime = dateTime.add(DateTime.parse(snapshot.data?[index]['document_date']).timeZoneOffset);
+                                  return Column(
+                                    children: [
+                                      Row(
+                                        children: [
+                                          CircleAvatar(
+                                            radius: 18,
+                                            child: Icon(
+                                              laporanList.singleWhere((element) {
+                                                return element['name'] == getLaporan(snapshot.data?[index]['SFB1']['type_feed']);
+                                              })['icon'], 
+                                              color: Theme.of(context).colorScheme.primary
+                                            )
+                                          ),
+                                          const SizedBox(width: 12),
+                                          Text(snapshot.data?[index]['SFB1']['type_feed'], style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                            color: Theme.of(context).colorScheme.primary,
+                                          )),
+                                          Text(' #${snapshot.data![index]['id_osfb'].toString()}', style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                            color: Theme.of(context).colorScheme.secondary.withOpacity(0.5),
+                                          )),
+                                        ],
+                                      ),
+                                      ListTile(
+                                        contentPadding: EdgeInsets.zero,
+                                        title: Text(snapshot.data?[index]['SFB1']['description']),
+                                        titleTextStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                          letterSpacing: 0,
+                                          height: 2
+                                        ),
+                                        subtitle: Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(DateFormat('EEEE, dd MMMM, ''yyyy', 'id').format(dateTime), style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                              color: Theme.of(context).colorScheme.secondary.withOpacity(0.75),
+                                            )),
+                                            Text(DateFormat('HH:mm', 'id').format(DateTime.parse(snapshot.data?[index]['document_date'])), style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                              color: Theme.of(context).colorScheme.secondary.withOpacity(0.75),
+                                            )),
+                                          ],
+                                        ),
+                                      ),
+                                      Divider(color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.25)),
+                                      const SizedBox(height: 12)
+                                    ],
+                                  );
+                              }),
+                            ],
+                          );
+                        }
+                        return Column(
+                          children: [
+                            const SizedBox(height: 24),
+                            SizedBox(
+                              height: 54,
+                              width: 54,
+                              child: CircularProgressIndicator(
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                            ),
                           ],
                         );
-                      },
-                    )
-                  ]
+                      }
+                    ),
+                  ),
                 ),
-              ),
+              ],
+            )
+          ]
+        ),
+      ),
+    );
+  }
+}
+
+class TicketWidget extends StatefulWidget {
+  const TicketWidget({super.key});
+
+  @override
+  State<TicketWidget> createState() => _TicketWidgetState();
+}
+
+class _TicketWidgetState extends State<TicketWidget> {
+  @override
+  Widget build(BuildContext context) {
+    return const Placeholder();
+  }
+}
+
+class BuatLaporanWidget extends StatelessWidget {
+  const BuatLaporanWidget({super.key, required this.scrollController, required this.laporanList});
+
+  final ScrollController scrollController;
+  final List<Map> laporanList;
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomScrollView(
+      slivers: [
+        SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 10),
+          sliver: SliverToBoxAdapter(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                GridView(
+                  controller: scrollController,
+                  padding: const EdgeInsets.only(top: 16),
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                    maxCrossAxisExtent: 160, 
+                    mainAxisSpacing: (MediaQuery.of(context).size.height > 750) ? 20 : 10, 
+                    crossAxisSpacing: (MediaQuery.of(context).size.height > 750) ? 20 : 10
+                  ),
+                  children: laporanList.map((item) { 
+                    return LaporanCard(
+                      laporanList: laporanList, 
+                      pushReportPage: pushReportPage, 
+                      item: item
+                    );
+                  }).toList(),  
+                ),
+              ],
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

@@ -45,10 +45,10 @@ void pushRegisterGoogle(BuildContext context, String logintype_, Map? source) {
   }));
 }
 
-void pushDashboard(BuildContext context) {
+void pushDashboard(BuildContext context, {int? currentPage}) {
   Navigator.pushReplacement(context, MaterialPageRoute(
     builder: (context) {
-      return const DashboardRoute();
+      return DashboardRoute(currentPage: currentPage);
     })
   ); 
 }

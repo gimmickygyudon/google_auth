@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:email_validator/email_validator.dart';
+import 'package:google_auth/strings/user.dart';
 import 'package:path/path.dart';
 import 'package:crypto/crypto.dart';
 import 'package:sqflite/sqflite.dart';
@@ -157,9 +158,19 @@ class UserReport {
     return '{id_ousr: $id_ousr, document_date: $document_date, id_ousr: $id_ousr, remarks: $remarks}';
   }
 
-  static Future<List<Map>> getList() async {
-    List<Map> tickets = List.empty(growable: true);
+  static Future<List> getList({
+    int? limit,
+    int? offset,
+  }) async {
+    List tickets = await SQL.retrieveJoin(
+      api: 'osfb', 
+      query: 'id_ousr',
+      limit: limit,
+      offset: offset,
+      param: currentUser['id_ousr'].toString(), 
+    );
 
+    print('tickets: $tickets');
     return tickets;
   }
 }

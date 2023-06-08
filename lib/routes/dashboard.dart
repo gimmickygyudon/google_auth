@@ -10,20 +10,24 @@ import '../strings/user.dart';
 import '../widgets/image.dart';
 
 class DashboardRoute extends StatefulWidget {
-  const DashboardRoute({super.key});
+  const DashboardRoute({super.key, this.currentPage});
+
+  final int? currentPage;
 
   @override
   State<DashboardRoute> createState() => _DashboardRouteState();
 }
 
 class _DashboardRouteState extends State<DashboardRoute> {
-  int currentPage = 4;
+  late int currentPage;
   late PageController _pageController;
 
   @override
   void initState() {
+    currentPage = widget.currentPage ?? 4;
     _pageController = PageController(initialPage: currentPage);
-    logUser();
+
+    if (widget.currentPage != null) logUser();
     super.initState();
   }
 
