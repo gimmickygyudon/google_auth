@@ -36,10 +36,35 @@ class _BerandaRouteState extends State<BerandaRoute> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text.rich(
-                          TextSpan(text: 'Rp', style: Theme.of(context).textTheme.bodyMedium, children: [                                          
-                            TextSpan(text: '12.000', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w500)),
-                          ]),
+                        PhysicalModel(
+                          color: Colors.transparent,
+                          borderRadius: BorderRadius.circular(8),
+                          clipBehavior: Clip.antiAlias,
+                          shadowColor: Theme.of(context).colorScheme.inversePrimary,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                            decoration: BoxDecoration(
+                              border: Border(left: BorderSide(color: Theme.of(context).colorScheme.inversePrimary, width: 8)),
+                              color: Theme.of(context).colorScheme.primary
+                            ),
+                            child: Column(
+                              children: [
+                                Text.rich(
+                                  TextSpan( 
+                                    children: [
+                                      TextSpan(text: 'Rp', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.surface)),
+                                      TextSpan(text: '12.000', style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                        fontWeight: FontWeight.w500,
+                                        color: Theme.of(context).colorScheme.surface
+                                      )),
+                                      const WidgetSpan(child: SizedBox(width: 8)),
+                                      WidgetSpan(child: Icon(Icons.trending_up, color: Theme.of(context).colorScheme.surface)),
+                                    ]
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                         const SizedBox(height: 12),
                         Row(
@@ -49,7 +74,8 @@ class _BerandaRouteState extends State<BerandaRoute> {
                             const SizedBox(width: 4,),
                             Text('Update setiap hari $DateNow', style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                 color: Theme.of(context).colorScheme.secondary,
-                                fontSize: 10
+                                fontSize: 10,
+                                letterSpacing: 0
                               )
                             ),
                           ],
@@ -60,7 +86,7 @@ class _BerandaRouteState extends State<BerandaRoute> {
                 ),
                 const SizedBox(height: 12),
                 SizedBox(
-                  height: 200,
+                  height: 220,
                   child: Card(
                     color: Theme.of(context).hoverColor,
                     elevation: 0,
@@ -208,7 +234,7 @@ class IconButtonText extends StatelessWidget {
         child: Column(
           children: [
             Container(
-              padding: const EdgeInsets.all(4),
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.25),
                 borderRadius: BorderRadius.circular(12)

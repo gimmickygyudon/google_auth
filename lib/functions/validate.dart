@@ -9,7 +9,6 @@ import '../strings/user.dart';
 import '../widgets/dialog.dart';
 import 'push.dart';
 import 'sql_client.dart';
-import 'sqlite.dart';
 
 class Validate {
 

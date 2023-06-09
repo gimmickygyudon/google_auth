@@ -182,7 +182,12 @@ class _LaporanRouteState extends State<LaporanRoute> {
                 duration: const Duration(milliseconds: 400),
                 curve: Curves.easeOut,
                 child: isLoading 
-                  ? Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary, strokeWidth: 2))
+                  ? Padding(
+                    padding: const EdgeInsets.all(40),
+                    child: Center(
+                        child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary, strokeWidth: 2)
+                      ),
+                  )
                     : _detailController.text.isEmpty
                     ? Padding(
                       padding: const EdgeInsets.symmetric(vertical: 32),
@@ -195,7 +200,7 @@ class _LaporanRouteState extends State<LaporanRoute> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Keterangan', style: Theme.of(context).textTheme.titleMedium),
+                    Text('Keluhan', style: Theme.of(context).textTheme.titleMedium),
                     const SizedBox(height: 4),
                     Text('Kritik adalah ketaksetujuan orang, bukan karena memiliki kesalahan.', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.secondary)),
                   ],
@@ -241,7 +246,7 @@ class _LaporanRouteState extends State<LaporanRoute> {
                                 Theme.of(context).textTheme.labelMedium?.copyWith(letterSpacing: 0)
                               )
                             ),
-                            icon: const Icon(Icons.publish, size: 22), 
+                            icon: const Icon(Icons.file_upload_outlined, size: 22), 
                             label: const Text('Upload Foto')
                           ),
                         ],
@@ -265,9 +270,10 @@ class _LaporanRouteState extends State<LaporanRoute> {
                           fileList.removeWhere((element) => element.name == file.name);
                         }),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25.7)),
-                        side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
-                        deleteIconColor: Theme.of(context).colorScheme.tertiary,
-                        avatar: const Icon(Icons.file_upload_outlined),
+                        side: BorderSide.none,
+                        backgroundColor: Theme.of(context).hoverColor,
+                        deleteIconColor: Theme.of(context).colorScheme.primary,
+                        avatar: const Icon(Icons.upload_file),
                         label: Text(file.name),
                         labelStyle: Theme.of(context).textTheme.labelMedium?.copyWith(letterSpacing: 0),
                       ),
@@ -276,7 +282,7 @@ class _LaporanRouteState extends State<LaporanRoute> {
                 ),
               ),
               SizedBox(
-                height: laporanList.isNotEmpty ? 120 : null,
+                height: 130,
                 child: ListView(
                   controller: _scrollController,
                   padding: const EdgeInsets.fromLTRB(30, 10, 30, 0),
@@ -297,7 +303,7 @@ class _LaporanRouteState extends State<LaporanRoute> {
                               }
                             });
                           },
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(20),
                           splashColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.5),
                           highlightColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.5),
                           child: LaporanCard(
@@ -430,9 +436,10 @@ class ButtonReport extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          TextButton(
+          TextButton.icon(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Kembali')
+            label: const Text('Kembali'),
+            icon: const Icon(Icons.arrow_back_rounded)
           ),
         ],
       ),

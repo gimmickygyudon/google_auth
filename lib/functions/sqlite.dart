@@ -158,11 +158,11 @@ class UserReport {
     return '{id_ousr: $id_ousr, document_date: $document_date, id_ousr: $id_ousr, remarks: $remarks}';
   }
 
-  static Future<List> getList({
+  static Future<List?> getList({
     int? limit,
     int? offset,
   }) async {
-    List tickets = await SQL.retrieveJoin(
+    List? tickets = await SQL.retrieveJoin(
       api: 'osfb', 
       query: 'id_ousr',
       limit: limit,

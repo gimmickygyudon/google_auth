@@ -92,20 +92,23 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Umpan Balik', 
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          letterSpacing: -0.5,
-                          fontWeight: FontWeight.w500
-                        )
+                      Row(
+                        children: [
+                          Icon(Icons.contact_support, color: Theme.of(context).colorScheme.primary, size: 28),
+                          const SizedBox(width: 6),
+                          Text('Kritik & Saran', 
+                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              letterSpacing: -0.5,
+                              fontWeight: FontWeight.w500,color: Theme.of(context).colorScheme.primary
+                            )
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 4),
-                      ConstrainedBox(
-                        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width),
-                        child: Text('Kritik adalah ketaksetujuan orang, bukan\nkarena memiliki kesalahan.', 
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).colorScheme.secondary
-                          )
-                        ),
+                      const SizedBox(height: 8),
+                      Text('Kritik termasuk ketaksetujuan orang, bukan\nkarena memiliki kesalahan.', 
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.secondary,
+                        )
                       ),
                     ],
                   ),
@@ -132,8 +135,8 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
             bottom: TabBar(
               controller: _tabController,
               tabs: const [
-                Tab(text: 'Buat Laporan'),
-                Tab(text: 'Ticket'),
+                Tab(text: 'Buat Keluhan'),
+                Tab(text: 'Pendapat Anda'),
               ]
             ),
           ),
@@ -150,7 +153,22 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
                     child: FutureBuilder(
                       future: UserReport.getList(limit: 2, offset: 0),
                       builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return Column(
+                            children: [
+                              const SizedBox(height: 48),
+                              SizedBox(
+                                height: 54,
+                                width: 54,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Theme.of(context).colorScheme.primary,
+                                ),
+                              ),
+                            ],
+                          );
+                        }
+                        else if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
                           return Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             mainAxisSize: MainAxisSize.min,
@@ -252,17 +270,24 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
                             ],
                           );
                         }
-                        return Column(
-                          children: [
-                            const SizedBox(height: 24),
-                            SizedBox(
-                              height: 54,
-                              width: 54,
-                              child: CircularProgressIndicator(
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
+                        return SizedBox(
+                          height: MediaQuery.of(context).size.height / 2 - (kToolbarHeight + kBottomNavigationBarHeight),
+                          child: Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.handshake_outlined, size: 72, color: Theme.of(context).colorScheme.primary),
+                                const SizedBox(height: 24),
+                                Text('Kamu Hebat !', style: Theme.of(context).textTheme.titleLarge),
+                                const SizedBox(height: 8),
+                                Text('Tempat ini sepertinya tidak digunakan.', 
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: Theme.of(context).colorScheme.secondary,
+                                  )
+                                ),
+                              ],
                             ),
-                          ],
+                          ),
                         );
                       }
                     ),
@@ -274,20 +299,6 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
         ),
       ),
     );
-  }
-}
-
-class TicketWidget extends StatefulWidget {
-  const TicketWidget({super.key});
-
-  @override
-  State<TicketWidget> createState() => _TicketWidgetState();
-}
-
-class _TicketWidgetState extends State<TicketWidget> {
-  @override
-  Widget build(BuildContext context) {
-    return const Placeholder();
   }
 }
 
@@ -347,7 +358,7 @@ class LaporanCard extends StatelessWidget {
   final Function? pushReportPage;
   final bool? isSelected;
   final Map item;
-  final double? size = 30;
+  final double? size = 24;
 
   @override
   Widget build(BuildContext context) {
@@ -355,6 +366,7 @@ class LaporanCard extends StatelessWidget {
       elevation: 0,
       margin: EdgeInsets.zero,
       clipBehavior: Clip.antiAlias,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       color: Theme.of(context).colorScheme.inversePrimary.withOpacity(isSelected == true ? 0.25 : 0.05),
         child: InkWell(
           onTap: pushReportPage != null ? () {
@@ -366,22 +378,27 @@ class LaporanCard extends StatelessWidget {
           highlightColor: isSelected == true 
             ? Theme.of(context).colorScheme.inversePrimary.withOpacity(0.05)
             : Theme.of(context).colorScheme.inversePrimary.withOpacity(0.5),
+          borderRadius: BorderRadius.circular(20),
           child: Container(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(20),
             border: Border.all(
               width: isSelected == true ? 2 : 1, 
-              color: isSelected == true ? Theme.of(context).colorScheme.inversePrimary : Theme.of(context).colorScheme.primary.withOpacity(0.25)
+              color: isSelected == true 
+              ? Theme.of(context).colorScheme.inversePrimary 
+              : Theme.of(context).colorScheme.primary.withOpacity(0.25)
             )
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(item['icon'], 
-                size: size, 
-                color: Theme.of(context).colorScheme.primary
+              CircleAvatar(
+                child: Icon(item['icon'], 
+                  size: size, 
+                  color: Theme.of(context).colorScheme.primary
+                ),
               ),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
@@ -396,9 +413,9 @@ class LaporanCard extends StatelessWidget {
                         )
                       ),
                       const SizedBox(width: 4),
-                      if(isSelected == null) Icon(Icons.arrow_forward, size: 16, color: Theme.of(context).colorScheme.primary)
                     ],
                   ),
+                  if(isSelected == null) Icon(Icons.arrow_forward, size: 16, color: Theme.of(context).colorScheme.primary),
                   if(isSelected == true) Icon(Icons.check_circle, size: 18, color: Theme.of(context).colorScheme.primary)
                 ],
               ),

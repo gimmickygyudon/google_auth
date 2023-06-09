@@ -93,8 +93,8 @@ class _DashboardRouteState extends State<DashboardRoute> {
         toolbarHeight: kToolbarHeight + 10,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
-            bottomLeft: Radius.circular(12),
-            bottomRight: Radius.circular(12)
+            bottomLeft: Radius.circular(20),
+            bottomRight: Radius.circular(20)
           )
         ),
         flexibleSpace: FlexibleSpaceBar(

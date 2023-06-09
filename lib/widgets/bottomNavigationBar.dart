@@ -44,12 +44,12 @@ class _BottomNavigationState extends State<BottomNavigation> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 60,
+      height: 82,
       clipBehavior: Clip.antiAlias,
       decoration: const BoxDecoration(
         borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(16),
-          topRight: Radius.circular(16),
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
         ),
         boxShadow: [ 
           BoxShadow(
@@ -61,7 +61,9 @@ class _BottomNavigationState extends State<BottomNavigation> {
       ),
       child: BottomNavigationBar(
         currentIndex: widget.currentPage,
-        showUnselectedLabels: true,
+        type: BottomNavigationBarType.fixed,
+        showSelectedLabels: false,
+        showUnselectedLabels: false,
         selectedItemColor: Theme.of(context).colorScheme.primary,
         unselectedItemColor: Theme.of(context).colorScheme.secondary,
         selectedLabelStyle: Theme.of(context).textTheme.bodySmall,
@@ -89,16 +91,39 @@ class _BottomNavigationState extends State<BottomNavigation> {
         items: [
           for(int i = 0; i < bottomMenu.length; i++)
           BottomNavigationBarItem(
-            activeIcon: Container(
-              padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 20),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.15),
-                borderRadius: BorderRadius.circular(20)
-              ),
-              child: Icon(bottomMenu[i]['icon'])
+            activeIcon: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 20),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(20)
+                  ),
+                  child: Icon(bottomMenu[i]['icon'])
+                ),
+                const SizedBox(height: 4),
+                Text(bottomMenu[i]['title'], style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.primary
+                ))
+              ]
             ),
-            icon: Icon(bottomMenu[i]['icon_outline']), 
-            label: bottomMenu[i]['title']
+            icon: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: Icon(bottomMenu[i]['icon_outline']),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  bottomMenu[i]['title'], style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.secondary,
+                  )
+                )
+              ],
+            ), 
+            label: ''
           )
         ]
       ),
