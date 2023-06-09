@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_auth/routes/belanja/item.dart';
 import 'package:google_auth/routes/beranda/customer.dart';
 import 'package:google_auth/routes/keluhan/report_page.dart';
 import 'package:google_auth/routes/start_page.dart';
@@ -65,6 +66,14 @@ void pushReportPage({required BuildContext context, Map? laporan, required List<
   Navigator.push(context, MaterialPageRoute(
     builder: (context) {
       return LaporanRoute(laporan: laporan, laporanList: laporanList);
+    })
+  ); 
+}
+
+void pushItemPage({required BuildContext context, required List<Map> items, required String hero}) {
+  Navigator.push(context, MaterialPageRoute(
+    builder: (context) {
+      return ItemRoute(items: items, hero: hero);
     })
   ); 
 }

@@ -107,12 +107,13 @@ class SQL {
     return data;
   }
 
-  static Future<List> retrieveJoin({
+  static Future<List?> retrieveJoin({
     required String api, 
     required String param, 
     required String query,
     int? limit,
     int? offset,
+    Function? setCount
   }) async {
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
@@ -128,7 +129,7 @@ class SQL {
     }
 
     var url = Uri.parse('$server/api/$api$queryParameters${pageParameters()}');
-    List<dynamic> data = [];
+    List? data;
 
     final response = await http.get(url, headers: requestHeaders).timeout(
       const Duration(seconds: 1), 
@@ -139,6 +140,7 @@ class SQL {
 
     if (response.statusCode == 200) {
       List<dynamic> data = (json.decode(response.body))['rows'];
+      if(setCount != null) setCount((json.decode(response.body))['count']);
       return data;
     }
 

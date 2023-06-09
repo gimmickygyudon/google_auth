@@ -15,14 +15,10 @@ class _BottomNavigationState extends State<BottomNavigation> {
   // TODO: move somewhere
   final List<Map<String, dynamic>> bottomMenu = [
     {
-      'icon': Icons.notes,
-      'icon_outline': Icons.notes_rounded,
-      'title': 'Menu'
-    },
-    {
-      'icon': Icons.help,
-      'icon_outline': Icons.help_outline,
-      'title': 'Keluhan'
+      'value': 0,
+      'icon': Icons.cottage,
+      'icon_outline': Icons.cottage_outlined,
+      'title': 'Beranda'
     },
     {
       'icon': Icons.star,
@@ -35,16 +31,20 @@ class _BottomNavigationState extends State<BottomNavigation> {
       'title': 'Belanja'
     },
     {
-      'icon': Icons.cottage,
-      'icon_outline': Icons.cottage_outlined,
-      'title': 'Beranda'
+      'icon': Icons.help,
+      'icon_outline': Icons.help_outline,
+      'title': 'Keluhan'
+    },
+    {
+      'icon': Icons.notes,
+      'icon_outline': Icons.notes_rounded,
+      'title': 'Menu'
     },
   ];
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 82,
       clipBehavior: Clip.antiAlias,
       decoration: const BoxDecoration(
         borderRadius: BorderRadius.only(
@@ -62,8 +62,8 @@ class _BottomNavigationState extends State<BottomNavigation> {
       child: BottomNavigationBar(
         currentIndex: widget.currentPage,
         type: BottomNavigationBarType.fixed,
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
+        showSelectedLabels: true,
+        showUnselectedLabels: true,
         selectedItemColor: Theme.of(context).colorScheme.primary,
         unselectedItemColor: Theme.of(context).colorScheme.secondary,
         selectedLabelStyle: Theme.of(context).textTheme.bodySmall,
@@ -71,7 +71,7 @@ class _BottomNavigationState extends State<BottomNavigation> {
         onTap: (value) {
           switch (value) {
             case 0:
-              Scaffold.of(context).openDrawer();
+              widget.pageController.animateToPage(0, duration: const Duration(milliseconds: 400), curve: Curves.easeInOut);
               break;
             case 1:
               widget.pageController.animateToPage(1, duration: const Duration(milliseconds: 400), curve: Curves.easeInOut);
@@ -83,7 +83,7 @@ class _BottomNavigationState extends State<BottomNavigation> {
               widget.pageController.animateToPage(3, duration: const Duration(milliseconds: 400), curve: Curves.easeInOut);
               break;
             case 4:
-              widget.pageController.animateToPage(4, duration: const Duration(milliseconds: 400), curve: Curves.easeInOut);
+              Scaffold.of(context).openEndDrawer();
               break;
             default:
           }
@@ -91,39 +91,19 @@ class _BottomNavigationState extends State<BottomNavigation> {
         items: [
           for(int i = 0; i < bottomMenu.length; i++)
           BottomNavigationBarItem(
-            activeIcon: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 20),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.2),
-                    borderRadius: BorderRadius.circular(20)
-                  ),
-                  child: Icon(bottomMenu[i]['icon'])
-                ),
-                const SizedBox(height: 4),
-                Text(bottomMenu[i]['title'], style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.primary
-                ))
-              ]
+            activeIcon: Container(
+              padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 20),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(20)
+              ),
+              child: Icon(bottomMenu[i]['icon'])
             ),
-            icon: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                  child: Icon(bottomMenu[i]['icon_outline']),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  bottomMenu[i]['title'], style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.secondary,
-                  )
-                )
-              ],
+            icon: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 2),
+              child: Icon(bottomMenu[i]['icon_outline']),
             ), 
-            label: ''
+            label: bottomMenu[i]['title']
           )
         ]
       ),

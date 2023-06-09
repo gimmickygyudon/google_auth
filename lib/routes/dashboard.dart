@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:google_auth/functions/sql_client.dart';
+import 'package:google_auth/routes/belanja/dashboard.dart';
 import 'package:google_auth/routes/beranda/dashboard.dart';
 import 'package:google_auth/routes/keluhan/dashboard.dart';
 import 'package:google_auth/widgets/bottomNavigationBar.dart';
@@ -24,7 +25,7 @@ class _DashboardRouteState extends State<DashboardRoute> {
 
   @override
   void initState() {
-    currentPage = widget.currentPage ?? 4;
+    currentPage = widget.currentPage ?? 0;
     _pageController = PageController(initialPage: currentPage);
 
     if (widget.currentPage != null) logUser();
@@ -46,7 +47,7 @@ class _DashboardRouteState extends State<DashboardRoute> {
   void logUser() {
      UserLog userLog = UserLog(
       id_olog: null, 
-      date_time: DateNowSQL, 
+      date_time: DateNowSQL(),
       form_sender: currentUser['login_type'],
       remarks: currentUser['user_name'], 
       source: currentUser['user_email'],
@@ -73,7 +74,7 @@ class _DashboardRouteState extends State<DashboardRoute> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: Drawer(
+      endDrawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
           children: [
@@ -130,6 +131,7 @@ class _DashboardRouteState extends State<DashboardRoute> {
         titleSpacing: 12,
         backgroundColor: Theme.of(context).colorScheme.primary,
         actions: [
+          IconButton(onPressed: () {}, icon: const Icon(Icons.shopping_bag_outlined), color: Theme.of(context).colorScheme.surface),
           IconButton(onPressed: () {}, icon: const Icon(Icons.notifications_none), color: Theme.of(context).colorScheme.surface),
           const SizedBox(width: 6),
           const ProfileMenu(),
@@ -140,11 +142,11 @@ class _DashboardRouteState extends State<DashboardRoute> {
         controller: _pageController,
         onPageChanged: (value) => setState(() => changePage(value)),
         children: [
+          const BerandaRoute(),
           Container(),
+          const BelanjaRoute(),
           const KeluhanRoute(),
           Container(),
-          Container(),
-          const BerandaRoute()
         ]
       ),
       bottomNavigationBar: BottomNavigation(currentPage: currentPage, pageController: _pageController, changePage: changePage)

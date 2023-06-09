@@ -105,7 +105,7 @@ class _LaporanRouteState extends State<LaporanRoute> {
       api: 'osfb',
       item: UserReport(
         id_osfb: null,
-        document_date: DateNowSQL,
+        document_date: DateNowSQL(),
         id_ousr: currentUser['id_ousr'], 
         remarks: currentUser['user_name']
       ).toMap()
@@ -231,7 +231,7 @@ class _LaporanRouteState extends State<LaporanRoute> {
                         decoration: Styles.inputDecorationForm(
                           context: context,
                           floatingLabelBehavior: FloatingLabelBehavior.never,
-                          placeholder: 'Masukan Keluhan Anda...',
+                          placeholder: 'Masukan Keluhan Anda Disini...',
                           condition: _detailController.text.trim().isNotEmpty,
                         ),
                       ),
@@ -405,7 +405,7 @@ class SenderHeader extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text('Tanggal Keluhan:'),
-              Text(DateNow, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w500)),
+              Text(DateNow(), style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w500)),
             ],
           ),
         ),

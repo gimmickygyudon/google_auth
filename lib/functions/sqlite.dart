@@ -161,16 +161,17 @@ class UserReport {
   static Future<List?> getList({
     int? limit,
     int? offset,
+    Function? setCount
   }) async {
     List? tickets = await SQL.retrieveJoin(
       api: 'osfb', 
       query: 'id_ousr',
       limit: limit,
       offset: offset,
+      setCount: setCount,
       param: currentUser['id_ousr'].toString(), 
     );
 
-    print('tickets: $tickets');
     return tickets;
   }
 }

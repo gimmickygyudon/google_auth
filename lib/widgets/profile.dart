@@ -87,7 +87,7 @@ class ProfileMenu extends StatelessWidget {
         PopupMenuItem(
           enabled: false,
           height: 28,
-          child: Text('v1.0.0+1 • Logged in $DateNow', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w400)),
+          child: Text('v1.0.0+1 • Logged in ${DateNow()}', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w400)),
         )
       ],
       child: PhotoProfile(photo: currentUser['photo_url'], size: 32, color: Theme.of(context).colorScheme.surface),

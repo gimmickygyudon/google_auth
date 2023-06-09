@@ -54,6 +54,7 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
   late TabController _tabController;
   List<String> sortList = ['Request', 'Nama', 'Tipe'];
   late String sortValue;
+  late int tickets, pageLimit, pageOffset, currentPage;
   late ScrollController _scrollController;
 
   @override
@@ -61,6 +62,12 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
     sortValue = sortList.first;
     _scrollController = ScrollController();
     _tabController = TabController(length: 2, vsync: this);
+
+    tickets = 0; // Jumlah Keluhan
+    pageLimit = 5;
+    pageOffset = 0;
+    currentPage = 1;
+
     super.initState();
   }
 
@@ -69,6 +76,30 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
     _tabController.dispose();
     _scrollController.dispose();
     super.dispose();
+  }
+
+  int pages() {
+    int pages = 0;
+    for (var i = tickets; i > 0; i -= pageLimit) {
+      pages++;
+    }
+
+    return pages;
+  }
+
+  void ticketCount(int count) => tickets = count;
+  
+  void changePage(int page) {
+    setState(() {
+      if (currentPage < page) {
+        pageOffset += (pageLimit * (page - currentPage));
+      } else {
+        pageOffset -= (pageLimit * (currentPage - page));
+      }
+
+      currentPage = page;
+    });
+    print('\n\ncurrentPage: $currentPage \n\npageLimit: $pageLimit \n\npageOffset: $pageOffset');
   }
 
   @override
@@ -84,6 +115,7 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
             floating: true,
             automaticallyImplyLeading: false,
             toolbarHeight: kToolbarHeight + 110,
+            actions: const [ SizedBox() ],
             title: Padding(
               padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
               child: Column(
@@ -93,6 +125,7 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
+                        mainAxisSize: MainAxisSize.max,
                         children: [
                           Icon(Icons.contact_support, color: Theme.of(context).colorScheme.primary, size: 28),
                           const SizedBox(width: 6),
@@ -134,9 +167,24 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
             ),
             bottom: TabBar(
               controller: _tabController,
-              tabs: const [
-                Tab(text: 'Buat Keluhan'),
-                Tab(text: 'Pendapat Anda'),
+              tabs: [
+                const Tab(text: 'Buat Keluhan'),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Tab(text: 'Pendapat Anda'),
+                    Visibility(
+                      visible: tickets > 0,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 6),
+                        child: CircleAvatar(
+                          radius: 11,
+                          child: Text(tickets.toString(), style: Theme.of(context).textTheme.bodyMedium),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
               ]
             ),
           ),
@@ -146,12 +194,13 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
           children: [
             BuatLaporanWidget(scrollController: _scrollController, laporanList: laporanList),
             CustomScrollView(
+              controller: _scrollController,
               slivers: [
                 SliverPadding(
                   padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 10),
                   sliver: SliverToBoxAdapter(
                     child: FutureBuilder(
-                      future: UserReport.getList(limit: 2, offset: 0),
+                      future: UserReport.getList(limit: pageLimit, offset: pageOffset, setCount: ticketCount),
                       builder: (context, snapshot) {
                         if (snapshot.connectionState == ConnectionState.waiting) {
                           return Column(
@@ -168,7 +217,7 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
                             ],
                           );
                         }
-                        else if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
+                        else if (snapshot.connectionState == ConnectionState.done && snapshot.data!.isNotEmpty) {
                           return Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             mainAxisSize: MainAxisSize.min,
@@ -203,7 +252,7 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
                                   ),
                                   Row(
                                     children: [
-                                      Text(snapshot.data!.length.toString(), style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                      Text(tickets.toString(), style: Theme.of(context).textTheme.labelLarge?.copyWith(
                                         color: Theme.of(context).colorScheme.secondary
                                       )),
                                       const SizedBox(width: 2),
@@ -227,6 +276,7 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
                                         children: [
                                           CircleAvatar(
                                             radius: 18,
+                                            backgroundColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.25),
                                             child: Icon(
                                               laporanList.singleWhere((element) {
                                                 return element['name'] == getLaporan(snapshot.data?[index]['SFB1']['type_feed']);
@@ -235,7 +285,7 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
                                             )
                                           ),
                                           const SizedBox(width: 12),
-                                          Text(snapshot.data?[index]['SFB1']['type_feed'], style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                          Text(getLaporan(snapshot.data?[index]['SFB1']['type_feed']), style: Theme.of(context).textTheme.labelLarge?.copyWith(
                                             color: Theme.of(context).colorScheme.primary,
                                           )),
                                           Text(' #${snapshot.data![index]['id_osfb'].toString()}', style: Theme.of(context).textTheme.labelSmall?.copyWith(
@@ -247,6 +297,7 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
                                         contentPadding: EdgeInsets.zero,
                                         title: Text(snapshot.data?[index]['SFB1']['description']),
                                         titleTextStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                          fontWeight: FontWeight.w500,
                                           letterSpacing: 0,
                                           height: 2
                                         ),
@@ -267,28 +318,49 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
                                     ],
                                   );
                               }),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [ 
+                                  for (int index = 0; index < pages(); index++) ...[
+                                    TextButton(
+                                      style: ButtonStyle(
+                                        padding: const MaterialStatePropertyAll(EdgeInsets.zero),
+                                        textStyle: MaterialStatePropertyAll(Theme.of(context).textTheme.labelLarge?.copyWith(
+                                          fontWeight: index + 1 == currentPage ? FontWeight.w800 : null)
+                                        ),
+                                        foregroundColor: MaterialStatePropertyAll(
+                                          index + 1 == currentPage ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.secondary.withOpacity(0.75)
+                                        )
+                                      ),
+                                      onPressed: index + 1 != currentPage ? () => changePage(index + 1) : null,
+                                      child: Text((index + 1).toString())
+                                    )
+                                  ]
+                                ]
+                              )
                             ],
                           );
-                        }
-                        return SizedBox(
-                          height: MediaQuery.of(context).size.height / 2 - (kToolbarHeight + kBottomNavigationBarHeight),
-                          child: Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.handshake_outlined, size: 72, color: Theme.of(context).colorScheme.primary),
-                                const SizedBox(height: 24),
-                                Text('Kamu Hebat !', style: Theme.of(context).textTheme.titleLarge),
-                                const SizedBox(height: 8),
-                                Text('Tempat ini sepertinya tidak digunakan.', 
-                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: Theme.of(context).colorScheme.secondary,
-                                  )
-                                ),
-                              ],
+                        } else {
+                          return SizedBox(
+                            height: MediaQuery.of(context).size.height / 2 - (kToolbarHeight + kBottomNavigationBarHeight),
+                            child: Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.handshake_outlined, size: 72, color: Theme.of(context).colorScheme.primary),
+                                  const SizedBox(height: 24),
+                                  Text('Kamu Hebat !', style: Theme.of(context).textTheme.titleLarge),
+                                  const SizedBox(height: 8),
+                                  Text('Tempat ini sepertinya tidak digunakan.', 
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: Theme.of(context).colorScheme.secondary,
+                                    )
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                        );
+                          );
+                        }
                       }
                     ),
                   ),

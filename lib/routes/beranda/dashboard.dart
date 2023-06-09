@@ -21,9 +21,9 @@ class _BerandaRouteState extends State<BerandaRoute> {
   Widget build(BuildContext context) {
     return CustomScrollView(
       slivers: [
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
+        SliverPadding(
+          padding: const EdgeInsets.all(20),
+          sliver: SliverToBoxAdapter(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisSize: MainAxisSize.min,
@@ -72,7 +72,7 @@ class _BerandaRouteState extends State<BerandaRoute> {
                           children: [
                             const Icon(Icons.sync, size: 12),
                             const SizedBox(width: 4,),
-                            Text('Update setiap hari $DateNow', style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            Text('Update setiap hari ${DateNow()}', style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                 color: Theme.of(context).colorScheme.secondary,
                                 fontSize: 10,
                                 letterSpacing: 0
