@@ -177,10 +177,12 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
                       visible: tickets > 0,
                       child: Padding(
                         padding: const EdgeInsets.only(left: 6),
-                        child: CircleAvatar(
-                          radius: 11,
-                          child: Text(tickets.toString(), style: Theme.of(context).textTheme.bodyMedium),
-                        ),
+                        child: Badge(
+                          largeSize: 18,
+                          backgroundColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.25),
+                          label: Text(tickets.toString()),
+                          textColor:Theme.of(context).colorScheme.primary ,
+                        )
                       ),
                     )
                   ],
@@ -217,7 +219,7 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
                             ],
                           );
                         }
-                        else if (snapshot.connectionState == ConnectionState.done && snapshot.data!.isNotEmpty) {
+                        else if (snapshot.connectionState == ConnectionState.done && snapshot.data != null) {
                           return Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             mainAxisSize: MainAxisSize.min,

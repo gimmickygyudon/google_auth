@@ -94,8 +94,9 @@ class Styles {
   static InputDecoration inputDecorationForm(
     {
       required BuildContext context,
-      required String placeholder,
+      required String? placeholder,
       required bool condition,
+      String? hintText,
       Icon? icon,
       bool? visibility,
       bool? visibilityDisabled,
@@ -115,6 +116,7 @@ class Styles {
       if (visibilityDisabled == true) visibility_ = false;
       return InputDecoration(
         labelText: placeholder,
+        hintText: hintText,
         alignLabelWithHint: true,
         floatingLabelBehavior: floatingLabelBehavior,
         suffixText: prefixText,
