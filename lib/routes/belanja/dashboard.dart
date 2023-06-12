@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:google_auth/functions/push.dart';
+import 'package:google_auth/functions/sqlite.dart';
 
 class BelanjaRoute extends StatefulWidget {
   const BelanjaRoute({super.key});
@@ -10,41 +11,7 @@ class BelanjaRoute extends StatefulWidget {
   State<BelanjaRoute> createState() => _BelanjaRouteState();
 }
 
-List<Map> recommendItems = [
-  {
-    'name': 'Indostar',
-    'subitem': [ 
-      {
-        'name': 'Indostar Plank',
-        'img': 'assets/Indostar Plank.png'
-      }, {
-        'name': 'Indostar Board',
-        'img': 'assets/Indostar Board.png'
-      }, {
-        'name': 'Indostarbes',
-        'img': 'assets/Indostar Bes.png'
-      }
-    ],
-    'img': 'assets/Logo Indostar.png',
-    'bg': 'assets/background-1a.jpg',
-    'color': Colors.blueGrey
-  },
-  {
-    'name': 'ECO',
-    'subitem': [ 
-      {
-        'name': 'ECO Board',
-        'img': 'assets/Indostar Board.png'
-      }, {
-        'name': 'ECObes',
-        'img': 'assets/Indostar Bes.png'
-      }
-    ],
-    'img': 'assets/Logo Merk ECO.png',
-    'bg': 'assets/background-3a.png',
-    'color': Colors.lightGreen
-  }
-];
+List<Map> recommendItems = Item.recommenditems;
 
 class _BelanjaRouteState extends State<BelanjaRoute> {
   @override
@@ -170,7 +137,8 @@ class _BelanjaRouteState extends State<BelanjaRoute> {
                         child: InkWell(
                           borderRadius: BorderRadius.circular(12),
                           onTap: () => pushItemPage(
-                            context: context, 
+                            context: context,
+                            brand: element['name'],
                             hero: element['name'],
                             items: element['subitem'],
                             background: element['bg'],

@@ -5,6 +5,7 @@ import 'package:google_auth/routes/belanja/dashboard.dart';
 import 'package:google_auth/routes/beranda/dashboard.dart';
 import 'package:google_auth/routes/keluhan/dashboard.dart';
 import 'package:google_auth/widgets/bottomNavigationBar.dart';
+import 'package:google_auth/widgets/cart.dart';
 import 'package:google_auth/widgets/profile.dart';
 import '../functions/sqlite.dart';
 import '../strings/user.dart';
@@ -131,9 +132,7 @@ class _DashboardRouteState extends State<DashboardRoute> {
         titleSpacing: 12,
         backgroundColor: Theme.of(context).colorScheme.primary,
         actions: [
-          IconButton(onPressed: () {}, icon: const Icon(Icons.shopping_bag_outlined), color: Theme.of(context).colorScheme.surface, 
-            style: const ButtonStyle(visualDensity: VisualDensity.compact)
-          ),
+          Cart(icon: Icons.shopping_bag_outlined, color: Theme.of(context).colorScheme.surface),
           IconButton(onPressed: () {}, icon: const Icon(Icons.notifications_none), color: Theme.of(context).colorScheme.surface, 
             style: const ButtonStyle(visualDensity: VisualDensity.compact)
           ),

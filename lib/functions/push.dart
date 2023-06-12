@@ -73,29 +73,40 @@ void pushReportPage({required BuildContext context, Map? laporan, required List<
 
 void pushItemPage({
     required BuildContext context, 
-    required List<Map> items, 
-    required String hero,
-    required String background,
+    required List<Map> items,
+    required String brand, hero, background, logo,
     required Color color,
-    required String logo,
   }) {
   Navigator.push(context, MaterialPageRoute(
     builder: (context) {
-      return ItemRoute(items: items, hero: hero, background: background, color: color, logo: logo);
+      return ItemRoute(items: items, hero: hero, background: background, color: color, logo: logo, brand: brand);
     })
   ); 
 }
 
 void pushItemDetailPage({
   required BuildContext context, 
-  required String itemImage,
-  required String hero,
+  required String brand, hero,
   required Color color,
-  required List<Map> items
+  required Map item
 }) {
   Navigator.push(context, MaterialPageRoute(
     builder: (context) {
-      return DetailItemRoute(itemImage: itemImage, hero: hero, color: color, items:items,);
+      return DetailItemRoute(hero: hero, color: color, item: item, brand: brand);
+    })
+  ); 
+}
+
+void pushItemDetailPageReplace({
+  required BuildContext context, 
+  required String brand, hero,
+  required Color color,
+  required Map item,
+  required String type
+}) {
+  Navigator.pushReplacement(context, MaterialPageRoute(
+    builder: (context) {
+      return DetailItemRoute(hero: hero, color: color, item: item, brand: brand, type: type);
     })
   ); 
 }

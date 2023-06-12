@@ -1,20 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_auth/functions/push.dart';
+import 'package:google_auth/widgets/cart.dart';
 
 import '../../styles/theme.dart';
 
 class ItemRoute extends StatelessWidget {
   const ItemRoute({
     super.key, 
+    required this.brand,
     required this.hero,
     required this.items, 
     required this.background,
-    required this.color, required this.logo
+    required this.color, 
+    required this.logo
   });
 
   final List<Map> items;
-  final String hero, background, logo;
+  final String brand, hero, background, logo;
   final Color color;
 
   @override
@@ -44,13 +47,9 @@ class ItemRoute extends StatelessWidget {
                   icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.surface)
                 ),
                 actions: [
-                  IconButton(
-                    onPressed: () {},
-                    style: const ButtonStyle(
-                      visualDensity: VisualDensity.compact
-                    ),
-                    color: Theme.of(context).colorScheme.surface,
-                    icon: const Icon(Icons.shopping_cart_outlined)
+                  Cart(
+                    icon: Icons.shopping_bag_outlined,
+                    color: Theme.of(context).colorScheme.surface
                   ),
                   const SizedBox(width: 12),
                 ],
@@ -124,9 +123,9 @@ class ItemRoute extends StatelessWidget {
                   delegate: SliverChildListDelegate(items.map((element) {
                     return InkWell(
                       onTap: () => pushItemDetailPage(
-                        context: context, 
-                        items: items,
-                        itemImage: element['img'], 
+                        context: context,
+                        brand: brand,
+                        item: element,
                         hero: element['name'],
                         color: color
                       ),
