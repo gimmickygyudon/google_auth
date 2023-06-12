@@ -56,27 +56,31 @@ class _StartPageRouteState extends State<StartPageRoute> {
                     height: MediaQuery.of(context).size.height,
                     child: Column(
                       children: [
-                        if(MediaQuery.of(context).size.height > 750) Flexible(
+                        Flexible(
                           flex: 3, 
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const SizedBox(height: 24),
-                              const Image(image: AssetImage('assets/Logo Indostar.png')),
-                              const SizedBox(height: 12),
-                              Text('Mulailah mengelola bisnis anda dengan aman dan cepat.',
-                                style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                                  fontWeight: FontWeight.w400,
-                                  color: Theme.of(context).colorScheme.secondary
-                                ),
-                                textAlign: TextAlign.center
-                              ),
+                              const SizedBox(height: kToolbarHeight),
+                              Expanded(child: Column(
+                                children: [
+                                  const Image(image: AssetImage('assets/Logo Indostar.png'), width: 300),
+                                  const SizedBox(height: 12),
+                                  Text('Mulailah mengelola bisnis anda dengan aman dan cepat.',
+                                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                      fontWeight: FontWeight.w400,
+                                      color: Theme.of(context).colorScheme.secondary
+                                    ),
+                                    textAlign: TextAlign.center
+                                  ),
+                                ],
+                              )),
                             ],
                           ),
                         ),
                         Expanded(
-                          flex: (MediaQuery.of(context).size.height > 750) ? 4 : 2, 
-                          child: Image.asset('assets/bricklayer_3 @vector4stock.png', fit: BoxFit.cover)
+                          flex: 4, 
+                          child: Image.asset('assets/bricklayer_3 @vector4stock.png')
                         ),
                         Flexible(
                           flex: 6,

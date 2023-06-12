@@ -41,7 +41,7 @@ List<Map> recommendItems = [
       }
     ],
     'img': 'assets/Logo Merk ECO.png',
-    'bg': 'assets/background-2a.png',
+    'bg': 'assets/background-3a.png',
     'color': Colors.lightGreen
   }
 ];
@@ -52,30 +52,43 @@ class _BelanjaRouteState extends State<BelanjaRoute> {
     return CustomScrollView(
       slivers: [
         SliverPadding(
-          padding: const EdgeInsets.symmetric(vertical: 20),
+          padding: const EdgeInsets.symmetric(vertical: 30),
           sliver: SliverToBoxAdapter(
             child: Column(
               children: [
-                const SizedBox(height: 10),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  padding: const EdgeInsets.symmetric(horizontal: 30),
                   child: Card(
-                    elevation: 0,
+                    elevation: 6,
+                    shadowColor: Theme.of(context).splashColor,
                     margin: EdgeInsets.zero,
                     clipBehavior: Clip.antiAlias,
+                    // color: Theme.of(context).hoverColor,
                     surfaceTintColor: Colors.transparent,
-                    color: Theme.of(context).hoverColor,
                     child: Column(
                       children: [
                         TextField(
                           onChanged: (value) {},
-                          style: Theme.of(context).textTheme.titleMedium,
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            height: 1.35
+                          ),
                           decoration: InputDecoration(
                             contentPadding: const EdgeInsets.fromLTRB(12, 9, 12, 9),
                             border: InputBorder.none,
-                            hintText: 'Bahan apa yang anda cari ?',
-                            hintStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              color: Theme.of(context).colorScheme.secondary.withOpacity(0.5)
+                            hintText: 'Indostar Board',
+                            prefixIcon: Icon(Icons.arrow_forward, color: Theme.of(context).primaryColorDark),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: Theme.of(context).colorScheme.outlineVariant)
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: BorderSide(color: Theme.of(context).primaryColor)
+                            ),
+                            hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.secondary.withOpacity(0.5),
+                              letterSpacing: 0,
+                              height: 2
                             ),
                             suffixIcon: Container(
                               margin: const EdgeInsets.all(8),
@@ -87,9 +100,9 @@ class _BelanjaRouteState extends State<BelanjaRoute> {
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Icon(Icons.search, color: Theme.of(context).colorScheme.primary),
+                                  Icon(Icons.search, color: Theme.of(context).colorScheme.primary, size: 22),
                                   const SizedBox(width: 2),
-                                  Text('Cari', style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  Text('Cari', style: Theme.of(context).textTheme.titleSmall?.copyWith(
                                     color: Theme.of(context).colorScheme.primary
                                   ))
                                 ],
@@ -105,7 +118,7 @@ class _BelanjaRouteState extends State<BelanjaRoute> {
                 SizedBox(
                   height: 40,
                   child: ListView(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    padding: const EdgeInsets.symmetric(horizontal: 30),
                     scrollDirection: Axis.horizontal,
                     children: List.generate(5, (index) {
                       return Padding(
@@ -113,38 +126,43 @@ class _BelanjaRouteState extends State<BelanjaRoute> {
                         child: FilterChip(
                           onSelected: (value) {},
                           avatar: const FlutterLogo(),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                           side: BorderSide.none,
-                          backgroundColor: Theme.of(context).hoverColor,
-                          label: const Text('Produk'),
+                          backgroundColor: Theme.of(context).primaryColorLight.withOpacity(0.25),
+                          label: Text('Produk#$index'),
+                          labelStyle: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            color: Theme.of(context).colorScheme.primary,
+                            letterSpacing: 0
+                          ),
                         ),
                       );
                     }),
                   )
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 30),
                 Padding(
-                  padding: const EdgeInsets.only(left: 20),
+                  padding: const EdgeInsets.only(left: 30),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Row(
                         children: [
-                          Icon(Icons.recommend, color: Theme.of(context).colorScheme.primary),
+                          const Icon(Icons.stars, color: Colors.orange),
                           const SizedBox(width: 6),
-                          Text('Rekomendasi', style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.secondary
+                          Text('Rekomendasi', style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.secondary,
+                            letterSpacing: 0
                           )),
                         ],
                       ),
-                      TextButton(onPressed: () {}, child: const Text('Lihat Semua'))
                     ],
                   ),
                 ),
+                const SizedBox(height: 12),
                 SizedBox(
                   height: 158,
                   child: ListView(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    padding: const EdgeInsets.symmetric(horizontal: 30),
                     scrollDirection: Axis.horizontal,
                     children: recommendItems.map((element) {
                       return Padding(
@@ -237,10 +255,11 @@ class CardItem extends StatelessWidget {
                       visualDensity: const VisualDensity(vertical: -4),
                       backgroundColor: MaterialStatePropertyAll(item['color'])
                     ),
-                    icon: Text('Lihat Produk', style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      color: Theme.of(context).colorScheme.surface)
-                    ),
-                    label: Icon(Icons.arrow_forward, size: 18, color: Theme.of(context).colorScheme.surface),
+                    icon: Text('Lihat Produk', style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.surface,
+                      letterSpacing: 0
+                    )),
+                    label: Icon(Icons.arrow_forward, size: 20, color: Theme.of(context).colorScheme.surface),
                   ),
                 ),
               ),

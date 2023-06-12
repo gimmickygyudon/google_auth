@@ -79,45 +79,45 @@ class _LoginRouteState extends State<LoginRoute> {
                   child: Form(
                     child: Column(
                       children: [
-                         if(MediaQuery.of(context).size.height > 750) Flexible(
-                          flex: 3, 
+                         Expanded(
+                          flex: 4, 
                           child: Column(
                             children: [
-                              const SizedBox(height: 24),
-                              Image(
-                                image: const AssetImage('assets/Logo Indostar.png'),
-                                height: (MediaQuery.of(context).size.height > 750) ? null : 30,
-                              ),
-                              const SizedBox(height: 12),
-                              Text('Mulailah mengelola bisnis anda dengan aman dan cepat.',
-                                style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                                  fontWeight: FontWeight.w400,
-                                  color: Theme.of(context).colorScheme.secondary
-                                ),
-                                textAlign: TextAlign.center
-                              ),
+                              const SizedBox(height: kToolbarHeight),
+                              Expanded(child: Column(
+                                children: [
+                                  const Image(image: AssetImage('assets/Logo Indostar.png'), width: 300),
+                                  const SizedBox(height: 12),
+                                  Text('Mulailah mengelola bisnis anda dengan aman dan cepat.',
+                                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                      fontWeight: FontWeight.w400,
+                                      color: Theme.of(context).colorScheme.secondary
+                                    ),
+                                    textAlign: TextAlign.center
+                                  ),
+                                ],
+                              )),
                             ],
                           ),
                         ),
-                        if (widget.source == null) Expanded(flex: 3, child: Image.asset('assets/start_page.png', fit: BoxFit.cover)),
+                        if (widget.source == null) Expanded(flex: 4, child: Image.asset('assets/start_page.png', fit: BoxFit.cover)),
                         SizedBox(
                           height: widget.source != null 
-                          ? MediaQuery.of(context).size.height > 750 ? 40 : 20 
+                          ? MediaQuery.of(context).size.height > 750 ? 20 : 20 
                           : 20
                         ),
-                        if (widget.source != null) ...[
-                          Expanded(
-                            flex: (MediaQuery.of(context).size.height > 750) ? 3 : 4, child: UserProfile(source: widget.source)
-                          ),
-                        ],
-                        Flexible(
-                          flex: widget.source != null ? 8 : 4,
+                        Expanded(
+                          flex: widget.source != null ? 9 : 6,
                           child: Theme(
                             data: Theme.of(context).copyWith(inputDecorationTheme: Themes.inputDecorationThemeForm(context: context)),
                             child: StatefulBuilder(builder: (context, setState) {
                               return Column(
                                 crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
+                                  if (widget.source != null) Padding(
+                                    padding: const EdgeInsets.only(bottom: 32),
+                                    child: UserProfile(source: widget.source),
+                                  ),
                                   TextFormField(
                                     controller: _usernameController,
                                     onChanged: (value) => setState(() {

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../styles/theme.dart';
-
 class DetailItemRoute extends StatefulWidget {
   const DetailItemRoute({
     super.key, 
@@ -26,46 +24,66 @@ class _DetailItemRouteState extends State<DetailItemRoute> {
     return CustomScrollView(
       slivers: [
         SliverAppBar(
+          floating: true,
+          pinned: true,
           expandedHeight: 300,
+          toolbarHeight: kToolbarHeight + 10,
+          automaticallyImplyLeading: false,
+          titleSpacing: 0,
           leading: IconButton(
             onPressed: () => Navigator.of(context).pop(),
-            style: ButtonStyle(
-              backgroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.surface)
-            ),
+            style: ButtonStyle(backgroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.surface)),
             icon: const Icon(Icons.arrow_back)
+          ),
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Card(
+                elevation: 0,
+                shadowColor: Theme.of(context).shadowColor.withOpacity(0.5),
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 2, 12, 2),
+                  child: Row(
+                    children: [
+                      Image.asset('assets/Logo IndostarBes.png', width: 200)
+                    ],
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: IconButton(
+                  onPressed: () {},
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStatePropertyAll(
+                      Theme.of(context).colorScheme.surface
+                    )
+                  ),
+                  icon: const Icon(Icons.shopping_cart_outlined)
+                ),
+              )
+            ],
           ),
           flexibleSpace: FlexibleSpaceBar(
             background: Container(
               color: widget.color.withOpacity(0.05),
-              child: Column(
+              child: Stack(
+                fit: StackFit.expand,
                 children: <Widget>[
                   Expanded(
                     child: Hero(
                       tag: widget.hero,
                       child: Padding(
-                        padding: const EdgeInsets.fromLTRB(32, 64, 32, 0),
+                        padding: const EdgeInsets.fromLTRB(64, 80, 64, 0),
                         child: Image.asset(widget.itemImage),
                       )
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(8),
-                    child: Row(
-                      children: List.generate(3, (index) {
-                        return Card(
-                          elevation: 0,
-                          color: Theme.of(context).hoverColor,
-                          child: const Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: FlutterLogo(size: 60),
-                          ),
-                        );
-                      }),
-                    ),
-                  )
                 ]
               ),
             ),
+            titlePadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            expandedTitleScale: 1,
           ),
         ),
         SliverFillRemaining(
@@ -91,57 +109,38 @@ class _DetailItemRouteState extends State<DetailItemRoute> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      // TODO: add route path to here with pads (Text.rich)
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Row(
-                            children: [
-                              Image.asset('assets/logo IBM p C.png', height: 22),
-                              const SizedBox(width: 12),
-                              Text(widget.items.first['name'], style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                fontWeight: FontWeight.w500,
-                              )),
-                            ],
-                          ),
-                          IconButton(
-                            onPressed: () {},
-                            visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
-                            icon: const Icon(Icons.grade_outlined, color: Colors.orange)
-                          )
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      const Text('Indostarboard Plank mempunyai enam macam ukuran'),
-                      Container(
-                        margin: const EdgeInsets.symmetric(vertical: 24),
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          color: widget.color.withOpacity(0.05),
-                        ),
-                        child: Row(
+                      const PathTextRail(paths: [
+                        'Belanja', 'Indostar', 'Indostarbes'
+                      ]),
+                      Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: Column(
                           children: [
-                            Icon(Icons.square_foot, color: Theme.of(context).colorScheme.secondary),
-                            const SizedBox(width: 2),
-                            Text('2400 x 200 x 8', style: Theme.of(context).textTheme.bodyMedium?.copyWith()),
-                            const SizedBox(width: 12),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 24),
+                              child: ItemSpecs(value: const ['2400', '200', '8', '5.5']),
+                            ),
                             Row(
                               children: [
-                                Text('5.5 Kg', style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: Theme.of(context).colorScheme.primary
+                                Image.asset('assets/logo IBM p C.png', height: 18),
+                                const SizedBox(width: 8),
+                                Text(widget.items.first['name'], style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                  fontWeight: FontWeight.w400,
+                                  letterSpacing: 0
                                 )),
                               ],
+                            ),
+                            const SizedBox(height: 4),
+                            Text('Indostar Plank cocok digunakan sebagai list plank maupun sidding plank untuk rumah dengan konsep klasik dan berseni.', 
+                              textAlign: TextAlign.justify,
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Theme.of(context).colorScheme.secondary,
+                                height: 1.75
+                              ),
                             ),
                           ],
                         ),
                       ),
-                      // TODO: fill this column
-                      Text('Info Produk', style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w500,
-                      )),
-                      Text('Indostar Plank cocok digunakan sebagai list plank maupun sidding plank untuk rumah dengan konsep klasik dan berseni.')
                     ],
                   ),
                 ),
@@ -150,6 +149,100 @@ class _DetailItemRouteState extends State<DetailItemRoute> {
           ),
         )
       ],
+    );
+  }
+}
+
+class PathTextRail extends StatelessWidget {
+  const PathTextRail({super.key, required this.paths});
+
+  final List<String> paths;
+
+  @override
+  Widget build(BuildContext context) {
+    int i = 0;
+    return Text.rich(
+      TextSpan(
+        children: paths.map((path) {
+          i++;
+          InlineSpan widget = TextSpan(children: [
+            TextSpan(text: path, style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              fontWeight: i == paths.length ? FontWeight.w500 : null,
+              color: i == paths.length ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.secondary.withOpacity(0.75),
+              letterSpacing: 0
+            )),
+            if(i != paths.length) TextSpan(text: '  /  ', style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: Theme.of(context).colorScheme.outlineVariant
+            ))
+          ]);
+        return widget;
+        }).toList()
+      )
+    );
+  }
+}
+
+class ItemSpecs extends StatelessWidget {
+  ItemSpecs({super.key, required this.value});
+
+  final List value;
+  final List<Map> filler = [
+    {
+      'name': 'Panjang',
+      'icon': Icons.height,
+      'type': 'mm'      
+    },
+    {
+      'name': 'Lebar',
+      'icon': Icons.width_normal,
+      'type': 'mm'      
+    },
+    {
+      'name': 'Tebal',
+      'icon': Icons.layers,
+      'type': 'mm'
+    },
+    {
+      'name': 'Berat',
+      'icon': Icons.scale,
+      'type': 'kg'
+    }
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    int i = 0;
+    return IntrinsicHeight(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: filler.map((fill) {
+          Widget widget = Row(
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(fill['name'].toUpperCase(), style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.secondary,
+                    letterSpacing: 1
+                  )),
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      Text(value[i], style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w500
+                      )),
+                      Text(" ${fill['type']}"),
+                    ],
+                  )
+                ],
+              ),
+              if(i + 1 != filler.length) const VerticalDivider(width: 30)
+            ],
+          );
+          i++;
+          return widget;
+        }).toList()
+      ),
     );
   }
 }

@@ -230,6 +230,7 @@ class _LaporanRouteState extends State<LaporanRoute> {
                         style: Theme.of(context).textTheme.bodyMedium,
                         decoration: Styles.inputDecorationForm(
                           context: context,
+                          alignLabelWithHint: true,
                           floatingLabelBehavior: FloatingLabelBehavior.never,
                           placeholder: 'Masukan Keluhan Anda Disini...',
                           condition: _detailController.text.trim().isNotEmpty,
@@ -282,7 +283,7 @@ class _LaporanRouteState extends State<LaporanRoute> {
                 ),
               ),
               SizedBox(
-                height: 130,
+                height: 150,
                 child: ListView(
                   controller: _scrollController,
                   padding: const EdgeInsets.fromLTRB(30, 10, 30, 0),
@@ -290,7 +291,7 @@ class _LaporanRouteState extends State<LaporanRoute> {
                   scrollDirection: Axis.horizontal,
                   children: laporanList.map((item) {
                     return SizedBox(
-                      width: 150,
+                      width: 170,
                       child: Padding(
                         padding: const EdgeInsets.only(right: 20),
                         child: InkWell(

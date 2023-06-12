@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:responsive_framework/responsive_framework.dart';
+import 'package:responsive_framework/utils/responsive_utils.dart';
 
 import 'functions/push.dart';
 import 'routes/start_page.dart';
@@ -24,17 +25,29 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       builder: (context, child) {
+        // print('height: ${MediaQuery.of(context).size.height}');
+        // print('width: ${MediaQuery.of(context).size.width}');
         return MediaQuery(
-          data: MediaQuery.of(context).copyWith(textScaleFactor: 1.1),
-          child: ResponsiveBreakpoints.builder(
-            child: child!,
-            breakpoints: [
-              const Breakpoint(start: 0, end: 400, name: PHONE),
-              const Breakpoint(start: 401, end: 450, name: MOBILE),
-              const Breakpoint(start: 451, end: 800, name: TABLET),
-              const Breakpoint(start: 801, end: 1920, name: DESKTOP),
-              const Breakpoint(start: 1921, end: double.infinity, name: '4K'),
+          data: MediaQuery.of(context).copyWith(textScaleFactor: 1.3),
+          child: ResponsiveWrapper.builder(
+            child,
+            maxWidth: 600,
+            minWidth: 200,
+            maxWidthLandscape: 4000,
+            minWidthLandscape: 600,
+            breakpointsLandscape: [
+              const ResponsiveBreakpoint.resize(400, name: MOBILE, scaleFactor: 0.75),
+              const ResponsiveBreakpoint.resize(600, name: TABLET, scaleFactor: 0.75),
+              const ResponsiveBreakpoint.resize(1024, name: DESKTOP),
+              const ResponsiveBreakpoint.resize(1600, name: '4K'),
             ],
+            defaultScale: true,
+            breakpoints: [
+              const ResponsiveBreakpoint.resize(200, name: MOBILE, scaleFactor: 0.9),
+              const ResponsiveBreakpoint.resize(400, name: TABLET, scaleFactor: 0.95),
+              const ResponsiveBreakpoint.resize(1024, name: DESKTOP),
+              const ResponsiveBreakpoint.resize(1600, name: '4K'),
+            ]
           ),
         );
       },

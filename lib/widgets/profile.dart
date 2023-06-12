@@ -55,6 +55,7 @@ class ProfileMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     return PopupMenuButton(
       padding: EdgeInsets.zero,
+      constraints: const BoxConstraints(maxWidth: 340, minWidth: 340),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       itemBuilder: (context) => [
         PopupMenuItem(

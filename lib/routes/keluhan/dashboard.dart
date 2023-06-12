@@ -114,7 +114,7 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
             pinned: true,
             floating: true,
             automaticallyImplyLeading: false,
-            toolbarHeight: kToolbarHeight + 110,
+            toolbarHeight: kToolbarHeight + 140,
             actions: const [ SizedBox() ],
             title: Padding(
               padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
@@ -124,6 +124,7 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      const SizedBox(height: 12),
                       Row(
                         mainAxisSize: MainAxisSize.max,
                         children: [
@@ -398,12 +399,14 @@ class BuatLaporanWidget extends StatelessWidget {
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: 160, 
-                    mainAxisSpacing: (MediaQuery.of(context).size.height > 750) ? 20 : 10, 
-                    crossAxisSpacing: (MediaQuery.of(context).size.height > 750) ? 20 : 10
+                    maxCrossAxisExtent: 260, 
+                    mainAxisSpacing: (MediaQuery.of(context).size.height > 750) ? 20 : 40, 
+                    crossAxisSpacing: (MediaQuery.of(context).size.height > 750) ? 20 : 40
                   ),
                   children: laporanList.map((item) { 
                     return LaporanCard(
+                      iconSize: 32,
+                      bgRadius: 24,
                       laporanList: laporanList, 
                       pushReportPage: pushReportPage, 
                       item: item
@@ -425,6 +428,8 @@ class LaporanCard extends StatelessWidget {
     required this.laporanList, 
     required this.pushReportPage, 
     required this.item,
+    this.iconSize,
+    this.bgRadius,
     this.isSelected
   });
 
@@ -432,7 +437,7 @@ class LaporanCard extends StatelessWidget {
   final Function? pushReportPage;
   final bool? isSelected;
   final Map item;
-  final double? size = 24;
+  final double? iconSize, bgRadius;
 
   @override
   Widget build(BuildContext context) {
@@ -469,8 +474,9 @@ class LaporanCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               CircleAvatar(
+                radius: bgRadius,
                 child: Icon(item['icon'], 
-                  size: size, 
+                  size: iconSize ?? 24, 
                   color: Theme.of(context).colorScheme.primary
                 ),
               ),
@@ -489,7 +495,7 @@ class LaporanCard extends StatelessWidget {
                       const SizedBox(width: 4),
                     ],
                   ),
-                  if(isSelected == null) Icon(Icons.arrow_forward, size: 16, color: Theme.of(context).colorScheme.primary),
+                  if(isSelected == null) Icon(Icons.arrow_forward, size: 24, color: Theme.of(context).colorScheme.primary),
                   if(isSelected == true) Icon(Icons.check_circle, size: 18, color: Theme.of(context).colorScheme.primary)
                 ],
               ),

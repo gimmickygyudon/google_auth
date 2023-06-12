@@ -67,7 +67,7 @@ class Styles {
 
   static ButtonStyle buttonForm({required BuildContext context}) {
     return ButtonStyle(
-      visualDensity: VisualDensity.standard,
+      visualDensity: const VisualDensity(horizontal: 2, vertical: 2),
       elevation: MaterialStateProperty.resolveWith((states) {
         if (states.contains(MaterialState.disabled)) return null;
         return states.contains(MaterialState.pressed) ? 1 : 8;
@@ -96,12 +96,9 @@ class Styles {
       required BuildContext context,
       required String? placeholder,
       required bool condition,
-      String? hintText,
+      String? hintText, prefixText,
       Icon? icon,
-      bool? visibility,
-      bool? visibilityDisabled,
-      bool? isPhone,
-      String? prefixText,
+      bool? visibility, visibilityDisabled, alignLabelWithHint, isPhone,
       Widget? suffixIcon,
       FloatingLabelBehavior? floatingLabelBehavior
     }) {
@@ -117,7 +114,7 @@ class Styles {
       return InputDecoration(
         labelText: placeholder,
         hintText: hintText,
-        alignLabelWithHint: true,
+        alignLabelWithHint: alignLabelWithHint,
         floatingLabelBehavior: floatingLabelBehavior,
         suffixText: prefixText,
         prefixIcon: isPhone == true ? Row(

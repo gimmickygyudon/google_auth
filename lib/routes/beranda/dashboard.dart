@@ -86,7 +86,7 @@ class _BerandaRouteState extends State<BerandaRoute> {
                 ),
                 const SizedBox(height: 12),
                 SizedBox(
-                  height: 220,
+                  height: 240,
                   child: Card(
                     color: Theme.of(context).hoverColor,
                     elevation: 0,
