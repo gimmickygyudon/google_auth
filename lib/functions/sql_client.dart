@@ -4,10 +4,10 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-// String server = 'http://192.168.1.19:8080';
+String server = 'http://192.168.1.19:8080';
 
 // Server Lokal
-String server = 'http://192.168.1.106:8080';
+// String server = 'http://192.168.1.106:8080';
 
 class SQL {
 
@@ -79,14 +79,13 @@ class SQL {
 
   static Future<dynamic> retrieve({
     required String api, 
-    required String param, 
     required String query
   }) async {
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
     };
 
-    String queryParameters = '?$query=$param';
+    String queryParameters = '?$query';
 
     var url = Uri.parse('$server/api/$api$queryParameters');
     Map data = {};

@@ -89,9 +89,9 @@ class _RegisterRouteState extends State<RegisterRoute> {
       phone_number: _phonenumberController.text,
       user_password: md5.convert(utf8.encode(_repasswordController.text)).toString()
     );
-    SQL.retrieve(query: 'user_email', param: _emailController.text, api: 'ousr').then((value) {
+    SQL.retrieve(query: 'user_email=${_emailController.text}', api: 'ousr').then((value) {
       if (value.isEmpty) {
-        SQL.retrieve(query: 'phone_number', param: _phonenumberController.text, api: 'ousr').then((value) {
+        SQL.retrieve(query: 'phone_number=${_phonenumberController.text}', api: 'ousr').then((value) {
           if (value.isNotEmpty) {
             Map<String, dynamic> source = {
               'user_email': value['user_email'],
