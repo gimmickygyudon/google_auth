@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:google_auth/functions/sqlite.dart';
+import 'package:google_auth/functions/string.dart';
+import 'package:google_auth/strings/item.dart';
 import 'package:google_auth/styles/theme.dart';
 import 'package:google_auth/widgets/cart.dart';
 
 import '../../functions/push.dart';
+import '../../functions/sqlite.dart';
 
 class DetailItemRoute extends StatefulWidget {
   const DetailItemRoute({
@@ -26,24 +28,18 @@ class DetailItemRoute extends StatefulWidget {
 class _DetailItemRouteState extends State<DetailItemRoute> {
   late ScrollController _scrollController;
   bool _hideTitleSuggestion = false;
-  int toolbarHeight = 0;
+  int toolbarHeight = 0, dimensionIndex = 0;
   double expandedHeight = 300;
 
-  late int indexType;
-  late String? type;
   String? typeNext, typePrev;
   int? typeIndexNext, typeIndexPrev;
 
+  late List dimension;
+
   @override
   void initState() {
-    if (widget.type == null) {
-      type = widget.item['type'].first['name'];
-      indexType = 0;
-    } else {
-      type = widget.type;
-    }
-
-    setSuggestion();
+    dimension = Item.splitDimension(widget.item['OITMs'].first['spesification']);
+    dimension.add(Item.defineWeight(widget.item['OITMs'].first['weight']));
     hideTitleSuggestion();
     super.initState();
   }
@@ -54,38 +50,36 @@ class _DetailItemRouteState extends State<DetailItemRoute> {
     super.dispose();
   }
 
-  late List test;
-  void setSuggestion() {
+  // late List test;
+  // void setSuggestion() {
 
-    indexType = widget.item['type'].indexWhere((element) => element['name'] == type);
-    int typeLength = (widget.item['type'].length - 1);
+  //   indexType = widget.item['type'].indexWhere((element) => element['name'] == type);
+  //   int typeLength = (widget.item['type'].length - 1);
 
-    if (widget.item['type'].length > 1) {
-      int? nextIndex() => indexType != typeLength ? indexType + 1 : null;
-      if (nextIndex() != null) { 
-        typeNext = widget.item['type'][nextIndex()]['name'];
-        typeIndexNext = nextIndex();
-      } else {
-        typeNext = widget.item['type'][0]['name'];
-        typeIndexNext = 0;
-      }
+  //   if (widget.item['type'].length > 1) {
+  //     int? nextIndex() => indexType != typeLength ? indexType + 1 : null;
+  //     if (nextIndex() != null) { 
+  //       typeNext = widget.item['type'][nextIndex()]['name'];
+  //       typeIndexNext = nextIndex();
+  //     } else {
+  //       typeNext = widget.item['type'][0]['name'];
+  //       typeIndexNext = 0;
+  //     }
 
-      int? prevIndex() => indexType != 0 ? indexType - 1 : null;
-      if (prevIndex() != null) { 
-        typePrev = widget.item['type'][prevIndex()]['name'];
-        typeIndexPrev = prevIndex();
-      } else {
-        typePrev = widget.item['type'][typeLength]['name'];
-        typeIndexPrev = typeLength;
-      }
+  //     int? prevIndex() => indexType != 0 ? indexType - 1 : null;
+  //     if (prevIndex() != null) { 
+  //       typePrev = widget.item['type'][prevIndex()]['name'];
+  //       typeIndexPrev = prevIndex();
+  //     } else {
+  //       typePrev = widget.item['type'][typeLength]['name'];
+  //       typeIndexPrev = typeLength;
+  //     }
 
-      if (typeNext == typePrev) {
-        indexType == typeLength ? typeNext = null : typePrev = null;
-      }
-    }
-
-    print('typeNext: $typeNext\ntypePrev: $typePrev');
-  }
+  //     if (typeNext == typePrev) {
+  //       indexType == typeLength ? typeNext = null : typePrev = null;
+  //     }
+  //   }
+  // }
 
   void hideTitleSuggestion() {
     _scrollController = ScrollController()..addListener(() {
@@ -98,21 +92,7 @@ class _DetailItemRouteState extends State<DetailItemRoute> {
           _hideTitleSuggestion = false;
         });
       }
-    });   
-  }
-
-  // TODO: use on board dimension
-  List splitSpecification(String value) {
-    String value_ = value.replaceAll('IN ', '');
-    return value_.split(' x ');
-  }
-
-  // TODO: use on board dimension
-  String removeZeroes(double value) {
-    RegExp regex = RegExp(r'([.]*0)(?!.*\d)');
-    String s = value.toString().replaceAll(regex, '');
-
-    return s;
+    });
   }
 
   @override
@@ -158,7 +138,7 @@ class _DetailItemRouteState extends State<DetailItemRoute> {
                         padding: const EdgeInsets.fromLTRB(12, 2, 12, 2),
                         child: Row(
                           children: [
-                            Image.asset(widget.item['icon'], height: 28)
+                            Image.asset(ItemDescription.getLogo(widget.item['description']), height: 28)
                           ],
                         ),
                       ),
@@ -189,7 +169,7 @@ class _DetailItemRouteState extends State<DetailItemRoute> {
                                   hero: widget.hero, 
                                   color: widget.color,
                                   type: typePrev!,
-                                  item: Item.getSubItem(typeIndexPrev!, widget.brand, widget.hero)
+                                  item: {  } // TODO: next item
                                 );
                               },
                               style: ButtonStyle(
@@ -214,7 +194,7 @@ class _DetailItemRouteState extends State<DetailItemRoute> {
                                   hero: widget.hero, 
                                   color: widget.color,
                                   type: typeNext!,
-                                  item: Item.getSubItem(typeIndexNext!, widget.brand, widget.hero)
+                                  item: {  } // TODO: next item
                                 );
                               },
                               style: ButtonStyle(
@@ -244,7 +224,7 @@ class _DetailItemRouteState extends State<DetailItemRoute> {
                               tag: widget.hero,
                               child: Padding(
                                 padding: const EdgeInsets.fromLTRB(64, 80, 64, 0),
-                                child: Image.asset(widget.item['img']),
+                                child: Image.asset(ItemDescription.getImage(widget.item['description'])),
                               )
                             ),
                           ]
@@ -280,7 +260,7 @@ class _DetailItemRouteState extends State<DetailItemRoute> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
                             PathTextRail(paths: [
-                              'Belanja', 'Indostar', widget.item['name']
+                              'Belanja', widget.brand, widget.item['description'].toString().toTitleCase()
                             ]),
                             Padding(
                               padding: const EdgeInsets.all(10),
@@ -289,22 +269,22 @@ class _DetailItemRouteState extends State<DetailItemRoute> {
                                   Padding(
                                     padding: const EdgeInsets.symmetric(vertical: 24),
                                     child: ItemSpecs(
-                                      value: const ['2400', '200', '8', '5.5'],
-                                      diff: widget.item['type'].firstWhere((e) => e['name'] == type)['diff'],
+                                      value: dimension,
+                                      diff: ItemDescription.getDiff(widget.item['description']),
                                     ),
                                   ),
                                   Row(
                                     children: [
                                       Image.asset('assets/logo IBM p C.png', height: 18),
                                       const SizedBox(width: 8),
-                                      Text("${type!.contains('Indostar') ? type : 'Indostar $type'}", style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                      Text(widget.item['description'].toString().toTitleCase(), style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                         fontWeight: FontWeight.w400,
                                         letterSpacing: 0
                                       )),
                                     ],
                                   ),
                                   const SizedBox(height: 4),
-                                  Text(widget.item['type'][indexType]['description'], 
+                                  Text(ItemDescription.getDescription(widget.item['description']), 
                                     textAlign: TextAlign.justify,
                                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                       color: Theme.of(context).colorScheme.secondary,

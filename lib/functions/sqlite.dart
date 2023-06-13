@@ -311,7 +311,6 @@ class UserRegister {
     if (source != null) {
       bool isEmail = EmailValidator.validate(source);
       String item = isEmail ? 'user_email' : 'phone_number';
-      print('isEmail: $item');
 
       return maps.where((element) => element[item] == source).map((value) {
         return UserRegister(
@@ -341,6 +340,7 @@ class UserRegister {
 
 class Item {
 
+  // TODO: cart add and remove
   static Future<void> orderItems(List<Map> source) async {
     final prefs = await SharedPreferences.getInstance();
     prefs.setString('Orders', jsonEncode(source));
@@ -351,24 +351,40 @@ class Item {
     prefs.remove('Orders');
   }
 
-  static Map getSubItem(int index, String brand, String name) {
-    Map map = {};
-    Map asMap = {};
 
-    for (var element in recommenditems) { 
-      if (element['name'] == brand) map = element;
+  static Future<List?> getItems({required String brand}) async {
+    String? param;
+    switch (brand.toUpperCase()) {
+      case 'INDOSTAR':
+        param = '9,10,11,23,29,30';
+        break;
+      case 'ECO':
+        param = '4,5,6,42,43,52';
+      default:
     }
 
-    map['subitem'].forEach((element) {
-      if (element['name'] == name) { 
-        asMap = element;
-        return asMap;
-      }
-    });
-
-    return asMap;
+    return SQL.retrieveJoin(api: 'sim/brn1', param: param, query: 'id_brn1');
   }
 
+
+  static String defineDimension(String value) {
+    return value.replaceAll('IN ', '').replaceAll('PP', '').replaceAll('PM', '').replaceAll('BES', '').replaceAll('EC', '');
+  }
+
+  static List splitDimension(String value) {
+    String string = value.replaceAll('IN ', '').replaceAll('PP', '').replaceAll('PM', '').replaceAll('BES', '').replaceAll('EC', '');
+    return string.split(' x ');
+  }
+
+  static String defineWeight(dynamic value) {
+    RegExp regex = RegExp(r'([.]*0)(?!.*\d)');
+    String s = value.toString().replaceAll(regex, '');
+    double.parse(s).roundToDouble();
+
+    return s;
+  }
+  
+  // TODO: move this to strings.dart
   static const List<Map> recommenditems = [{
     'name': 'Indostar',
     'subitem': [ 
@@ -392,7 +408,7 @@ class Item {
           }
         ]
       }, {
-        'name': 'Indostarbes',
+        'name': 'Indostar Bes',
         'img': 'assets/Indostar Bes.png',
         'icon': 'assets/Logo IndostarBes.png',
         'type': [
@@ -412,7 +428,7 @@ class Item {
         'icon': 'assets/Logo Indostar Plank.png',
         'type': [
           {
-            'name': 'Indostar Plank',
+            'name': 'Plank',
             'description': ItemDescription.plank,
             'diff': ['Panjang', 'Lebar']
           }, {

@@ -20,7 +20,7 @@ class _CartState extends State<Cart> {
       elevation: 8,
       shadowColor: Theme.of(context).splashColor,
       surfaceTintColor: Theme.of(context).colorScheme.inversePrimary,
-      constraints: const BoxConstraints(maxWidth: 640, minWidth: 440),
+      constraints: const BoxConstraints(maxWidth: 400, minWidth: 400),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       itemBuilder: (context) => [
         PopupMenuItem(
@@ -74,51 +74,91 @@ class _CartState extends State<Cart> {
         ),
       ] + List.generate(3, (index) {
         return PopupMenuItem(
-          child: Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                margin: const EdgeInsets.symmetric(vertical: 8),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  color: Theme.of(context).primaryColorLight.withOpacity(0.5)
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        color: Theme.of(context).primaryColorLight.withOpacity(0.5)
+                      ),
+                      child: const FlutterLogo(size: 64)
+                    ),
+                    const SizedBox(width: 16),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Produk #008$index'),
+                            Text('Indostar', style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context).colorScheme.primary,
+                              height: 0
+                            )),
+                          ],
+                        ),
+                        DropdownButton(
+                          padding: EdgeInsets.zero,
+                          borderRadius: BorderRadius.circular(10),
+                          value: '2400 x 200 x 8 (5.5 kg)',
+                          onChanged: (value) {},
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.secondary,
+                            height: 0
+                          ),
+                          items: const [
+                            DropdownMenuItem(
+                              value: '2400 x 200 x 8 (5.5 kg)',
+                              child: Text('2400 x 200 x 8 (5.5 kg)')
+                            )
+                          ]
+                        )
+                      ],
+                    ),
+                  ],
                 ),
-                child: const FlutterLogo(size: 64)
-              ),
-              const SizedBox(width: 16),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Produk #008$index'),
-                      Text('Indostar', style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                Column(
+                  children: [
+                    TextButton(
+                      onPressed: () {},
+                      style: ButtonStyle(
+                        visualDensity: const VisualDensity(vertical: -4, horizontal: -4),
+                        textStyle: MaterialStatePropertyAll(
+                          Theme.of(context).textTheme.labelSmall
+                        ),
+                        foregroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.secondary)
+                      ),
+                      child: const Text('Cancel')
+                    ),
+                    const SizedBox(height: 12),
+                    DropdownButton(
+                      padding: EdgeInsets.zero,
+                      borderRadius: BorderRadius.circular(10),
+                      value: '2 Qt',
+                      onChanged: (value) {},
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Theme.of(context).colorScheme.secondary,
                         height: 0
-                      )),
-                    ],
-                  ),
-                  DropdownButton(
-                    padding: EdgeInsets.zero,
-                    borderRadius: BorderRadius.circular(10),
-                    value: '2400 x 200 x 8 (5.5 kg)',
-                    onChanged: (value) {},
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.secondary,
-                      height: 0
-                    ),
-                    items: [
-                      DropdownMenuItem(
-                        value: '2400 x 200 x 8 (5.5 kg)',
-                        child: Text('2400 x 200 x 8 (5.5 kg)')
-                      )
-                    ]
-                  )
-                ],
-              )
-            ]
+                      ),
+                      items: const [
+                        DropdownMenuItem(
+                          value: '2 Qt',
+                          child: Text('2 Qt')
+                        )
+                      ]
+                    )
+                  ],
+                )
+              ]
+            ),
           )
         );
       }),

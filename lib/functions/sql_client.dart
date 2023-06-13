@@ -94,7 +94,7 @@ class SQL {
       const Duration(seconds: 1), 
       onTimeout: () {
         return http.Response('Error', 408);
-      }, 
+      },
     );
 
     if (response.statusCode == 200) {
@@ -108,7 +108,7 @@ class SQL {
 
   static Future<List?> retrieveJoin({
     required String api, 
-    required String param, 
+    required String? param, 
     required String query,
     int? limit,
     int? offset,
@@ -119,12 +119,12 @@ class SQL {
     };
 
     String queryParameters = '?$query=$param';
-    String? pageParameters() {
+    String pageParameters() {
       if (limit != null && offset != null)
       {
         return '&limit=$limit&offset=$offset';
       }
-      return null;
+      return '';
     }
 
     var url = Uri.parse('$server/api/$api$queryParameters${pageParameters()}');
@@ -137,9 +137,12 @@ class SQL {
       }, 
     );
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == 200 && pageParameters().isNotEmpty) {
       List<dynamic> data = (json.decode(response.body))['rows'];
       if(setCount != null) setCount((json.decode(response.body))['count']);
+      return data;
+    } else if (response.statusCode == 200){
+      List<dynamic> data = (json.decode(response.body));
       return data;
     }
 
