@@ -127,6 +127,7 @@ class _DetailItemRouteState extends State<DetailItemRoute> {
           onPressed: () {},
           icon: const Icon(Icons.local_shipping),
           label: const Text('Pesan'),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25.7)),
           backgroundColor: Theme.of(context).primaryColorDark,
           foregroundColor: Theme.of(context).colorScheme.surface,
         ),
@@ -165,7 +166,6 @@ class _DetailItemRouteState extends State<DetailItemRoute> {
                     Padding(
                       padding: const EdgeInsets.only(right: 8),
                       child: Cart(
-                        icon: Icons.shopping_bag_outlined,
                         bgColor: Theme.of(context).colorScheme.surface
                       )
                     )
