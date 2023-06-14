@@ -153,6 +153,55 @@ class _BelanjaRouteState extends State<BelanjaRoute> {
                       );
                     }).toList(),
                   ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 30, top: 40),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.play_circle, color: Colors.red),
+                      const SizedBox(width: 6),
+                      Text('Video Terbaru', style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.secondary,
+                        letterSpacing: 0
+                      )),
+                      const SizedBox(width: 16),
+                      Image.asset('assets/Logo Indostar.png', height: 16)
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(30, 14, 30, 0),
+                  child: SizedBox(
+                    height: 200,
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      children: [
+                        Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Card(
+                              margin: EdgeInsets.zero,
+                              clipBehavior: Clip.antiAlias,
+                              child: Image.network('https://img.youtube.com/vi/krCJczMVbx0/0.jpg'),
+                            ),
+                            Positioned.fill(
+                              child: Container(
+                                color: Colors.black26,
+                              ),
+                            ),
+                            IconButton(
+                              onPressed: () => launchURL(url: 'https://www.youtube.com/watch?v=krCJczMVbx0'), 
+                              style: ButtonStyle(
+                                foregroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.surfaceTint),
+                                backgroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.background)
+                              ),
+                              icon: const Icon(Icons.play_arrow)
+                            )
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
                 )
               ],
             ),

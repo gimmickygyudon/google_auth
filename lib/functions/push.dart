@@ -1,9 +1,13 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:google_auth/routes/belanja/detail_item.dart';
 import 'package:google_auth/routes/belanja/item.dart';
 import 'package:google_auth/routes/beranda/customer.dart';
 import 'package:google_auth/routes/keluhan/report_page.dart';
 import 'package:google_auth/routes/start_page.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 import '../routes/dashboard.dart';
 import '../routes/login_page.dart';
@@ -109,4 +113,16 @@ void pushItemDetailPageReplace({
       return DetailItemRoute(hero: hero, color: color, item: item, brand: brand, type: type);
     })
   ); 
+}
+
+// void launchURL({required String url}) {
+//   launchUrlString(url);
+// }
+
+Future<void> launchURL({required String url}) async {
+  final Uri uri = Uri.parse(url);
+
+  if (!await launchUrl(uri)) {
+    throw Exception('Could not launch $uri');
+  }
 }
