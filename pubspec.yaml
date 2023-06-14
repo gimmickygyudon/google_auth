@@ -51,6 +51,7 @@ dependencies:
   mime: ^1.0.4
   responsive_framework: ^0.2.0
   flutter_launcher_icons: ^0.13.1
+  async: ^2.11.0
 
 flutter_launcher_icons:
   android: "launcher_icon"

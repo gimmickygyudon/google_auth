@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:async/async.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:google_auth/strings/user.dart';
@@ -337,22 +338,112 @@ class UserRegister {
   }
 }
 
+class Cart {
+  final String name;
+  final String brand;
+  final String dimension; 
+  final List<String> dimensions;
+  final String weight;
+  final List<String> weights;
+  final String count;
+
+  const Cart({
+    required this.name,
+    required this.brand,
+    required this.dimension,
+    required this.dimensions,
+    required this.weight,
+    required this.weights,
+    required this.count
+  });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'name': name,
+      'brand': brand,
+      'dimension': dimension,
+      'dimensions': dimensions,
+      'weight': weight,
+      'weights': weights,
+      'count': count
+    };
+  }
+
+  @override
+  String toString() {
+    return '{name: $name, brand: $brand, dimension: $dimension, weight: $weight, count: $count}';
+  }
+
+  static Future<void> add(Map source) async {
+    List? cartItems = await Cart.getItems().then((value) {
+      List? elements = value;
+      elements?.add(source);
+
+      return elements;
+    });
+
+    if(cartItems != null) {
+      Cart.update(cartItems);
+    } else {
+      Cart.update([source]);
+    }
+  }
+
+  static Future<void> remove({required int index}) async {
+    await Cart.getItems().then((value) {
+      List? elements = value;
+      elements?.removeAt(index);
+
+      elements?.forEach((e) { 
+        print(e['name']);
+      });
+
+      if (elements != null) Cart.update(elements);
+    });
+  }
+
+  static Future<void> update(List source) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString('Cart', jsonEncode(source)).whenComplete(() => getItems());
+  }
+
+  static Future<void> removeAll() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.remove('Cart');
+  }
+
+  static Future<List?> getItems() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    String? jsonData = prefs.getString('Cart');
+    List? items;
+
+    if (jsonData != null) {
+      items = jsonDecode(jsonData);
+      return items;
+    } else {
+      return items;
+    }
+  }
+}
 
 class Item {
 
-  // TODO: cart add and remove
-  static Future<void> orderItems(List<Map> source) async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setString('Orders', jsonEncode(source));
+  // TODO: Need Rework
+  static Map<String, AsyncMemoizer<List?>> listMemoizer = 
+  { 
+    'Indostar': AsyncMemoizer<List?>(),
+    'ECO': AsyncMemoizer<List?>() 
+  };
+
+  static Future<List?> getItems({required String brand}) {
+    return listMemoizer[brand]!.runOnce(() {
+      FutureOr<List?> list = fetchItems(brand: brand);
+      return list;
+    });
   }
 
-  static Future<void> removeOrderItems() async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.remove('Orders');
-  }
-
-
-  static Future<List?> getItems({required String brand}) async {
+  static FutureOr<List?> fetchItems({required String brand}) {
     String? param;
     switch (brand.toUpperCase()) {
       case 'INDOSTAR':
@@ -366,20 +457,19 @@ class Item {
     return SQL.retrieveJoin(api: 'sim/brn1', param: param, query: 'id_brn1');
   }
 
-
   static String defineDimension(String value) {
-    return value.replaceAll('IN ', '').replaceAll('PP', '').replaceAll('PM', '').replaceAll('BES', '').replaceAll('EC', '');
+    return value.replaceAll('IN ', '').replaceAll('PP', '').replaceAll('PM', '').replaceAll('BES', '').replaceAll('EC', '').trim();
   }
 
   static List splitDimension(String value) {
-    String string = value.replaceAll('IN ', '').replaceAll('PP', '').replaceAll('PM', '').replaceAll('BES', '').replaceAll('EC', '');
+    String string = value.replaceAll('IN ', '').replaceAll('PP', '').replaceAll('PM', '').replaceAll('BES', '').replaceAll('EC', '').trim();
     return string.split(' x ');
   }
 
   static String defineWeight(dynamic value) {
     RegExp regex = RegExp(r'([.]*0)(?!.*\d)');
     String s = value.toString().replaceAll(regex, '');
-    double.parse(s).roundToDouble();
+    s = double.parse(s).toStringAsFixed(1);
 
     return s;
   }

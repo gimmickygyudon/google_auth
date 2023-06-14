@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+
 import 'package:google_auth/functions/string.dart';
 import 'package:google_auth/strings/item.dart';
 import 'package:google_auth/styles/theme.dart';
 import 'package:google_auth/widgets/cart.dart';
-
 import '../../functions/push.dart';
 import '../../functions/sqlite.dart';
 
@@ -41,6 +41,7 @@ class _DetailItemRouteState extends State<DetailItemRoute> {
     dimension = Item.splitDimension(widget.item['OITMs'].first['spesification']);
     dimension.add(Item.defineWeight(widget.item['OITMs'].first['weight']));
     hideTitleSuggestion();
+
     super.initState();
   }
 
@@ -95,6 +96,28 @@ class _DetailItemRouteState extends State<DetailItemRoute> {
     });
   }
 
+  void addToCart() {
+    Cart.add(
+      Cart(
+        name: widget.item['description'], 
+        brand: widget.brand, 
+        dimension: Item.defineDimension(widget.item['OITMs'].first['spesification']), 
+        dimensions: List.generate(
+          widget.item['OITMs'].length, (index) {
+            return Item.defineDimension(widget.item['OITMs'][index]['spesification']);
+          }
+        ),
+        weight: Item.defineWeight(widget.item['OITMs'].first['weight']),
+        weights: List.generate(
+          widget.item['OITMs'].length, (index) {
+            return Item.defineWeight(widget.item['OITMs'][index]['weight']);
+          }
+        ),
+        count: '1'
+      ).toMap()
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Theme(
@@ -104,7 +127,7 @@ class _DetailItemRouteState extends State<DetailItemRoute> {
       child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.background,
         floatingActionButton: FloatingActionButton.extended(
-          onPressed: () {},
+          onPressed: () => addToCart(),
           icon: const Icon(Icons.local_shipping),
           label: const Text('Pesan'),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25.7)),
@@ -145,7 +168,7 @@ class _DetailItemRouteState extends State<DetailItemRoute> {
                     ),
                     Padding(
                       padding: const EdgeInsets.only(right: 8),
-                      child: Cart(
+                      child: CartWidget(
                         bgColor: Theme.of(context).colorScheme.surface
                       )
                     )
@@ -262,37 +285,41 @@ class _DetailItemRouteState extends State<DetailItemRoute> {
                             PathTextRail(paths: [
                               'Belanja', widget.brand, widget.item['description'].toString().toTitleCase()
                             ]),
-                            Padding(
-                              padding: const EdgeInsets.all(10),
-                              child: Column(
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 24),
-                                    child: ItemSpecs(
-                                      value: dimension,
-                                      diff: ItemDescription.getDiff(widget.item['description']),
-                                    ),
+                            Column(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 24),
+                                  child: ItemSpecs(
+                                    value: dimension,
+                                    diff: ItemDescription.getDiff(widget.item['description']),
                                   ),
-                                  Row(
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 10),
+                                  child: Column(
                                     children: [
-                                      Image.asset('assets/logo IBM p C.png', height: 18),
-                                      const SizedBox(width: 8),
-                                      Text(widget.item['description'].toString().toTitleCase(), style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                        fontWeight: FontWeight.w400,
-                                        letterSpacing: 0
-                                      )),
+                                      Row(
+                                        children: [
+                                          Image.asset('assets/logo IBM p C.png', height: 18),
+                                          const SizedBox(width: 8),
+                                          Text(widget.item['description'].toString().toTitleCase(), style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                            fontWeight: FontWeight.w400,
+                                            letterSpacing: 0
+                                          )),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(ItemDescription.getDescription(widget.item['description']), 
+                                        textAlign: TextAlign.justify,
+                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                          color: Theme.of(context).colorScheme.secondary,
+                                          height: 1.75
+                                        ),
+                                      ),
                                     ],
                                   ),
-                                  const SizedBox(height: 4),
-                                  Text(ItemDescription.getDescription(widget.item['description']), 
-                                    textAlign: TextAlign.justify,
-                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: Theme.of(context).colorScheme.secondary,
-                                      height: 1.75
-                                    ),
-                                  ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ],
                         ),

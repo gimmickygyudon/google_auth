@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_auth/functions/push.dart';
@@ -28,9 +30,12 @@ class ItemRoute extends StatefulWidget {
 }
 
 class _ItemRouteState extends State<ItemRoute> {
+
+  late final Future<List?> _getItems;
+
   @override
   void initState() {
-    Item.getItems(brand: widget.brand);
+    _getItems = Item.getItems(brand: widget.brand);
     super.initState();
   }
 
@@ -61,7 +66,7 @@ class _ItemRouteState extends State<ItemRoute> {
                   icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.surface)
                 ),
                 actions: [
-                  Cart(
+                  CartWidget(
                     icon: Icons.shopping_bag_outlined,
                     color: Theme.of(context).colorScheme.surface
                   ),
@@ -128,7 +133,7 @@ class _ItemRouteState extends State<ItemRoute> {
                 ),
               ),
               FutureBuilder(
-                future: Item.getItems(brand: widget.brand),
+                future: _getItems,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
                     return SliverPadding(
@@ -161,6 +166,24 @@ class _ItemRouteState extends State<ItemRoute> {
                         ),
                       )
                     ); 
+                  } else if (snapshot.connectionState == ConnectionState.done && !snapshot.hasData) {
+                    Timer(const Duration(seconds: 5), () { 
+                      setState(() {});
+                    });
+
+                    return const SliverToBoxAdapter(
+                      child: Center(
+                        child: Column(
+                          children: [
+                            Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            ),
+                            Text('Periksa Koneksi Internet Anda...')
+                          ],
+                        )
+                      ),
+                    );                     
                   }
                   return const SliverToBoxAdapter(
                     child: Center(

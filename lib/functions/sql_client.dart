@@ -1,4 +1,5 @@
 
+import 'dart:async';
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
@@ -27,7 +28,7 @@ class SQL {
     request.headers.addAll(requestHeaders);
     request.fields.addAll(item);
     var res = await request.send();
-    print("insertMultiPart:"+res.statusCode.toString());
+    print("insertMultiPart:${res.statusCode}");
   }
 
   static Future<Map> insert({required Map<String, dynamic> item, required String api}) async {
@@ -106,7 +107,7 @@ class SQL {
     return data;
   }
 
-  static Future<List?> retrieveJoin({
+  static FutureOr<List?> retrieveJoin({
     required String api, 
     required String? param, 
     required String query,
