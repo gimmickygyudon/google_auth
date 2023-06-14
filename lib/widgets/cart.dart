@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_auth/strings/user.dart';
+import 'package:google_auth/styles/theme.dart';
 
 class Cart extends StatefulWidget {
   const Cart({super.key, this.color, this.bgColor, this.icon});
@@ -42,13 +43,18 @@ class _CartState extends State<Cart> {
                     onPressed: () {},
                     style: ButtonStyle(
                       elevation: const MaterialStatePropertyAll(0),
-                      visualDensity: VisualDensity.compact,
                       shape: MaterialStatePropertyAll(RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8)
+                      )),
+                      visualDensity: VisualDensity.compact,
+                      padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(horizontal: 12)),
+                      iconSize: const MaterialStatePropertyAll(18),
+                      textStyle: MaterialStatePropertyAll(Theme.of(context).textTheme.labelSmall?.copyWith(
+                        letterSpacing: 0
                       ))
                     ),
                     label: const Text('Lokasi'),
-                    icon: const Icon(Icons.near_me)
+                    icon: const Icon(Icons.near_me_outlined)
                   )
                 ],
               ),
@@ -75,7 +81,7 @@ class _CartState extends State<Cart> {
       ] + List.generate(3, (index) {
         return PopupMenuItem(
           child: Padding(
-            padding: const EdgeInsets.only(bottom: 8),
+            padding: const EdgeInsets.only(bottom: 2),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -83,51 +89,58 @@ class _CartState extends State<Cart> {
                   children: [
                     Container(
                       padding: const EdgeInsets.all(8),
-                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      margin: const EdgeInsets.only(bottom: 8),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
                         color: Theme.of(context).primaryColorLight.withOpacity(0.5)
                       ),
-                      child: const FlutterLogo(size: 64)
+                      child: Image.asset('assets/Indostar Board.png', width: 56, fit: BoxFit.cover)
                     ),
                     const SizedBox(width: 16),
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Produk #008$index'),
-                            Text('Indostar', style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context).colorScheme.primary,
-                              height: 0
-                            )),
-                          ],
-                        ),
-                        DropdownButton(
-                          padding: EdgeInsets.zero,
-                          borderRadius: BorderRadius.circular(10),
-                          value: '2400 x 200 x 8 (5.5 kg)',
-                          onChanged: (value) {},
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).colorScheme.secondary,
-                            height: 0
+                        Padding(
+                          padding: const EdgeInsets.only(top: 6),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Produk #008$index', style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                height: 0
+                              )),
+                              Text('Indostar', style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Theme.of(context).colorScheme.primary,
+                              )),
+                            ],
                           ),
-                          items: const [
-                            DropdownMenuItem(
-                              value: '2400 x 200 x 8 (5.5 kg)',
-                              child: Text('2400 x 200 x 8 (5.5 kg)')
-                            )
-                          ]
+                        ),
+                        DropdownButtonHideUnderline(
+                          child: DropdownButton(
+                            padding: EdgeInsets.zero,
+                            borderRadius: BorderRadius.circular(10),
+                            value: '2400 x 200 x 8  |  5.5 kg',
+                            onChanged: (value) {},
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context).colorScheme.secondary,
+                              height: 0
+                            ),
+                            items: const [
+                              DropdownMenuItem(
+                                value: '2400 x 200 x 8  |  5.5 kg',
+                                child: Text('2400 x 200 x 8  |  5.5 kg')
+                              )
+                            ]
+                          ),
                         )
                       ],
                     ),
                   ],
                 ),
                 Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    TextButton(
+                    IconButton(
                       onPressed: () {},
                       style: ButtonStyle(
                         visualDensity: const VisualDensity(vertical: -4, horizontal: -4),
@@ -136,24 +149,26 @@ class _CartState extends State<Cart> {
                         ),
                         foregroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.secondary)
                       ),
-                      child: const Text('Cancel')
+                      icon: const Icon(Icons.cancel)
                     ),
                     const SizedBox(height: 12),
-                    DropdownButton(
-                      padding: EdgeInsets.zero,
-                      borderRadius: BorderRadius.circular(10),
-                      value: '2 Qt',
-                      onChanged: (value) {},
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.secondary,
-                        height: 0
+                    DropdownButtonHideUnderline(
+                      child: DropdownButton(
+                        padding: EdgeInsets.zero,
+                        borderRadius: BorderRadius.circular(10),
+                        value: '2 Qt',
+                        onChanged: (value) {},
+                        style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.secondary,
+                          height: 0
+                        ),
+                        items: const [
+                          DropdownMenuItem(
+                            value: '2 Qt',
+                            child: Text('2 Qt')
+                          )
+                        ]
                       ),
-                      items: const [
-                        DropdownMenuItem(
-                          value: '2 Qt',
-                          child: Text('2 Qt')
-                        )
-                      ]
                     )
                   ],
                 )
@@ -161,7 +176,15 @@ class _CartState extends State<Cart> {
             ),
           )
         );
-      }),
+      }) + [
+        const PopupMenuItem(
+          height: 0,  
+          child: Padding(
+            padding: EdgeInsets.only(bottom: 6),
+            child: PopupMenuDivider(),
+          )
+        ),
+      ],
       child: CircleAvatar(
         backgroundColor: widget.bgColor ?? Colors.transparent,
         child: Icon(
