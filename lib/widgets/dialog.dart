@@ -16,7 +16,7 @@ Future<void> showRegisteredUser(BuildContext context, {
   );
 }
 
-Future <void> showUnRegisteredUser(BuildContext context, { 
+Future<void> showUnRegisteredUser(BuildContext context, { 
     required String value, 
     required Function callback, 
     required String from,
@@ -32,6 +32,22 @@ Future <void> showUnRegisteredUser(BuildContext context, {
         source: source
       );
     }
+  );
+}
+
+Future<void> showOrderDialog({
+  required BuildContext context,
+  required String name,
+  required String brand,
+  required String hero,
+}) {
+  return Navigator.push(context, PageRouteBuilder(
+    opaque: false,
+    barrierDismissible: true,
+    barrierColor: Colors.black26,
+    pageBuilder: (context, animation, secondaryAnimation) {
+      return OrderDialog(name: name, brand: brand, hero: hero);
+    })
   );
 }
 
@@ -168,6 +184,51 @@ class _DialogUnRegisteredUserState extends State<DialogUnRegisteredUser> {
           )
         ],
       ),
+    );
+  }
+}
+
+class OrderDialog extends StatelessWidget {
+  const OrderDialog({super.key, required this.name, required this.brand, required this.hero});
+
+  final String name, brand, hero;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: Hero(
+        tag: hero,
+        child: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const FlutterLogo(),
+                  Text(name),
+                  Text(brand),
+                ],
+              ),
+              ButtonBar(
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context), 
+                    child: const Text('Batal')
+                  ),
+                  ElevatedButton.icon(
+                    onPressed: () {}, 
+                    icon: const Icon(Icons.local_shipping), 
+                    label: const Text('Pesan')
+                  )
+                ]
+              )
+            ],
+          ),
+        ),
+      )
     );
   }
 }

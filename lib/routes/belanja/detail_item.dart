@@ -4,6 +4,7 @@ import 'package:google_auth/functions/string.dart';
 import 'package:google_auth/strings/item.dart';
 import 'package:google_auth/styles/theme.dart';
 import 'package:google_auth/widgets/cart.dart';
+import 'package:google_auth/widgets/dialog.dart';
 import '../../functions/push.dart';
 import '../../functions/sqlite.dart';
 
@@ -127,7 +128,16 @@ class _DetailItemRouteState extends State<DetailItemRoute> {
       child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.background,
         floatingActionButton: FloatingActionButton.extended(
-          onPressed: () => addToCart(),
+          heroTag: widget.brand,
+          onPressed: () {
+            // addToCart();
+            showOrderDialog(
+              context: context, 
+              name: widget.item['description'], 
+              brand: widget.brand, 
+              hero: widget.brand
+            );
+          },
           icon: const Icon(Icons.local_shipping),
           label: const Text('Pesan'),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25.7)),
