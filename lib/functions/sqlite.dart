@@ -73,7 +73,7 @@ class UserLog {
   static Future<void> insert(UserLog user) async {
     return SQL.retrieve(api: 'ousr', query: 'user_email=${user.source}')
       .onError((error, stackTrace) {
-        return error;
+        return Future.error(error.toString());
       })
       .then((value) {
         SQL.insert(item: user.toMap(), api: 'olog');
@@ -380,10 +380,22 @@ class Cart {
     });
 
     if(cartItems != null) {
-      Cart.update(cartItems);
+      Cart.set(cartItems);
     } else {
-      Cart.update([source]);
+      Cart.set([source]);
     }
+  }
+
+  static Future<void> update({required int index, required List<String> element, required int selectedIndex}) async {
+    await Cart.getItems().then((value) {
+      List? elements = value;
+
+      for (String e in element) { 
+        elements?[index][e] = elements[index]['${e}s'][selectedIndex];
+      }
+
+      if (elements != null) Cart.set(elements);
+    });
   }
 
   static Future<void> remove({required int index}) async {
@@ -395,11 +407,11 @@ class Cart {
         print(e['name']);
       });
 
-      if (elements != null) Cart.update(elements);
+      if (elements != null) Cart.set(elements);
     });
   }
 
-  static Future<void> update(List source) async {
+  static Future<void> set(List source) async {
     final prefs = await SharedPreferences.getInstance();
     prefs.setString('Cart', jsonEncode(source)).whenComplete(() => getItems());
   }

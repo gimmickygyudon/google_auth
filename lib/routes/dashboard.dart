@@ -123,7 +123,7 @@ class _DashboardRouteState extends State<DashboardRoute> {
         titleSpacing: 12,
         backgroundColor: Theme.of(context).colorScheme.primary,
         actions: [
-          CartWidget(icon: Icons.shopping_bag_outlined, color: Theme.of(context).colorScheme.surface),
+          CartWidget(color: Theme.of(context).colorScheme.surface),
           IconButton(onPressed: () {}, icon: const Icon(Icons.notifications_none), color: Theme.of(context).colorScheme.surface, 
             style: const ButtonStyle(visualDensity: VisualDensity.compact)
           ),

@@ -49,7 +49,6 @@ class Validate {
     String query() => EmailValidator.validate(user) ? 'user_email' : 'phone_number';
     if(source != null) photourl = source.containsKey('photo_url') ? source['photo_url'] : null;
 
-    // TODO: retrieve still using local database
     SQL.retrieve(query: '${query()}=$user', api: 'ousr').then((item) async {
       if (item.isNotEmpty) {
         if (login == true) {
@@ -104,6 +103,8 @@ class Validate {
           default:
         }
       }
+    }).onError((error, stackTrace) {
+      return Future.error(error.toString());
     });
   }
 }

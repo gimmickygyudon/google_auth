@@ -70,7 +70,9 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
     pageOffset = 0;
     currentPage = 1;
 
-    _getList = UserReport.getList(limit: pageLimit, offset: pageOffset, setCount: ticketCount);    
+    _getList = UserReport.getList(limit: pageLimit, offset: pageOffset, setCount: ticketCount).onError((error, stackTrace) {
+      return Future.error(error.toString());
+    });    
     super.initState();
   }
 

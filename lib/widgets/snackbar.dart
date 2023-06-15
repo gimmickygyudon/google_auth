@@ -16,7 +16,7 @@ SnackBar snackBarError({required BuildContext context, required String content})
     content: Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: Theme.of(context).colorScheme.error, width: 3))
+        border: Border(top: BorderSide(color: Theme.of(context).colorScheme.error, width: 3))
       ),
       child: Row(
         children: [

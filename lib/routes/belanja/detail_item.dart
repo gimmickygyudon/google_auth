@@ -35,14 +35,15 @@ class _DetailItemRouteState extends State<DetailItemRoute> {
   String? typeNext, typePrev;
   int? typeIndexNext, typeIndexPrev;
 
-  late List dimension;
+  late List dimension, dimensions, weights;
 
   @override
   void initState() {
     dimension = Item.splitDimension(widget.item['OITMs'].first['spesification']);
     dimension.add(Item.defineWeight(widget.item['OITMs'].first['weight']));
-    hideTitleSuggestion();
 
+    setSpesification();
+    hideTitleSuggestion();
     super.initState();
   }
 
@@ -50,6 +51,20 @@ class _DetailItemRouteState extends State<DetailItemRoute> {
   void dispose() {
     _scrollController.dispose();
     super.dispose();
+  }
+
+  void setSpesification() {
+    dimensions = List.generate(
+      widget.item['OITMs'].length, (index) {
+        return Item.defineDimension(widget.item['OITMs'][index]['spesification']);
+      }
+    );
+
+    weights = List.generate(
+      widget.item['OITMs'].length, (index) {
+        return Item.defineWeight(widget.item['OITMs'][index]['weight']);
+      }
+    );   
   }
 
   // late List test;
@@ -97,24 +112,25 @@ class _DetailItemRouteState extends State<DetailItemRoute> {
     });
   }
 
-  void addToCart() {
+  Future<void> addToCart({required String count, required int index}) async {
+    print(Item.defineDimension(widget.item['OITMs'][index]['spesification']));
     Cart.add(
       Cart(
         name: widget.item['description'], 
         brand: widget.brand, 
-        dimension: Item.defineDimension(widget.item['OITMs'].first['spesification']), 
+        dimension: Item.defineDimension(widget.item['OITMs'][index]['spesification']), 
         dimensions: List.generate(
-          widget.item['OITMs'].length, (index) {
-            return Item.defineDimension(widget.item['OITMs'][index]['spesification']);
+          widget.item['OITMs'].length, (i) {
+            return Item.defineDimension(widget.item['OITMs'][i]['spesification']);
           }
         ),
-        weight: Item.defineWeight(widget.item['OITMs'].first['weight']),
+        weight: Item.defineWeight(widget.item['OITMs'][index]['weight']),
         weights: List.generate(
-          widget.item['OITMs'].length, (index) {
-            return Item.defineWeight(widget.item['OITMs'][index]['weight']);
+          widget.item['OITMs'].length, (i) {
+            return Item.defineWeight(widget.item['OITMs'][i]['weight']);
           }
         ),
-        count: '1'
+        count: count
       ).toMap()
     );
   }
@@ -130,12 +146,14 @@ class _DetailItemRouteState extends State<DetailItemRoute> {
         floatingActionButton: FloatingActionButton.extended(
           heroTag: widget.brand,
           onPressed: () {
-            // addToCart();
             showOrderDialog(
               context: context, 
               name: widget.item['description'], 
               brand: widget.brand, 
-              hero: widget.brand
+              hero: widget.brand,
+              dimensions: dimensions,
+              weights: weights,
+              onPressed: addToCart
             );
           },
           icon: const Icon(Icons.local_shipping),

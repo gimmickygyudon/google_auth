@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_auth/functions/conversion.dart';
 import 'package:google_auth/functions/sqlite.dart';
 import 'package:google_auth/functions/string.dart';
 import 'package:google_auth/strings/item.dart';
@@ -179,7 +180,7 @@ class _CartWidgetState extends State<CartWidget> {
       child: CircleAvatar(
         backgroundColor: widget.bgColor ?? Colors.transparent,
         child: Icon(
-          widget.icon ?? Icons.local_shipping_outlined,
+          widget.icon ?? Icons.shopping_bag_outlined,
           color: widget.color,
         ),
       ),
@@ -202,11 +203,13 @@ class CartListWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
+    int selectedIndex = item?['dimensions'].indexOf(item?['dimension']);
+
     // TODO: may error in future
     List<String> spesifications = List.generate(item?['dimensions'].length, (index) {
-      return '${item?['dimensions'][index] + '  •  ' + item?['weights'][index]} Kg';
+      return '${item?['dimensions'][index] + '  •  *' + setWeight(weight: double.parse(item?['weights'][index]), count: double.parse(item?['count']))}';
     });
-    String spesification = spesifications.first;
+    String spesification = spesifications[selectedIndex];
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 2),
@@ -237,7 +240,7 @@ class CartListWidget extends StatelessWidget {
                     child: Align(
                       alignment: Alignment.bottomRight,
                       child: Badge.count(
-                        count: 3,
+                        count: int.parse(item?['count']),
                         largeSize: 20,
                         padding: const EdgeInsets.symmetric(horizontal: 6),
                       )
@@ -271,25 +274,37 @@ class CartListWidget extends StatelessWidget {
                       ],
                     ),
                   ),
-                  DropdownButtonHideUnderline(
-                    child: DropdownButton<String>(
-                      padding: EdgeInsets.zero,
-                      borderRadius: BorderRadius.circular(10),
-                      value: spesification,
-                      onChanged: (value) {
-                        spesification = value!;
-                      },
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.secondary,
-                        height: 0
-                      ),
-                      items: spesifications.map<DropdownMenuItem<String>>((element) {
-                        return DropdownMenuItem<String>(
-                          value: element,
-                          child: Text(element)
-                        );
-                      }).toList()
-                    ),
+                  StatefulBuilder(
+                    builder: (context, setState) {
+                      return DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          padding: EdgeInsets.zero,
+                          borderRadius: BorderRadius.circular(10),
+                          value: spesification,
+                          onChanged: (value) {
+                            String dimension = value!.substring(0, value.indexOf('•')).trim();
+                            setState(() {
+                              Cart.update(
+                                index: index, 
+                                element: ['dimension', 'weight'],
+                                selectedIndex: item?['dimensions'].indexOf(dimension)
+                              );
+                              spesification = value;
+                            });
+                          },
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.secondary,
+                            height: 0
+                          ),
+                          items: spesifications.map<DropdownMenuItem<String>>((element) {
+                            return DropdownMenuItem<String>(
+                              value: element,
+                              child: Text(element)
+                            );
+                          }).toList()
+                        ),
+                      );
+                    }
                   )
                 ],
               ),

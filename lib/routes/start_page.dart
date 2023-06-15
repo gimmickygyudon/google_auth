@@ -7,6 +7,7 @@ import 'package:google_auth/widgets/button.dart';
 import '../functions/push.dart';
 import '../functions/validate.dart';
 import '../styles/theme.dart';
+import '../widgets/snackbar.dart';
 
 class StartPageRoute extends StatefulWidget {
   const StartPageRoute({super.key});
@@ -57,7 +58,7 @@ class _StartPageRouteState extends State<StartPageRoute> {
                     child: Column(
                       children: [
                         Flexible(
-                          flex: 3, 
+                          flex: 2, 
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -79,7 +80,7 @@ class _StartPageRouteState extends State<StartPageRoute> {
                           ),
                         ),
                         Expanded(
-                          flex: 4, 
+                          flex: 2, 
                           child: Image.asset('assets/bricklayer_3 @vector4stock.png')
                         ),
                         Flexible(
@@ -142,7 +143,7 @@ class _StartPageRouteState extends State<StartPageRoute> {
                                   ),
                                   Column(
                                     children: [
-                                      const SizedBox(height: 16),
+                                      const SizedBox(height: 32),
                                       Text('Sudah mempunyai akun Customer Indostar?',
                                         style: Theme.of(context).textTheme.bodySmall,
                                         textAlign: TextAlign.center
@@ -227,7 +228,9 @@ class LoginButtonState extends State<LoginButton> {
               context: context,
               user: widget.phonenumberController.text,
               logintype: 'Nomor'
-            ).whenComplete(() => setState(() => isLoading = false));
+            ).catchError((error, stackTrace) {
+              showSnackBar(context, snackBarError(context: context, content: error.toString()));
+            }).whenComplete(() => setState(() => isLoading = false));
           });
         }
         : null,

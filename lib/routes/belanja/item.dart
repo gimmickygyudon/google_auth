@@ -68,7 +68,6 @@ class _ItemRouteState extends State<ItemRoute> {
                 ),
                 actions: [
                   CartWidget(
-                    icon: Icons.shopping_bag_outlined,
                     color: Theme.of(context).colorScheme.surface
                   ),
                   const SizedBox(width: 12),
