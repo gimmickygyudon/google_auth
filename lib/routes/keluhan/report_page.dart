@@ -138,7 +138,7 @@ class _LaporanRouteState extends State<LaporanRoute> {
         });
       }
     }).whenComplete(() {
-      pushDashboard(context, currentPage: 1);
+      pushDashboard(context, currentPage: 3);
       showSnackBar(context, snackBarAuth(context: context, content: 'Terima Kasih atas Umpan Balik Anda.'));
     });
   }

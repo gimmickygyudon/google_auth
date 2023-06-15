@@ -5,17 +5,27 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-String server = 'http://192.168.1.19:8080';
+import 'package:http/retry.dart';
+
+// String server = 'http://192.168.1.19:8080';
 
 // Server Lokal
-// String server = 'http://192.168.1.106:8080';
+String server = 'http://192.168.1.106:8080';
 
 class SQL {
+
+  static const int clientRetries = 10;
 
   static Future<void> insertMultiPart({required String api, required Map<String, String> item, required String filePath}) async {
     Map<String, String> requestHeaders = {
       "Content-type": "multipart/form-data"
     };
+
+    final client = RetryClient(http.Client(), retries: clientRetries,
+      whenError: ((error, stacktrace) {
+        throw Future.error(error.toString());
+      }) 
+    );
 
     final request = http.MultipartRequest(
       'POST', Uri.parse('$server/api/$api'),
@@ -24,18 +34,22 @@ class SQL {
     request.files.add(
       http.MultipartFile.fromBytes('file', File(filePath).readAsBytesSync(), filename: item['file_name'])
     );
-    
     request.headers.addAll(requestHeaders);
     request.fields.addAll(item);
-    var res = await request.send();
-    print("insertMultiPart:${res.statusCode}");
+
+    await client.send(request);
   }
 
   static Future<Map> insert({required Map<String, dynamic> item, required String api}) async {
     item['id_$api'] = null;
 
-    print('sql_client(insert): ${jsonEncode(item)}');
-    final response = await http.post(
+    final client = RetryClient(http.Client(), retries: clientRetries,
+      whenError: ((error, stacktrace) {
+        throw Future.error(error.toString());
+      }) 
+    );
+
+    final response = await client.post(
       Uri.parse('$server/api/$api'),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
@@ -44,14 +58,9 @@ class SQL {
     );
 
     if (response.statusCode == 201) {
-      // If the server did return a 201 CREATED response,
-      // then parse the JSON.MySQL.fromJson(
-      print('return: ${response.body}');
       return jsonDecode(response.body);
     } else {
-      // If the server did not return a 201 CREATED response,
-      // then throw an exception.
-      throw Exception('Failed to create item.');
+      throw Future.error(Exception('Error Code ${response.statusCode}'));
     }
   }
 
@@ -62,7 +71,13 @@ class SQL {
 
     var url = Uri.parse('$server/api/$api');
 
-    final response = await http.get(url, headers: requestHeaders);
+    final client = RetryClient(http.Client(), retries: clientRetries,
+      whenError: ((error, stacktrace) {
+        throw Future.error('Periksa Koneksi Internet Anda');
+      }) 
+    );
+    final response = await client.get(url, headers: requestHeaders);
+
     if (response.statusCode == 200) {
       List<dynamic> data = (json.decode(response.body));
 
@@ -87,24 +102,23 @@ class SQL {
     };
 
     String queryParameters = '?$query';
-
     var url = Uri.parse('$server/api/$api$queryParameters');
-    Map data = {};
 
-    final response = await http.get(url, headers: requestHeaders).timeout(
-      const Duration(seconds: 1), 
-      onTimeout: () {
-        return http.Response('Error', 408);
-      },
+    final client = RetryClient(http.Client(), retries: clientRetries,
+      whenError: ((error, stacktrace) {
+        throw Future.error('Periksa Koneksi Internet Anda');
+      }) 
     );
+
+    final response = await client.get(url, headers: requestHeaders);
 
     if (response.statusCode == 200) {
       List<dynamic> data = (json.decode(response.body)) as List;
       if (data.length == 1) return data.last;
       return data;
+    } else {
+      throw Future.error('error: ${response.statusCode}');
     }
-
-    return data;
   }
 
   static FutureOr<List?> retrieveJoin({
@@ -121,32 +135,29 @@ class SQL {
 
     String queryParameters = '?$query=$param';
     String pageParameters() {
-      if (limit != null && offset != null)
-      {
-        return '&limit=$limit&offset=$offset';
-      }
+      if (limit != null && offset != null) return '&limit=$limit&offset=$offset';
       return '';
     }
 
     var url = Uri.parse('$server/api/$api$queryParameters${pageParameters()}');
-    List? data;
 
-    final response = await http.get(url, headers: requestHeaders).timeout(
-      const Duration(seconds: 1), 
-      onTimeout: () {
-        return http.Response('Error', 408);
-      }, 
+    final client = RetryClient(http.Client(), retries: clientRetries,
+      whenError: ((error, stacktrace) {
+        throw Future.error('Periksa Koneksi Internet Anda');
+      }) 
     );
+    final response = await client.get(url, headers: requestHeaders);
 
     if (response.statusCode == 200 && pageParameters().isNotEmpty) {
       List<dynamic> data = (json.decode(response.body))['rows'];
       if(setCount != null) setCount((json.decode(response.body))['count']);
       return data;
-    } else if (response.statusCode == 200){
+    } else if (response.statusCode == 200) {
       List<dynamic> data = (json.decode(response.body));
       return data;
+    } else {
+      throw Future.error('Periksa Koneksi Internet Anda');
     }
 
-    return data;
   }
 }

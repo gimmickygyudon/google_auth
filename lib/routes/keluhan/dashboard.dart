@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_auth/functions/sqlite.dart';
+import 'package:google_auth/widgets/handle.dart';
 import 'package:intl/intl.dart';
 
 import '../../functions/push.dart';
@@ -56,6 +57,7 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
   late String sortValue;
   late int tickets, pageLimit, pageOffset, currentPage;
   late ScrollController _scrollController;
+  late Future _getList;
 
   @override
   void initState() {
@@ -68,6 +70,7 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
     pageOffset = 0;
     currentPage = 1;
 
+    _getList = UserReport.getList(limit: pageLimit, offset: pageOffset, setCount: ticketCount);    
     super.initState();
   }
 
@@ -99,7 +102,6 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
 
       currentPage = page;
     });
-    print('\n\ncurrentPage: $currentPage \n\npageLimit: $pageLimit \n\npageOffset: $pageOffset');
   }
 
   @override
@@ -203,22 +205,10 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
                   padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 10),
                   sliver: SliverToBoxAdapter(
                     child: FutureBuilder(
-                      future: UserReport.getList(limit: pageLimit, offset: pageOffset, setCount: ticketCount),
+                      future: _getList,
                       builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return Column(
-                            children: [
-                              const SizedBox(height: 48),
-                              SizedBox(
-                                height: 54,
-                                width: 54,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
-                              ),
-                            ],
-                          );
+                        if (snapshot.connectionState == ConnectionState.done && snapshot.hasError) {
+                          return HandleNoInternet(message: snapshot.error.toString());
                         }
                         else if (snapshot.connectionState == ConnectionState.done && snapshot.data != null) {
                           return Column(
@@ -343,7 +333,7 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
                               )
                             ],
                           );
-                        } else {
+                        } else if (snapshot.connectionState == ConnectionState.done && snapshot.hasData == false) {
                           return SizedBox(
                             height: MediaQuery.of(context).size.height / 2 - (kToolbarHeight + kBottomNavigationBarHeight),
                             child: Center(
@@ -363,6 +353,8 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
                               ),
                             ),
                           );
+                        } else {
+                          return const HandleLoading();
                         }
                       }
                     ),

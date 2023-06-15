@@ -7,6 +7,7 @@ import 'package:google_auth/functions/sqlite.dart';
 import 'package:google_auth/functions/string.dart';
 import 'package:google_auth/strings/item.dart';
 import 'package:google_auth/widgets/cart.dart';
+import 'package:google_auth/widgets/handle.dart';
 
 import '../../styles/theme.dart';
 
@@ -166,31 +167,16 @@ class _ItemRouteState extends State<ItemRoute> {
                         ),
                       )
                     ); 
-                  } else if (snapshot.connectionState == ConnectionState.done && !snapshot.hasData) {
-                    Timer(const Duration(seconds: 5), () { 
-                      setState(() {});
-                    });
-
-                    return const SliverToBoxAdapter(
+                  } else if (snapshot.connectionState == ConnectionState.done && snapshot.hasError) {
+                    return SliverToBoxAdapter(
                       child: Center(
-                        child: Column(
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            ),
-                            Text('Periksa Koneksi Internet Anda...')
-                          ],
-                        )
+                        child: HandleNoInternet(message: 'Periksa Koneksi Internet Anda', color: widget.color)
                       ),
                     );                     
                   }
                   return const SliverToBoxAdapter(
                     child: Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
+                      child: HandleLoading()
                     ),
                   );
                 },

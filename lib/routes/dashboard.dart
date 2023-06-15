@@ -1,12 +1,13 @@
+import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 
-import 'package:google_auth/functions/sql_client.dart';
 import 'package:google_auth/routes/belanja/dashboard.dart';
 import 'package:google_auth/routes/beranda/dashboard.dart';
 import 'package:google_auth/routes/keluhan/dashboard.dart';
 import 'package:google_auth/widgets/bottomNavigationBar.dart';
 import 'package:google_auth/widgets/cart.dart';
 import 'package:google_auth/widgets/profile.dart';
+import 'package:google_auth/widgets/snackbar.dart';
 import '../functions/sqlite.dart';
 import '../strings/user.dart';
 import '../widgets/image.dart';
@@ -23,13 +24,14 @@ class DashboardRoute extends StatefulWidget {
 class _DashboardRouteState extends State<DashboardRoute> {
   late int currentPage;
   late PageController _pageController;
+  final AsyncMemoizer _logUserMemozer = AsyncMemoizer();
 
   @override
   void initState() {
     currentPage = widget.currentPage ?? 0;
     _pageController = PageController(initialPage: currentPage);
 
-    if (widget.currentPage != null) logUser();
+    logUser();
     super.initState();
   }
 
@@ -45,30 +47,19 @@ class _DashboardRouteState extends State<DashboardRoute> {
     });
   }
 
-  void logUser() {
-     UserLog userLog = UserLog(
-      id_olog: null, 
-      date_time: DateNowSQL(),
-      form_sender: currentUser['login_type'],
-      remarks: currentUser['user_name'], 
-      source: currentUser['user_email'],
-      id_ousr: currentUser['id_ousr'].toString()
-    );
-    UserLog.insert(userLog);
-  }
-
-  // TODO: USE THIS TO REGISTER TO SERVER
-  void insertOUSR() {
-    UserRegister.retrieve(currentUser['email']).then((value) async {
-      Map<String, dynamic> item = {
-        'id_ousr': (value.last.id_ousr! + 1),
-        'login_type': value.last.login_type,
-        'user_email': value.last.user_email,
-        'user_name': value.last.user_name,
-        'phone_number': value.last.phone_number,
-        'user_password': value.last.user_password
-      };
-      SQL.insert(item: item, api: 'ousr');
+  Future<void> logUser() async {
+    _logUserMemozer.runOnce(() {
+      UserLog userLog = UserLog(
+        id_olog: null, 
+        date_time: DateNowSQL(),
+        form_sender: currentUser['login_type'],
+        remarks: currentUser['user_name'], 
+        source: currentUser['user_email'],
+        id_ousr: currentUser['id_ousr'].toString()
+      );
+      UserLog.insert(userLog).onError((error, stackTrace) {
+        showSnackBar(context, snackBarError(context: context, content: error.toString()));
+      });
     });
   }
 

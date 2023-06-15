@@ -71,16 +71,13 @@ class UserLog {
   }
 
   static Future<void> insert(UserLog user) async {
-    // final db = await UserLog.initializeDatabase();
-    // await db.insert(
-    //   'olog',
-    //   user.toMap(),
-    //   conflictAlgorithm: ConflictAlgorithm.replace,
-    // );
-
-    UserRegister.retrieve(user.source).then((value) {
-      SQL.insert(item: user.toMap(), api: 'olog');
-    });
+    return SQL.retrieve(api: 'ousr', query: 'user_email=${user.source}')
+      .onError((error, stackTrace) {
+        return error;
+      })
+      .then((value) {
+        SQL.insert(item: user.toMap(), api: 'olog');
+      });
   }
 
   static Future<List<UserLog>> retrieve([String? source]) async {
