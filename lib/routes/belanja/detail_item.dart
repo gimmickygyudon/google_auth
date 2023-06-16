@@ -144,13 +144,13 @@ class _DetailItemRouteState extends State<DetailItemRoute> {
       child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.background,
         floatingActionButton: FloatingActionButton.extended(
-          heroTag: widget.brand,
+          heroTag: 'Order Hero',
           onPressed: () {
             showOrderDialog(
               context: context, 
               name: widget.item['description'], 
               brand: widget.brand, 
-              hero: widget.brand,
+              hero: 'Order Hero',
               dimensions: dimensions,
               weights: weights,
               onPressed: addToCart
@@ -159,7 +159,7 @@ class _DetailItemRouteState extends State<DetailItemRoute> {
           icon: const Icon(Icons.local_shipping),
           label: const Text('Pesan'),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25.7)),
-          backgroundColor: Theme.of(context).primaryColorDark,
+          backgroundColor: Theme.of(context).colorScheme.primary,
           foregroundColor: Theme.of(context).colorScheme.surface,
         ),
         body: Container(
@@ -454,7 +454,7 @@ class ItemSpecs extends StatelessWidget {
                       Text(_value[i], style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         fontWeight: FontWeight.w500,
                         color: _value[i].toString().contains('^') 
-                        ? Theme.of(context).primaryColorDark
+                        ? Theme.of(context).colorScheme.primary
                         : null
                       )),
                       Text(" ${fill['type']}"),

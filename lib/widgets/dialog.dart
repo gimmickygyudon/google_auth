@@ -413,7 +413,7 @@ class _OrderDialogState extends State<OrderDialog> {
                           if (jumlahController.text.trim().isNotEmpty) ...[
                             Text(weight, 
                               style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                                color: Theme.of(context).primaryColor
+                                color: Theme.of(context).colorScheme.primary
                               ),
                             ), 
                           ],

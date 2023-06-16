@@ -13,6 +13,8 @@ class CartWidget extends StatefulWidget {
   final Color? bgColor;
   final IconData? icon;
 
+  static final ValueNotifier<List> cartNotifier = ValueNotifier(List.empty(growable: true));
+
   @override
   State<CartWidget> createState() => _CartWidgetState();
 }
@@ -20,26 +22,10 @@ class CartWidget extends StatefulWidget {
 class _CartWidgetState extends State<CartWidget> {
 
   final GlobalKey<State<StatefulBuilder>> cartListkey = GlobalKey();
-  late bool isEmpty;
-  late Future _getItems;
 
   @override
   void initState() {
-    _getItems = Cart.getItems();
-    setEmpty();
     super.initState();
-  }
-
-  void setEmpty() async {
-    isEmpty = await Cart.getItems().then((value) {
-      if (value == null || value.isEmpty) {
-        isEmpty = true;
-        return isEmpty;
-      } else {
-        isEmpty = false;
-        return isEmpty;
-      }
-    });
   }
 
   void removeItem(int index) {
@@ -48,187 +34,205 @@ class _CartWidgetState extends State<CartWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return PopupMenuButton(
-      padding: EdgeInsets.zero,
-      elevation: 8,
-      shadowColor: Theme.of(context).colorScheme.shadow,
-      surfaceTintColor: Theme.of(context).colorScheme.inversePrimary,
-      constraints: const BoxConstraints(maxWidth: 400, minWidth: 400),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      itemBuilder: (context) => [
-        PopupMenuItem(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Row(
+    return ValueListenableBuilder(
+      valueListenable: CartWidget.cartNotifier,
+      builder: (context, items, child) {
+        return Stack(
+          children: [
+            PopupMenuButton(
+              padding: EdgeInsets.zero,
+              elevation: 8,
+              shadowColor: Theme.of(context).colorScheme.shadow,
+              surfaceTintColor: Theme.of(context).colorScheme.inversePrimary,
+              constraints: const BoxConstraints(maxWidth: 400, minWidth: 400),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              itemBuilder: (context) => [
+                PopupMenuItem(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(Icons.shopping_bag_outlined),
-                      SizedBox(width: 6),
-                      Text('Belanja')
-                    ],
-                  ),
-                  ElevatedButton.icon(
-                    onPressed: () {},
-                    style: ButtonStyle(
-                      elevation: const MaterialStatePropertyAll(0),
-                      shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8)
-                      )),
-                      visualDensity: VisualDensity.compact,
-                      padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(horizontal: 12)),
-                      iconSize: const MaterialStatePropertyAll(18),
-                      textStyle: MaterialStatePropertyAll(Theme.of(context).textTheme.labelSmall?.copyWith(
-                        letterSpacing: 0
-                      ))
-                    ),
-                    label: const Text('Lokasi'),
-                    icon: const Icon(Icons.near_me_outlined)
-                  )
-                ],
-              ),
-              Text.rich(TextSpan(
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  fontSize: 10,
-                  letterSpacing: 0,
-                  color: Theme.of(context).colorScheme.secondary
-                ),
-                children: [
-                  TextSpan(text: DateNow())
-                ]
-              )),
-            ],
-          )
-        ),
-        PopupMenuItem(
-          height: 0,  
-          child: Padding(
-            padding: const EdgeInsets.only(top: 10, bottom: 6),
-            child: Divider(color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5)),
-          )
-        ),
-      ] + [
-        PopupMenuItem(
-          child: StatefulBuilder(
-            key: cartListkey,
-            builder: (context, setState) {
-              return FutureBuilder(
-                future: _getItems,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
-                    return AnimatedSize(
-                    alignment: Alignment.topCenter,
-                    duration: const Duration(milliseconds: 400),
-                    curve: Curves.easeOut,
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxHeight: 400, minHeight: 0),
-                      child: ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: snapshot.data?.length ?? 0,  
-                        itemBuilder: (context, index) {
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 4),
-                            child: CartListWidget(
-                              index: index,
-                              onDelete: removeItem,
-                              item: snapshot.data?[index],
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          const Row(
+                            children: [
+                              Icon(Icons.shopping_bag_outlined),
+                              SizedBox(width: 6),
+                              Text('Belanja')
+                            ],
+                          ),
+                          ElevatedButton.icon(
+                            onPressed: () {},
+                            style: ButtonStyle(
+                              elevation: const MaterialStatePropertyAll(0),
+                              shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8)
+                              )),
+                              visualDensity: VisualDensity.compact,
+                              padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(horizontal: 12)),
+                              iconSize: const MaterialStatePropertyAll(18),
+                              textStyle: MaterialStatePropertyAll(Theme.of(context).textTheme.labelSmall?.copyWith(
+                                letterSpacing: 0
+                              ))
                             ),
-                          );
-                        },
+                            label: const Text('Lokasi'),
+                            icon: const Icon(Icons.near_me_outlined)
+                          )
+                        ],
                       ),
-                    ),
-                  );
-                  } else if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const HandleLoading();
-                  } else {
-                    isEmpty = true;
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 32),
-                      child: Center(
-                        child: Column(
-                          children: [
-                            const Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(Icons.layers_outlined, size: 46),
-                                SizedBox(width: 8),
-                                Icon(Icons.arrow_forward, size: 32),
-                                SizedBox(width: 8),
-                                Icon(Icons.local_shipping, size: 46),
-                              ],
+                      Text.rich(TextSpan(
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          fontSize: 10,
+                          letterSpacing: 0,
+                          color: Theme.of(context).colorScheme.secondary
+                        ),
+                        children: [
+                          TextSpan(text: DateNow())
+                        ]
+                      )),
+                    ],
+                  )
+                ),
+                PopupMenuItem(
+                  height: 0,  
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 10, bottom: 6),
+                    child: Divider(color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5)),
+                  )
+                ),
+              ] + [
+                PopupMenuItem(
+                  child: ValueListenableBuilder(
+                    valueListenable: CartWidget.cartNotifier,
+                    builder: (context, items, child) {
+                      return AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 400),
+                        child: items.isNotEmpty 
+                        ? AnimatedSize(
+                          alignment: Alignment.topCenter,
+                          duration: const Duration(milliseconds: 400),
+                          curve: Curves.easeOut,
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(maxHeight: 400, minHeight: 0),
+                            child: ListView.builder(
+                              shrinkWrap: true,
+                              itemCount: items.length,  
+                              itemBuilder: (context, index) {
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: 4),
+                                  child: CartListWidget(
+                                    index: index,
+                                    onDelete: removeItem,
+                                    item: items[index],
+                                  ),
+                                );
+                              },
                             ),
-                            const SizedBox(height: 16),
-                            Text('Sepertinya Anda Belum Memesan', style: Theme.of(context).textTheme.labelMedium),
-                            const SizedBox(height: 16),
+                          ),
+                        ) : Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 32),
+                            child: Center(
+                              child: Column(
+                                children: [
+                                  const Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(Icons.layers_outlined, size: 46),
+                                      SizedBox(width: 8),
+                                      Icon(Icons.arrow_forward, size: 32),
+                                      SizedBox(width: 8),
+                                      Icon(Icons.local_shipping, size: 46),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Text('Sepertinya Anda Belum Memesan', style: Theme.of(context).textTheme.labelMedium),
+                                  const SizedBox(height: 16),
+                                ],
+                              ),
+                            ),
+                          ),
+                      );
+                    }
+                  )
+                ),
+                PopupMenuItem(
+                  height: 0,  
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: Divider(color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5)),
+                  )
+                ),
+                PopupMenuItem(
+                  height: 0,
+                  child: ValueListenableBuilder(
+                    valueListenable: CartWidget.cartNotifier,
+                    builder: (context, items, child) {
+                      if (items.isNotEmpty) {
+                        return Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            TextButton.icon(
+                              onPressed: () {
+                                Cart.removeAll().whenComplete(() {
+                                  cartListkey.currentState?.setState(() {});
+                                });
+                              },
+                              style: ButtonStyle(
+                                iconSize: const MaterialStatePropertyAll(18),
+                                textStyle: MaterialStatePropertyAll(Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  fontWeight: FontWeight.w600
+                                )),
+                                foregroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.secondary),
+                                overlayColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.error.withOpacity(0.25))
+                              ),
+                              icon: const Icon(Icons.remove_circle),
+                              label: const Text('Hapus Daftar')
+                            ),
+                            ElevatedButton.icon(
+                              onPressed: () {},
+                              style: ButtonStyle(
+                                shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8)
+                                )),
+                                elevation: const MaterialStatePropertyAll(0),
+                                foregroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.surface),
+                                backgroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.primary),
+                                overlayColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.inversePrimary)
+                              ),
+                              icon: const Icon(Icons.playlist_add, size: 26),
+                              label: const Text('Buat Pesanan')
+                            ),
                           ],
                         ),
-                      ),
-                    );
-                  }
-                },
-              );
-            }
-          )
-        ),
-        PopupMenuItem(
-          height: 0,  
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: 10),
-            child: Divider(color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5)),
-          )
-        ),
-        if (!isEmpty) PopupMenuItem(
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: 8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                TextButton.icon(
-                  onPressed: () {
-                    Cart.removeAll().whenComplete(() {
-                      cartListkey.currentState?.setState(() {});
-                    });
-                  },
-                  style: ButtonStyle(
-                    iconSize: const MaterialStatePropertyAll(18),
-                    textStyle: MaterialStatePropertyAll(Theme.of(context).textTheme.bodySmall?.copyWith(
-                      fontWeight: FontWeight.w600
-                    )),
-                    foregroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.secondary),
-                    overlayColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.error.withOpacity(0.25))
-                  ),
-                  icon: const Icon(Icons.remove_circle),
-                  label: const Text('Hapus Daftar')
-                ),
-                ElevatedButton.icon(
-                  onPressed: () {},
-                  style: ButtonStyle(
-                    shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8)
-                    )),
-                    elevation: const MaterialStatePropertyAll(0),
-                    foregroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.surface),
-                    backgroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.primary),
-                    overlayColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.inversePrimary)
-                  ),
-                  icon: const Icon(Icons.playlist_add, size: 26),
-                  label: const Text('Buat Pesanan')
-                ),
+                      );
+                      } else {
+                        return const SizedBox();
+                      }
+                    }
+                  )
+                )
               ],
+              child: CircleAvatar(
+                backgroundColor: widget.bgColor ?? Colors.transparent,
+                child: Icon(
+                  widget.icon ?? (items.isNotEmpty
+                    ? Icons.shopping_bag
+                    : Icons.shopping_bag_outlined),
+                  color: widget.color,
+                ),
+              ),
             ),
-          )
-        )
-      ],
-      child: CircleAvatar(
-        backgroundColor: widget.bgColor ?? Colors.transparent,
-        child: Icon(
-          widget.icon ?? Icons.shopping_bag_outlined,
-          color: widget.color,
-        ),
-      ),
+            if(items.isNotEmpty) Badge.count(
+              count: items.length,
+              largeSize: 18,
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+            )
+          ],
+        );
+      }
     );
   }
 }

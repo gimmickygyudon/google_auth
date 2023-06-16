@@ -7,6 +7,7 @@ import 'package:async/async.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:google_auth/strings/user.dart';
+import 'package:google_auth/widgets/cart.dart';
 import 'package:path/path.dart';
 import 'package:crypto/crypto.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -407,17 +408,25 @@ class Cart {
         print(e['name']);
       });
 
-      if (elements != null) Cart.set(elements);
+      if (elements != null) { 
+        Cart.set(elements);
+      } else {
+        CartWidget.cartNotifier.value = List.empty(growable: true);
+      }
     });
   }
 
   static Future<void> set(List source) async {
     final prefs = await SharedPreferences.getInstance();
+
+    CartWidget.cartNotifier.value = source;
     prefs.setString('Cart', jsonEncode(source)).whenComplete(() => getItems());
   }
 
   static Future<void> removeAll() async {
     final prefs = await SharedPreferences.getInstance();
+    
+    CartWidget.cartNotifier.value = List.empty(growable: true);
     prefs.remove('Cart');
   }
 
@@ -429,8 +438,12 @@ class Cart {
 
     if (jsonData != null) {
       items = jsonDecode(jsonData);
+      CartWidget.cartNotifier.value = items!;
+
       return items;
     } else {
+      CartWidget.cartNotifier.value = List.empty(growable: true);
+
       return items;
     }
   }
