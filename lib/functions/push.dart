@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_auth/routes/belanja/detail_item.dart';
 import 'package:google_auth/routes/belanja/item.dart';
+import 'package:google_auth/routes/belanja/orders_page.dart';
 import 'package:google_auth/routes/beranda/customer.dart';
 import 'package:google_auth/routes/keluhan/report_page.dart';
 import 'package:google_auth/routes/start_page.dart';
@@ -118,4 +119,12 @@ Future<void> launchURL({required String url}) async {
   if (!await launchUrl(uri)) {
     throw Exception('Could not launch $uri');
   }
+}
+
+void pushOrdersPage({required BuildContext context, required String hero}) {
+  Navigator.push(context, MaterialPageRoute(
+    builder: (context) {
+      return OrdersPageRoute(hero: hero);
+    })
+  ); 
 }

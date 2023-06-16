@@ -6,7 +6,7 @@ String setWeight({required double weight, required double count, double conversi
     conversionWeight = conversionWeight / conversion;
     conversionString = '${conversionWeight.toStringAsFixed(2)} Ton';
   } else {
-    conversionString = '${conversionWeight.toString()} Kg';
+    conversionString = '${conversionWeight.toStringAsFixed(2)} Kg';
   }
 
   return conversionString;

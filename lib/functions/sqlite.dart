@@ -399,16 +399,16 @@ class Cart {
     });
   }
 
-  static Future<void> remove({required int index}) async {
+  static Future<void> remove({required List<int> index}) async {
     await Cart.getItems().then((value) {
       List? elements = value;
-      elements?.removeAt(index);
 
-      elements?.forEach((e) { 
-        print(e['name']);
-      });
+      for (int i in index) { 
+        elements?[i] = null;
+      }
 
       if (elements != null) { 
+        elements.removeWhere((element) => element == null);
         Cart.set(elements);
       } else {
         CartWidget.cartNotifier.value = List.empty(growable: true);

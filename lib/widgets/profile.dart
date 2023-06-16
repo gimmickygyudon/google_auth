@@ -50,8 +50,16 @@ class UserProfile extends StatelessWidget {
   }
 }
 
-class ProfileMenu extends StatelessWidget {
-  const ProfileMenu({super.key});
+class ProfileMenu extends StatefulWidget {
+  const ProfileMenu({super.key, this.color});
+
+  final Color? color;
+
+  @override
+  State<ProfileMenu> createState() => _ProfileMenuState();
+}
+
+class _ProfileMenuState extends State<ProfileMenu> {
 
   @override
   Widget build(BuildContext context) {
@@ -112,7 +120,7 @@ class ProfileMenu extends StatelessWidget {
           child: Text('v1.0.0+1 • Logged in ${DateNow()}', style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w400)),
         )
       ],
-      child: PhotoProfile(photo: currentUser['photo_url'], size: 32, color: Theme.of(context).colorScheme.surface),
+      child: PhotoProfile(photo: currentUser['photo_url'], size: 32, color: widget.color ?? Theme.of(context).colorScheme.surface),
     );
   }
 }

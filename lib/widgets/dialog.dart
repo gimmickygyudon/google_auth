@@ -360,16 +360,11 @@ class _OrderDialogState extends State<OrderDialog> {
                       fontWeight: FontWeight.w500,
                       height: 1.25
                     ),
+                    isExpanded: true,
                     items: spesifications.map((item) {
                       return DropdownMenuItem(
                         value: item,
-                        child: Row(
-                          children: [
-                            const Icon(Icons.view_in_ar),
-                            const SizedBox(width: 12),
-                            Text(item),
-                          ],
-                        )
+                        child: Text(item)
                       );
                     }).toList(), 
                   ),

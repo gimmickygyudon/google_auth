@@ -31,6 +31,7 @@ class _DashboardRouteState extends State<DashboardRoute> {
     currentPage = widget.currentPage ?? 0;
     _pageController = PageController(initialPage: currentPage);
 
+    Cart.getItems();
     logUser();
     super.initState();
   }

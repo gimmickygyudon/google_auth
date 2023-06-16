@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_auth/functions/conversion.dart';
+import 'package:google_auth/functions/push.dart';
 import 'package:google_auth/functions/sqlite.dart';
 import 'package:google_auth/functions/string.dart';
 import 'package:google_auth/strings/item.dart';
@@ -28,7 +29,7 @@ class _CartWidgetState extends State<CartWidget> {
     super.initState();
   }
 
-  void removeItem(int index) {
+  void removeItem(List<int> index) {
     Cart.remove(index: index).whenComplete(() => cartListkey.currentState?.setState(() {}));
   }
 
@@ -44,7 +45,7 @@ class _CartWidgetState extends State<CartWidget> {
               elevation: 8,
               shadowColor: Theme.of(context).colorScheme.shadow,
               surfaceTintColor: Theme.of(context).colorScheme.inversePrimary,
-              constraints: const BoxConstraints(maxWidth: 400, minWidth: 400),
+              constraints: const BoxConstraints(maxWidth: 500, minWidth: 500),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               itemBuilder: (context) => [
                 PopupMenuItem(
@@ -191,19 +192,22 @@ class _CartWidgetState extends State<CartWidget> {
                               icon: const Icon(Icons.remove_circle),
                               label: const Text('Hapus Daftar')
                             ),
-                            ElevatedButton.icon(
-                              onPressed: () {},
-                              style: ButtonStyle(
-                                shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8)
-                                )),
-                                elevation: const MaterialStatePropertyAll(0),
-                                foregroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.surface),
-                                backgroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.primary),
-                                overlayColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.inversePrimary)
+                            Hero(
+                              tag: 'Order Button',
+                              child: ElevatedButton.icon(
+                                onPressed: () => pushOrdersPage(context: context, hero: 'Order Button'),
+                                style: ButtonStyle(
+                                  shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8)
+                                  )),
+                                  elevation: const MaterialStatePropertyAll(0),
+                                  foregroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.surface),
+                                  backgroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.primary),
+                                  overlayColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.inversePrimary)
+                                ),
+                                icon: const Icon(Icons.playlist_add, size: 26),
+                                label: const Text('Buat Pesanan')
                               ),
-                              icon: const Icon(Icons.playlist_add, size: 26),
-                              label: const Text('Buat Pesanan')
                             ),
                           ],
                         ),
@@ -362,7 +366,7 @@ class CartListWidget extends StatelessWidget {
           Column(
             children: [
               IconButton(
-                onPressed: () => onDelete(index),
+                onPressed: () => onDelete([index]),
                 style: ButtonStyle(
                   visualDensity: const VisualDensity(vertical: -4, horizontal: -4),
                   textStyle: MaterialStatePropertyAll(
