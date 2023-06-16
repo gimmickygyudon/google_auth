@@ -7,14 +7,14 @@ import 'dart:convert';
 
 import 'package:http/retry.dart';
 
-String server = 'http://192.168.1.19:8080';
+// String server = 'http://192.168.1.19:8080';
 
 // Server Lokal
-// String server = 'http://192.168.1.106:8080';
+String server = 'http://192.168.1.106:8080';
 
 class SQL {
   static const int clientRetries = 5;
-  static const int clienTimeout = 5;
+  static const int clienTimeout = 15;
   
   static final client = RetryClient(http.Client(), retries: clientRetries,
     whenError: ((error, stacktrace) async {
@@ -109,6 +109,8 @@ class SQL {
       List<dynamic> data = (json.decode(response.body)) as List;
       if (data.length == 1) return data.last;
       return data;
+    } else if (response.statusCode == 404) {
+      return List.empty();
     } else {
       return Future.error('error: ${response.statusCode}');
     }

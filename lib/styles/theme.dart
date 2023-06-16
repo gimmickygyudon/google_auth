@@ -1,4 +1,47 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+class ThemeNotifier with ChangeNotifier {
+
+  bool darkMode = false;
+  final darkTheme = ThemeData(
+    brightness: Brightness.dark,
+    colorSchemeSeed: Colors.blue,
+    snackBarTheme: const SnackBarThemeData(backgroundColor: Colors.black),
+    useMaterial3: true
+  );
+
+  final lightTheme = ThemeData(
+    colorSchemeSeed: Colors.blue,
+    snackBarTheme: const SnackBarThemeData(backgroundColor: Colors.white),
+    useMaterial3: true,
+  );
+
+  SystemUiOverlayStyle systemUiOverlayStyle = const SystemUiOverlayStyle(
+    systemNavigationBarIconBrightness: Brightness.light,
+    systemNavigationBarColor: Colors.black
+  );
+
+  ThemeMode _themeData = ThemeMode.system;
+  ThemeMode getTheme() => _themeData;
+
+  void setThemeMode(bool darkMode) async {
+    if (darkMode) {    
+      _themeData = ThemeMode.dark;
+      systemUiOverlayStyle = const SystemUiOverlayStyle(
+        systemNavigationBarIconBrightness: Brightness.light,
+        systemNavigationBarColor: Colors.black
+      );
+    } else {
+      _themeData = ThemeMode.light;
+      systemUiOverlayStyle = const SystemUiOverlayStyle(
+        systemNavigationBarIconBrightness: Brightness.dark,
+        systemNavigationBarColor: Colors.white
+      );
+    }
+    notifyListeners();
+  }
+}
 
 class Themes {
 
@@ -65,28 +108,46 @@ class Themes {
 
 class Styles {
 
-  static ButtonStyle buttonForm({required BuildContext context}) {
+  static ButtonStyle buttonForm({required BuildContext context, bool? isLoading}) {
     return ButtonStyle(
       visualDensity: const VisualDensity(horizontal: 2, vertical: 2),
       elevation: MaterialStateProperty.resolveWith((states) {
-        if (states.contains(MaterialState.disabled)) return null;
-        return states.contains(MaterialState.pressed) ? 1 : 8;
+        if (isLoading == true) {
+          return 0;
+        } else if (states.contains(MaterialState.disabled)) {
+          return null;
+        } else if (states.contains(MaterialState.pressed)) {
+          return 1;
+        } else {
+          return 8;
+        }
       }),
       shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
       backgroundColor: MaterialStateProperty.resolveWith((states) {
-        return states.contains(MaterialState.disabled)
-          ? null
-          : Theme.of(context).colorScheme.primary;
+        if (isLoading == true) {
+          return Theme.of(context).colorScheme.inversePrimary.withOpacity(0.5);
+        }
+        else if (states.contains(MaterialState.disabled)) {
+          return null;
+        } else {
+          return Theme.of(context).colorScheme.primary;
+        }
       }),
       foregroundColor: MaterialStateProperty.resolveWith((states) {
-        return states.contains(MaterialState.disabled)
-          ? null
-          : Theme.of(context).colorScheme.surface;
+        if (isLoading == true) {
+          return Theme.of(context).colorScheme.primary;
+        } else if (states.contains(MaterialState.disabled)) {
+          return null;
+        } else {
+          return Theme.of(context).colorScheme.surface;
+        }
       }),
       overlayColor: MaterialStateProperty.resolveWith((states) {
-        return states.contains(MaterialState.disabled)
-          ? null
-          : Theme.of(context).colorScheme.inversePrimary;
+        if (states.contains(MaterialState.disabled)) {
+          return null;
+        } else {
+          return Theme.of(context).colorScheme.inversePrimary;
+        }
       }),
     );
   }
@@ -135,7 +196,7 @@ class Styles {
         suffixIcon: suffixIcon,
         errorMaxLines: 3,
         fillColor: condition ? Theme.of(context).colorScheme.inversePrimary.withOpacity(0.15) : Theme.of(context).hoverColor,
-        errorStyle: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.red, fontSize: 11),
+        errorStyle: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.error, fontSize: 11),
         errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide(color: Theme.of(context).colorScheme.error, width: 2)
         ),

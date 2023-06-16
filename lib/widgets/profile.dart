@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:google_auth/styles/theme.dart';
+import 'package:provider/provider.dart';
 
 import '../functions/authentication.dart';
 import '../functions/push.dart';
@@ -60,20 +62,39 @@ class ProfileMenu extends StatelessWidget {
       itemBuilder: (context) => [
         PopupMenuItem(
           height: 0,
-          child: ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: PhotoProfile(photo: currentUser['photo'], size: 40),
-            title: Text(currentUser['user_name']),
-            titleTextStyle: Theme.of(context).textTheme.titleSmall,
-            subtitle: Text(currentUser['user_email']),
-            subtitleTextStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Theme.of(context).colorScheme.secondary,
-              fontSize: 11,
+          child: Consumer<ThemeNotifier>(
+            builder: (context, value, child) => ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: PhotoProfile(photo: currentUser['photo'], size: 40),
+              title: Text(currentUser['user_name']),
+              titleTextStyle: Theme.of(context).textTheme.titleSmall,
+              subtitle: Text(currentUser['user_email']),
+              subtitleTextStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.secondary,
+                fontSize: 11,
+              ),
+              trailing: const Icon(Icons.settings),
             ),
-            trailing: const Icon(Icons.settings),
           )
         ),
         const PopupMenuItem(enabled: false, height: 0, child: PopupMenuDivider()),
+        PopupMenuItem(
+          child: Consumer<ThemeNotifier>(
+            builder: (context, theme, child) => ListTile(
+              dense: true,
+              contentPadding: const EdgeInsets.only(left: 6),
+              leading: const Icon(Icons.dark_mode),
+              title: const Text('Mode Gelap'),
+              trailing: Switch(
+                value: theme.darkMode, 
+                onChanged: (value) {
+                  theme.setThemeMode(value);
+                  theme.darkMode = value;               
+                },
+              ),
+            ),
+          )
+        ),
         PopupMenuItem(
           onTap: () {
             Authentication.signOut().whenComplete(() => pushStart(context));

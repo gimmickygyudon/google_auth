@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
 class HandleNoInternet extends StatelessWidget {
-  const HandleNoInternet({super.key, required this.message, this.color});
+  const HandleNoInternet({super.key, required this.message, this.color, this.onPressed});
 
   final String message;
   final Color? color;
+  final Function? onPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +18,15 @@ class HandleNoInternet extends StatelessWidget {
           fontWeight: FontWeight.w500,
           color: Theme.of(context).colorScheme.secondary,
           letterSpacing: 0
-        ))
+        )),
+        const SizedBox(height: 48),
+      //OutlinedButton(
+      //  onPressed: () {
+      //    if (onPressed != null) onPressed!();
+      //  },
+      //  style: ButtonStyle(side: MaterialStatePropertyAll(BorderSide(color: Theme.of(context).colorScheme.primary))),
+      //  child: const Text('Muat Ulang')
+      //)
       ],
     );
   }

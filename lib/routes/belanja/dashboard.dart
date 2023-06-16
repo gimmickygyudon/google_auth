@@ -27,11 +27,11 @@ class _BelanjaRouteState extends State<BelanjaRoute> {
                   padding: const EdgeInsets.symmetric(horizontal: 30),
                   child: Card(
                     elevation: 6,
-                    shadowColor: Theme.of(context).splashColor,
+                    shadowColor: Theme.of(context).colorScheme.shadow.withOpacity(0.5),
                     margin: EdgeInsets.zero,
                     clipBehavior: Clip.antiAlias,
-                    // color: Theme.of(context).hoverColor,
                     surfaceTintColor: Colors.transparent,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                     child: Column(
                       children: [
                         TextField(
@@ -43,14 +43,14 @@ class _BelanjaRouteState extends State<BelanjaRoute> {
                             contentPadding: const EdgeInsets.fromLTRB(12, 9, 12, 9),
                             border: InputBorder.none,
                             hintText: 'Indostar Board',
-                            prefixIcon: Icon(Icons.arrow_forward, color: Theme.of(context).primaryColorDark),
+                            prefixIcon: Icon(Icons.arrow_forward, color: Theme.of(context).colorScheme.primary),
                             enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(20),
                               borderSide: BorderSide(color: Theme.of(context).colorScheme.outlineVariant)
                             ),
                             focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: Theme.of(context).primaryColor)
+                              borderRadius: BorderRadius.circular(20),
+                              borderSide: BorderSide(color: Theme.of(context).colorScheme.primary)
                             ),
                             hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
                               color: Theme.of(context).colorScheme.secondary.withOpacity(0.5),
@@ -58,10 +58,10 @@ class _BelanjaRouteState extends State<BelanjaRoute> {
                               height: 2
                             ),
                             suffixIcon: Container(
-                              margin: const EdgeInsets.all(8),
+                              margin: const EdgeInsets.fromLTRB(8, 8, 12, 8),
                               padding: const EdgeInsets.only(left: 6, right: 10),
                               decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(25.7),
+                                borderRadius: BorderRadius.circular(12),
                                 color: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.25)
                               ),
                               child: Row(
@@ -93,10 +93,10 @@ class _BelanjaRouteState extends State<BelanjaRoute> {
                         child: FilterChip(
                           onSelected: (value) {},
                           avatar: const FlutterLogo(),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25.7)),
                           side: BorderSide.none,
-                          backgroundColor: Theme.of(context).primaryColorLight.withOpacity(0.25),
-                          label: Text('Produk#$index'),
+                          backgroundColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.15),
+                          label: Text('Produk #$index'),
                           labelStyle: Theme.of(context).textTheme.labelSmall?.copyWith(
                             color: Theme.of(context).colorScheme.primary,
                             letterSpacing: 0
@@ -106,7 +106,7 @@ class _BelanjaRouteState extends State<BelanjaRoute> {
                     }),
                   )
                 ),
-                const SizedBox(height: 30),
+                const SizedBox(height: 38),
                 Padding(
                   padding: const EdgeInsets.only(left: 30),
                   child: Row(
@@ -165,7 +165,6 @@ class _BelanjaRouteState extends State<BelanjaRoute> {
                         letterSpacing: 0
                       )),
                       const SizedBox(width: 16),
-                      Image.asset('assets/Logo Indostar.png', height: 16)
                     ],
                   ),
                 ),
@@ -177,25 +176,35 @@ class _BelanjaRouteState extends State<BelanjaRoute> {
                       scrollDirection: Axis.horizontal,
                       children: [
                         Stack(
-                          alignment: Alignment.center,
                           children: [
                             Card(
                               margin: EdgeInsets.zero,
                               clipBehavior: Clip.antiAlias,
                               child: Image.network('https://img.youtube.com/vi/krCJczMVbx0/0.jpg'),
                             ),
+                            Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Align(
+                                alignment: Alignment.topLeft,
+                                child: Image.asset('assets/Logo Indostar.png', height: 16)
+                              ),
+                            ),
                             Positioned.fill(
                               child: Container(
                                 color: Colors.black26,
                               ),
                             ),
-                            IconButton(
-                              onPressed: () => launchURL(url: 'https://www.youtube.com/watch?v=krCJczMVbx0'), 
-                              style: ButtonStyle(
-                                foregroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.surfaceTint),
-                                backgroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.background)
+                            Positioned.fill(
+                              child: Center(
+                                child: IconButton(
+                                  onPressed: () => launchURL(url: 'https://www.youtube.com/watch?v=krCJczMVbx0'), 
+                                  style: ButtonStyle(
+                                    foregroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.surfaceTint),
+                                    backgroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.background)
+                                  ),
+                                  icon: const Icon(Icons.play_arrow)
+                                ),
                               ),
-                              icon: const Icon(Icons.play_arrow)
                             )
                           ],
                         ),
@@ -273,10 +282,10 @@ class CardItem extends StatelessWidget {
                       backgroundColor: MaterialStatePropertyAll(item['color'])
                     ),
                     icon: Text('Lihat Produk', style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.surface,
+                      color: Colors.white,
                       letterSpacing: 0
                     )),
-                    label: Icon(Icons.arrow_forward, size: 20, color: Theme.of(context).colorScheme.surface),
+                    label: const Icon(Icons.arrow_forward, size: 20, color: Colors.white),
                   ),
                 ),
               ),

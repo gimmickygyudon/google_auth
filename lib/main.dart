@@ -1,14 +1,19 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:provider/provider.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
 import 'functions/push.dart';
 import 'routes/start_page.dart';
 import 'functions/authentication.dart';
+import 'styles/theme.dart';
 
 void main() async {
-  runApp(const MyApp());
+  return runApp(ChangeNotifierProvider<ThemeNotifier>(
+    create: (_) => ThemeNotifier(),
+    child: const MyApp(),
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -16,41 +21,43 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'Customer',
-      theme: ThemeData(
-        colorSchemeSeed: Colors.blue,
-        useMaterial3: true,
+    return Consumer<ThemeNotifier>(
+      builder: (context, theme, child) => AnnotatedRegion(
+        value: theme.systemUiOverlayStyle,
+        child: MaterialApp(
+          debugShowCheckedModeBanner: false,
+          title: 'Customer',
+          theme: theme.lightTheme,
+          darkTheme: theme.darkTheme,
+          themeMode: theme.getTheme(),
+          builder: (context, child) {
+            return MediaQuery(
+              data: MediaQuery.of(context).copyWith(textScaleFactor: 1.3),
+              child: ResponsiveWrapper.builder(
+                child,
+                maxWidth: 600,
+                minWidth: 200,
+                maxWidthLandscape: 4000,
+                minWidthLandscape: 600,
+                breakpointsLandscape: [
+                  const ResponsiveBreakpoint.resize(400, name: MOBILE, scaleFactor: 0.75),
+                  const ResponsiveBreakpoint.resize(600, name: TABLET, scaleFactor: 0.75),
+                  const ResponsiveBreakpoint.resize(1024, name: DESKTOP),
+                  const ResponsiveBreakpoint.resize(1600, name: '4K'),
+                ],
+                defaultScale: true,
+                breakpoints: [
+                  const ResponsiveBreakpoint.resize(200, name: MOBILE, scaleFactor: 0.9),
+                  const ResponsiveBreakpoint.resize(400, name: TABLET, scaleFactor: 0.95),
+                  const ResponsiveBreakpoint.resize(1024, name: DESKTOP),
+                  const ResponsiveBreakpoint.resize(1600, name: '4K'),
+                ]
+              ),
+            );
+          },
+          home: const MyHomePage(title: 'Customer'),
+        ),
       ),
-      builder: (context, child) {
-        // print('height: ${MediaQuery.of(context).size.height}');
-        // print('width: ${MediaQuery.of(context).size.width}');
-        return MediaQuery(
-          data: MediaQuery.of(context).copyWith(textScaleFactor: 1.3),
-          child: ResponsiveWrapper.builder(
-            child,
-            maxWidth: 600,
-            minWidth: 200,
-            maxWidthLandscape: 4000,
-            minWidthLandscape: 600,
-            breakpointsLandscape: [
-              const ResponsiveBreakpoint.resize(400, name: MOBILE, scaleFactor: 0.75),
-              const ResponsiveBreakpoint.resize(600, name: TABLET, scaleFactor: 0.75),
-              const ResponsiveBreakpoint.resize(1024, name: DESKTOP),
-              const ResponsiveBreakpoint.resize(1600, name: '4K'),
-            ],
-            defaultScale: true,
-            breakpoints: [
-              const ResponsiveBreakpoint.resize(200, name: MOBILE, scaleFactor: 0.9),
-              const ResponsiveBreakpoint.resize(400, name: TABLET, scaleFactor: 0.95),
-              const ResponsiveBreakpoint.resize(1024, name: DESKTOP),
-              const ResponsiveBreakpoint.resize(1600, name: '4K'),
-            ]
-          ),
-        );
-      },
-      home: const MyHomePage(title: 'Customer'),
     );
   }
 }

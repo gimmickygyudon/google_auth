@@ -62,15 +62,13 @@ class _ItemRouteState extends State<ItemRoute> {
                 title: TextButton.icon(
                   onPressed: () => Navigator.of(context).pop(),
                   label: Text(' Kembali', style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.surface
+                    color: Colors.white
                   )),
-                  icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.surface)
+                  icon: const Icon(Icons.arrow_back, color: Colors.white)
                 ),
-                actions: [
-                  CartWidget(
-                    color: Theme.of(context).colorScheme.surface
-                  ),
-                  const SizedBox(width: 12),
+                actions: const [
+                  CartWidget(color: Colors.white),
+                  SizedBox(width: 12),
                 ],
                 flexibleSpace: FlexibleSpaceBar(
                   titlePadding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
@@ -96,7 +94,7 @@ class _ItemRouteState extends State<ItemRoute> {
                             end: Alignment.topCenter,
                             colors: [
                               Theme.of(context).hoverColor,
-                              Colors.black45,
+                              Theme.of(context).colorScheme.shadow,
                             ]
                           )
                         ),
@@ -123,7 +121,6 @@ class _ItemRouteState extends State<ItemRoute> {
                           IconButton(onPressed: () {}, icon: const Icon(Icons.filter_list)),
                           IconButton(
                             onPressed: () {}, 
-                            color: widget.color,
                             icon: const Icon(Icons.grid_view_rounded)
                           ),
                         ],

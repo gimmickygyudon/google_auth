@@ -32,7 +32,7 @@ class _LaporanRouteState extends State<LaporanRoute> {
   GlobalKey selectedKey = GlobalKey();
   bool empty = true;
 
-  late bool isLoading;
+  late bool isLoadingContent, isLoading;
 
   @override
   void initState() {
@@ -49,6 +49,7 @@ class _LaporanRouteState extends State<LaporanRoute> {
     }
     laporanList.addAll(laporanList_);
 
+    isLoadingContent = false;
     isLoading = false;
     super.initState();
   }
@@ -63,9 +64,9 @@ class _LaporanRouteState extends State<LaporanRoute> {
   void setLoading() {
     if(empty == true) {
       empty = false;
-      isLoading = true;
+      isLoadingContent = true;
       Timer(const Duration(seconds: 1), () { 
-        setState(() => isLoading = false);
+        setState(() => isLoadingContent = false);
       });
     }
   }
@@ -101,6 +102,14 @@ class _LaporanRouteState extends State<LaporanRoute> {
   }
 
   void sendReport() {
+    showError() {
+      showSnackBar(context, snackBarError(
+        context: context, 
+        content: 'Gagal, Coba Beberapa Saat Lagi.', 
+        icon: Icons.info_outline)
+      );
+    }
+
     SQL.insert(
       api: 'osfb',
       item: UserReport(
@@ -109,7 +118,14 @@ class _LaporanRouteState extends State<LaporanRoute> {
         id_ousr: currentUser['id_ousr'], 
         remarks: currentUser['user_name']
       ).toMap()
-    ).then((value) {
+    ).onError((error, stackTrace) {
+      return Future.delayed(const Duration(seconds: 3), () {
+        showError();
+
+        return Future.error(error.toString());
+      });
+
+    }).then((value) {
       if (value.isNotEmpty) { 
         SQL.insert(
           api: 'sfb1',
@@ -119,7 +135,13 @@ class _LaporanRouteState extends State<LaporanRoute> {
             type_feed: setLaporan(laporan), 
             description: _detailController.text
           ).toMap(), 
-        ).then((value) {
+        ).onError((error, stackTrace) {
+          return Future.delayed(const Duration(seconds: 3), () {
+            showError();
+
+            return Future.error(error.toString());
+          });
+        }).then((value) {
           if (fileList.isNotEmpty) {
             for (var file in fileList) { 
               SQL.insertMultiPart(
@@ -135,12 +157,18 @@ class _LaporanRouteState extends State<LaporanRoute> {
               );
             }
           }
+        }).onError((error, stackTrace) {
+          return Future.delayed(const Duration(seconds: 3), () {
+            showError();
+
+            return Future.error(error.toString());
+          });
         });
       }
-    }).whenComplete(() {
+    }).then((value) {
       pushDashboard(context, currentPage: 3);
-      showSnackBar(context, snackBarAuth(context: context, content: 'Terima Kasih atas Umpan Balik Anda.'));
-    });
+      showSnackBar(context, snackBarComplete(context: context, content: 'Terima Kasih atas Umpan Balik Anda.'));
+    }).whenComplete(() => setState(() => isLoading = false));
   }
 
 
@@ -164,14 +192,21 @@ class _LaporanRouteState extends State<LaporanRoute> {
           curve: Curves.easeOut,
           offset: _detailController.text.trim().isNotEmpty && laporan.isNotEmpty ? const Offset(0, 0) : const Offset(0, 20),
           child: FloatingActionButton.extended(
-            onPressed: _detailController.text.trim().isNotEmpty && laporan.isNotEmpty ? () => sendReport() : null,
+            onPressed: _detailController.text.trim().isNotEmpty && laporan.isNotEmpty && isLoading == false ? () {
+              setState(() {
+                isLoading = true;
+                sendReport();
+              });
+            } : null,
             highlightElevation: 1,
             elevation: 4,
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            foregroundColor: Theme.of(context).colorScheme.surface,
+            backgroundColor: isLoading ? Theme.of(context).colorScheme.scrim : Theme.of(context).colorScheme.primary,
+            foregroundColor: isLoading ? Theme.of(context).primaryColorLight :Theme.of(context).colorScheme.surface,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            label: const Text('Kirim'),
-            icon: const Icon(Icons.forward_to_inbox),
+            label: isLoading ? const Text('Mengirim...') : const Text('Kirim'),
+            icon: isLoading 
+            ? Transform.scale(scale: 0.7, child: CircularProgressIndicator(color: Theme.of(context).primaryColorLight, strokeWidth: 3)) 
+            : const Icon(Icons.forward_to_inbox),
           ),
         ),
         body: SingleChildScrollView(
@@ -181,7 +216,7 @@ class _LaporanRouteState extends State<LaporanRoute> {
               AnimatedSize(
                 duration: const Duration(milliseconds: 400),
                 curve: Curves.easeOut,
-                child: isLoading 
+                child: isLoadingContent 
                   ? Padding(
                     padding: const EdgeInsets.all(40),
                     child: Center(

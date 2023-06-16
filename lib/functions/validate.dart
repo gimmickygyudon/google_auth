@@ -29,7 +29,7 @@ class Validate {
       return true;
     } else {
       hideSnackBar(context);
-      showSnackBar(context, snackBarAuth(context: context, content: string));
+      showSnackBar(context, snackBarError(context: context, content: string, icon: Icons.lock_person));
       return false;
     }
   }
@@ -49,7 +49,10 @@ class Validate {
     String query() => EmailValidator.validate(user) ? 'user_email' : 'phone_number';
     if(source != null) photourl = source.containsKey('photo_url') ? source['photo_url'] : null;
 
-    SQL.retrieve(query: '${query()}=$user', api: 'ousr').then((item) async {
+    return SQL.retrieve(query: '${query()}=$user', api: 'ousr')
+      .onError((error, stackTrace) {
+        return Future.error(error.toString());
+    }).then((item) async {
       if (item.isNotEmpty) {
         if (login == true) {
           if (await Validate.checkPassword(context, item: item, password: password!)) {
@@ -103,8 +106,6 @@ class Validate {
           default:
         }
       }
-    }).onError((error, stackTrace) {
-      return Future.error(error.toString());
     });
   }
 }

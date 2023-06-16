@@ -9,6 +9,7 @@ import 'package:google_auth/functions/validate.dart';
 import 'package:google_auth/widgets/checkbox.dart';
 import 'package:google_auth/widgets/dialog.dart';
 import 'package:google_auth/widgets/profile.dart';
+import 'package:google_auth/widgets/snackbar.dart';
 
 import '../functions/push.dart';
 import '../functions/sql_client.dart';
@@ -32,7 +33,7 @@ class _RegisterRouteState extends State<RegisterRoute> {
     _phonenumberController,
     _passwordController,
     _repasswordController;
-  late bool isValidated, visibility;
+  late bool isValidated, visibility, isLoading;
 
   bool loggingIn = false;
   bool _keyboardVisible = false;
@@ -41,12 +42,9 @@ class _RegisterRouteState extends State<RegisterRoute> {
   void initState() {
     isValidated = false;
     visibility = false;
-    _usernameController = TextEditingController(text: widget.source?['user_name']);
-    _emailController = TextEditingController(text: widget.source?['user_email']);
-    _phonenumberController = TextEditingController();
-    _passwordController = TextEditingController();
-    _repasswordController = TextEditingController();
+    isLoading = false;
 
+    setController();
     if (widget.logintype == 'Nomor') {
       _phonenumberController.text = widget.value!;
     } else if (widget.logintype == 'Email') {
@@ -58,12 +56,24 @@ class _RegisterRouteState extends State<RegisterRoute> {
 
   @override
   void dispose() {
+    disposeController();
+    super.dispose();
+  }
+
+  void setController() {
+    _usernameController = TextEditingController(text: widget.source?['user_name']);
+    _emailController = TextEditingController(text: widget.source?['user_email']);
+    _phonenumberController = TextEditingController();
+    _passwordController = TextEditingController();
+    _repasswordController = TextEditingController();
+  }
+
+  void disposeController() {
     _usernameController.dispose();
     _emailController.dispose();
     _phonenumberController.dispose();
     _passwordController.dispose();
     _repasswordController.dispose();
-    super.dispose();
   }
 
   void validate() {
@@ -80,6 +90,8 @@ class _RegisterRouteState extends State<RegisterRoute> {
     });
   }
 
+  void setLoading(bool value) => setState(() => isLoading = value);
+
   void registerUser() {
     UserRegister user = UserRegister(
       id_ousr: null,
@@ -89,9 +101,23 @@ class _RegisterRouteState extends State<RegisterRoute> {
       phone_number: _phonenumberController.text,
       user_password: md5.convert(utf8.encode(_repasswordController.text)).toString()
     );
-    SQL.retrieve(query: 'user_email=${_emailController.text}', api: 'ousr').then((value) {
+    SQL.retrieve(query: 'user_email=${_emailController.text}', api: 'ousr')
+    .onError((error, stackTrace) {
+      showSnackBar(context, snackBarError(context: context, content: error.toString()));
+      setLoading(false);
+
+      return Future.error(error.toString());
+    })
+    .then((value) {
       if (value.isEmpty) {
-        SQL.retrieve(query: 'phone_number=${_phonenumberController.text}', api: 'ousr').then((value) {
+        SQL.retrieve(query: 'phone_number=${_phonenumberController.text}', api: 'ousr')
+        .onError((error, stackTrace) {
+          showSnackBar(context, snackBarError(context: context, content: error.toString()));
+          setLoading(false);
+
+          return Future.error(error.toString());
+        })
+        .then((value) {
           if (value.isNotEmpty) {
             Map<String, dynamic> source = {
               'user_email': value['user_email'],
@@ -253,7 +279,11 @@ class _RegisterRouteState extends State<RegisterRoute> {
                             ButtonRegister(
                               isVisible: _keyboardVisible ? false : true,
                               enable: isValidated,
-                              onPressed: () => registerUser()
+                              isLoading: isLoading,
+                              onPressed: () {
+                                setLoading(true);
+                                registerUser();
+                              }
                             ),
                             const SizedBox(height: 30)
                           ],
@@ -286,7 +316,11 @@ class _RegisterRouteState extends State<RegisterRoute> {
             child: ButtonRegister(
               isVisible: _keyboardVisible,
               enable: isValidated,
-              onPressed: () => registerUser()
+              isLoading: isLoading,
+              onPressed: () {
+                setLoading(true);
+                registerUser();
+              }
             ),
           )
         ],
@@ -296,17 +330,15 @@ class _RegisterRouteState extends State<RegisterRoute> {
 }
 
 class ButtonRegister extends StatelessWidget {
-  const ButtonRegister(
-    {
-      super.key,
-      required this.isVisible,
-      required this.enable,
-      required this.onPressed
-    }
-  );
+  const ButtonRegister({
+    super.key,
+    required this.isVisible,
+    required this.enable,
+    required this.onPressed, 
+    required this.isLoading
+  });
 
-  final bool isVisible;
-  final bool enable;
+  final bool isVisible, enable, isLoading;
   final Function onPressed;
 
   @override
@@ -321,9 +353,16 @@ class ButtonRegister extends StatelessWidget {
             child: const Text('Kembali')
           ),
           ElevatedButton(
-            onPressed: enable ? () => onPressed() : null,
-            style: Styles.buttonForm(context: context).copyWith(visualDensity: const VisualDensity(vertical: 1, horizontal: 2)),
-            child: const Text('Daftar')
+            onPressed: enable && isLoading == false ? () => onPressed() : null,
+            style: Styles.buttonForm(context: context, isLoading: isLoading).copyWith(visualDensity: const VisualDensity(vertical: 1, horizontal: 2)),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (isLoading) SizedBox(width: 20, height: 20, child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary)),
+                if (isLoading) const SizedBox(width: 12),
+                Text(isLoading ? 'Mendaftar...' : 'Daftar'),
+              ],
+            )
           ),
         ],
       ),

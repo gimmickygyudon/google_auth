@@ -24,10 +24,13 @@ class _StartPageRouteState extends State<StartPageRoute> {
   final GlobalKey<LoginButtonState> loginButtonKey = GlobalKey();
   bool _keyboardVisible = false;
 
+  late bool isLoading;
+
   @override
   void initState() {
     loggingIn = false;
     isValidated = false;
+    isLoading = false;
     _phonenumberController = TextEditingController();
     super.initState();
   }
@@ -37,6 +40,8 @@ class _StartPageRouteState extends State<StartPageRoute> {
     _phonenumberController.dispose();
     super.dispose();
   }
+
+  void setLoading(bool value) => setState(() => isLoading = value);
 
   @override
   Widget build(BuildContext context) {
@@ -110,11 +115,18 @@ class _StartPageRouteState extends State<StartPageRoute> {
                                     },
                                     onSubmitted: isValidated ? (value) {
                                       FocusScope.of(context).unfocus();
+
+                                      setLoading(true);
                                       Validate.checkUser(
                                         context: context,
                                         user: value,
                                         logintype: 'Nomor'
-                                      );
+                                      ).onError((error, stackTrace) {
+                                        showSnackBar(context, snackBarError(context: context, content: error.toString()));
+                                        setLoading(false);
+
+                                        return Future.error(error.toString());
+                                      }).then((value) => setLoading(false));
                                     }
                                     : null,
                                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.4),
@@ -131,6 +143,8 @@ class _StartPageRouteState extends State<StartPageRoute> {
                                   const SizedBox(height: 12),
                                   LoginButton(
                                     key: loginButtonKey,
+                                    isLoading: isLoading,
+                                    setLoading: setLoading,
                                     isVisible: _keyboardVisible ? false : true,
                                     phonenumberController: _phonenumberController, 
                                   ),
@@ -176,6 +190,8 @@ class _StartPageRouteState extends State<StartPageRoute> {
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: LoginButton(
                     key: loginButtonKeyFloat,
+                    isLoading: isLoading,
+                    setLoading: setLoading,
                     isVisible: _keyboardVisible,
                     phonenumberController: _phonenumberController, 
                   ),
@@ -190,10 +206,13 @@ class _StartPageRouteState extends State<StartPageRoute> {
 }
 
 class LoginButton extends StatefulWidget {
-  const LoginButton({super.key, required this.phonenumberController, required this.isVisible});
+  const LoginButton({
+    super.key, required this.phonenumberController, required this.isVisible, required this.setLoading, required this.isLoading
+  });
 
   final TextEditingController phonenumberController;
-  final bool isVisible;
+  final bool isVisible, isLoading;
+  final Function setLoading;
 
   @override
   State<LoginButton> createState() => LoginButtonState();
@@ -201,12 +220,10 @@ class LoginButton extends StatefulWidget {
 
 class LoginButtonState extends State<LoginButton> {
   late bool isValidated;
-  late bool isLoading;
 
   @override
   void initState() {
     isValidated = false;
-    isLoading = false;
     super.initState();
   }
 
@@ -221,21 +238,23 @@ class LoginButtonState extends State<LoginButton> {
     return Visibility(
       visible: widget.isVisible,
       child: ElevatedButton(
-        onPressed: isValidated && !isLoading ? () {
-          setState(() => isLoading = true);
-          Timer(const Duration(seconds: 2), () { 
-            Validate.checkUser(
-              context: context,
-              user: widget.phonenumberController.text,
-              logintype: 'Nomor'
-            ).catchError((error, stackTrace) {
-              showSnackBar(context, snackBarError(context: context, content: error.toString()));
-            }).whenComplete(() => setState(() => isLoading = false));
-          });
+        onPressed: isValidated && widget.isLoading == false ? () {
+          widget.setLoading(true);
+
+          Validate.checkUser(
+            context: context,
+            user: widget.phonenumberController.text,
+            logintype: 'Nomor'
+          ).onError((error, stackTrace) {
+            showSnackBar(context, snackBarError(context: context, content: error.toString()));
+            widget.setLoading(false);
+
+            return Future.error(error.toString());
+          }).then((value) => widget.setLoading(false));
         }
         : null,
-        style: Styles.buttonForm(context: context),
-        child: isLoading 
+        style: Styles.buttonForm(context: context, isLoading: widget.isLoading),
+        child: widget.isLoading == true
           ? Row(
             mainAxisAlignment: MainAxisAlignment.center,
               children: [

@@ -4,6 +4,7 @@ import 'package:google_auth/functions/sqlite.dart';
 import 'package:google_auth/functions/string.dart';
 import 'package:google_auth/strings/item.dart';
 import 'package:google_auth/strings/user.dart';
+import 'package:google_auth/widgets/handle.dart';
 
 class CartWidget extends StatefulWidget {
   const CartWidget({super.key, this.color, this.bgColor, this.icon});
@@ -19,10 +20,26 @@ class CartWidget extends StatefulWidget {
 class _CartWidgetState extends State<CartWidget> {
 
   final GlobalKey<State<StatefulBuilder>> cartListkey = GlobalKey();
+  late bool isEmpty;
+  late Future _getItems;
 
   @override
   void initState() {
+    _getItems = Cart.getItems();
+    setEmpty();
     super.initState();
+  }
+
+  void setEmpty() async {
+    isEmpty = await Cart.getItems().then((value) {
+      if (value == null || value.isEmpty) {
+        isEmpty = true;
+        return isEmpty;
+      } else {
+        isEmpty = false;
+        return isEmpty;
+      }
+    });
   }
 
   void removeItem(int index) {
@@ -34,7 +51,7 @@ class _CartWidgetState extends State<CartWidget> {
     return PopupMenuButton(
       padding: EdgeInsets.zero,
       elevation: 8,
-      shadowColor: Theme.of(context).splashColor,
+      shadowColor: Theme.of(context).colorScheme.shadow,
       surfaceTintColor: Theme.of(context).colorScheme.inversePrimary,
       constraints: const BoxConstraints(maxWidth: 400, minWidth: 400),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
@@ -86,11 +103,11 @@ class _CartWidgetState extends State<CartWidget> {
             ],
           )
         ),
-        const PopupMenuItem(
+        PopupMenuItem(
           height: 0,  
           child: Padding(
-            padding: EdgeInsets.only(top: 10, bottom: 6),
-            child: PopupMenuDivider(),
+            padding: const EdgeInsets.only(top: 10, bottom: 6),
+            child: Divider(color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5)),
           )
         ),
       ] + [
@@ -99,30 +116,58 @@ class _CartWidgetState extends State<CartWidget> {
             key: cartListkey,
             builder: (context, setState) {
               return FutureBuilder(
-                future: Cart.getItems(),
+                future: _getItems,
                 builder: (context, snapshot) {
-                  return AnimatedSize(
+                  if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
+                    return AnimatedSize(
                     alignment: Alignment.topCenter,
                     duration: const Duration(milliseconds: 400),
                     curve: Curves.easeOut,
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(maxHeight: 400, minHeight: 0),
-                        child: ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: snapshot.data?.length ?? 0,  
-                          itemBuilder: (context, index) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 4),
-                              child: CartListWidget(
-                                index: index,
-                                onDelete: removeItem,
-                                item: snapshot.data?[index],
-                              ),
-                            );
-                          },
+                      child: ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: snapshot.data?.length ?? 0,  
+                        itemBuilder: (context, index) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 4),
+                            child: CartListWidget(
+                              index: index,
+                              onDelete: removeItem,
+                              item: snapshot.data?[index],
+                            ),
+                          );
+                        },
                       ),
                     ),
                   );
+                  } else if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const HandleLoading();
+                  } else {
+                    isEmpty = true;
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 32),
+                      child: Center(
+                        child: Column(
+                          children: [
+                            const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(Icons.layers_outlined, size: 46),
+                                SizedBox(width: 8),
+                                Icon(Icons.arrow_forward, size: 32),
+                                SizedBox(width: 8),
+                                Icon(Icons.local_shipping, size: 46),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            Text('Sepertinya Anda Belum Memesan', style: Theme.of(context).textTheme.labelMedium),
+                            const SizedBox(height: 16),
+                          ],
+                        ),
+                      ),
+                    );
+                  }
                 },
               );
             }
@@ -135,7 +180,7 @@ class _CartWidgetState extends State<CartWidget> {
             child: Divider(color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5)),
           )
         ),
-        PopupMenuItem(
+        if (!isEmpty) PopupMenuItem(
           child: Padding(
             padding: const EdgeInsets.only(bottom: 8.0),
             child: Row(
@@ -166,8 +211,8 @@ class _CartWidgetState extends State<CartWidget> {
                     )),
                     elevation: const MaterialStatePropertyAll(0),
                     foregroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.surface),
-                    backgroundColor: MaterialStatePropertyAll(Theme.of(context).primaryColorDark),
-                    overlayColor: MaterialStatePropertyAll(Theme.of(context).primaryColorLight)
+                    backgroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.primary),
+                    overlayColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.inversePrimary)
                   ),
                   icon: const Icon(Icons.playlist_add, size: 26),
                   label: const Text('Buat Pesanan')

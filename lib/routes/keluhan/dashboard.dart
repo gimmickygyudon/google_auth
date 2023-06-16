@@ -210,7 +210,7 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
                       future: _getList,
                       builder: (context, snapshot) {
                         if (snapshot.connectionState == ConnectionState.done && snapshot.hasError) {
-                          return HandleNoInternet(message: snapshot.error.toString());
+                          return HandleNoInternet(message: snapshot.error.toString(), onPressed: () {});
                         }
                         else if (snapshot.connectionState == ConnectionState.done && snapshot.data != null) {
                           return Column(

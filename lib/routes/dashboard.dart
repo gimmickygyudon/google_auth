@@ -43,7 +43,7 @@ class _DashboardRouteState extends State<DashboardRoute> {
 
   void changePage(int page) {
     setState(() {
-      currentPage = page;     
+      currentPage = page;
     });
   }
 

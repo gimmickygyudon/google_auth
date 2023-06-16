@@ -6,6 +6,7 @@ import '../styles/theme.dart';
 import '../widgets/checkbox.dart';
 import '../widgets/profile.dart';
 import '../widgets/button.dart';
+import '../widgets/snackbar.dart';
 
 class LoginRoute extends StatefulWidget {
   const LoginRoute({super.key, this.source, this.logintype});
@@ -18,7 +19,7 @@ class LoginRoute extends StatefulWidget {
 }
 
 class _LoginRouteState extends State<LoginRoute> {
-  late bool loggingIn, visibility, isValidated;
+  late bool loggingIn, visibility, isValidated, isLoading;
   late TextEditingController _usernameController, _passwordController;
 
   bool _keyboardVisible = false;
@@ -30,6 +31,7 @@ class _LoginRouteState extends State<LoginRoute> {
     loggingIn = false;
     visibility = false;
     isValidated = false;
+    isLoading = false;
 
     String? username = widget.source?['phone_number'];
     username ??= widget.source?['user_email'];
@@ -55,8 +57,15 @@ class _LoginRouteState extends State<LoginRoute> {
       user: _usernameController.text,
       password: _passwordController.text,
       source: { 'user_name': widget.source?['user_name'], 'user_email': widget.source?['user_email'] }
-    );
+    ).onError((error, stackTrace) {
+      showSnackBar(context, snackBarError(context: context, content: error.toString()));
+      setLoading(false);
+
+      return Future.error(error.toString());
+    }).then((value) => setLoading(false));
   }
+
+  void setLoading(bool value) => setState(() => isLoading = value);
 
   @override
   Widget build(BuildContext context) {
@@ -176,6 +185,8 @@ class _LoginRouteState extends State<LoginRoute> {
                                   LoginButton(
                                     key: loginButtonKey,
                                     source: widget.source,
+                                    setLoading: setLoading,
+                                    isLoading: isLoading,
                                     isVisible: _keyboardVisible ? false : true,
                                     isValidated: isValidated, 
                                     loggingIn: loggingIn, 
@@ -222,6 +233,8 @@ class _LoginRouteState extends State<LoginRoute> {
               child: LoginButton(
                 key: loginButtonKeyFloat,
                 source: widget.source,
+                setLoading: setLoading,
+                isLoading: isLoading,
                 isVisible: _keyboardVisible,
                 isValidated: isValidated, 
                 loggingIn: loggingIn, 
@@ -242,14 +255,14 @@ class LoginButton extends StatefulWidget {
     required this.isValidated, 
     required this.loggingIn, 
     required this.login, 
-    required this.isVisible
+    required this.isVisible, 
+    required this.isLoading, 
+    required this.setLoading
   });
 
   final Map? source;
-  final bool isValidated;
-  final bool isVisible;
-  final bool loggingIn;
-  final Function login;
+  final bool isValidated, isVisible, loggingIn, isLoading;
+  final Function login, setLoading;
 
   @override
   State<LoginButton> createState() => LoginButtonState();
@@ -257,12 +270,10 @@ class LoginButton extends StatefulWidget {
 
 class LoginButtonState extends State<LoginButton> {
   late bool isValidated;
-  late bool isLoading;
 
   @override
   void initState() {
     isValidated = widget.isValidated;
-    isLoading = false;
     super.initState();
   }
 
@@ -282,16 +293,24 @@ class LoginButtonState extends State<LoginButton> {
             child: Text(widget.source == null ? 'Kembali' : 'Ubah Akun')
           ),
           ElevatedButton(
-            onPressed: isValidated == true && widget.loggingIn == false
+            onPressed: isValidated == true && widget.loggingIn == false && widget.isLoading == false
               ? () {
-                setState(() => isLoading = true);
-                widget.login(context).whenComplete(() => setState(() {
-                  isLoading = false;
-                }));
+                widget.setLoading(true);
+                widget.login(context);
               }
               : null,
-            style: Styles.buttonForm(context: context),
-            child: Text(isLoading ? 'Tunggu Sebentar...' : 'Masuk')
+            style: Styles.buttonForm(context: context, isLoading: widget.isLoading),
+            child: Row(
+              children: [
+                if(widget.isLoading) SizedBox(
+                  width: 22,
+                  height: 22,
+                  child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary, strokeWidth: 2)
+                ),
+                if(widget.isLoading) const SizedBox(width: 12),
+                Text(widget.isLoading ? 'Sebentar...' : 'Masuk'),
+              ],
+            )
           ),
         ],
       ),
