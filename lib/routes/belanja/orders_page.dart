@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_auth/functions/push.dart';
 import 'package:google_auth/functions/sqlite.dart';
 import 'package:google_auth/functions/string.dart';
 import 'package:google_auth/strings/item.dart';
@@ -78,7 +79,8 @@ class _OrdersPageRouteState extends State<OrdersPageRoute> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Buat Pesanan', style: Theme.of(context).textTheme.titleMedium),
+        title: const Text('Buat Pesanan'),
+        titleTextStyle: Theme.of(context).textTheme.titleMedium,
         centerTitle: true,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
@@ -145,26 +147,27 @@ class _OrdersPageRouteState extends State<OrdersPageRoute> {
           ),
         ),
       ),
-      body: Hero(
-        tag: widget.hero,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              AnimatedSize(
-                curve: Curves.ease,
-                duration: const Duration(milliseconds: 400),
-                child: ValueListenableBuilder(
-                  valueListenable: orderOpen,
-                  builder: (context, orderOpen, child) {
-                    return SizedBox(
-                      height: orderOpen ? null : 0,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 18),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AnimatedSize(
+              curve: Curves.ease,
+              duration: const Duration(milliseconds: 400),
+              child: ValueListenableBuilder(
+                valueListenable: orderOpen,
+                builder: (context, orderOpen, child) {
+                  return SizedBox(
+                    height: orderOpen ? null : 0,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const SizedBox(height: 12),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 18),
+                          child: Hero(
+                            tag: 'My Home',
                             child: Card(
                               margin: EdgeInsets.zero,
                               elevation: 0,
@@ -195,13 +198,19 @@ class _OrdersPageRouteState extends State<OrdersPageRoute> {
                                                 fontWeight: FontWeight.w500
                                               )),
                                               const SizedBox(height: 4),
-                                              Text('Alamat Kirim', style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                                color: Theme.of(context).colorScheme.secondary,
-                                              )),
+                                              Row(
+                                                children: [
+                                                  Icon(Icons.home, size: 20, color: Theme.of(context).colorScheme.secondary),
+                                                  const SizedBox(width: 4),
+                                                  Text('My Home', style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                                    color: Theme.of(context).colorScheme.secondary,
+                                                  )),
+                                                ],
+                                              ),
                                             ],
                                           ),
                                           ElevatedButton.icon(
-                                            onPressed: () {},
+                                            onPressed: () => pushAddress(context: context, hero: 'My Home'),
                                             style: Styles.buttonFlatSmall(context: context),
                                             label: const Text('Ubah'),
                                             icon: const Icon(Icons.location_on),
@@ -281,68 +290,63 @@ class _OrdersPageRouteState extends State<OrdersPageRoute> {
                               ),
                             ),
                           ),
-                          Align(
-                            alignment: Alignment.bottomRight,
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
-                              child: ElevatedButton(
-                                onPressed: () {},
-                                style: Styles.buttonForm(context: context),
-                                child: const Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text('Pembelian'),
-                                    SizedBox(width: 8),
-                                    Icon(Icons.arrow_circle_right_outlined)
-                                  ],
-                                ),
+                        ),
+                        Align(
+                          alignment: Alignment.bottomRight,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: ElevatedButton(
+                              onPressed: () {},
+                              style: Styles.buttonForm(context: context),
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text('Pembelian'),
+                                  SizedBox(width: 8),
+                                  Icon(Icons.arrow_circle_right_outlined)
+                                ],
                               ),
                             ),
-                          )
-                        ],
-                      ),
-                    );
-                  }
-                ),
+                          ),
+                        )
+                      ],
+                    ),
+                  );
+                }
               ),
-              const SizedBox(height: 12),
-              ListTile(
-                contentPadding: const EdgeInsets.only(left: 16),
-                titleTextStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: Theme.of(context).colorScheme.secondary
-                ),
-                title: const Text('Pesanan Anda,'),
-                subtitleTextStyle: Theme.of(context).textTheme.displaySmall?.copyWith(
-                  fontWeight: FontWeight.w500
-                ),
-                textColor: checkedItems.contains(true) ? Theme.of(context).colorScheme.primary : null,
-                subtitle: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (checkedItems.isNotEmpty) ...[
-                      Text(checkedItems.where((element) => element == true).length.toString()),
-                      const SizedBox(width: 12),
-                    ],
-                    Text(checkedItems.isNotEmpty ? 'Dipilih' : 'Kosong', style: Theme.of(context).textTheme.displaySmall),
+            ),
+            const SizedBox(height: 12),
+            if (orderOpen.value) Divider(
+              indent: 16,
+              endIndent: 16,
+              height: 72, color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.25)
+            ),
+            ListTile(
+              contentPadding: const EdgeInsets.only(left: 16),
+              titleTextStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
+                color: Theme.of(context).colorScheme.secondary
+              ),
+              title: const Text('Pesanan Anda,'),
+              subtitleTextStyle: Theme.of(context).textTheme.displaySmall?.copyWith(
+                fontWeight: FontWeight.w500
+              ),
+              textColor: checkedItems.contains(true) ? Theme.of(context).colorScheme.primary : null,
+              subtitle: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (checkedItems.isNotEmpty) ...[
+                    Text(checkedItems.where((element) => element == true).length.toString()),
+                    const SizedBox(width: 12),
                   ],
-                ),
-                trailing: Row(
+                  Text(checkedItems.isNotEmpty ? 'Dipilih' : 'Kosong', style: Theme.of(context).textTheme.displaySmall),
+                ],
+              ),
+              trailing: Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (checkedItems.isNotEmpty) ElevatedButton.icon(
-                      onPressed: () => setState(() {
-                        if (checkedItems.every((element) => element == true)) {
-                          checkedItems = List.filled(checkedItems.length, false);
-                          orderOpen.value = false;
-                        } else {
-                          checkedItems = List.filled(checkedItems.length, true);
-                        }
-                      }),
-                      style: Styles.buttonLight(context: context),
-                      icon: Icon(checkedItems.every((element) => element == true) ? Icons.check_box : Icons.check_box_outline_blank),
-                      label: const Text('Semua'),
-                    ),
                     IconButton.filled(
                       onPressed: checkedItems.contains(true) ? () => showDeleteDialog(context: context, onConfirm: _removeItems) : null,
                       style: Styles.buttonDanger(context: context),
@@ -351,132 +355,153 @@ class _OrdersPageRouteState extends State<OrdersPageRoute> {
                   ],
                 ),
               ),
-              ValueListenableBuilder(
-                valueListenable: CartWidget.cartNotifier,
-                builder: (context, item, child) {
-                  // TODO: Dirty Fix
-                  if (item.isNotEmpty) {
-                    if (firstInit == false) {
-                      for (int i = 0; i < item.length; i++) {
-                        checkedItems.add(false);
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  if (checkedItems.isNotEmpty) ElevatedButton.icon(
+                    onPressed: () => setState(() {
+                      if (checkedItems.every((element) => element == true)) {
+                        checkedItems = List.filled(checkedItems.length, false);
+                        orderOpen.value = false;
+                      } else {
+                        checkedItems = List.filled(checkedItems.length, true);
                       }
-                      firstInit = true;
-                      WidgetsBinding.instance.addPostFrameCallback((_) { setState(() {});});
+                    }),
+                    style: Styles.buttonLight(context: context),
+                    icon: Icon(checkedItems.every((element) => element == true) ? Icons.check_box : Icons.check_box_outline_blank),
+                    label: const Text('Semua'),
+                  ),
+                ],
+              ),
+            ),
+            ValueListenableBuilder(
+              valueListenable: CartWidget.cartNotifier,
+              builder: (context, item, child) {
+                // TODO: Dirty Fix
+                if (item.isNotEmpty) {
+                  if (firstInit == false) {
+                    for (int i = 0; i < item.length; i++) {
+                      checkedItems.add(false);
                     }
-                    return ListView.builder(
-                      shrinkWrap: true,
-                      padding: const EdgeInsets.all(12),
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: item.length,
-                      itemBuilder: (context, index) {
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          child: Material(
-                            type: MaterialType.transparency,
-                            child: CheckboxListTile(
-                              value: checkedItems[index],
-                              onChanged: (value) {
-                                setState(() {
-                                  checkedItems[index] = value;
-                                  if (checkedItems.contains(true) == false) orderOpen.value = false;
-                                });
-                              },
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                side: BorderSide(
-                                  color: checkedItems[index] ? Theme.of(context).colorScheme.primary : Colors.transparent,
-                                  width: 2
-                                )
-                              ),
-                              isThreeLine: true,
-                              controlAffinity: ListTileControlAffinity.leading,
-                              selected: checkedItems[index],
-                              selectedTileColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.25),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 6),
-                              checkboxShape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              title: Text(item[index]['name'].toString().toTitleCase()),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Text(item[index]['brand'].toString().toTitleCase(),
-                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: Theme.of(context).colorScheme.primary
-                                    ),
+                    firstInit = true;
+                    WidgetsBinding.instance.addPostFrameCallback((_) { setState(() {});});
+                  }
+                  return ListView.builder(
+                    shrinkWrap: true,
+                    padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: item.length,
+                    itemBuilder: (context, index) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Material(
+                          type: MaterialType.transparency,
+                          child: CheckboxListTile(
+                            value: checkedItems[index],
+                            onChanged: (value) {
+                              setState(() {
+                                checkedItems[index] = value;
+                                if (checkedItems.contains(true) == false) orderOpen.value = false;
+                              });
+                            },
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              side: BorderSide(
+                                color: checkedItems[index] ? Theme.of(context).colorScheme.primary : Colors.transparent,
+                                width: 2
+                              )
+                            ),
+                            isThreeLine: true,
+                            controlAffinity: ListTileControlAffinity.leading,
+                            selected: checkedItems[index],
+                            selectedTileColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.25),
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 6),
+                            checkboxShape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            title: Text(item[index]['name'].toString().toTitleCase()),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Text(item[index]['brand'].toString().toTitleCase(),
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: Theme.of(context).colorScheme.primary
                                   ),
-                                  const SizedBox(height: 6),
-                                  DropdownButtonHideUnderline(
-                                    child: DropdownButton<String>(
-                                      padding: EdgeInsets.zero,
-                                      isDense: true,
-                                      borderRadius: BorderRadius.circular(10),
-                                      value: spesification(item[index]),
-                                      onChanged: (value) {
-                                        String dimension = value!.substring(0, value.indexOf('•')).trim();
-                                        setState(() {
-                                          Cart.update(
-                                            index: index,
-                                            element: ['dimension', 'weight'],
-                                            selectedIndex: item[index]['dimensions'].indexOf(dimension)
-                                          );
-                                        });
-                                      },
-                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                        color: Theme.of(context).colorScheme.secondary,
-                                        height: 0
-                                      ),
-                                      items: spesifications(item[index]).map<DropdownMenuItem<String>>((element) {
-                                        return DropdownMenuItem<String>(
-                                          value: element,
-                                          child: Text(element)
-                                        );
-                                      }).toList()
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              secondary: AspectRatio(
-                                aspectRatio: 1.25 / 1,
-                                child: Stack(
-                                  fit: StackFit.expand,
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
-                                      decoration: BoxDecoration(
-                                        color: Theme.of(context).colorScheme.surfaceVariant,
-                                        borderRadius: BorderRadius.circular(8)
-                                      ),
-                                      child: Image.asset(ItemDescription.getImage(item[index]['name']))
-                                    ),
-                                    Align(
-                                      alignment: Alignment.bottomRight,
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(4),
-                                        child: Badge.count(
-                                          count: int.parse(item[index]['count']),
-                                          largeSize: 20,
-                                          padding: const EdgeInsets.symmetric(horizontal: 6),
-                                        ),
-                                      ),
-                                    )
-                                  ],
                                 ),
+                                const SizedBox(height: 6),
+                                DropdownButtonHideUnderline(
+                                  child: DropdownButton<String>(
+                                    padding: EdgeInsets.zero,
+                                    isDense: true,
+                                    borderRadius: BorderRadius.circular(10),
+                                    value: spesification(item[index]),
+                                    onChanged: (value) {
+                                      String dimension = value!.substring(0, value.indexOf('•')).trim();
+                                      setState(() {
+                                        Cart.update(
+                                          index: index,
+                                          element: ['dimension', 'weight'],
+                                          selectedIndex: item[index]['dimensions'].indexOf(dimension)
+                                        );
+                                      });
+                                    },
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: Theme.of(context).colorScheme.secondary,
+                                      height: 0
+                                    ),
+                                    items: spesifications(item[index]).map<DropdownMenuItem<String>>((element) {
+                                      return DropdownMenuItem<String>(
+                                        value: element,
+                                        child: Text(element)
+                                      );
+                                    }).toList()
+                                  ),
+                                ),
+                              ],
+                            ),
+                            secondary: AspectRatio(
+                              aspectRatio: 1.25 / 1,
+                              child: Stack(
+                                fit: StackFit.expand,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context).colorScheme.surfaceVariant,
+                                      borderRadius: BorderRadius.circular(8)
+                                    ),
+                                    child: Image.asset(ItemDescription.getImage(item[index]['name']))
+                                  ),
+                                  Align(
+                                    alignment: Alignment.bottomRight,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(4),
+                                      child: Badge.count(
+                                        count: int.parse(item[index]['count']),
+                                        largeSize: 20,
+                                        padding: const EdgeInsets.symmetric(horizontal: 6),
+                                      ),
+                                    ),
+                                  )
+                                ],
                               ),
                             ),
                           ),
-                        );
-                      }
-                    );
-                  } else {
-                    return const HandleEmptyOrder();
-                  }
+                        ),
+                      );
+                    }
+                  );
+                } else {
+                  return const HandleEmptyOrder();
                 }
-              ),
-            ],
-          ),
-        )
+              }
+            ),
+          ],
+        ),
       )
     );
   }

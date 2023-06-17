@@ -7,13 +7,13 @@ import 'snackbar.dart';
 
 class LoginsButton extends StatefulWidget {
   const LoginsButton({
-    super.key, 
-    required this.logintype, 
-    required this.source, 
-    required this.usernameController, 
+    super.key,
+    required this.logintype,
+    required this.source,
+    required this.usernameController,
     this.borderRadius
   });
-  
+
   final String? logintype;
   final Map? source;
   final TextEditingController usernameController;
@@ -114,7 +114,7 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
               padding: const EdgeInsets.only(left: 10),
               child: Text('Tunggu Sebentar...', style: Theme.of(context).textTheme.labelSmall),
             )
-          ] 
+          ]
           : <Widget>[
             Image.network('https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/2008px-Google_%22G%22_Logo.svg.png',
               height: 20,
@@ -161,6 +161,51 @@ class EmailSignInButton extends StatelessWidget {
             )
           ]
         ),
+      ),
+    );
+  }
+}
+
+class ButtonListTile extends StatelessWidget {
+  const ButtonListTile({
+    super.key,
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    this.trailing
+  });
+
+  final IconData icon;
+  final String title, subtitle;
+  final Widget? trailing;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      elevation: 0,
+      color: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.25),
+      clipBehavior: Clip.antiAlias,
+      child: ListTile(
+        dense: true,
+        minVerticalPadding: 16,
+        onTap: () {},
+        leading: CircleAvatar(
+          radius: 30,
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.5),
+          child: Icon(
+            icon,
+            size: 28,
+            color: Theme.of(context).colorScheme.primary
+          ),
+        ),
+        title: Text(title),
+        titleTextStyle: Theme.of(context).textTheme.titleSmall?.copyWith(
+          height: 1.75
+        ),
+        subtitle: Text(subtitle, style: Theme.of(context).textTheme.labelSmall?.copyWith(
+          color: Theme.of(context).colorScheme.secondary
+        )),
+        trailing: Icon(Icons.arrow_forward, color: Theme.of(context).colorScheme.secondary),
       ),
     );
   }

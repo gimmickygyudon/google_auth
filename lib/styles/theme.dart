@@ -26,7 +26,7 @@ class ThemeNotifier with ChangeNotifier {
   ThemeMode getTheme() => _themeData;
 
   void setThemeMode(bool darkMode) async {
-    if (darkMode) {    
+    if (darkMode) {
       _themeData = ThemeMode.dark;
       systemUiOverlayStyle = const SystemUiOverlayStyle(
         systemNavigationBarIconBrightness: Brightness.light,
@@ -83,14 +83,12 @@ class Themes {
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.25), width: 1)
+        borderSide: const BorderSide(color: Colors.transparent, width: 2)
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2)
       ),
-      filled: true,
-      fillColor: Theme.of(context).hoverColor,
       labelStyle: TextStyle(
         fontSize: 12,
         fontWeight: FontWeight.w400,
@@ -241,9 +239,9 @@ class Styles {
       required String? placeholder,
       required bool condition,
       String? hintText, prefixText,
-      Icon? icon,
+      Widget? icon,
       bool? visibility, visibilityDisabled, alignLabelWithHint, isPhone,
-      Widget? suffixIcon,
+      Widget? prefix, suffixIcon,
       FloatingLabelBehavior? floatingLabelBehavior
     }) {
       bool? visibility_ = visibility;
@@ -252,7 +250,7 @@ class Styles {
           visibility_ == true
             ? suffixIcon = const Icon(Icons.visibility_outlined)
             : suffixIcon = const Icon(Icons.visibility_off_outlined);
-      } 
+      }
 
       if (visibilityDisabled == true) visibility_ = false;
       return InputDecoration(
@@ -261,6 +259,7 @@ class Styles {
         alignLabelWithHint: alignLabelWithHint,
         floatingLabelBehavior: floatingLabelBehavior,
         suffixText: prefixText,
+        prefix: prefix,
         prefixIcon: isPhone == true ? Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -278,7 +277,8 @@ class Styles {
         ) : icon,
         suffixIcon: suffixIcon,
         errorMaxLines: 3,
-        fillColor: condition ? Theme.of(context).colorScheme.inversePrimary.withOpacity(0.15) : Theme.of(context).hoverColor,
+        filled: true,
+        fillColor: condition ? Theme.of(context).colorScheme.inversePrimary.withOpacity(0.15) : Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.25),
         errorStyle: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.error, fontSize: 11),
         errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide(color: Theme.of(context).colorScheme.error, width: 2)

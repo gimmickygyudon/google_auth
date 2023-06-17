@@ -14,7 +14,7 @@ class HandleNoInternet extends StatelessWidget {
     return Column(
       children: [
         const SizedBox(height: 48),
-        Icon(Icons.wifi_off, size: 80, color: color ?? Theme.of(context).colorScheme.primary),
+        Icon(Icons.cell_tower, size: 80, color: color ?? Theme.of(context).colorScheme.primary),
         const SizedBox(height: 24),
         Text(message, style: Theme.of(context).textTheme.bodyLarge?.copyWith(
           fontWeight: FontWeight.w500,
@@ -117,8 +117,8 @@ class HandleEmptyOrder extends StatelessWidget {
           const SizedBox(height: 92),
           const Icon(Icons.shopping_bag_outlined, size: 72),
           const SizedBox(height: 24),
-          Text('Kami Menawarkan Barang Berkualitas Tinggi Berstandart', 
-            textAlign: TextAlign.center, 
+          Text('Kami Menawarkan Barang Berkualitas Tinggi Berstandart',
+            textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
               color: Theme.of(context).colorScheme.secondary,
               letterSpacing: 0

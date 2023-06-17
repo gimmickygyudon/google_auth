@@ -4,6 +4,7 @@ import 'package:google_auth/routes/belanja/item.dart';
 import 'package:google_auth/routes/belanja/orders_page.dart';
 import 'package:google_auth/routes/beranda/customer.dart';
 import 'package:google_auth/routes/keluhan/report_page.dart';
+import 'package:google_auth/routes/option/address.dart';
 import 'package:google_auth/routes/start_page.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -125,6 +126,22 @@ void pushOrdersPage({required BuildContext context, required String hero}) {
   Navigator.push(context, MaterialPageRoute(
     builder: (context) {
       return OrdersPageRoute(hero: hero);
+    })
+  );
+}
+
+void pushAddress({required BuildContext context, required String hero}) {
+  Navigator.push(context, MaterialPageRoute(
+    builder: (context) {
+      return AddressRoute(hero: hero);
+    })
+  );
+}
+
+void pushAddressAdd({required BuildContext context}) {
+  Navigator.push(context, MaterialPageRoute(
+    builder: (context) {
+      return const AddressAddRoute();
     })
   );
 }
