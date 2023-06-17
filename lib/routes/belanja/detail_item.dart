@@ -113,7 +113,6 @@ class _DetailItemRouteState extends State<DetailItemRoute> {
   }
 
   Future<void> addToCart({required String count, required int index}) async {
-    print(Item.defineDimension(widget.item['OITMs'][index]['spesification']));
     Cart.add(
       Cart(
         name: widget.item['description'], 

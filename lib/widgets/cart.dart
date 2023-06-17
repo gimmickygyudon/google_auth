@@ -5,6 +5,7 @@ import 'package:google_auth/functions/sqlite.dart';
 import 'package:google_auth/functions/string.dart';
 import 'package:google_auth/strings/item.dart';
 import 'package:google_auth/strings/user.dart';
+import 'package:google_auth/styles/theme.dart';
 import 'package:google_auth/widgets/handle.dart';
 
 class CartWidget extends StatefulWidget {
@@ -65,26 +66,14 @@ class _CartWidgetState extends State<CartWidget> {
                           ),
                           ElevatedButton.icon(
                             onPressed: () {},
-                            style: ButtonStyle(
-                              elevation: const MaterialStatePropertyAll(0),
-                              shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8)
-                              )),
-                              visualDensity: VisualDensity.compact,
-                              padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(horizontal: 12)),
-                              iconSize: const MaterialStatePropertyAll(18),
-                              textStyle: MaterialStatePropertyAll(Theme.of(context).textTheme.labelSmall?.copyWith(
-                                letterSpacing: 0
-                              ))
-                            ),
+                            style: Styles.buttonFlatSmall(context: context),
                             label: const Text('Lokasi'),
-                            icon: const Icon(Icons.near_me_outlined)
+                            icon: const Icon(Icons.location_on)
                           )
                         ],
                       ),
                       Text.rich(TextSpan(
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          fontSize: 10,
                           letterSpacing: 0,
                           color: Theme.of(context).colorScheme.secondary
                         ),
@@ -104,6 +93,7 @@ class _CartWidgetState extends State<CartWidget> {
                 ),
               ] + [
                 PopupMenuItem(
+                  onTap: () => pushOrdersPage(context: context, hero: 'hero'),
                   child: ValueListenableBuilder(
                     valueListenable: CartWidget.cartNotifier,
                     builder: (context, items, child) {
@@ -131,37 +121,25 @@ class _CartWidgetState extends State<CartWidget> {
                               },
                             ),
                           ),
-                        ) : Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 32),
-                            child: Center(
-                              child: Column(
-                                children: [
-                                  const Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Icon(Icons.layers_outlined, size: 46),
-                                      SizedBox(width: 8),
-                                      Icon(Icons.arrow_forward, size: 32),
-                                      SizedBox(width: 8),
-                                      Icon(Icons.local_shipping, size: 46),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 16),
-                                  Text('Sepertinya Anda Belum Memesan', style: Theme.of(context).textTheme.labelMedium),
-                                  const SizedBox(height: 16),
-                                ],
-                              ),
-                            ),
-                          ),
+                        ) : const HandleEmptyCart(),
                       );
                     }
                   )
                 ),
                 PopupMenuItem(
                   height: 0,  
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 10),
-                    child: Divider(color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5)),
+                  child: ValueListenableBuilder(
+                    valueListenable: CartWidget.cartNotifier,
+                    builder: (context, item, child) {
+                    if (item.isEmpty) {
+                      return const SizedBox();
+                    } else {
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: Divider(color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5)),
+                        );
+                      }
+                    }
                   )
                 ),
                 PopupMenuItem(

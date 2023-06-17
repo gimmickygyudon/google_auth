@@ -58,6 +58,15 @@ Future<void> showOrderDialog({
   );
 }
 
+Future<void> showDeleteDialog({required BuildContext context, required Function onConfirm}) async {
+  return showDialog<void>(
+    context: context,
+    barrierDismissible: true,
+    builder: (BuildContext context) => DeleteDialog(onConfirm: onConfirm),
+  );
+}
+
+
 class DialogRegisteredUser extends StatefulWidget {
   const DialogRegisteredUser({super.key, required this.source, required this.callback, required this.from});
 
@@ -433,6 +442,57 @@ class _OrderDialogState extends State<OrderDialog> {
           ),
         ),
       ),
+    );
+  }
+}
+
+class DeleteDialog extends StatelessWidget {
+  const DeleteDialog({super.key, required this.onConfirm});
+
+  final Function onConfirm;
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      icon: const Icon(Icons.warning, size: 52),
+      iconColor: Theme.of(context).colorScheme.error,
+      titleTextStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
+        fontWeight: FontWeight.w500
+      ),
+      surfaceTintColor: Colors.transparent,
+      elevation: 0,
+      iconPadding: const EdgeInsets.fromLTRB(24, 32, 24, 0),
+      contentPadding: const EdgeInsets.fromLTRB(32, 20, 32, 32),
+      content: SingleChildScrollView(
+        child: ListBody(
+          children: <Widget>[
+            const SizedBox(height: 6),
+            Text('Barang yang Anda pilih akan terhapus dari daftar pesanan.', style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              letterSpacing: 0,
+              color: Theme.of(context).colorScheme.secondary
+            )),
+            const SizedBox(height: 24),
+            Text('Hapus pesanan yang dipilih ?', style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              fontWeight: FontWeight.w500,
+            )),
+          ],
+        ),
+      ),
+      actions: <Widget>[
+        TextButton(
+          style: ButtonStyle(foregroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.secondary)),
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Batal'),
+        ),
+        TextButton(
+          style: ButtonStyle(foregroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.error)),
+          onPressed: () {
+            onConfirm();
+            Navigator.of(context).pop();
+          },
+          child: const Text('Hapus'),
+        ),
+      ],
     );
   }
 }

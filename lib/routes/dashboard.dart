@@ -12,6 +12,7 @@ import '../functions/sqlite.dart';
 import '../strings/user.dart';
 import '../widgets/image.dart';
 
+final AsyncMemoizer _logUserMemozer = AsyncMemoizer();
 class DashboardRoute extends StatefulWidget {
   const DashboardRoute({super.key, this.currentPage});
 
@@ -24,7 +25,6 @@ class DashboardRoute extends StatefulWidget {
 class _DashboardRouteState extends State<DashboardRoute> {
   late int currentPage;
   late PageController _pageController;
-  final AsyncMemoizer _logUserMemozer = AsyncMemoizer();
 
   @override
   void initState() {

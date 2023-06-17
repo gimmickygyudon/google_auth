@@ -122,7 +122,7 @@ class Styles {
           return 8;
         }
       }),
-      shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(8))),
+      shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(12))),
       backgroundColor: MaterialStateProperty.resolveWith((states) {
         if (isLoading == true) {
           return Theme.of(context).colorScheme.inversePrimary.withOpacity(0.5);
@@ -148,6 +148,89 @@ class Styles {
         } else {
           return Theme.of(context).colorScheme.inversePrimary;
         }
+      }),
+    );
+  }
+
+  static ButtonStyle buttonFlatSmall({required BuildContext context}) {
+    return ButtonStyle(
+      elevation: const MaterialStatePropertyAll(0),
+      shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(25.7)
+      )),
+      visualDensity: VisualDensity.compact,
+      iconSize: const MaterialStatePropertyAll(18),
+      textStyle: MaterialStatePropertyAll(Theme.of(context).textTheme.labelSmall?.copyWith(
+        letterSpacing: 0
+      )),
+      foregroundColor: MaterialStateProperty.resolveWith((states) {
+        if (states.contains(MaterialState.disabled)) {
+          return null;
+        } else {
+          return Theme.of(context).colorScheme.surface;
+        }
+      }),
+      backgroundColor: MaterialStateProperty.resolveWith((states) {
+        if (states.contains(MaterialState.disabled)) {
+          return null;
+        } else {
+          return Theme.of(context).colorScheme.primary;
+        }
+      }),
+      overlayColor: MaterialStateProperty.resolveWith((states) {
+        if (states.contains(MaterialState.disabled)) {
+          return null;
+        } else {
+          return Theme.of(context).colorScheme.inversePrimary;
+        }
+      }),
+    );
+  }
+
+  static ButtonStyle buttonFlat({required BuildContext context}) {
+    return ButtonStyle(
+      elevation: const MaterialStatePropertyAll(0),
+      backgroundColor: MaterialStateProperty.resolveWith((states) {
+         return Theme.of(context).colorScheme.primary;
+      }),
+      foregroundColor: MaterialStateProperty.resolveWith((states) {
+         return Theme.of(context).colorScheme.surface;
+      }),
+      overlayColor: MaterialStateProperty.resolveWith((states) {
+         return Theme.of(context).colorScheme.inversePrimary;
+      }),
+    );
+  }
+
+  static ButtonStyle buttonLight({required BuildContext context}) {
+    return ButtonStyle(
+      elevation: const MaterialStatePropertyAll(0),
+      shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8)
+      )),
+      backgroundColor: MaterialStateProperty.resolveWith((states) {
+        if (states.contains(MaterialState.disabled)) return null;
+        return Theme.of(context).colorScheme.inversePrimary.withOpacity(0.25);
+      }),
+      foregroundColor: MaterialStateProperty.resolveWith((states) {
+        if (states.contains(MaterialState.disabled)) return null;
+        return Theme.of(context).colorScheme.primary;
+      }),
+    );
+  }
+
+  static ButtonStyle buttonDanger({required BuildContext context}) {
+    return ButtonStyle(
+      shape: MaterialStatePropertyAll(RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8)
+      )),
+      backgroundColor: MaterialStateProperty.resolveWith((states) {
+        if (states.contains(MaterialState.disabled)) return null;
+        return Theme.of(context).colorScheme.error.withOpacity(0.15);
+      }),
+      foregroundColor: MaterialStateProperty.resolveWith((states) {
+        if (states.contains(MaterialState.disabled)) return null;
+        return Theme.of(context).colorScheme.error.withOpacity(0.9);
       }),
     );
   }

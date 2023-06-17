@@ -20,7 +20,7 @@ void pushStart(BuildContext context, {Map? source, String? logintype}) {
 void pushLogin(BuildContext context, {Map? source, String? logintype}) {
   Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
     return LoginRoute(
-      source: source, 
+      source: source,
       logintype: logintype
     );
   }));
@@ -33,8 +33,8 @@ void pushLogout(BuildContext context) {
 void pushRegister(BuildContext context, String logintype, [String? value, Map? source]) {
   Navigator.push(context, MaterialPageRoute(builder: (context) {
     return RegisterRoute(
-      value: value, 
-      logintype: logintype, 
+      value: value,
+      logintype: logintype,
       source: source
     );
   }));
@@ -43,7 +43,7 @@ void pushRegister(BuildContext context, String logintype, [String? value, Map? s
 void pushRegisterGoogle(BuildContext context, String logintype_, Map? source) {
   Navigator.push(context, MaterialPageRoute(builder: (context) {
     return RegisterRoute(
-      logintype: logintype_, 
+      logintype: logintype_,
       source: source
     );
   }));
@@ -54,7 +54,7 @@ void pushDashboard(BuildContext context, {int? currentPage}) {
     builder: (context) {
       return DashboardRoute(currentPage: currentPage);
     })
-  ); 
+  );
 }
 
 void pushAddCustomer(BuildContext context) {
@@ -62,7 +62,7 @@ void pushAddCustomer(BuildContext context) {
     builder: (context) {
       return const AddCustomerRoute();
     })
-  ); 
+  );
 }
 
 void pushReportPage({required BuildContext context, Map? laporan, required List<Map> laporanList}) {
@@ -70,24 +70,46 @@ void pushReportPage({required BuildContext context, Map? laporan, required List<
     builder: (context) {
       return LaporanRoute(laporan: laporan, laporanList: laporanList);
     })
-  ); 
+  );
 }
 
 void pushItemPage({
-    required BuildContext context, 
+    required BuildContext context,
     required List<Map> items,
     required String brand, hero, background, logo,
     required Color color,
   }) {
-  Navigator.push(context, MaterialPageRoute(
-    builder: (context) {
-      return ItemRoute(items: items, hero: hero, background: background, color: color, logo: logo, brand: brand);
-    })
-  ); 
+    Navigator.push(context, PageRouteBuilder(
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        const begin = 0.8;
+        const end = 1.0;
+        const curve = Curves.fastOutSlowIn;
+
+        final tween = Tween(begin: begin, end: end);
+        final curvedAnimation = CurvedAnimation(
+          parent: animation,
+          curve: curve,
+        );
+
+        return ScaleTransition(
+          scale: tween.animate(curvedAnimation),
+          child: child,
+        );
+      },
+      pageBuilder: (context, animation, secondaryAnimation) {
+        return ItemRoute(items: items, hero: hero, background: background, color: color, logo: logo, brand: brand);
+      })
+  );
+
+  // Navigator.push(context, MaterialPageRoute(
+  //   builder: (context) {
+  //     return ItemRoute(items: items, hero: hero, background: background, color: color, logo: logo, brand: brand);
+  //   })
+  // );
 }
 
 void pushItemDetailPage({
-  required BuildContext context, 
+  required BuildContext context,
   required String brand, hero,
   required Color color,
   required Map item
@@ -96,11 +118,11 @@ void pushItemDetailPage({
     builder: (context) {
       return DetailItemRoute(hero: hero, color: color, item: item, brand: brand);
     })
-  ); 
+  );
 }
 
 void pushItemDetailPageReplace({
-  required BuildContext context, 
+  required BuildContext context,
   required String brand, hero,
   required Color color,
   required Map item,
@@ -110,7 +132,7 @@ void pushItemDetailPageReplace({
     builder: (context) {
       return DetailItemRoute(hero: hero, color: color, item: item, brand: brand, type: type);
     })
-  ); 
+  );
 }
 
 Future<void> launchURL({required String url}) async {
@@ -126,5 +148,5 @@ void pushOrdersPage({required BuildContext context, required String hero}) {
     builder: (context) {
       return OrdersPageRoute(hero: hero);
     })
-  ); 
+  );
 }
