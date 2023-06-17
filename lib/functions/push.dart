@@ -79,33 +79,11 @@ void pushItemPage({
     required String brand, hero, background, logo,
     required Color color,
   }) {
-    Navigator.push(context, PageRouteBuilder(
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        const begin = 0.8;
-        const end = 1.0;
-        const curve = Curves.fastOutSlowIn;
-
-        final tween = Tween(begin: begin, end: end);
-        final curvedAnimation = CurvedAnimation(
-          parent: animation,
-          curve: curve,
-        );
-
-        return ScaleTransition(
-          scale: tween.animate(curvedAnimation),
-          child: child,
-        );
-      },
-      pageBuilder: (context, animation, secondaryAnimation) {
-        return ItemRoute(items: items, hero: hero, background: background, color: color, logo: logo, brand: brand);
-      })
+  Navigator.push(context, MaterialPageRoute(
+    builder: (context) {
+      return ItemRoute(items: items, hero: hero, background: background, color: color, logo: logo, brand: brand);
+    })
   );
-
-  // Navigator.push(context, MaterialPageRoute(
-  //   builder: (context) {
-  //     return ItemRoute(items: items, hero: hero, background: background, color: color, logo: logo, brand: brand);
-  //   })
-  // );
 }
 
 void pushItemDetailPage({

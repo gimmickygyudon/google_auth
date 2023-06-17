@@ -85,7 +85,7 @@ class _CartWidgetState extends State<CartWidget> {
                   )
                 ),
                 PopupMenuItem(
-                  height: 0,  
+                  height: 0,
                   child: Padding(
                     padding: const EdgeInsets.only(top: 10, bottom: 6),
                     child: Divider(color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5)),
@@ -99,7 +99,7 @@ class _CartWidgetState extends State<CartWidget> {
                     builder: (context, items, child) {
                       return AnimatedSwitcher(
                         duration: const Duration(milliseconds: 400),
-                        child: items.isNotEmpty 
+                        child: items.isNotEmpty
                         ? AnimatedSize(
                           alignment: Alignment.topCenter,
                           duration: const Duration(milliseconds: 400),
@@ -108,7 +108,7 @@ class _CartWidgetState extends State<CartWidget> {
                             constraints: const BoxConstraints(maxHeight: 400, minHeight: 0),
                             child: ListView.builder(
                               shrinkWrap: true,
-                              itemCount: items.length,  
+                              itemCount: items.length,
                               itemBuilder: (context, index) {
                                 return Padding(
                                   padding: const EdgeInsets.symmetric(vertical: 4),
@@ -127,7 +127,7 @@ class _CartWidgetState extends State<CartWidget> {
                   )
                 ),
                 PopupMenuItem(
-                  height: 0,  
+                  height: 0,
                   child: ValueListenableBuilder(
                     valueListenable: CartWidget.cartNotifier,
                     builder: (context, item, child) {
@@ -222,8 +222,8 @@ class _CartWidgetState extends State<CartWidget> {
 class CartListWidget extends StatelessWidget {
   const CartListWidget({
     super.key,
-    required this.index, 
-    required this.item, 
+    required this.index,
+    required this.item,
     required this.onDelete
   });
 
@@ -287,7 +287,7 @@ class CartListWidget extends StatelessWidget {
                     padding: const EdgeInsets.only(top: 6),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [ 
+                      children: [
                         Row(
                           children: [
                             Text('${item?['name'].toString().toTitleCase()}', style: Theme.of(context).textTheme.labelLarge?.copyWith(
@@ -316,7 +316,7 @@ class CartListWidget extends StatelessWidget {
                             String dimension = value!.substring(0, value.indexOf('•')).trim();
                             setState(() {
                               Cart.update(
-                                index: index, 
+                                index: index,
                                 element: ['dimension', 'weight'],
                                 selectedIndex: item?['dimensions'].indexOf(dimension)
                               );
