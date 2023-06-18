@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_auth/functions/push.dart';
 import 'package:google_auth/styles/theme.dart';
-import 'package:google_auth/widgets/button.dart';
 import 'package:google_auth/widgets/label.dart';
 
 class AddressRoute extends StatefulWidget {
@@ -22,10 +21,10 @@ class _AddressRouteState extends State<AddressRoute> {
   List<Map> deliveryTypes = [
     {
       'name': 'FRANCO',
-      'description': 'Barang dikirim ke lokasi tujuan'
+      'description': 'Barang Dikirim Ke Lokasi Tujuan'
     }, {
       'name': 'LOCO',
-      'description': 'Barang di ambil sendiri'
+      'description': 'Barang Di Ambil Sendiri'
     }
   ];
 
@@ -41,6 +40,8 @@ class _AddressRouteState extends State<AddressRoute> {
     searchController.dispose();
     super.dispose();
   }
+
+  void setDelivery(String value) => setState(() => deliveryType = value);
 
   @override
   Widget build(BuildContext context) {
@@ -58,183 +59,63 @@ class _AddressRouteState extends State<AddressRoute> {
           ),
           titleTextStyle: Theme.of(context).textTheme.titleMedium,
           centerTitle: true,
+          actions: [
+            IconButton(
+              onPressed: () => pushAddressAdd(context: context, hero: 'Tambah Alamat'),
+              icon: const Icon(Icons.add)
+            )
+          ],
+        ),
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: () => pushAddressAdd(context: context, hero: 'Tambah Alamat'),
+          heroTag: 'Tambah Alamat',
+          icon: Icon(Icons.add_location_alt, color: Theme.of(context).colorScheme.surface),
+          label: Text('Alamat Baru', style: Theme.of(context).textTheme.labelLarge?.copyWith(
+            color: Theme.of(context).colorScheme.surface,
+            letterSpacing: 0
+          )),
+          backgroundColor: Theme.of(context).colorScheme.primary,
         ),
         body: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
           child: Column(
             children: [
-              const SizedBox(height: 12),
-              TextField(
-                controller: searchController,
-                onChanged: (value) {
-                  setState(() {});
-                },
-                decoration: Styles.inputDecorationForm(
-                  suffixIcon: const Padding(
-                    padding: EdgeInsets.only(left: 4),
-                    child: LabelSearch(),
-                  ),
-                  context: context,
-                  placeholder: 'Cari Alamat',
-                  condition: searchController.text.trim().isNotEmpty
-                ),
-              ),
-              const SizedBox(height: 24),
-              Padding(
-                padding: const EdgeInsets.all(4),
-                child: Theme(
-                  data: Theme.of(context).copyWith(
-                    dividerColor: Colors.transparent,
-                    splashColor: Theme.of(context).colorScheme.inversePrimary
-                  ),
-                  child: ListTileTheme(
-                    dense: true,
-                    minVerticalPadding: 16,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                    child: ExpansionTile(
-                      leading: CircleAvatar(
-                        radius: 26,
-                        backgroundColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.5),
-                        child: Icon(
-                          Icons.local_shipping,
-                          size: 28,
-                          color: Theme.of(context).colorScheme.primary
-                        ),
-                      ),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                      backgroundColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.25),
-                      collapsedBackgroundColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.4),
-                      title: Text('Tipe Pengiriman', style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        height: 1.75
-                      )),
-                      subtitle: Text(deliveryType, style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: Theme.of(context).colorScheme.secondary
-                      )),
-                      children: deliveryTypes.map((element) {
-                        return RadioListTile(
-                          selected: element['name'] == deliveryType,
-                          value: element['name'],
-                          groupValue: deliveryType,
-                          onChanged: (value) {
-                            setState(() {
-                              deliveryType = value;
-                            });
-                          },
-                          selectedTileColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.5),
-                          title: Text(element['name'], style: Theme.of(context).textTheme.titleMedium),
-                          subtitle: Text(element['description']),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                ),
+              // TextField(
+              //   controller: searchController,
+              //   onChanged: (value) {
+              //     setState(() {});
+              //   },
+              //   decoration: Styles.inputDecorationForm(
+              //     suffixIcon: const Padding(
+              //       padding: EdgeInsets.only(left: 4),
+              //       child: LabelSearch(),
+              //     ),
+              //     icon: const Icon(Icons.location_on),
+              //     context: context,
+              //     placeholder: 'Cari Alamat',
+              //     condition: searchController.text.trim().isNotEmpty
+              //   ),
+              // ),
+              ListRadioDelivery(
+                value: deliveryType,
+                options: deliveryTypes,
+                onChanged: setDelivery,
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(6, 32, 6, 6),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                padding: const EdgeInsets.fromLTRB(6, 32, 6, 12),
+                child: Column(
                   children: [
-                    Text('Alamat', style: Theme.of(context).textTheme.titleMedium),
-                    ElevatedButton.icon(
-                      onPressed: () => pushAddressAdd(context: context),
-                      style: Styles.buttonFlatSmall(context: context),
-                      icon: const Icon(Icons.add_circle),
-                      label: const Text('Tambah Alamat')
-                    )
+                    Text('Tempat Anda', style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      letterSpacing: 0,
+                    )),
+                    Text('Pilih Lokasi Pengiriman', style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.secondary,
+                      letterSpacing: 0
+                    )),
                   ],
                 ),
               ),
-              Hero(
-                tag: widget.hero,
-                child: Card(
-                  elevation: 0,
-                  clipBehavior: Clip.antiAlias,
-                  color: true ? Theme.of(context).colorScheme.inversePrimary.withOpacity(0.15) : Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.35),
-                  child: Banner(
-                    message: 'Alamat Ini',
-                    location: BannerLocation.topEnd,
-                    color: Theme.of(context).colorScheme.primary,
-                    child: Container(
-                      padding: const EdgeInsets.all(18),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Theme.of(context).colorScheme.primary, width: 2),
-                        borderRadius: BorderRadius.circular(12)
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              SizedBox(
-                                height: 42,
-                                width: 42,
-                                child: Stack(
-                                  alignment: Alignment.center,
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.all(4),
-                                      decoration: BoxDecoration(
-                                        border: Border.all(color: Theme.of(context).colorScheme.primary, width: 1),
-                                        borderRadius: BorderRadius.circular(25.7),
-                                        color: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.5)
-                                      ),
-                                      child: Icon(Icons.home, color: Theme.of(context).colorScheme.primary)
-                                    ),
-                                    Align(
-                                      alignment: Alignment.topRight,
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          color: Theme.of(context).colorScheme.inversePrimary,
-                                          borderRadius: BorderRadius.circular(25.7)
-                                        ),
-                                        child: Icon(Icons.check_circle, size: 18, color: Theme.of(context).colorScheme.primary)
-                                      )
-                                    )
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              Text('My Home', style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                                color: Theme.of(context).colorScheme.primary
-                              ))
-                            ],
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(8, 10, 8, 0),
-                            child: Text('Kabupaten Malang',
-                              textAlign: TextAlign.justify,
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text('Jl. Rogonoto No.57B, Gondorejo Ledok, Tamanharjo, Kec. Singosari, Kabupaten Malang, Jawa Timur 65153',
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: Theme.of(context).colorScheme.secondary,
-                                height: 1.5,
-                                fontWeight: FontWeight.w500,
-                                letterSpacing: 0
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text('+62 341 441111',
-                              textAlign: TextAlign.justify,
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              )
+              CardAddress(hero: widget.hero)
             ],
           ),
         )
@@ -243,58 +124,217 @@ class _AddressRouteState extends State<AddressRoute> {
   }
 }
 
-class AddressAddRoute extends StatefulWidget {
-  const AddressAddRoute({super.key});
+class CardAddress extends StatefulWidget {
+  const CardAddress({super.key, required this.hero});
+
+  final String hero;
 
   @override
-  State<AddressAddRoute> createState() => _AddressAddRouteState();
+  State<CardAddress> createState() => _CardAddressState();
 }
 
-class _AddressAddRouteState extends State<AddressAddRoute> {
+class _CardAddressState extends State<CardAddress> {
+  @override
+  Widget build(BuildContext context) {
+    return Hero(
+      tag: widget.hero,
+      child: Stack(
+        children: [
+          Card(
+            elevation: 0,
+            clipBehavior: Clip.antiAlias,
+            color: true ? Theme.of(context).colorScheme.inversePrimary.withOpacity(0.15) : Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.35),
+            child: Container(
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                border: Border.all(color: Theme.of(context).colorScheme.primary, width: 2),
+                borderRadius: BorderRadius.circular(12)
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      SizedBox(
+                        height: 42,
+                        width: 42,
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(6),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.primary,
+                                border: Border.all(color: Theme.of(context).colorScheme.primary, width: 2),
+                                borderRadius: BorderRadius.circular(25.7),
+                              ),
+                              child: Icon(Icons.house, color: Theme.of(context).colorScheme.surface)
+                            ),
+                            Align(
+                              alignment: Alignment.topRight,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  borderRadius: BorderRadius.circular(25.7)
+                                ),
+                                child: Icon(Icons.check_circle, size: 16, color: Theme.of(context).colorScheme.inversePrimary)
+                              )
+                            )
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Text('My Home', style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                        color: Theme.of(context).colorScheme.primary
+                      ))
+                    ],
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(8, 10, 8, 0),
+                    child: Text('Kabupaten Malang',
+                      textAlign: TextAlign.justify,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text('Jl. Rogonoto No.57B, Gondorejo Ledok, Tamanharjo, Kec. Singosari, Kabupaten Malang, Jawa Timur 65153',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.secondary,
+                        height: 1.5,
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: 0
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text('+62 341 441111',
+                      textAlign: TextAlign.justify,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.topRight,
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: PopupMenuButton(
+                elevation: 8,
+                surfaceTintColor: Theme.of(context).colorScheme.inversePrimary,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                padding: EdgeInsets.zero,
+                itemBuilder: (context) {
+                  return [
+                    PopupMenuItem(
+                      height: 45,
+                      onTap: () => pushAddressAdd(context: context, hero: 'Tambah Alamat'),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.edit_location_alt_outlined),
+                          SizedBox(width: 8),
+                          Text('Ubah Alamat'),
+                        ],
+                      )
+                    ),
+                    PopupMenuItem(
+                      height: 45,
+                      labelTextStyle: MaterialStatePropertyAll(Theme.of(context).textTheme.labelLarge?.copyWith(
+                        color: Theme.of(context).colorScheme.error
+                      )),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.delete_outline, color: Theme.of(context).colorScheme.error),
+                          const SizedBox(width: 8),
+                          const Text('Hapus'),
+                        ],
+                      )
+                    )
+                  ];
+                },
+              )
+            ),
+          )
+        ],
+      ),
+    );
+  }
+}
+
+class ListRadioDelivery extends StatefulWidget {
+  const ListRadioDelivery({super.key, required this.options, required this.value, required this.onChanged});
+
+  final List options;
+  final String value;
+  final Function onChanged;
+
+  @override
+  State<ListRadioDelivery> createState() => _ListRadioDeliveryState();
+}
+
+class _ListRadioDeliveryState extends State<ListRadioDelivery> {
   @override
   Widget build(BuildContext context) {
     return Theme(
       data: Theme.of(context).copyWith(
-        inputDecorationTheme: Themes.inputDecorationThemeForm(context: context)
+        dividerColor: Colors.transparent,
+        splashColor: Theme.of(context).colorScheme.inversePrimary
       ),
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Tambah Alamat'),
-          titleTextStyle: Theme.of(context).textTheme.titleMedium,
-          centerTitle: true,
+      child: ListTileTheme(
+        dense: true,
+        minVerticalPadding: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: ExpansionTile(
+          leading: CircleAvatar(
+            radius: 20,
+            backgroundColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.5),
+            child: Icon(
+              Icons.local_shipping,
+              size: 24,
+              color: Theme.of(context).colorScheme.primary
+            ),
+          ),
+          trailing: const Icon(Icons.arrow_drop_down, size: 30),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.25),
+          collapsedBackgroundColor: Theme.of(context).colorScheme.secondary.withOpacity(0.05),
+          title: Text('Tipe Pengiriman', style: Theme.of(context).textTheme.labelSmall?.copyWith(
+            color: Theme.of(context).colorScheme.secondary,
+          )),
+          subtitle: Text(widget.value, style: Theme.of(context).textTheme.labelLarge?.copyWith(
+            color: Theme.of(context).colorScheme.primary,
+            height: 0
+          )),
+          children: widget.options.map((element) {
+            return RadioListTile(
+              selected: element['name'] == widget.value,
+              value: element['name'],
+              groupValue: widget.value,
+              onChanged: (e) {
+                widget.onChanged(e);
+              },
+              selectedTileColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.5),
+              title: Text(element['name'], style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                height: 0
+              )),
+              subtitle: Text(element['description'], style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.secondary,
+                height: 0,
+                letterSpacing: 0
+              )),
+            );
+          }).toList(),
         ),
-        body: SingleChildScrollView(
-          padding: const EdgeInsets.all(32),
-          child: Column(
-            children: [
-              const ButtonListTile(
-                icon: Icons.my_location,
-                title: 'Gunakan Lokasi Sekarang',
-                subtitle: 'Jl. Jalan di jalanin no. 69'
-              ),
-              const SizedBox(height: 24),
-              TextFormField(
-                initialValue: 'Jl. ',
-                onChanged: (value) {
-                  setState(() {});
-                },
-                maxLines: null,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  height: 2
-                ),
-                decoration: Styles.inputDecorationForm(
-                  prefix: Transform.translate(
-                    offset: const Offset(-6, 6),
-                    child: const Icon(Icons.location_on)
-                  ),
-                  context: context,
-                  placeholder: 'Alamat',
-                  condition: false
-                ),
-              ),
-            ],
-          )
-        )
       ),
     );
   }

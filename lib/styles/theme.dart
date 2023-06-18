@@ -156,12 +156,16 @@ class Styles {
     );
   }
 
-  static ButtonStyle buttonFlatSmall({required BuildContext context}) {
+  static ButtonStyle buttonFlatSmall({
+    required BuildContext context,
+    Color? backgroundColor,
+    Color? foregroundColor,
+    Color? overlayColor,
+    BorderRadiusGeometry? borderRadius,
+  }) {
     return ButtonStyle(
       elevation: const MaterialStatePropertyAll(0),
-      shape: MaterialStatePropertyAll(RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(25.7)
-      )),
+      shape: borderRadius != null ? MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: borderRadius)) : null,
       visualDensity: VisualDensity.compact,
       iconSize: const MaterialStatePropertyAll(18),
       textStyle: MaterialStatePropertyAll(Theme.of(context).textTheme.labelSmall?.copyWith(
@@ -171,37 +175,44 @@ class Styles {
         if (states.contains(MaterialState.disabled)) {
           return null;
         } else {
-          return Theme.of(context).colorScheme.surface;
+          return foregroundColor ?? Theme.of(context).colorScheme.surface;
         }
       }),
       backgroundColor: MaterialStateProperty.resolveWith((states) {
         if (states.contains(MaterialState.disabled)) {
           return null;
         } else {
-          return Theme.of(context).colorScheme.primary;
+          return backgroundColor ?? Theme.of(context).colorScheme.primary;
         }
       }),
       overlayColor: MaterialStateProperty.resolveWith((states) {
         if (states.contains(MaterialState.disabled)) {
           return null;
         } else {
-          return Theme.of(context).colorScheme.inversePrimary;
+          return overlayColor ?? Theme.of(context).colorScheme.inversePrimary;
         }
       }),
     );
   }
 
-  static ButtonStyle buttonFlat({required BuildContext context}) {
+  static ButtonStyle buttonFlat({
+    required BuildContext context,
+    Color? backgroundColor,
+    Color? foregroundColor,
+    Color? overlayColor,
+    BorderRadiusGeometry? borderRadius,
+  }) {
     return ButtonStyle(
       elevation: const MaterialStatePropertyAll(0),
+      shape: borderRadius != null ? MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: borderRadius)) : null,
       backgroundColor: MaterialStateProperty.resolveWith((states) {
-         return Theme.of(context).colorScheme.primary;
+         return backgroundColor ?? Theme.of(context).colorScheme.primary;
       }),
       foregroundColor: MaterialStateProperty.resolveWith((states) {
-         return Theme.of(context).colorScheme.surface;
+         return foregroundColor ?? Theme.of(context).colorScheme.surface;
       }),
       overlayColor: MaterialStateProperty.resolveWith((states) {
-         return Theme.of(context).colorScheme.inversePrimary;
+         return overlayColor ?? Theme.of(context).colorScheme.inversePrimary;
       }),
     );
   }

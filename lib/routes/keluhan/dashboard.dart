@@ -118,7 +118,7 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
             pinned: true,
             floating: true,
             automaticallyImplyLeading: false,
-            toolbarHeight: kToolbarHeight + 140,
+            toolbarHeight: kToolbarHeight + 100,
             actions: const [ SizedBox() ],
             title: Padding(
               padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
@@ -132,18 +132,15 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
                       Row(
                         mainAxisSize: MainAxisSize.max,
                         children: [
-                          Icon(Icons.contact_support, color: Theme.of(context).colorScheme.primary, size: 28),
-                          const SizedBox(width: 6),
                           Text('Kritik & Saran',
                             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                               letterSpacing: -0.5,
-                              fontWeight: FontWeight.w500,color: Theme.of(context).colorScheme.primary
+                              color: Theme.of(context).colorScheme.inverseSurface
                             )
                           ),
                         ],
                       ),
-                      const SizedBox(height: 8),
-                      Text('Kritik termasuk ketaksetujuan orang, bukan\nkarena memiliki kesalahan.',
+                      Text('Gunakan Kategori Laporan Keluhan.',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Theme.of(context).colorScheme.secondary,
                           letterSpacing: 0
@@ -153,7 +150,7 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
                   ),
                   Column(
                     children: [
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 24),
                       Row(
                         children: [
                           const SizedBox(width: 0),
@@ -172,6 +169,9 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
             ),
             bottom: TabBar(
               controller: _tabController,
+              labelStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
+                letterSpacing: 0
+              ),
               tabs: [
                 const Tab(text: 'Buat Keluhan'),
                 Row(

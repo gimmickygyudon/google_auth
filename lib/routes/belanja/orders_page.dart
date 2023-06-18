@@ -28,6 +28,8 @@ class _OrdersPageRouteState extends State<OrdersPageRoute> {
 
   @override
   void initState() {
+
+    orderOpen.value = true;
     super.initState();
   }
 
@@ -152,174 +154,11 @@ class _OrdersPageRouteState extends State<OrdersPageRoute> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            AnimatedSize(
-              curve: Curves.ease,
-              duration: const Duration(milliseconds: 400),
-              child: ValueListenableBuilder(
-                valueListenable: orderOpen,
-                builder: (context, orderOpen, child) {
-                  return SizedBox(
-                    height: orderOpen ? null : 0,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const SizedBox(height: 12),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 18),
-                          child: Hero(
-                            tag: 'My Home',
-                            child: Card(
-                              margin: EdgeInsets.zero,
-                              elevation: 0,
-                              color: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.15),
-                              clipBehavior: Clip.antiAlias,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20)
-                              ),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  border: Border(
-                                    top: BorderSide(color: Theme.of(context).colorScheme.primary, width: 6)
-                                  )
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Row(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Text('Pengiriman', style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                                fontWeight: FontWeight.w500
-                                              )),
-                                              const SizedBox(height: 4),
-                                              Row(
-                                                children: [
-                                                  Icon(Icons.home, size: 20, color: Theme.of(context).colorScheme.secondary),
-                                                  const SizedBox(width: 4),
-                                                  Text('My Home', style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                                    color: Theme.of(context).colorScheme.secondary,
-                                                  )),
-                                                ],
-                                              ),
-                                            ],
-                                          ),
-                                          ElevatedButton.icon(
-                                            onPressed: () => pushAddress(context: context, hero: 'My Home'),
-                                            style: Styles.buttonFlatSmall(context: context),
-                                            label: const Text('Ubah'),
-                                            icon: const Icon(Icons.location_on),
-                                          )
-                                        ],
-                                      ),
-                                      const SizedBox(height: 24),
-                                      Row(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          CircleAvatar(
-                                            radius: 18,
-                                            child: Icon(Icons.location_on, color: Theme.of(context).colorScheme.primary)
-                                          ),
-                                          const SizedBox(width: 12),
-                                          Expanded(
-                                            child: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                Text('Kabupaten Malang',
-                                                  textAlign: TextAlign.justify,
-                                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                                    fontWeight: FontWeight.w500,
-                                                    color: Theme.of(context).colorScheme.primary,
-                                                  ),
-                                                ),
-                                                Text('+62 341 441111',
-                                                  textAlign: TextAlign.justify,
-                                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                                    fontWeight: FontWeight.w500,
-                                                  ),
-                                                ),
-                                                const SizedBox(height: 12),
-                                                Text('Jl. Rogonoto No.57B, Gondorejo Ledok, Tamanharjo, Kec. Singosari, Kabupaten Malang, Jawa Timur 65153',
-                                                  textAlign: TextAlign.justify,
-                                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                                    color: Theme.of(context).colorScheme.secondary,
-                                                    fontWeight: FontWeight.w500,
-                                                    letterSpacing: 0
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 20),
-                                      Row(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          CircleAvatar(
-                                            radius: 18,
-                                            child: Icon(Icons.local_shipping, color: Theme.of(context).colorScheme.primary)
-                                          ),
-                                          const SizedBox(width: 12),
-                                          Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Text('Tipe Pengiriman', style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                                color: Theme.of(context).colorScheme.secondary
-                                              )),
-                                              const SizedBox(height: 4),
-                                              Text('FRANCO',
-                                                textAlign: TextAlign.justify,
-                                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        Align(
-                          alignment: Alignment.bottomRight,
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: ElevatedButton(
-                              onPressed: () {},
-                              style: Styles.buttonForm(context: context),
-                              child: const Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text('Pembelian'),
-                                  SizedBox(width: 8),
-                                  Icon(Icons.arrow_circle_right_outlined)
-                                ],
-                              ),
-                            ),
-                          ),
-                        )
-                      ],
-                    ),
-                  );
-                }
-              ),
-            ),
-            const SizedBox(height: 12),
+            AddressCard(orderOpen: orderOpen),
             if (orderOpen.value) Divider(
               indent: 16,
               endIndent: 16,
-              height: 72, color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.25)
+              height: 72, color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5)
             ),
             ListTile(
               contentPadding: const EdgeInsets.only(left: 16),
@@ -503,6 +342,179 @@ class _OrdersPageRouteState extends State<OrdersPageRoute> {
           ],
         ),
       )
+    );
+  }
+}
+
+class AddressCard extends StatelessWidget {
+  const AddressCard({
+    super.key,
+    required this.orderOpen
+  });
+
+  final ValueNotifier orderOpen;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedSize(
+      curve: Curves.ease,
+      duration: const Duration(milliseconds: 400),
+      child: ValueListenableBuilder(
+        valueListenable: orderOpen,
+        builder: (context, orderOpen, child) {
+          return SizedBox(
+            height: orderOpen ? null : 0,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 18),
+                  child: Hero(
+                    tag: 'My Home',
+                    child: Card(
+                      margin: EdgeInsets.zero,
+                      elevation: 0,
+                      color: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.25),
+                      clipBehavior: Clip.antiAlias,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20)
+                      ),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border(
+                            top: BorderSide(color: Theme.of(context).colorScheme.primary, width: 6)
+                          )
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text('Pengiriman', style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                        fontWeight: FontWeight.w500
+                                      )),
+                                      const SizedBox(height: 4),
+                                      Row(
+                                        children: [
+                                          Icon(Icons.home, size: 20, color: Theme.of(context).colorScheme.secondary),
+                                          const SizedBox(width: 4),
+                                          Text('My Home', style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                            color: Theme.of(context).colorScheme.secondary,
+                                          )),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                  ElevatedButton.icon(
+                                    onPressed: () => pushAddress(context: context, hero: 'My Home'),
+                                    style: Styles.buttonFlatSmall(context: context),
+                                    label: const Text('Ubah'),
+                                    icon: const Icon(Icons.location_on),
+                                  )
+                                ],
+                              ),
+                              const SizedBox(height: 24),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  CircleAvatar(
+                                    radius: 18,
+                                    child: Icon(Icons.location_on, color: Theme.of(context).colorScheme.primary)
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text('Kabupaten Malang',
+                                          textAlign: TextAlign.justify,
+                                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                            fontWeight: FontWeight.w500,
+                                            color: Theme.of(context).colorScheme.primary,
+                                          ),
+                                        ),
+                                        Text('+62 341 441111',
+                                          textAlign: TextAlign.justify,
+                                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 12),
+                                        Text('Jl. Rogonoto No.57B, Gondorejo Ledok, Tamanharjo, Kec. Singosari, Kabupaten Malang, Jawa Timur 65153',
+                                          textAlign: TextAlign.justify,
+                                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                            color: Theme.of(context).colorScheme.secondary,
+                                            fontWeight: FontWeight.w500,
+                                            letterSpacing: 0
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 20),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  CircleAvatar(
+                                    radius: 18,
+                                    child: Icon(Icons.local_shipping, color: Theme.of(context).colorScheme.primary)
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text('Tipe Pengiriman', style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                        color: Theme.of(context).colorScheme.secondary
+                                      )),
+                                      const SizedBox(height: 4),
+                                      Text('FRANCO',
+                                        textAlign: TextAlign.justify,
+                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.only(top: 16),
+                                child: Align(
+                                  alignment: Alignment.bottomRight,
+                                  child: ElevatedButton.icon(
+                                    onPressed: () {},
+                                    style: Styles.buttonFlat(
+                                      context: context,
+                                      borderRadius: BorderRadius.circular(12),
+                                      backgroundColor: Theme.of(context).colorScheme.primary.withBlue(100)
+                                    ),
+                                    icon: const Icon(Icons.check_circle, size: 22),
+                                    label: const Text('Checkout'),
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+      ),
     );
   }
 }

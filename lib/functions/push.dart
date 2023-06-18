@@ -11,6 +11,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../routes/dashboard.dart';
 import '../routes/login_page.dart';
+import '../routes/option/add_address.dart';
 import '../routes/register_page.dart';
 
 PageRouteBuilder transitionShared({
@@ -207,10 +208,13 @@ void pushAddress({required BuildContext context, required String hero}) {
   );
 }
 
-void pushAddressAdd({required BuildContext context}) {
+void pushAddressAdd({
+  required BuildContext context,
+  required String hero
+}) {
   Navigator.push(context, MaterialPageRoute(
     builder: (context) {
-      return const AddressAddRoute();
+      return AddressAddRoute(hero: hero);
     })
   );
 }

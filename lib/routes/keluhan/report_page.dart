@@ -32,7 +32,7 @@ class _LaporanRouteState extends State<LaporanRoute> {
   GlobalKey selectedKey = GlobalKey();
   bool empty = true;
 
-  late bool isLoadingContent, isLoading;
+  late bool isLoading;
 
   @override
   void initState() {
@@ -49,7 +49,6 @@ class _LaporanRouteState extends State<LaporanRoute> {
     }
     laporanList.addAll(laporanList_);
 
-    isLoadingContent = false;
     isLoading = false;
     super.initState();
   }
@@ -59,16 +58,6 @@ class _LaporanRouteState extends State<LaporanRoute> {
     _detailController.dispose();
     _scrollController.dispose();
     super.dispose();
-  }
-
-  void setLoading() {
-    if(empty == true) {
-      empty = false;
-      isLoadingContent = true;
-      Timer(const Duration(seconds: 1), () {
-        setState(() => isLoadingContent = false);
-      });
-    }
   }
 
   void filterFiles() {
@@ -86,7 +75,7 @@ class _LaporanRouteState extends State<LaporanRoute> {
     }).whenComplete(() => setState(() {}));
   }
 
-  String setLaporan(String laporan) {
+  String defineLaporan(String laporan) {
     switch (laporan) {
       case 'Harga':
         return 'Price';
@@ -99,6 +88,12 @@ class _LaporanRouteState extends State<LaporanRoute> {
       default:
         return laporan;
     }
+  }
+
+  void setLaporan(String value) {
+    setState(() {
+      laporan = value;
+    });
   }
 
   void sendReport() {
@@ -132,7 +127,7 @@ class _LaporanRouteState extends State<LaporanRoute> {
           item: UserReport1(
             id_sfb1: null,
             id_osfb: value['id_osfb'].toString(),
-            type_feed: setLaporan(laporan),
+            type_feed: defineLaporan(laporan),
             description: _detailController.text
           ).toMap(),
         ).onError((error, stackTrace) {
@@ -150,7 +145,7 @@ class _LaporanRouteState extends State<LaporanRoute> {
                 item: UserReport2(
                   id_sfb2: null,
                   id_osfb: value['id_osfb'].toString(),
-                  type: setLaporan(laporan),
+                  type: defineLaporan(laporan),
                   file_name: file.name,
                   file_type: file.extension!,
                 ).toMap(),
@@ -191,9 +186,9 @@ class _LaporanRouteState extends State<LaporanRoute> {
         floatingActionButton: AnimatedSlide(
           duration: const Duration(milliseconds: 400),
           curve: Curves.easeOut,
-          offset: _detailController.text.trim().isNotEmpty && laporan.isNotEmpty ? const Offset(0, 0) : const Offset(0, 20),
+          offset: _detailController.text.trim().length > 10 && laporan.isNotEmpty ? const Offset(0, 0) : const Offset(0, 20),
           child: FloatingActionButton.extended(
-            onPressed: _detailController.text.trim().isNotEmpty && laporan.isNotEmpty && isLoading == false ? () {
+            onPressed: _detailController.text.trim().length > 10 && laporan.isNotEmpty && isLoading == false ? () {
               setState(() {
                 isLoading = true;
                 sendReport();
@@ -213,46 +208,41 @@ class _LaporanRouteState extends State<LaporanRoute> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              AnimatedSize(
-                duration: const Duration(milliseconds: 400),
-                curve: Curves.easeOut,
-                child: isLoadingContent
-                  ? Padding(
-                      padding: const EdgeInsets.all(40),
-                      child: Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary, strokeWidth: 2)),
-                    )
-                  : _detailController.text.trim().isEmpty
-                    ? Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 32),
-                      child: Center(child: Image.asset('assets/start_page.png', height: MediaQuery.of(context).size.height / 5)),
-                    )
-                    : const SenderHeader(),
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 32),
+                child: Center(child: Image.asset('assets/start_page.png', height: MediaQuery.of(context).size.height / 5)),
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 32),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: laporan.isEmpty ? CrossAxisAlignment.start : CrossAxisAlignment.start,
                   children: [
-                    Text('Keluhan Tentang $laporan', style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      color: Theme.of(context).colorScheme.secondary,
+                    Text('Keluhan Tentang ', style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      fontWeight: FontWeight.w400,
+                      height: 0,
                       letterSpacing: 0
                     )),
-                    const SizedBox(height: 2),
+                    Text(laporan, style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w500,
+                      height: 0,
+                      letterSpacing: 0
+                    )),
+                    SizedBox(height: laporan.isEmpty ? 2 : 6),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Padding(
-                          padding: const EdgeInsets.only(right: 6, top: 2),
+                          padding: const EdgeInsets.only(right: 6, top: 3),
                           child: laporan.isEmpty
-                          ? Icon(Icons.info, size: 18, color: Theme.of(context).colorScheme.primary)
-                          : Icon(Icons.info_outline, size: 18, color: Theme.of(context).colorScheme.secondary),
+                          ? Icon(Icons.info, size: 16, color: Theme.of(context).colorScheme.primary)
+                          : Icon(Icons.info_outline, size: 16, color: Theme.of(context).colorScheme.secondary),
                         ),
                         Flexible(
                           child: Text(laporan.isEmpty
                             ? 'Pilih keluhan apa yang akan anda laporkan.'
-                            : 'Pastikan laporan yang akan Anda kirim Jelas dan Mudah dimengerti.',
+                            : 'Pastikan keluhan yang akan Anda kirim Jelas dan Mudah dimengerti.',
                             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context).colorScheme.secondary,
+                              color: laporan.isEmpty ? Theme.of(context).colorScheme.secondary : Theme.of(context).colorScheme.secondary,
                               letterSpacing: 0,
                             )
                           ),
@@ -262,77 +252,29 @@ class _LaporanRouteState extends State<LaporanRoute> {
                   ],
                 ),
               ),
-              const SizedBox(height: 12),
-              SizedBox(
-                height: 150,
-                child: ListView.builder(
-                  controller: _scrollController,
-                  padding: const EdgeInsets.fromLTRB(30, 10, 30, 0),
-                  shrinkWrap: true,
-                  scrollDirection: Axis.horizontal,
-                  itemCount: laporanList.length,
-                  itemBuilder: (context, index) {
-                    return SizedBox(
-                      width: 170,
-                      child: Padding(
-                        padding: const EdgeInsets.only(right: 10),
-                        child: InkWell(
-                          onTap: () {
-                            setState(() {
-                              if (laporan == laporanList[index]['name']) {
-                                laporan = '';
-                              } else {
-                                laporan = laporanList[index]['name'];
-                              }
-                            });
-                          },
-                          borderRadius: BorderRadius.circular(20),
-                          splashColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.5),
-                          highlightColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.5),
-                          child: HeroMode(
-                            enabled: laporanList[index]['name'] == laporan,
-                            child: Hero(
-                              tag: laporanList[index]['name'],
-                              child: LaporanCard(
-                                key: laporanList[index]['name'] == laporan ? selectedKey : null,
-                                item: laporanList[index],
-                                isSelected: laporanList[index]['name'] == laporan,
-                                pushReportPage: null,
-                                laporanList: laporanList,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(height: 12),
-              AnimatedSize(
+              SizedBox(height: laporan.isEmpty ? 12 : 36),
+              AnimatedScale(
+                scale: laporan.isNotEmpty ? 1 : 0,
                 duration: const Duration(milliseconds: 400),
                 curve: Curves.ease,
-                alignment: Alignment.bottomLeft,
+                alignment: Alignment.topCenter,
                 child: ConstrainedBox(
-                  constraints: BoxConstraints(maxHeight: laporan.isNotEmpty ? 180 : 0),
+                  constraints: BoxConstraints(maxHeight: laporan.isNotEmpty ? 210 : 0),
                   child: Visibility(
                     visible: laporan.isNotEmpty,
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(30, 16, 30, 6),
+                      padding: const EdgeInsets.fromLTRB(30, 6, 30, 6),
                       child: Stack(
                         fit: StackFit.expand,
                         children: [
                           TextField(
                             controller: _detailController,
                             keyboardType: TextInputType.multiline,
-                            maxLines: 5,
+                            maxLines: 8,
                             onChanged: (value) {
                               setState(() {
                                 if (_detailController.text.trim().isEmpty) {
                                   empty = true;
-                                }
-                                if (laporan.trim().isNotEmpty && value.trim().isNotEmpty) {
-                                  setLoading();
                                 }
                               });
                             },
@@ -377,41 +319,100 @@ class _LaporanRouteState extends State<LaporanRoute> {
                 alignment: Alignment.bottomLeft,
                 child: SizedBox(
                   height: laporan.isNotEmpty && fileList.isNotEmpty ? 46 : 0,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 30),
-                    shrinkWrap: true,
-                    scrollDirection: Axis.horizontal,
-                    itemCount: fileList.length,
-                    itemBuilder: (context, index) {
-                      return Container(
-                        margin: const EdgeInsets.only(right: 10),
-                        width: 160,
-                        child: Chip(
-                          onDeleted: () => setState(() {
-                            fileList.removeWhere((element) => element.name == fileList[index].name);
-                          }),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                          side: BorderSide.none,
-                          backgroundColor: Theme.of(context).colorScheme.primary,
-                          deleteIconColor: Theme.of(context).colorScheme.surface,
-                          avatar: Icon(Icons.upload_file, color: Theme.of(context).colorScheme.surface),
-                          label: Text(fileList[index].name),
-                          labelStyle: Theme.of(context).textTheme.labelMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.surface,
-                            letterSpacing: 0
+                  child: Visibility(
+                    visible: laporan.isNotEmpty,
+                    child: ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 30),
+                      shrinkWrap: true,
+                      scrollDirection: Axis.horizontal,
+                      itemCount: fileList.length,
+                      itemBuilder: (context, index) {
+                        return Container(
+                          margin: const EdgeInsets.only(right: 10),
+                          width: 160,
+                          child: Chip(
+                            onDeleted: () => setState(() {
+                              fileList.removeWhere((element) => element.name == fileList[index].name);
+                            }),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            side: BorderSide.none,
+                            backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+                            deleteIconColor: Theme.of(context).colorScheme.inverseSurface,
+                            avatar: Icon(Icons.upload_file, color: Theme.of(context).colorScheme.inverseSurface),
+                            label: Text(fileList[index].name),
+                            labelStyle: Theme.of(context).textTheme.labelMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.inverseSurface,
+                              letterSpacing: 0
+                            ),
                           ),
-                        ),
-                      );
-                    }
+                        );
+                      }
+                    ),
                   ),
                 ),
               ),
+              if (laporan.isNotEmpty) const SizedBox(height: 12),
+              AnimatedSize(
+                duration: const Duration(milliseconds: 600),
+                curve: Curves.ease,
+                alignment: Alignment.bottomLeft,
+                child: SizedBox(
+                  height: laporan.isNotEmpty ? 0 : 150,
+                  child: Visibility(
+                    visible: laporan.isEmpty,
+                    child: ListView.builder(
+                      controller: _scrollController,
+                      padding: const EdgeInsets.fromLTRB(30, 10, 30, 0),
+                      shrinkWrap: true,
+                      scrollDirection: Axis.horizontal,
+                      itemCount: laporanList.length,
+                      itemBuilder: (context, index) {
+                        return SizedBox(
+                          width: 170,
+                          child: Padding(
+                            padding: const EdgeInsets.only(right: 10),
+                            child: InkWell(
+                              onTap: () {
+                                setState(() {
+                                  if (laporan == laporanList[index]['name']) {
+                                    laporan = '';
+                                  } else {
+                                    laporan = laporanList[index]['name'];
+                                  }
+                                });
+                              },
+                              borderRadius: BorderRadius.circular(20),
+                              splashColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.5),
+                              highlightColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.5),
+                              child: HeroMode(
+                                enabled: laporanList[index]['name'] == laporan,
+                                child: Hero(
+                                  tag: laporanList[index]['name'],
+                                  child: LaporanCard(
+                                    key: laporanList[index]['name'] == laporan ? selectedKey : null,
+                                    item: laporanList[index],
+                                    isSelected: laporanList[index]['name'] == laporan,
+                                    pushReportPage: null,
+                                    laporanList: laporanList,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
               Padding(
-                padding: const EdgeInsets.fromLTRB(24, 12, 34, 12),
+                padding: const EdgeInsets.fromLTRB(32, 12, 34, 12),
                 child: ButtonReport(
                   isVisible: MediaQuery.of(context).viewInsets.bottom != 0 ? false : true,
                   enable: _detailController.text.trim().isNotEmpty && laporan.isNotEmpty,
-                  onPressed: sendReport
+                  laporan: laporan,
+                  onPressed: setLaporan
                 ),
               )
             ],
@@ -470,18 +471,17 @@ class SenderHeader extends StatelessWidget {
 }
 
 class ButtonReport extends StatelessWidget {
-  const ButtonReport(
-    {
-      super.key,
-      required this.isVisible,
-      required this.enable,
-      required this.onPressed
-    }
-  );
+  const ButtonReport({
+    super.key,
+    required this.isVisible,
+    required this.enable,
+    required this.onPressed, required this.laporan
+  });
 
   final bool isVisible;
   final bool enable;
   final Function onPressed;
+  final String laporan;
 
   @override
   Widget build(BuildContext context) {
@@ -491,9 +491,12 @@ class ButtonReport extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           TextButton.icon(
-            onPressed: () => Navigator.pop(context),
-            label: const Text('Kembali'),
-            icon: const Icon(Icons.arrow_back_rounded)
+            onPressed: () => laporan.isEmpty ? Navigator.pop(context) : onPressed(''),
+            style: null ,
+            label: Text(laporan.isEmpty ? 'Kembali' : 'Ubah Keluhan'),
+            icon: laporan.isEmpty
+            ? const Icon(Icons.arrow_back_rounded)
+            : const Icon(Icons.arrow_upward)
           ),
         ],
       ),

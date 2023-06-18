@@ -168,40 +168,39 @@ class ButtonListTile extends StatelessWidget {
     super.key,
     required this.icon,
     required this.title,
-    required this.subtitle,
+    this.subtitle,
     this.trailing
   });
 
   final IconData icon;
-  final String title, subtitle;
-  final Widget? trailing;
+  final Widget? title, subtitle, trailing;
 
   @override
   Widget build(BuildContext context) {
     return Card(
       elevation: 0,
+      margin: EdgeInsets.zero,
       color: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.25),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
       clipBehavior: Clip.antiAlias,
       child: ListTile(
-        dense: true,
-        minVerticalPadding: 16,
         onTap: () {},
         leading: CircleAvatar(
-          radius: 30,
+          radius: 24,
           backgroundColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.5),
           child: Icon(
             icon,
-            size: 28,
+            size: 26,
             color: Theme.of(context).colorScheme.primary
           ),
         ),
-        title: Text(title),
+        title: title,
         titleTextStyle: Theme.of(context).textTheme.titleSmall?.copyWith(
-          height: 1.75
         ),
-        subtitle: Text(subtitle, style: Theme.of(context).textTheme.labelSmall?.copyWith(
-          color: Theme.of(context).colorScheme.secondary
-        )),
+        subtitle: subtitle,
+        subtitleTextStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
+          letterSpacing: 0
+        ),
         trailing: Icon(Icons.arrow_forward, color: Theme.of(context).colorScheme.secondary),
       ),
     );
