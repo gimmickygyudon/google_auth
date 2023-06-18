@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_auth/widgets/button.dart';
 
-import '../functions/push.dart';
 import '../functions/validate.dart';
 import '../styles/theme.dart';
 import '../widgets/snackbar.dart';
@@ -22,7 +21,6 @@ class _StartPageRouteState extends State<StartPageRoute> {
 
   final GlobalKey<LoginButtonState> loginButtonKeyFloat = GlobalKey();
   final GlobalKey<LoginButtonState> loginButtonKey = GlobalKey();
-  bool _keyboardVisible = false;
 
   late bool isLoading;
 
@@ -45,159 +43,118 @@ class _StartPageRouteState extends State<StartPageRoute> {
 
   @override
   Widget build(BuildContext context) {
-    _keyboardVisible = MediaQuery.of(context).viewInsets.bottom != 0; return AnnotatedRegion(
+    return AnnotatedRegion(
       value: SystemUiOverlayStyle.dark,
       child: Theme(
-        data: Theme.of(context).copyWith(appBarTheme: Themes.appBarTheme(context)),
+        data: Theme.of(context).copyWith(
+          appBarTheme: Themes.appBarTheme(context)
+        ),
         child: Scaffold(
-          appBar: AppBar(toolbarHeight: 0),
-          body: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(horizontal: 48),
-                  child: SizedBox(
-                    height: MediaQuery.of(context).size.height,
-                    child: Column(
-                      children: [
-                        Flexible(
-                          flex: 2, 
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const SizedBox(height: kToolbarHeight),
-                              Expanded(child: Column(
-                                children: [
-                                  const Image(image: AssetImage('assets/Logo Indostar.png'), width: 300),
-                                  const SizedBox(height: 12),
-                                  Text('Mulailah mengelola bisnis anda dengan aman dan cepat.',
-                                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                                      fontWeight: FontWeight.w400,
-                                      color: Theme.of(context).colorScheme.secondary
-                                    ),
-                                    textAlign: TextAlign.center
-                                  ),
-                                ],
-                              )),
-                            ],
-                          ),
-                        ),
-                        Expanded(
-                          flex: 2, 
-                          child: Image.asset('assets/bricklayer_3 @vector4stock.png')
-                        ),
-                        Flexible(
-                          flex: 6,
-                          child: Theme(
-                            data: Theme.of(context).copyWith(inputDecorationTheme: Themes.inputDecorationThemeForm(context: context)),
-                            child: StatefulBuilder(builder: (context, setState) {
-                              return Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  const SizedBox(height: 20),
-                                  Text(
-                                    'Silakan masuk dengan menggunakkan nomor handphone Anda.',
-                                    textAlign: TextAlign.center,
-                                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                      color: Theme.of(context).colorScheme.secondary,
-                                      letterSpacing: 0.2
-                                    )
-                                  ),
-                                  const SizedBox(height: 20),
-                                  TextField(
-                                    controller: _phonenumberController,
-                                    onChanged: (value) {
-                                      isValidated = Validate.validate(_phonenumberController.text.trim().isNotEmpty);
-                                      loginButtonKey.currentState?.refresh(isValidated);
-                                      loginButtonKeyFloat.currentState?.refresh(isValidated);
-                                    },
-                                    onSubmitted: isValidated ? (value) {
-                                      FocusScope.of(context).unfocus();
-
-                                      setLoading(true);
-                                      Validate.checkUser(
-                                        context: context,
-                                        user: value,
-                                        logintype: 'Nomor'
-                                      ).onError((error, stackTrace) {
-                                        showSnackBar(context, snackBarError(context: context, content: error.toString()));
-                                        setLoading(false);
-
-                                        return Future.error(error.toString());
-                                      }).then((value) => setLoading(false));
-                                    }
-                                    : null,
-                                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.4),
-                                    inputFormatters: [ FilteringTextInputFormatter.digitsOnly ],
-                                    decoration: Styles.inputDecorationForm(
-                                      context: context,
-                                      placeholder: 'Masukan Nomor HP',
-                                      icon: const Icon(Icons.phone),
-                                      isPhone: true,
-                                      condition: _phonenumberController.text.trim().isNotEmpty
-                                    ),
-                                    keyboardType: TextInputType.phone,
-                                  ),
-                                  const SizedBox(height: 12),
-                                  LoginButton(
-                                    key: loginButtonKey,
-                                    isLoading: isLoading,
-                                    setLoading: setLoading,
-                                    isVisible: _keyboardVisible ? false : true,
-                                    phonenumberController: _phonenumberController, 
-                                  ),
-                                  const SizedBox(height: 4),
-                                  LoginsButton(
-                                    logintype: 'Nomor', 
-                                    source: {'phone_number': _phonenumberController.text}, 
-                                    usernameController: _phonenumberController,
-                                    borderRadius: 8,
-                                  ),
-                                  Column(
-                                    children: [
-                                      const SizedBox(height: 32),
-                                      Text('Sudah mempunyai akun Customer Indostar?',
-                                        style: Theme.of(context).textTheme.bodySmall,
-                                        textAlign: TextAlign.center
-                                      ),
-                                      TextButton(
-                                        onPressed: () {
-                                          pushLogin(context);
-                                        },
-                                        child: Text('Klik Disini',
-                                          style: Theme.of(context).textTheme.titleSmall?.copyWith(color: Theme.of(context).colorScheme.primary),
-                                          textAlign: TextAlign.center
-                                        )
-                                      ),
-                                    ]
-                                  )
-                                ],
-                              );
-                            }),
-                          ),
-                        ),
-                      ]
-                    ),
-                  ),
-                ),
-              ),
-              Themes.bottomFloatingBar(
-                context: context,
-                isVisible: _keyboardVisible,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: LoginButton(
-                    key: loginButtonKeyFloat,
-                    isLoading: isLoading,
-                    setLoading: setLoading,
-                    isVisible: _keyboardVisible,
-                    phonenumberController: _phonenumberController, 
-                  ),
-                ),
-              )
+          appBar: AppBar(
+            automaticallyImplyLeading: false,
+            centerTitle: true,
+            title: Image.asset('assets/Logo Indostar.png', height: 24),
+            toolbarHeight: kToolbarHeight + 20,
+            actions: [
+              IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert))
             ],
+          ),
+          body: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 48),
+              child: Column(
+                children: [
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: 20),
+                    child: Image(image: AssetImage('assets/welcome.png')),
+                  ),
+                  Text(
+                    'Silahkan masuk dengan menggunakkan Nomor Handphone Anda.',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: Theme.of(context).colorScheme.secondary,
+                      letterSpacing: 0.2
+                    )
+                  ),
+                  const SizedBox(height: 40),
+                  Theme(
+                    data: Theme.of(context).copyWith(inputDecorationTheme: Themes.inputDecorationThemeForm(context: context)),
+                    child: StatefulBuilder(builder: (context, setState) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          TextField(
+                            controller: _phonenumberController,
+                            onChanged: (value) {
+                              setState(() {
+                                isValidated = Validate.validate(_phonenumberController.text.trim().isNotEmpty);
+                              });
+                              loginButtonKey.currentState?.refresh(isValidated);
+                              loginButtonKeyFloat.currentState?.refresh(isValidated);
+                            },
+                            onSubmitted: isValidated || _phonenumberController.text.trim().isNotEmpty ? (value) {
+                              FocusScope.of(context).unfocus();
+
+                              setLoading(true);
+                              Validate.checkUser(
+                                context: context,
+                                user: value,
+                                logintype: 'Nomor'
+                              ).onError((error, stackTrace) {
+                                showSnackBar(context, snackBarError(context: context, content: error.toString()));
+                                setLoading(false);
+
+                                return Future.error(error.toString());
+                              }).then((value) => setLoading(false));
+                            }
+                            : null,
+                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.4),
+                            inputFormatters: [ FilteringTextInputFormatter.digitsOnly ],
+                            decoration: Styles.inputDecorationForm(
+                              context: context,
+                              placeholder: 'Nomor HP',
+                              floatingLabelBehavior: FloatingLabelBehavior.always,
+                              icon: const Icon(Icons.phone),
+                              isPhone: true,
+                              condition: _phonenumberController.text.trim().isNotEmpty
+                            ),
+                            keyboardType: TextInputType.phone,
+                          ),
+                          const SizedBox(height: 12),
+                          LoginButton(
+                            key: loginButtonKey,
+                            isLoading: isLoading,
+                            setLoading: setLoading,
+                            isVisible: true,
+                            phonenumberController: _phonenumberController,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 24),
+                            child: Row(
+                              children: [
+                                const Expanded(child: Divider(endIndent: 8)),
+                                Text('Lanjutkan dengan',
+                                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                    color: Theme.of(context).colorScheme.outline,
+                                    fontWeight: FontWeight.w400
+                                  )
+                                ),
+                                const Expanded(child: Divider(indent: 8)),
+                              ]
+                            ),
+                          ),
+                          LoginsButton(
+                            logintype: 'Nomor',
+                            source: {'phone_number': _phonenumberController.text},
+                            usernameController: _phonenumberController,
+                          ),
+                        ],
+                      );
+                    }),
+                  ),
+                ]
+              ),
+            ),
           ),
         ),
       ),
@@ -229,7 +186,7 @@ class LoginButtonState extends State<LoginButton> {
 
   void refresh(validate) {
     setState(() {
-      isValidated = validate;     
+      isValidated = validate;
     });
   }
 

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_auth/routes/belanja/dashboard.dart';
 import 'package:google_auth/routes/beranda/dashboard.dart';
 import 'package:google_auth/routes/keluhan/dashboard.dart';
-import 'package:google_auth/widgets/bottomNavigationBar.dart';
+import 'package:google_auth/widgets/navigationbar.dart';
 import 'package:google_auth/widgets/cart.dart';
 import 'package:google_auth/widgets/profile.dart';
 import 'package:google_auth/widgets/snackbar.dart';
@@ -25,6 +25,14 @@ class DashboardRoute extends StatefulWidget {
 class _DashboardRouteState extends State<DashboardRoute> {
   late int currentPage;
   late PageController _pageController;
+
+  List<Widget> routes = [
+    const BerandaRoute(),
+    Container(),
+    const BelanjaRoute(),
+    const KeluhanRoute(),
+    Container(),
+  ];
 
   @override
   void initState() {
@@ -51,10 +59,10 @@ class _DashboardRouteState extends State<DashboardRoute> {
   Future<void> logUser() async {
     _logUserMemozer.runOnce(() {
       UserLog userLog = UserLog(
-        id_olog: null, 
+        id_olog: null,
         date_time: DateNowSQL(),
         form_sender: currentUser['login_type'],
-        remarks: currentUser['user_name'], 
+        remarks: currentUser['user_name'],
         source: currentUser['user_email'],
         id_ousr: currentUser['id_ousr'].toString()
       );
@@ -84,7 +92,7 @@ class _DashboardRouteState extends State<DashboardRoute> {
         elevation: 8,
         shadowColor: Theme.of(context).shadowColor,
         automaticallyImplyLeading: false,
-        toolbarHeight: kToolbarHeight + 10,
+        toolbarHeight: kToolbarHeight,
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
             bottomLeft: Radius.circular(20),
@@ -105,7 +113,7 @@ class _DashboardRouteState extends State<DashboardRoute> {
                   ]
                 )
               ),
-              child: Image.asset('assets/dashboard_header.png', fit: BoxFit.cover)
+              child: Image.asset('assets/background02.png', fit: BoxFit.cover)
             )
           )
         ),
@@ -117,7 +125,9 @@ class _DashboardRouteState extends State<DashboardRoute> {
             ),
             const SizedBox(width: 4),
             Text('Hi, ${currentUser['user_name']}',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Theme.of(context).colorScheme.surface)
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                color: Theme.of(context).colorScheme.surface
+              )
             ),
           ],
         ),
@@ -125,7 +135,7 @@ class _DashboardRouteState extends State<DashboardRoute> {
         backgroundColor: Theme.of(context).colorScheme.primary,
         actions: [
           CartWidget(color: Theme.of(context).colorScheme.surface),
-          IconButton(onPressed: () {}, icon: const Icon(Icons.notifications_none), color: Theme.of(context).colorScheme.surface, 
+          IconButton(onPressed: () {}, icon: const Icon(Icons.notifications_none), color: Theme.of(context).colorScheme.surface,
             style: const ButtonStyle(visualDensity: VisualDensity.compact)
           ),
           const SizedBox(width: 6),
@@ -133,16 +143,11 @@ class _DashboardRouteState extends State<DashboardRoute> {
           const SizedBox(width: 12),
         ],
       ),
-      body: PageView(
+      body: PageView.builder(
         controller: _pageController,
         onPageChanged: (value) => setState(() => changePage(value)),
-        children: [
-          const BerandaRoute(),
-          Container(),
-          const BelanjaRoute(),
-          const KeluhanRoute(),
-          Container(),
-        ]
+        itemCount: 5,
+        itemBuilder: (context, index) => routes[index]
       ),
       bottomNavigationBar: BottomNavigation(currentPage: currentPage, pageController: _pageController, changePage: changePage)
     );

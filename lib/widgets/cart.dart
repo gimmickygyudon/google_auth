@@ -72,15 +72,14 @@ class _CartWidgetState extends State<CartWidget> {
                           )
                         ],
                       ),
-                      Text.rich(TextSpan(
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          letterSpacing: 0,
-                          color: Theme.of(context).colorScheme.secondary
-                        ),
-                        children: [
-                          TextSpan(text: DateNow())
-                        ]
-                      )),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 2),
+                        child: Text(DateNow(), style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.secondary,
+                          fontSize: 10,
+                          letterSpacing: 0
+                        )),
+                      )
                     ],
                   )
                 ),

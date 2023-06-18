@@ -7,32 +7,32 @@ import 'package:google_auth/widgets/profile.dart';
 
 import '../styles/theme.dart';
 
-Future<void> showRegisteredUser(BuildContext context, { 
-    required Map<String, dynamic> source, 
-    required Function callback, 
-    required String from 
+Future<void> showRegisteredUser(BuildContext context, {
+    required Map<String, dynamic> source,
+    required Function callback,
+    required String from
   }) {
   return showDialog(
-    context: context, 
+    context: context,
     builder: (BuildContext context) {
       return DialogRegisteredUser(source: source, callback: callback, from: from);
     }
   );
 }
 
-Future<void> showUnRegisteredUser(BuildContext context, { 
-    required String value, 
-    required Function callback, 
+Future<void> showUnRegisteredUser(BuildContext context, {
+    required String value,
+    required Function callback,
     required String from,
     Map? source
   }) {
   return showDialog(
-    context: context, 
+    context: context,
     builder: (BuildContext context) {
       return DialogUnRegisteredUser(
-        value: value, 
-        callback: callback, 
-        from: from, 
+        value: value,
+        callback: callback,
+        from: from,
         source: source
       );
     }
@@ -83,33 +83,49 @@ class _DialogRegisteredUserState extends State<DialogRegisteredUser> {
   Widget build(BuildContext context) {
     return AlertDialog(
       surfaceTintColor: Theme.of(context).colorScheme.inversePrimary,
-      contentPadding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
+      contentPadding: const EdgeInsets.fromLTRB(32, 38, 32, 24),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      title: Row(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(child: Text('${widget.from} sudah terdaftar sebelumnya', style: Theme.of(context).textTheme.titleMedium)),
-        ],
-      ),
+      actionsAlignment: MainAxisAlignment.spaceBetween,
       actions: [
         TextButton(
           style: ButtonStyle(foregroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.secondary)),
-          onPressed: () => Navigator.pop(context), 
-          child: const Text('Batal')
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Kembali')
         ),
         TextButton(
-          onPressed: () => widget.callback(context, source: widget.source, logintype: widget.from), 
-          child: const Text('Ya, Itu Saya')
+          onPressed: () => widget.callback(context, source: widget.source, logintype: widget.from),
+          style: Styles.buttonDanger(context: context),
+          child: const Text(' Ya, Itu Saya ')
         )
       ],
       content: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Center(child: UserProfile(source: widget.source)),
-          const SizedBox(height: 24),
-          Text('Apakah itu anda ?', style: Theme.of(context).textTheme.bodyMedium)
+          Column(
+            children: [
+              Center(child: UserProfile(source: widget.source)),
+              const SizedBox(height: 10),
+              Center(child: Text('+62 ${widget.source['phone_number']}', style: Theme.of(context).textTheme.labelLarge)),
+            ],
+          ),
+          const Divider(height: 48),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: Icon(Icons.verified_user, color: Theme.of(context).colorScheme.primary),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(child: Text('${widget.from} tersebut sudah terdaftar sebelumnya', style: Theme.of(context).textTheme.labelSmall)),
+                ],
+              ),
+            ],
+          ),
         ],
       ),
     );
@@ -129,41 +145,46 @@ class DialogUnRegisteredUser extends StatefulWidget {
 }
 
 class _DialogUnRegisteredUserState extends State<DialogUnRegisteredUser> {
-  late FocusNode _focusNode;
-
-  @override
-  void initState() {
-    _focusNode = FocusNode(canRequestFocus: false);
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    _focusNode.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
       surfaceTintColor: Colors.transparent,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      title: Text('Akun dengan ${widget.from} tersebut belum terdaftar', style: Theme.of(context).textTheme.titleMedium),
+      contentPadding: const EdgeInsets.fromLTRB(32, 12, 32, 24),
+      title: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Icon(Icons.info, color: Theme.of(context).colorScheme.primary),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text('Akun dengan ${widget.from} tersebut belum terdaftar',
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                letterSpacing: 0
+              )
+            ),
+          ),
+        ],
+      ),
       actions: [
         TextButton(
           style: ButtonStyle(foregroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.secondary)),
-          onPressed: () => Navigator.pop(context), 
+          onPressed: () => Navigator.pop(context),
           child: const Text('Batal')
         ),
-        TextButton(
+        const SizedBox(width: 4),
+        ElevatedButton(
+          style: Styles.buttonForm(context: context),
           onPressed: () {
             Navigator.pop(context);
             widget.callback();
-          }, 
-          child: const Text('Masuk')
+          },
+          child: const Text('Daftar')
         )
       ],
-      content: widget.from == 'Google' 
+      content: widget.from == 'Google'
       ? Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -180,23 +201,25 @@ class _DialogUnRegisteredUserState extends State<DialogUnRegisteredUser> {
           Theme(
             data: Theme.of(context).copyWith(inputDecorationTheme: Themes.inputDecorationThemeForm(context: context)),
             child: TextFormField(
+              autofocus: true,
               readOnly: true,
-              focusNode: _focusNode,
               initialValue: widget.value,
               style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.4),
               decoration: Styles.inputDecorationForm(
-                context: context, 
+                context: context,
                 icon: Icon(widget.from == 'Nomor' ? Icons.phone : Icons.email_outlined),
                 isPhone: widget.from == 'Nomor' ? true : false,
-                placeholder: '', 
-                condition: false
+                placeholder: '',
+                condition: true
               ),
             ),
           ),
           const SizedBox(height: 24),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 8.0),
-            child: Text('Apakah anda ingin melanjutkan untuk mendaftar ?', style: Theme.of(context).textTheme.bodySmall),
+            child: Text('Apakah anda ingin melanjutkan untuk mendaftar ?',
+              style: Theme.of(context).textTheme.bodySmall
+            ),
           )
         ],
       ),
@@ -206,13 +229,13 @@ class _DialogUnRegisteredUserState extends State<DialogUnRegisteredUser> {
 
 class OrderDialog extends StatefulWidget {
   const OrderDialog({
-    super.key, 
-    required this.name, 
-    required this.brand, 
-    required this.hero, 
-    required this.dimensions, 
-    required this.onPressed, 
-    required this.weights, 
+    super.key,
+    required this.name,
+    required this.brand,
+    required this.hero,
+    required this.dimensions,
+    required this.onPressed,
+    required this.weights,
   });
 
   final String name, brand, hero;
@@ -249,7 +272,7 @@ class _OrderDialogState extends State<OrderDialog> {
     List list = List.empty(growable: true);
     int i = 0;
 
-    for (String element in widget.dimensions) { 
+    for (String element in widget.dimensions) {
       list.add('$element  •  ${widget.weights[i]} Kg');
       i++;
     }
@@ -261,13 +284,13 @@ class _OrderDialogState extends State<OrderDialog> {
     if (value.isNotEmpty) {
       if (int.parse(value) < 1) {
         jumlahController.text = '';
-      } 
+      }
     }
 
     if (value.trim().isNotEmpty || value.trim() != '0') {
       setState(() {
         isValidated = true;
-      }); 
+      });
     } else {
       setState(() {
         isValidated = false;
@@ -360,7 +383,7 @@ class _OrderDialogState extends State<OrderDialog> {
                       });
                     },
                     decoration: Styles.inputDecorationForm(
-                      context: context, 
+                      context: context,
                       placeholder: 'Spesifikasi',
                       condition: true
                     ),
@@ -375,7 +398,7 @@ class _OrderDialogState extends State<OrderDialog> {
                         value: item,
                         child: Text(item)
                       );
-                    }).toList(), 
+                    }).toList(),
                   ),
                   const SizedBox(height: 12),
                   TextFormField(
@@ -388,7 +411,7 @@ class _OrderDialogState extends State<OrderDialog> {
                     keyboardType: TextInputType.number,
                     inputFormatters: [ FilteringTextInputFormatter.allow(RegExp("[0-9]")) ],
                     decoration: Styles.inputDecorationForm(
-                      context: context, 
+                      context: context,
                       placeholder: 'Jumlah',
                       suffixIcon: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -406,7 +429,7 @@ class _OrderDialogState extends State<OrderDialog> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       TextButton(
-                        onPressed: () => Navigator.pop(context), 
+                        onPressed: () => Navigator.pop(context),
                         style: ButtonStyle(
                           foregroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.secondary)
                         ),
@@ -415,11 +438,11 @@ class _OrderDialogState extends State<OrderDialog> {
                       Row(
                         children: [
                           if (jumlahController.text.trim().isNotEmpty) ...[
-                            Text(weight, 
+                            Text(weight,
                               style: Theme.of(context).textTheme.labelLarge?.copyWith(
                                 color: Theme.of(context).colorScheme.primary
                               ),
-                            ), 
+                            ),
                           ],
                           const SizedBox(width: 12),
                           ElevatedButton.icon(
@@ -429,7 +452,7 @@ class _OrderDialogState extends State<OrderDialog> {
                               })
                               : null,
                             style: Styles.buttonForm(context: context),
-                            icon: const Icon(Icons.shopping_bag), 
+                            icon: const Icon(Icons.shopping_bag),
                             label: const Text('Pesan')
                           ),
                         ],

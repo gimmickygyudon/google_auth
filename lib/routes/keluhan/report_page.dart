@@ -41,7 +41,7 @@ class _LaporanRouteState extends State<LaporanRoute> {
     laporanList_.addAll(widget.laporanList);
 
     laporanList_.remove(widget.laporan);
-    if(widget.laporan != null) { 
+    if(widget.laporan != null) {
       laporanList.add(widget.laporan!);
       laporan = widget.laporan?['name'];
     } else {
@@ -65,7 +65,7 @@ class _LaporanRouteState extends State<LaporanRoute> {
     if(empty == true) {
       empty = false;
       isLoadingContent = true;
-      Timer(const Duration(seconds: 1), () { 
+      Timer(const Duration(seconds: 1), () {
         setState(() => isLoadingContent = false);
       });
     }
@@ -104,8 +104,8 @@ class _LaporanRouteState extends State<LaporanRoute> {
   void sendReport() {
     showError() {
       showSnackBar(context, snackBarError(
-        context: context, 
-        content: 'Gagal, Coba Beberapa Saat Lagi.', 
+        context: context,
+        content: 'Gagal, Coba Beberapa Saat Lagi.',
         icon: Icons.info_outline)
       );
     }
@@ -115,7 +115,7 @@ class _LaporanRouteState extends State<LaporanRoute> {
       item: UserReport(
         id_osfb: null,
         document_date: DateNowSQL(),
-        id_ousr: currentUser['id_ousr'], 
+        id_ousr: currentUser['id_ousr'],
         remarks: currentUser['user_name']
       ).toMap()
     ).onError((error, stackTrace) {
@@ -126,15 +126,15 @@ class _LaporanRouteState extends State<LaporanRoute> {
       });
 
     }).then((value) {
-      if (value.isNotEmpty) { 
+      if (value.isNotEmpty) {
         SQL.insert(
           api: 'sfb1',
           item: UserReport1(
-            id_sfb1: null, 
-            id_osfb: value['id_osfb'].toString(), 
-            type_feed: setLaporan(laporan), 
+            id_sfb1: null,
+            id_osfb: value['id_osfb'].toString(),
+            type_feed: setLaporan(laporan),
             description: _detailController.text
-          ).toMap(), 
+          ).toMap(),
         ).onError((error, stackTrace) {
           return Future.delayed(const Duration(seconds: 3), () {
             showError();
@@ -143,17 +143,17 @@ class _LaporanRouteState extends State<LaporanRoute> {
           });
         }).then((value) {
           if (fileList.isNotEmpty) {
-            for (var file in fileList) { 
+            for (var file in fileList) {
               SQL.insertMultiPart(
                 api: 'sfb2',
                 filePath: file.path!,
                 item: UserReport2(
-                  id_sfb2: null, 
-                  id_osfb: value['id_osfb'].toString(), 
+                  id_sfb2: null,
+                  id_osfb: value['id_osfb'].toString(),
                   type: setLaporan(laporan),
-                  file_name: file.name, 
-                  file_type: file.extension!, 
-                ).toMap(), 
+                  file_name: file.name,
+                  file_type: file.extension!,
+                ).toMap(),
               );
             }
           }
@@ -181,7 +181,8 @@ class _LaporanRouteState extends State<LaporanRoute> {
       ),
       child: Scaffold(
         appBar: AppBar(
-          title: Text('Buat Keluhan $laporan'),
+          title: const Text('Buat Keluhan'),
+          centerTitle: true,
           actions: const [
             Image(image: AssetImage('assets/logo IBM p C.png'), height: 26),
             SizedBox(width: 12)
@@ -200,13 +201,12 @@ class _LaporanRouteState extends State<LaporanRoute> {
             } : null,
             highlightElevation: 1,
             elevation: 4,
-            backgroundColor: isLoading ? Theme.of(context).colorScheme.scrim : Theme.of(context).colorScheme.primary,
+            backgroundColor: isLoading ? Theme.of(context).colorScheme.scrim : Theme.of(context).colorScheme.error.withBlue(100),
             foregroundColor: isLoading ? Theme.of(context).primaryColorLight :Theme.of(context).colorScheme.surface,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             label: isLoading ? const Text('Mengirim...') : const Text('Kirim'),
-            icon: isLoading 
-            ? Transform.scale(scale: 0.7, child: CircularProgressIndicator(color: Theme.of(context).primaryColorLight, strokeWidth: 3)) 
-            : const Icon(Icons.forward_to_inbox),
+            icon: isLoading
+            ? Transform.scale(scale: 0.7, child: CircularProgressIndicator(color: Theme.of(context).primaryColorLight, strokeWidth: 3))
+            : const Icon(Icons.flag_circle),
           ),
         ),
         body: SingleChildScrollView(
@@ -216,147 +216,198 @@ class _LaporanRouteState extends State<LaporanRoute> {
               AnimatedSize(
                 duration: const Duration(milliseconds: 400),
                 curve: Curves.easeOut,
-                child: isLoadingContent 
+                child: isLoadingContent
                   ? Padding(
-                    padding: const EdgeInsets.all(40),
-                    child: Center(
-                        child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary, strokeWidth: 2)
-                      ),
-                  )
-                    : _detailController.text.isEmpty
+                      padding: const EdgeInsets.all(40),
+                      child: Center(child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary, strokeWidth: 2)),
+                    )
+                  : _detailController.text.trim().isEmpty
                     ? Padding(
                       padding: const EdgeInsets.symmetric(vertical: 32),
-                      child: Center(child: Image.asset('assets/report_page.png', height: 120)),
+                      child: Center(child: Image.asset('assets/start_page.png', height: MediaQuery.of(context).size.height / 5)),
                     )
                     : const SenderHeader(),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 34),
+                padding: const EdgeInsets.symmetric(horizontal: 32),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Keluhan', style: Theme.of(context).textTheme.titleMedium),
-                    const SizedBox(height: 4),
-                    Text('Kritik adalah ketaksetujuan orang, bukan karena memiliki kesalahan.', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.secondary)),
+                    Text('Keluhan Tentang $laporan', style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      color: Theme.of(context).colorScheme.secondary,
+                      letterSpacing: 0
+                    )),
+                    const SizedBox(height: 2),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(right: 6, top: 2),
+                          child: laporan.isEmpty
+                          ? Icon(Icons.info, size: 18, color: Theme.of(context).colorScheme.primary)
+                          : Icon(Icons.info_outline, size: 18, color: Theme.of(context).colorScheme.secondary),
+                        ),
+                        Flexible(
+                          child: Text(laporan.isEmpty
+                            ? 'Pilih keluhan apa yang akan anda laporkan.'
+                            : 'Pastikan laporan yang akan Anda kirim Jelas dan Mudah dimengerti.',
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context).colorScheme.secondary,
+                              letterSpacing: 0,
+                            )
+                          ),
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),
-              ConstrainedBox(
-                constraints: const BoxConstraints(maxHeight: 160),
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(30, 16, 30, 6),
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      TextField(
-                        controller: _detailController,
-                        keyboardType: TextInputType.multiline,
-                        maxLines: 5,
-                        onChanged: (value) {
-                          setState(() {
-                            if (_detailController.text.isEmpty) {
-                              empty = true;
-                            } 
-                            if (laporan.isNotEmpty && value.isNotEmpty) {
-                              setLoading();
-                            } 
-                          });
-                        },
-                        style: Theme.of(context).textTheme.bodyMedium,
-                        decoration: Styles.inputDecorationForm(
-                          context: context,
-                          alignLabelWithHint: true,
-                          floatingLabelBehavior: FloatingLabelBehavior.never,
-                          placeholder: 'Masukan Keluhan Anda Disini...',
-                          condition: _detailController.text.trim().isNotEmpty,
-                        ),
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          TextButton.icon(
-                            onPressed: () => filterFiles(), 
-                            style: ButtonStyle(
-                              textStyle: MaterialStatePropertyAll(
-                                Theme.of(context).textTheme.labelMedium?.copyWith(letterSpacing: 0)
-                              )
-                            ),
-                            icon: const Icon(Icons.file_upload_outlined, size: 22), 
-                            label: const Text('Upload Foto')
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              if (fileList.isNotEmpty) SizedBox(
-                height: fileList.isNotEmpty ? 46 : null,
-                child: ListView(
-                  padding: const EdgeInsets.symmetric(horizontal: 30),
-                  shrinkWrap: true,
-                  scrollDirection: Axis.horizontal,
-                  children: fileList.map((file) {
-                    return Container(
-                      margin: const EdgeInsets.only(right: 10),
-                      width: 140,
-                      child: Chip(
-                        onDeleted: () => setState(() {
-                          fileList.removeWhere((element) => element.name == file.name);
-                        }),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25.7)),
-                        side: BorderSide.none,
-                        backgroundColor: Theme.of(context).hoverColor,
-                        deleteIconColor: Theme.of(context).colorScheme.primary,
-                        avatar: const Icon(Icons.upload_file),
-                        label: Text(file.name),
-                        labelStyle: Theme.of(context).textTheme.labelMedium?.copyWith(letterSpacing: 0),
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ),
+              const SizedBox(height: 12),
               SizedBox(
                 height: 150,
-                child: ListView(
+                child: ListView.builder(
                   controller: _scrollController,
                   padding: const EdgeInsets.fromLTRB(30, 10, 30, 0),
                   shrinkWrap: true,
                   scrollDirection: Axis.horizontal,
-                  children: laporanList.map((item) {
+                  itemCount: laporanList.length,
+                  itemBuilder: (context, index) {
                     return SizedBox(
                       width: 170,
                       child: Padding(
-                        padding: const EdgeInsets.only(right: 20),
+                        padding: const EdgeInsets.only(right: 10),
                         child: InkWell(
                           onTap: () {
                             setState(() {
-                              if (laporan == item['name']) { 
-                                laporan = ''; 
-                              } else { 
-                                laporan = item['name']; 
+                              if (laporan == laporanList[index]['name']) {
+                                laporan = '';
+                              } else {
+                                laporan = laporanList[index]['name'];
                               }
                             });
                           },
                           borderRadius: BorderRadius.circular(20),
                           splashColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.5),
                           highlightColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.5),
-                          child: LaporanCard(
-                            key: item['name'] == laporan ? selectedKey : null,
-                            item: item,
-                            isSelected: item['name'] == laporan,
-                            pushReportPage: null, 
-                            laporanList: laporanList, 
+                          child: HeroMode(
+                            enabled: laporanList[index]['name'] == laporan,
+                            child: Hero(
+                              tag: laporanList[index]['name'],
+                              child: LaporanCard(
+                                key: laporanList[index]['name'] == laporan ? selectedKey : null,
+                                item: laporanList[index],
+                                isSelected: laporanList[index]['name'] == laporan,
+                                pushReportPage: null,
+                                laporanList: laporanList,
+                              ),
+                            ),
                           ),
                         ),
                       ),
                     );
-                  }).toList(),
+                  },
+                ),
+              ),
+              const SizedBox(height: 12),
+              AnimatedSize(
+                duration: const Duration(milliseconds: 400),
+                curve: Curves.ease,
+                alignment: Alignment.bottomLeft,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxHeight: laporan.isNotEmpty ? 180 : 0),
+                  child: Visibility(
+                    visible: laporan.isNotEmpty,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(30, 16, 30, 6),
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          TextField(
+                            controller: _detailController,
+                            keyboardType: TextInputType.multiline,
+                            maxLines: 5,
+                            onChanged: (value) {
+                              setState(() {
+                                if (_detailController.text.trim().isEmpty) {
+                                  empty = true;
+                                }
+                                if (laporan.trim().isNotEmpty && value.trim().isNotEmpty) {
+                                  setLoading();
+                                }
+                              });
+                            },
+                            style: Theme.of(context).textTheme.bodyMedium,
+                            decoration: Styles.inputDecorationForm(
+                              context: context,
+                              alignLabelWithHint: true,
+                              floatingLabelBehavior: FloatingLabelBehavior.always,
+                              hintText: 'Masukan Keluhan Anda Disini...',
+                              placeholder: 'Deskripsi',
+                              labelStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                              condition: _detailController.text.trim().isNotEmpty,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(4),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                TextButton.icon(
+                                  onPressed: () => filterFiles(),
+                                  style: ButtonStyle(
+                                    textStyle: MaterialStatePropertyAll(Theme.of(context).textTheme.labelMedium?.copyWith(letterSpacing: 0)),
+                                    foregroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.secondary)
+                                  ),
+                                  icon: const Icon(Icons.file_upload_outlined, size: 22),
+                                  label: const Text('Upload Foto')
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              AnimatedSize(
+                duration: const Duration(milliseconds: 400),
+                curve: Curves.easeOut,
+                alignment: Alignment.bottomLeft,
+                child: SizedBox(
+                  height: laporan.isNotEmpty && fileList.isNotEmpty ? 46 : 0,
+                  child: ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 30),
+                    shrinkWrap: true,
+                    scrollDirection: Axis.horizontal,
+                    itemCount: fileList.length,
+                    itemBuilder: (context, index) {
+                      return Container(
+                        margin: const EdgeInsets.only(right: 10),
+                        width: 160,
+                        child: Chip(
+                          onDeleted: () => setState(() {
+                            fileList.removeWhere((element) => element.name == fileList[index].name);
+                          }),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                          side: BorderSide.none,
+                          backgroundColor: Theme.of(context).colorScheme.primary,
+                          deleteIconColor: Theme.of(context).colorScheme.surface,
+                          avatar: Icon(Icons.upload_file, color: Theme.of(context).colorScheme.surface),
+                          label: Text(fileList[index].name),
+                          labelStyle: Theme.of(context).textTheme.labelMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.surface,
+                            letterSpacing: 0
+                          ),
+                        ),
+                      );
+                    }
+                  ),
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(34, 12, 34, 12),
+                padding: const EdgeInsets.fromLTRB(24, 12, 34, 12),
                 child: ButtonReport(
                   isVisible: MediaQuery.of(context).viewInsets.bottom != 0 ? false : true,
                   enable: _detailController.text.trim().isNotEmpty && laporan.isNotEmpty,
@@ -387,50 +438,17 @@ class SenderHeader extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 34),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('Dari:'),
-                  Text('Kepada:'),
-                ],
+              const Text('Dari:'),
+              Text(currentUser['user_name'],
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w500,
+                )
               ),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(currentUser['user_name'], 
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w500,
-                      height: 2
-                    )
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                    child: Text('PT. Indostar', 
-                      textAlign: TextAlign.end,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w500,
-                        height: 1
-                      )
-                    ),
-                  ),
-                ]
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('62${currentUser['phone_number']}', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.secondary)),
-                  Text('(0341) 441111', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.secondary)),
-                ]
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(currentUser['user_email'], style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.secondary)),
-                  Text('Jl. Rogonoto No.57B', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.secondary)),
-                ]
-              ),
+              const SizedBox(height: 6),
+              Text('62${currentUser['phone_number']}', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.secondary)),
+              Text(currentUser['user_email'], style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.secondary)),
             ],
           ),
         ),

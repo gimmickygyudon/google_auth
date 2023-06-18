@@ -128,8 +128,14 @@ class _RegisterRouteState extends State<RegisterRoute> {
           } else {
             SQL.insert(item: user.toMap(), api: 'ousr').then((user) {
               pushLogin(context, source: user, logintype: 'Nomor');
+            }).then((value) {
+              showSnackBar(context, snackBarComplete(
+                context: context,
+                duration: const Duration(seconds: 8),
+                content: '${_usernameController.text} Berhasil Terdaftar')
+              );
             });
-          } 
+          }
         });
       } else {
         Map<String, dynamic> source = {
@@ -139,7 +145,7 @@ class _RegisterRouteState extends State<RegisterRoute> {
         };
         showRegisteredUser(context, source: source, callback: pushLogin, from: 'Email');
       }
-    });
+    }).then((_) => setLoading(false));
   }
 
   @override
@@ -177,7 +183,6 @@ class _RegisterRouteState extends State<RegisterRoute> {
                                 onChanged: (value) {
                                   validate();
                                 },
-                                autofocus: widget.source != null ? false : true,
                                 textInputAction: TextInputAction.next,
                                 decoration: Styles.inputDecorationForm(
                                   context: context,
@@ -213,7 +218,6 @@ class _RegisterRouteState extends State<RegisterRoute> {
                               onChanged: (value) {
                                 validate();
                               },
-                              autofocus: widget.source != null ? true : false,
                               inputFormatters: [ FilteringTextInputFormatter.digitsOnly ],
                               textInputAction: TextInputAction.next,
                               style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.4),
@@ -300,8 +304,8 @@ class _RegisterRouteState extends State<RegisterRoute> {
                       ]),
                       const SizedBox(height: 42),
                       LoginsButton(
-                        logintype: widget.logintype, 
-                        source: widget.source, 
+                        logintype: widget.logintype,
+                        source: widget.source,
                         usernameController: _emailController
                       )
                     ],
@@ -334,7 +338,7 @@ class ButtonRegister extends StatelessWidget {
     super.key,
     required this.isVisible,
     required this.enable,
-    required this.onPressed, 
+    required this.onPressed,
     required this.isLoading
   });
 
@@ -349,7 +353,7 @@ class ButtonRegister extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           TextButton(
-            onPressed: () => pushStart(context),
+            onPressed: () => Navigator.pop(context),
             child: const Text('Kembali')
           ),
           ElevatedButton(

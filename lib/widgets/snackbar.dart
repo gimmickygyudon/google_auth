@@ -9,11 +9,17 @@ void hideSnackBar(BuildContext context) {
   ScaffoldMessenger.of(context).hideCurrentSnackBar();
 }
 
-SnackBar snackBarComplete({required BuildContext context, required String content}) {
+SnackBar snackBarComplete({
+  required BuildContext context,
+  required String content,
+  Duration duration = const Duration(seconds: 4)
+}) {
   return SnackBar(
     padding: const EdgeInsets.fromLTRB(0, 0, 0, 6),
     margin: const EdgeInsets.fromLTRB(15, 0, 15, 20),
+    duration: duration,
     behavior: SnackBarBehavior.floating,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
     content: Consumer(
       builder: (context, value, child) => Container(
         padding: const EdgeInsets.fromLTRB(8, 8, 8, 4),
@@ -31,7 +37,7 @@ SnackBar snackBarComplete({required BuildContext context, required String conten
                 Text(
                   content,
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.inverseSurface, 
+                    color: Theme.of(context).colorScheme.inverseSurface,
                     letterSpacing: 0
                   ),
                 ),
@@ -52,8 +58,8 @@ SnackBar snackBarComplete({required BuildContext context, required String conten
 }
 
 SnackBar snackBarError({
-  required BuildContext context, 
-  required String content, 
+  required BuildContext context,
+  required String content,
   IconData? icon = Icons.warning
   }) {
   return SnackBar(
@@ -79,7 +85,7 @@ SnackBar snackBarError({
                 Text(
                   content,
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.inverseSurface, 
+                    color: Theme.of(context).colorScheme.inverseSurface,
                     letterSpacing: 0
                   ),
                 ),

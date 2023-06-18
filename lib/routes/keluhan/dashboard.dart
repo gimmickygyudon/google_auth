@@ -72,7 +72,7 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
 
     _getList = UserReport.getList(limit: pageLimit, offset: pageOffset, setCount: ticketCount).onError((error, stackTrace) {
       return Future.error(error.toString());
-    });    
+    });
     super.initState();
   }
 
@@ -93,7 +93,7 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
   }
 
   void ticketCount(int count) => tickets = count;
-  
+
   void changePage(int page) {
     setState(() {
       if (currentPage < page) {
@@ -134,7 +134,7 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
                         children: [
                           Icon(Icons.contact_support, color: Theme.of(context).colorScheme.primary, size: 28),
                           const SizedBox(width: 6),
-                          Text('Kritik & Saran', 
+                          Text('Kritik & Saran',
                             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                               letterSpacing: -0.5,
                               fontWeight: FontWeight.w500,color: Theme.of(context).colorScheme.primary
@@ -143,25 +143,25 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
                         ],
                       ),
                       const SizedBox(height: 8),
-                      Text('Kritik termasuk ketaksetujuan orang, bukan\nkarena memiliki kesalahan.', 
+                      Text('Kritik termasuk ketaksetujuan orang, bukan\nkarena memiliki kesalahan.',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Theme.of(context).colorScheme.secondary,
+                          letterSpacing: 0
                         )
                       ),
                     ],
                   ),
                   Column(
                     children: [
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 20),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           const SizedBox(width: 0),
-                          ElevatedButton.icon(
-                            onPressed: () => pushReportPage(context: context, laporanList: laporanList), 
-                            icon: const Icon(Icons.add), 
-                            label: const Text('Buat'),
-                            style: Styles.buttonForm(context: context),
+                          TextButton.icon(
+                            onPressed: () => pushReportPage(context: context, laporanList: laporanList),
+                            icon: const Icon(Icons.flag_circle, size: 20),
+                            label: const Text('Lapor Keluhan'),
+                            style: Styles.buttonFlatSmall(context: context),
                           ),
                         ],
                       ),
@@ -275,7 +275,7 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
                                             child: Icon(
                                               laporanList.singleWhere((element) {
                                                 return element['name'] == getLaporan(snapshot.data?[index]['SFB1']['type_feed']);
-                                              })['icon'], 
+                                              })['icon'],
                                               color: Theme.of(context).colorScheme.primary
                                             )
                                           ),
@@ -315,7 +315,7 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
                               }),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
-                                children: [ 
+                                children: [
                                   for (int index = 0; index < pages(); index++) ...[
                                     TextButton(
                                       style: ButtonStyle(
@@ -346,7 +346,7 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
                                   const SizedBox(height: 24),
                                   Text('Kamu Hebat !', style: Theme.of(context).textTheme.titleLarge),
                                   const SizedBox(height: 8),
-                                  Text('Tempat ini sepertinya tidak digunakan.', 
+                                  Text('Tempat ini sepertinya tidak digunakan.',
                                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                       color: Theme.of(context).colorScheme.secondary,
                                     )
@@ -393,19 +393,22 @@ class BuatLaporanWidget extends StatelessWidget {
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-                    maxCrossAxisExtent: 260, 
-                    mainAxisSpacing: (MediaQuery.of(context).size.height > 750) ? 20 : 40, 
+                    maxCrossAxisExtent: 260,
+                    mainAxisSpacing: (MediaQuery.of(context).size.height > 750) ? 20 : 40,
                     crossAxisSpacing: (MediaQuery.of(context).size.height > 750) ? 20 : 40
                   ),
-                  children: laporanList.map((item) { 
-                    return LaporanCard(
-                      iconSize: 32,
-                      bgRadius: 24,
-                      laporanList: laporanList, 
-                      pushReportPage: pushReportPage, 
-                      item: item
+                  children: laporanList.map((item) {
+                    return Hero(
+                      tag: item['name'],
+                      child: LaporanCard(
+                        iconSize: 26,
+                        bgRadius: 20,
+                        laporanList: laporanList,
+                        pushReportPage: pushReportPage,
+                        item: item
+                      ),
                     );
-                  }).toList(),  
+                  }).toList(),
                 ),
               ],
             ),
@@ -418,13 +421,15 @@ class BuatLaporanWidget extends StatelessWidget {
 
 class LaporanCard extends StatelessWidget {
   const LaporanCard({
-    super.key, 
-    required this.laporanList, 
-    required this.pushReportPage, 
+    super.key,
+    required this.laporanList,
+    required this.pushReportPage,
     required this.item,
     this.iconSize,
     this.bgRadius,
-    this.isSelected
+    this.isSelected,
+    this.color,
+    this.bgColor
   });
 
   final List<Map> laporanList;
@@ -432,6 +437,7 @@ class LaporanCard extends StatelessWidget {
   final bool? isSelected;
   final Map item;
   final double? iconSize, bgRadius;
+  final Color? color, bgColor;
 
   @override
   Widget build(BuildContext context) {
@@ -445,10 +451,10 @@ class LaporanCard extends StatelessWidget {
           onTap: pushReportPage != null ? () {
              pushReportPage!(context: context, laporan: item, laporanList: laporanList);
           } : null,
-          splashColor: isSelected == true 
+          splashColor: isSelected == true
             ? Theme.of(context).colorScheme.inversePrimary.withOpacity(0.05)
             : Theme.of(context).colorScheme.inversePrimary.withOpacity(0.5),
-          highlightColor: isSelected == true 
+          highlightColor: isSelected == true
             ? Theme.of(context).colorScheme.inversePrimary.withOpacity(0.05)
             : Theme.of(context).colorScheme.inversePrimary.withOpacity(0.5),
           borderRadius: BorderRadius.circular(20),
@@ -457,9 +463,9 @@ class LaporanCard extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              width: isSelected == true ? 2 : 1, 
-              color: isSelected == true 
-              ? Theme.of(context).colorScheme.inversePrimary 
+              width: isSelected == true ? 2 : 1,
+              color: isSelected == true
+              ? Theme.of(context).colorScheme.inversePrimary
               : Theme.of(context).colorScheme.primary.withOpacity(0.25)
             )
           ),
@@ -468,10 +474,11 @@ class LaporanCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               CircleAvatar(
+                backgroundColor: bgColor,
                 radius: bgRadius,
-                child: Icon(item['icon'], 
-                  size: iconSize ?? 24, 
-                  color: Theme.of(context).colorScheme.primary
+                child: Icon(item['icon'],
+                  size: iconSize ?? 24,
+                  color: color ?? Theme.of(context).colorScheme.primary
                 ),
               ),
               Row(
@@ -480,7 +487,7 @@ class LaporanCard extends StatelessWidget {
                 children: [
                   Row(
                     children: [
-                      Text(item['name'], 
+                      Text(item['name'],
                         style: Theme.of(context).textTheme.labelMedium?.copyWith(
                           color: Theme.of(context).colorScheme.primary,
                           letterSpacing: 0

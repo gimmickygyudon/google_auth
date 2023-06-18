@@ -20,29 +20,32 @@ class _BelanjaRouteState extends State<BelanjaRoute> {
     return CustomScrollView(
       slivers: [
         SliverPadding(
-          padding: const EdgeInsets.symmetric(vertical: 30),
+          padding: const EdgeInsets.symmetric(vertical: 20),
           sliver: SliverToBoxAdapter(
             child: Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 30),
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: Column(
                     children: [
                       TextField(
                         onChanged: (value) {},
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          height: 1.35
+                          height: 1.55
                         ),
                         decoration: InputDecoration(
-                          contentPadding: const EdgeInsets.fromLTRB(12, 9, 12, 9),
+                          contentPadding: const EdgeInsets.fromLTRB(12, 6, 6, 6),
                           border: InputBorder.none,
-                          hintText: 'Indostar Board',
-                          prefixIcon: Icon(Icons.arrow_forward, color: Theme.of(context).colorScheme.primary),
+                          hintText: 'Board Matric',
+                          suffixIcon: const LabelSearch(),
                           filled: true,
                           fillColor: Theme.of(context).colorScheme.secondary.withOpacity(0.05),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Colors.transparent)
+                            borderSide: const BorderSide(
+                              color: Colors.transparent,
+                              width: 2
+                            )
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -52,21 +55,20 @@ class _BelanjaRouteState extends State<BelanjaRoute> {
                             )
                           ),
                           hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.secondary.withOpacity(0.5),
+                            color: Theme.of(context).colorScheme.secondary.withOpacity(0.35),
                             letterSpacing: 0,
                             height: 2
                           ),
-                          suffixIcon: const LabelSearch()
                         ),
                       ),
                     ]
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 14),
                 SizedBox(
                   height: 40,
                   child: ListView(
-                    padding: const EdgeInsets.symmetric(horizontal: 30),
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
                     scrollDirection: Axis.horizontal,
                     children: List.generate(5, (index) {
                       return Padding(
@@ -76,7 +78,7 @@ class _BelanjaRouteState extends State<BelanjaRoute> {
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25.7)),
                           side: BorderSide.none,
                           backgroundColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.15),
-                          label: Text('Produk #$index'),
+                          label: Text('Produk $index'),
                           labelStyle: Theme.of(context).textTheme.labelSmall?.copyWith(
                             color: Theme.of(context).colorScheme.primary,
                             letterSpacing: 0
@@ -86,51 +88,78 @@ class _BelanjaRouteState extends State<BelanjaRoute> {
                     }),
                   )
                 ),
-                const SizedBox(height: 26),
+                Divider(color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.5), height: 36),
+                Padding(
+                  padding: const EdgeInsets.only(left: 30),
+                  child: Row(
+                    children: [
+                      Text('Penjualan Terbaik', style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                        color: Theme.of(context).colorScheme.secondary,
+                        letterSpacing: 0
+                      )),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
                 SizedBox(
-                  height: 100,
-                  child: ListView(
-                    padding: const EdgeInsets.symmetric(horizontal: 30),
-                    scrollDirection: Axis.horizontal,
-                    children: List.generate(6, (index) {
-                      return Container(
-                        width: 110,
-                        padding: const EdgeInsets.only(right: 16),
-                        child: Stack(
-                          children: [
-                            Card(
-                              elevation: 0,
-                              margin: EdgeInsets.zero,
-                              color: Theme.of(context).colorScheme.secondary.withOpacity(0.15),
-                              clipBehavior: Clip.antiAlias,
-                              child: AspectRatio(
-                                aspectRatio: 4 / 4,
-                                child: index == 1 ? const Banner(
-                                  message: 'PROMO',
-                                  location: BannerLocation.topEnd,
-                                  child: SizedBox(),
-                                ) : const SizedBox(),
+                height: 150,
+                child: ListView.builder(
+                  itemCount: 6,
+                  padding: const EdgeInsets.symmetric(horizontal: 30),
+                  scrollDirection: Axis.horizontal,
+                  itemBuilder: (context, index) {
+                    return Container(
+                      width: 160,
+                      padding: const EdgeInsets.only(right: 16),
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          Card(
+                            elevation: 0,
+                            margin: EdgeInsets.zero,
+                            color: Theme.of(context).colorScheme.surfaceVariant,
+                            clipBehavior: Clip.antiAlias,
+                            child: AspectRatio(
+                              aspectRatio: 4 / 4,
+                              child: index == 1 ? Banner(
+                                message: 'PROMO',
+                                location: BannerLocation.topStart,
+                                child: Padding(
+                                  padding: const EdgeInsets.fromLTRB(16, 16, 16, 30),
+                                  child: Image.asset('assets/Indostar Board.png'),
+                                ),
+                              )
+                              : Padding(
+                                padding: const EdgeInsets.fromLTRB(16, 16, 16, 30),
+                                child: Image.asset('assets/Indostar Board.png'),
                               ),
                             ),
-                            Align(
-                              alignment: Alignment.bottomCenter,
+                          ),
+                          Align(
+                            alignment: Alignment.bottomCenter,
+                            child: ClipRRect(
+                              borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(8), bottomRight: Radius.circular(8)),
                               child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6),
+                                width: double.infinity,
+                                padding: const EdgeInsets.fromLTRB(10, 2, 0, 6),
+                                clipBehavior: Clip.antiAlias,
                                 decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(6),
-                                  color: Theme.of(context).colorScheme.secondary,
+                                  color: Theme.of(context).colorScheme.surfaceTint,
                                 ),
-                                child: Text('Board $index', style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                foregroundDecoration: BoxDecoration(
+                                  border: Border(bottom: BorderSide(color: Theme.of(context).colorScheme.inversePrimary, width: 4))
+                                ),
+                                child: Text('Indostar Board', style: Theme.of(context).textTheme.labelMedium?.copyWith(
                                   color: Theme.of(context).colorScheme.surface,
-                                  letterSpacing: 0
+                                  letterSpacing: 0,
                                 ))
                               ),
-                            )
-                          ],
-                        ),
-                      );
-                    }),
-                  ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
                 ),
                 const SizedBox(height: 38),
                 Padding(
@@ -153,7 +182,7 @@ class _BelanjaRouteState extends State<BelanjaRoute> {
                 ),
                 const SizedBox(height: 12),
                 SizedBox(
-                  height: 158,
+                  height: 180,
                   child: ListView(
                     padding: const EdgeInsets.symmetric(horizontal: 30),
                     scrollDirection: Axis.horizontal,
@@ -184,7 +213,7 @@ class _BelanjaRouteState extends State<BelanjaRoute> {
                   padding: const EdgeInsets.only(left: 30, top: 40),
                   child: Row(
                     children: [
-                      const Icon(Icons.fiber_manual_record, color: Colors.red),
+                      Icon(Icons.movie, color: Theme.of(context).colorScheme.primary),
                       const SizedBox(width: 6),
                       Text('Video Terbaru', style: Theme.of(context).textTheme.labelLarge?.copyWith(
                         color: Theme.of(context).colorScheme.secondary,
@@ -218,7 +247,7 @@ class _BelanjaRouteState extends State<BelanjaRoute> {
                             Positioned.fill(
                               child: Container(
                                 decoration: BoxDecoration(
-                                  color: Colors.black26,
+                                  color: Colors.black12,
                                   borderRadius: BorderRadius.circular(12)
                                 ),
                               ),
@@ -228,7 +257,7 @@ class _BelanjaRouteState extends State<BelanjaRoute> {
                                 child: IconButton(
                                   onPressed: () => launchURL(url: 'https://www.youtube.com/watch?v=krCJczMVbx0'),
                                   style: ButtonStyle(
-                                    foregroundColor: const MaterialStatePropertyAll(Colors.red),
+                                    foregroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.secondary),
                                     backgroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.background)
                                   ),
                                   icon: const Icon(Icons.play_arrow)

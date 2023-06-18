@@ -1,3 +1,4 @@
+import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:google_auth/routes/belanja/detail_item.dart';
 import 'package:google_auth/routes/belanja/item.dart';
@@ -12,19 +13,85 @@ import '../routes/dashboard.dart';
 import '../routes/login_page.dart';
 import '../routes/register_page.dart';
 
+PageRouteBuilder transitionShared({
+  required Duration duration,
+  required Duration reverseDuration,
+  required SharedAxisTransitionType transitionType,
+  required Widget page
+}) {
+  return PageRouteBuilder(
+    transitionDuration: duration,
+    reverseTransitionDuration: reverseDuration,
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      return SharedAxisTransition(
+        animation: animation,
+        secondaryAnimation: secondaryAnimation,
+        transitionType: transitionType,
+        child: child,
+      );
+    },
+    pageBuilder: (context, animation, secondaryAnimation) {
+      return page;
+    }
+  );
+}
+
+PageRouteBuilder transitionFadeThrough({
+  required Duration duration,
+  required Duration reverseDuration,
+  required Widget page
+}) {
+  return PageRouteBuilder(
+    transitionDuration: duration,
+    reverseTransitionDuration: reverseDuration,
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      return FadeThroughTransition(
+        animation: animation,
+        secondaryAnimation: secondaryAnimation,
+        child: child,
+      );
+    },
+    pageBuilder: (context, animation, secondaryAnimation) {
+      return page;
+    }
+  );
+}
+
+PageRouteBuilder transitionScaleFade({
+  required Duration duration,
+  required Duration reverseDuration,
+  required Widget page
+}) {
+  return PageRouteBuilder(
+    transitionDuration: duration,
+    reverseTransitionDuration: reverseDuration,
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      return FadeScaleTransition(
+        animation: animation,
+        child: child,
+      );
+    },
+    pageBuilder: (context, animation, secondaryAnimation) {
+      return page;
+    }
+  );
+}
+
 void pushStart(BuildContext context, {Map? source, String? logintype}) {
-  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
-    return const StartPageRoute();
-  }));
+  Navigator.pushReplacement(context, transitionScaleFade(
+    duration: const Duration(milliseconds: 400),
+    reverseDuration: const Duration(milliseconds: 200),
+    page: const StartPageRoute()
+  ));
 }
 
 void pushLogin(BuildContext context, {Map? source, String? logintype}) {
-  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
-    return LoginRoute(
-      source: source,
-      logintype: logintype
-    );
-  }));
+  Navigator.push(context, transitionShared(
+    duration: const Duration(milliseconds: 400),
+    reverseDuration: const Duration(milliseconds: 200),
+    transitionType: SharedAxisTransitionType.horizontal,
+    page: LoginRoute(source: source, logintype: logintype)
+  ));
 }
 
 void pushLogout(BuildContext context) {
@@ -51,11 +118,11 @@ void pushRegisterGoogle(BuildContext context, String logintype_, Map? source) {
 }
 
 void pushDashboard(BuildContext context, {int? currentPage}) {
-  Navigator.pushReplacement(context, MaterialPageRoute(
-    builder: (context) {
-      return DashboardRoute(currentPage: currentPage);
-    })
-  );
+  Navigator.pushReplacement(context, transitionFadeThrough(
+    duration: const Duration(milliseconds: 500),
+    reverseDuration: const Duration(milliseconds: 500),
+    page: DashboardRoute(currentPage: currentPage)
+  ));
 }
 
 void pushAddCustomer(BuildContext context) {
@@ -67,11 +134,11 @@ void pushAddCustomer(BuildContext context) {
 }
 
 void pushReportPage({required BuildContext context, Map? laporan, required List<Map> laporanList}) {
-  Navigator.push(context, MaterialPageRoute(
-    builder: (context) {
-      return LaporanRoute(laporan: laporan, laporanList: laporanList);
-    })
-  );
+  Navigator.push(context, transitionShared(
+    duration: const Duration(milliseconds: 600),
+    reverseDuration: const Duration(milliseconds: 200),
+    transitionType: SharedAxisTransitionType.vertical,
+    page: LaporanRoute(laporan: laporan, laporanList: laporanList)));
 }
 
 void pushItemPage({
@@ -80,11 +147,12 @@ void pushItemPage({
     required String brand, hero, background, logo,
     required Color color,
   }) {
-  Navigator.push(context, MaterialPageRoute(
-    builder: (context) {
-      return ItemRoute(items: items, hero: hero, background: background, color: color, logo: logo, brand: brand);
-    })
-  );
+  Navigator.push(context, transitionShared(
+    duration: const Duration(milliseconds: 400),
+    reverseDuration: const Duration(milliseconds: 400),
+    transitionType: SharedAxisTransitionType.vertical,
+    page: ItemRoute(items: items, hero: hero, background: background, color: color, logo: logo, brand: brand)
+  ));
 }
 
 void pushItemDetailPage({
@@ -123,10 +191,11 @@ Future<void> launchURL({required String url}) async {
 }
 
 void pushOrdersPage({required BuildContext context, required String hero}) {
-  Navigator.push(context, MaterialPageRoute(
-    builder: (context) {
-      return OrdersPageRoute(hero: hero);
-    })
+  Navigator.push(context, transitionShared(
+    duration: const Duration(milliseconds: 400),
+    reverseDuration: const Duration(milliseconds: 200),
+    transitionType: SharedAxisTransitionType.horizontal,
+    page: OrdersPageRoute(hero: hero))
   );
 }
 

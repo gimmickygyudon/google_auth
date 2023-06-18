@@ -42,7 +42,7 @@ class _AddCustomerRouteState extends State<AddCustomerRoute> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Image.asset('assets/customer_page.png'),
+                    Image.asset('assets/delivery01.png'),
                     const SizedBox(height: 12),
                     Text('Pelanggan', style: Theme.of(context).textTheme.titleMedium),
                     const SizedBox(height: 4),
@@ -52,13 +52,13 @@ class _AddCustomerRouteState extends State<AddCustomerRoute> {
                 const SizedBox(height: 24),
                 TextField(
                   controller: _searchController,
-                  onChanged: (value) { 
-                    setState(() {}); 
+                  onChanged: (value) {
+                    setState(() {});
                   },
                   decoration: Styles.inputDecorationForm(
-                    context: context, 
+                    context: context,
                     icon: const Icon(Icons.search),
-                    placeholder: 'ID Pelanggan / Nama', 
+                    placeholder: 'ID Pelanggan / Nama',
                     condition: _searchController.text.trim().isNotEmpty
                   )
                 )

@@ -14,7 +14,11 @@ class HandleNoInternet extends StatelessWidget {
     return Column(
       children: [
         const SizedBox(height: 48),
-        Icon(Icons.cell_tower, size: 80, color: color ?? Theme.of(context).colorScheme.primary),
+        CircleAvatar(
+          maxRadius: 60,
+          backgroundColor: color?.withOpacity(0.15) ?? Theme.of(context).colorScheme.inversePrimary.withOpacity(0.25),
+          child: Icon(Icons.cell_tower, size: 80, color: color ?? Theme.of(context).colorScheme.primary)
+        ),
         const SizedBox(height: 24),
         Text(message, style: Theme.of(context).textTheme.bodyLarge?.copyWith(
           fontWeight: FontWeight.w500,
@@ -65,24 +69,12 @@ class HandleEmptyCart extends StatelessWidget {
       child: Center(
         child: Column(
           children: [
+            Image.asset('assets/delivery01.png'),
+            const SizedBox(height: 32),
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Image.asset('assets/Indostar Bes.png', width: 72),
-                // const Icon(Icons.layers_outlined, size: 46),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  child: Icon(Icons.arrow_forward, size: 32, color: Theme.of(context).colorScheme.secondary),
-                ),
-                const SizedBox(width: 4),
-                const Icon(Icons.local_shipping, size: 46),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.info_outline, size: 18),
+                Icon(Icons.info_outline, size: 18, color: Theme.of(context).colorScheme.secondary),
                 const SizedBox(width: 8),
                 Text('Sepertinya Anda Belum Memesan.', style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(context).colorScheme.secondary,
@@ -91,12 +83,12 @@ class HandleEmptyCart extends StatelessWidget {
                 )),
               ],
             ),
-            const SizedBox(height: 38),
+            const SizedBox(height: 30),
             ElevatedButton.icon(
               onPressed: () => pushDashboard(context, currentPage: 2),
               style: Styles.buttonLight(context: context),
-              icon: Image.asset('assets/logo IBM p C.png', height: 18),
-              label: const Text('Lihat Produk')
+              icon: Image.asset('assets/logo IBM p C.png', height: 16),
+              label: const Text('Pesan Sekarang')
             )
           ],
         ),

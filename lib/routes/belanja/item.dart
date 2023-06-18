@@ -13,12 +13,12 @@ import '../../styles/theme.dart';
 
 class ItemRoute extends StatefulWidget {
   const ItemRoute({
-    super.key, 
+    super.key,
     required this.brand,
     required this.hero,
-    required this.items, 
+    required this.items,
     required this.background,
-    required this.color, 
+    required this.color,
     required this.logo
   });
 
@@ -46,8 +46,8 @@ class _ItemRouteState extends State<ItemRoute> {
       data: Theme.of(context).copyWith(
         appBarTheme: Themes.appBarTheme(context),
       ),
-      child: AnnotatedRegion(
-        value: SystemUiOverlayStyle.light,
+      child: Hero(
+        tag: widget.hero,
         child: Scaffold(
           body: CustomScrollView(
             slivers: [
@@ -82,25 +82,22 @@ class _ItemRouteState extends State<ItemRoute> {
                       ),
                     ],
                   ),
-                  background: Hero(
-                    tag: widget.hero,
-                    child: ClipRRect(
-                      borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(12), bottomRight: Radius.circular(12),),
-                      child: Container(
-                        foregroundDecoration: BoxDecoration(
-                          border: Border(bottom: BorderSide(color: widget.color, width: 3)),
-                          gradient: LinearGradient(
-                            begin: Alignment.bottomCenter,
-                            end: Alignment.topCenter,
-                            colors: [
-                              Theme.of(context).hoverColor,
-                              Theme.of(context).colorScheme.shadow,
-                            ]
-                          )
-                        ),
-                        child: Image.asset(widget.background, 
-                          fit: BoxFit.cover,
-                        ),
+                  background: ClipRRect(
+                    borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(12), bottomRight: Radius.circular(12),),
+                    child: Container(
+                      foregroundDecoration: BoxDecoration(
+                        border: Border(bottom: BorderSide(color: widget.color, width: 3)),
+                        gradient: LinearGradient(
+                          begin: Alignment.bottomCenter,
+                          end: Alignment.topCenter,
+                          colors: [
+                            Theme.of(context).hoverColor,
+                            Theme.of(context).colorScheme.shadow,
+                          ]
+                        )
+                      ),
+                      child: Image.asset(widget.background,
+                        fit: BoxFit.cover,
                       ),
                     ),
                   ),
@@ -120,7 +117,7 @@ class _ItemRouteState extends State<ItemRoute> {
                         children: [
                           IconButton(onPressed: () {}, icon: const Icon(Icons.filter_list)),
                           IconButton(
-                            onPressed: () {}, 
+                            onPressed: () {},
                             icon: const Icon(Icons.grid_view_rounded)
                           ),
                         ],
@@ -153,8 +150,8 @@ class _ItemRouteState extends State<ItemRoute> {
                                   hero: element['description'],
                                   color: widget.color
                                 );
-                              }, 
-                              color: widget.color, 
+                              },
+                              color: widget.color,
                               item: element,
                               dimension: dimension,
                               weight: weight,
@@ -162,13 +159,13 @@ class _ItemRouteState extends State<ItemRoute> {
                           }).toList()
                         ),
                       )
-                    ); 
+                    );
                   } else if (snapshot.connectionState == ConnectionState.done && snapshot.hasError) {
                     return SliverToBoxAdapter(
                       child: Center(
                         child: HandleNoInternet(message: 'Periksa Koneksi Internet Anda', color: widget.color)
                       ),
-                    );                     
+                    );
                   }
                   return const SliverToBoxAdapter(
                     child: Center(
@@ -187,11 +184,11 @@ class _ItemRouteState extends State<ItemRoute> {
 
 class ItemWidget extends StatelessWidget {
   const ItemWidget({
-    super.key, 
-    required this.onTap, 
-    required this.color, 
-    required this.item, 
-    required this.dimension, 
+    super.key,
+    required this.onTap,
+    required this.color,
+    required this.item,
+    required this.dimension,
     required this.weight,
   });
 

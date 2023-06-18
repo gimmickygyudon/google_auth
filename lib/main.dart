@@ -22,41 +22,38 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer<ThemeNotifier>(
-      builder: (context, theme, child) => AnnotatedRegion(
-        value: theme.systemUiOverlayStyle,
-        child: MaterialApp(
-          debugShowCheckedModeBanner: false,
-          title: 'Customer',
-          theme: theme.lightTheme,
-          darkTheme: theme.darkTheme,
-          themeMode: theme.getTheme(),
-          builder: (context, child) {
-            return MediaQuery(
-              data: MediaQuery.of(context).copyWith(textScaleFactor: 1.3),
-              child: ResponsiveWrapper.builder(
-                child,
-                maxWidth: 600,
-                minWidth: 200,
-                maxWidthLandscape: 4000,
-                minWidthLandscape: 600,
-                breakpointsLandscape: [
-                  const ResponsiveBreakpoint.resize(400, name: MOBILE, scaleFactor: 0.75),
-                  const ResponsiveBreakpoint.resize(600, name: TABLET, scaleFactor: 0.75),
-                  const ResponsiveBreakpoint.resize(1024, name: DESKTOP),
-                  const ResponsiveBreakpoint.resize(1600, name: '4K'),
-                ],
-                defaultScale: true,
-                breakpoints: [
-                  const ResponsiveBreakpoint.resize(200, name: MOBILE, scaleFactor: 0.9),
-                  const ResponsiveBreakpoint.resize(400, name: TABLET, scaleFactor: 0.95),
-                  const ResponsiveBreakpoint.resize(1024, name: DESKTOP),
-                  const ResponsiveBreakpoint.resize(1600, name: '4K'),
-                ]
-              ),
-            );
-          },
-          home: const MyHomePage(title: 'Customer'),
-        ),
+      builder: (context, theme, child) => MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'Customer',
+        theme: theme.lightTheme,
+        darkTheme: theme.darkTheme,
+        themeMode: theme.getTheme(),
+        builder: (context, child) {
+          return MediaQuery(
+            data: MediaQuery.of(context).copyWith(textScaleFactor: 1.3),
+            child: ResponsiveWrapper.builder(
+              child,
+              maxWidth: 600,
+              minWidth: 200,
+              maxWidthLandscape: 4000,
+              minWidthLandscape: 600,
+              breakpointsLandscape: [
+                const ResponsiveBreakpoint.resize(400, name: MOBILE, scaleFactor: 0.75),
+                const ResponsiveBreakpoint.resize(600, name: TABLET, scaleFactor: 0.75),
+                const ResponsiveBreakpoint.resize(1024, name: DESKTOP),
+                const ResponsiveBreakpoint.resize(1600, name: '4K'),
+              ],
+              defaultScale: true,
+              breakpoints: [
+                const ResponsiveBreakpoint.resize(200, name: MOBILE),
+                const ResponsiveBreakpoint.resize(400, name: TABLET, scaleFactor: 0.95),
+                const ResponsiveBreakpoint.resize(1024, name: DESKTOP),
+                const ResponsiveBreakpoint.resize(1600, name: '4K'),
+              ]
+            ),
+          );
+        },
+        home: const MyHomePage(title: 'Customer'),
       ),
     );
   }
@@ -92,7 +89,7 @@ class _MyHomePageState extends State<MyHomePage> {
       if (user != null) {
         // TODO: problem later when user already deleted.
         Authentication.signIn(user as Map<String, dynamic>).whenComplete(() => pushDashboard(context));
-      } 
+      }
       setState(() => _isLoggedIn = false);
     });
   }
@@ -101,8 +98,8 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 800),
-      child: _isLoggedIn 
-      ? Scaffold(backgroundColor: Theme.of(context).colorScheme.background, body: Center(child: Image.asset('assets/temp_image.png'))) 
+      child: _isLoggedIn
+      ? Scaffold(backgroundColor: Theme.of(context).colorScheme.background, body: Center(child: Image.asset('assets/temp_image.png')))
       : const StartPageRoute()
     );
   }

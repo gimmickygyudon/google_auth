@@ -5,22 +5,28 @@ class ThemeNotifier with ChangeNotifier {
 
   bool darkMode = false;
   final darkTheme = ThemeData(
+    useMaterial3: true,
     brightness: Brightness.dark,
-    colorSchemeSeed: Colors.blue,
+    colorSchemeSeed: Colors.lightBlue,
     snackBarTheme: const SnackBarThemeData(backgroundColor: Colors.black),
-    useMaterial3: true
+    pageTransitionsTheme: const PageTransitionsTheme(
+      builders: <TargetPlatform, PageTransitionsBuilder>{
+        TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+      },
+    ),
   );
 
   final lightTheme = ThemeData(
-    colorSchemeSeed: Colors.blue,
-    snackBarTheme: const SnackBarThemeData(backgroundColor: Colors.white),
     useMaterial3: true,
+    colorSchemeSeed: Colors.lightBlue,
+    snackBarTheme: const SnackBarThemeData(backgroundColor: Colors.white),
+    pageTransitionsTheme: const PageTransitionsTheme(
+      builders: <TargetPlatform, PageTransitionsBuilder>{
+        TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+      },
+    ),
   );
 
-  SystemUiOverlayStyle systemUiOverlayStyle = const SystemUiOverlayStyle(
-    systemNavigationBarIconBrightness: Brightness.light,
-    systemNavigationBarColor: Colors.black
-  );
 
   ThemeMode _themeData = ThemeMode.system;
   ThemeMode getTheme() => _themeData;
@@ -28,16 +34,16 @@ class ThemeNotifier with ChangeNotifier {
   void setThemeMode(bool darkMode) async {
     if (darkMode) {
       _themeData = ThemeMode.dark;
-      systemUiOverlayStyle = const SystemUiOverlayStyle(
+      SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
         systemNavigationBarIconBrightness: Brightness.light,
         systemNavigationBarColor: Colors.black
-      );
+      ));
     } else {
       _themeData = ThemeMode.light;
-      systemUiOverlayStyle = const SystemUiOverlayStyle(
+      SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
         systemNavigationBarIconBrightness: Brightness.dark,
         systemNavigationBarColor: Colors.white
-      );
+      ));
     }
     notifyListeners();
   }
@@ -83,7 +89,7 @@ class Themes {
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Colors.transparent, width: 2)
+        borderSide: BorderSide(color: Theme.of(context).colorScheme.secondary, width: 2)
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
@@ -126,7 +132,7 @@ class Styles {
           return Theme.of(context).colorScheme.inversePrimary.withOpacity(0.5);
         }
         else if (states.contains(MaterialState.disabled)) {
-          return null;
+          return Theme.of(context).colorScheme.secondary.withOpacity(0.1);
         } else {
           return Theme.of(context).colorScheme.primary;
         }
@@ -233,81 +239,86 @@ class Styles {
     );
   }
 
-  static InputDecoration inputDecorationForm(
-    {
-      required BuildContext context,
-      required String? placeholder,
-      required bool condition,
-      String? hintText, prefixText,
-      Widget? icon,
-      bool? visibility, visibilityDisabled, alignLabelWithHint, isPhone,
-      Widget? prefix, suffixIcon,
-      FloatingLabelBehavior? floatingLabelBehavior
-    }) {
-      bool? visibility_ = visibility;
+  static InputDecoration inputDecorationForm({
+    required BuildContext context,
+    required String? placeholder,
+    required bool condition,
+    String? hintText, prefixText,
+    Widget? icon,
+    bool? visibility, visibilityDisabled, alignLabelWithHint, isPhone,
+    Widget? prefix, suffixIcon,
+    TextStyle? labelStyle,
+    FloatingLabelBehavior? floatingLabelBehavior
+  }) {
+    bool? visibility_ = visibility;
 
-      if (visibility != null) {
-          visibility_ == true
-            ? suffixIcon = const Icon(Icons.visibility_outlined)
-            : suffixIcon = const Icon(Icons.visibility_off_outlined);
-      }
+    if (visibility != null) {
+        visibility_ == true
+          ? suffixIcon = const Icon(Icons.visibility_outlined)
+          : suffixIcon = const Icon(Icons.visibility_off_outlined);
+    }
 
-      if (visibilityDisabled == true) visibility_ = false;
-      return InputDecoration(
-        labelText: placeholder,
-        hintText: hintText,
-        alignLabelWithHint: alignLabelWithHint,
-        floatingLabelBehavior: floatingLabelBehavior,
-        suffixText: prefixText,
-        prefix: prefix,
-        prefixIcon: isPhone == true ? Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(left: 16, top: 2),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(4),
-                child: Image.asset('assets/Flag_of_Indonesia.svg.png', width: 24)
-              ),
+    if (visibilityDisabled == true) visibility_ = false;
+    return InputDecoration(
+      labelText: placeholder,
+      alignLabelWithHint: alignLabelWithHint,
+      floatingLabelBehavior: floatingLabelBehavior,
+      suffixText: prefixText,
+      prefix: prefix,
+      hintText: hintText,
+      labelStyle: labelStyle,
+      hintStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
+        color: Theme.of(context).colorScheme.secondary.withOpacity(0.5),
+        letterSpacing: 0
+      ),
+      prefixIcon: isPhone == true ? Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 16, top: 2),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: Image.asset('assets/Flag_of_Indonesia.svg.png', width: 24)
             ),
-            const SizedBox(width: 12),
-            Text('+62', style: Theme.of(context).textTheme.bodyLarge),
-            const SizedBox(width: 8),
-          ],
-        ) : icon,
-        suffixIcon: suffixIcon,
-        errorMaxLines: 3,
-        filled: true,
-        fillColor: condition ? Theme.of(context).colorScheme.inversePrimary.withOpacity(0.15) : Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.25),
-        errorStyle: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.error, fontSize: 11),
-        errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Theme.of(context).colorScheme.error, width: 2)
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
+          ),
+          const SizedBox(width: 12),
+          Text('+62', style: Theme.of(context).textTheme.bodyLarge),
+          const SizedBox(width: 8),
+        ],
+      ) : icon,
+      suffixIcon: suffixIcon,
+      errorMaxLines: 3,
+      filled: true,
+      fillColor: condition ? Theme.of(context).colorScheme.inversePrimary.withOpacity(0.25) : Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.45),
+      errorStyle: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.error, fontSize: 11),
+      errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: Theme.of(context).colorScheme.error, width: 2)
-        ),
-        enabledBorder: condition
-        ? OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
-            width: 1
-          )
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: Theme.of(context).colorScheme.error, width: 2)
+      ),
+      enabledBorder: condition
+      ? OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(
+          color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+          width: 1
         )
-        : null,
-        focusedBorder: condition
-        ? OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2)
-          )
-        : null,
-        border: condition
-        ? OutlineInputBorder(
-            borderRadius: BorderRadius.circular(12),
-            borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2)
-          )
-        : null
-      );
+      )
+      : null,
+      focusedBorder: condition
+      ? OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2)
+        )
+      : null,
+      border: condition
+      ? OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2)
+        )
+      : null
+    );
   }
 }

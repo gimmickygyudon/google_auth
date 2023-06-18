@@ -7,19 +7,19 @@ import 'dart:convert';
 
 import 'package:http/retry.dart';
 
-String server = 'http://192.168.1.19:8080';
+// String server = 'http://192.168.1.19:8080';
 
 // Server Lokal
-// String server = 'http://192.168.1.106:8080';
+String server = 'http://192.168.1.106:8080';
 
 class SQL {
   static const int clientRetries = 5;
   static const int clienTimeout = 15;
-  
+
   static final client = RetryClient(http.Client(), retries: clientRetries,
     whenError: ((error, stacktrace) async {
       return await Future.error('Periksa Koneksi Internet Anda');
-    }) 
+    })
   );
 
   static Future<void> insertMultiPart({required String api, required Map<String, String> item, required String filePath}) async {
@@ -86,7 +86,7 @@ class SQL {
 
 
   static Future<dynamic> retrieve({
-    required String api, 
+    required String api,
     required String query
   }) async {
     Map<String, String> requestHeaders = {
@@ -104,7 +104,7 @@ class SQL {
         return Future.error(error.toString());
       })
     );
-    
+
     if (response.statusCode == 200) {
       List<dynamic> data = (json.decode(response.body)) as List;
       if (data.length == 1) return data.last;
@@ -118,8 +118,8 @@ class SQL {
 
 
   static FutureOr<List?> retrieveJoin({
-    required String api, 
-    required String? param, 
+    required String api,
+    required String? param,
     required String query,
     int? limit,
     int? offset,
@@ -136,7 +136,7 @@ class SQL {
     }
 
     var url = Uri.parse('$server/api/$api$queryParameters${pageParameters()}');
-    
+
     final response = await client.get(url, headers: requestHeaders)
       .timeout(const Duration(seconds: clienTimeout), onTimeout: () {
         return Future.error('Periksa Koneksi Internet Anda');
@@ -149,7 +149,7 @@ class SQL {
       return data;
     } else if (response.statusCode == 200) {
       List<dynamic> data = (json.decode(response.body));
-      
+
       return data;
     } else {
       return Future.error('Periksa Koneksi Internet Anda');
