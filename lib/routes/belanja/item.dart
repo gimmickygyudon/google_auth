@@ -46,136 +46,133 @@ class _ItemRouteState extends State<ItemRoute> {
       data: Theme.of(context).copyWith(
         appBarTheme: Themes.appBarTheme(context),
       ),
-      child: Hero(
-        tag: widget.hero,
-        child: Scaffold(
-          body: CustomScrollView(
-            slivers: [
-              SliverAppBar(
-                systemOverlayStyle: SystemUiOverlayStyle.light,
-                toolbarHeight: kToolbarHeight + 10,
-                expandedHeight: kToolbarHeight + 100,
-                automaticallyImplyLeading: false,
-                forceElevated: true,
-                scrolledUnderElevation: 8,
-                shadowColor: widget.color.withOpacity(0.5),
-                title: TextButton.icon(
-                  onPressed: () => Navigator.of(context).pop(),
-                  label: Text(' Kembali', style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.white
-                  )),
-                  icon: const Icon(Icons.arrow_back, color: Colors.white)
+      child: Scaffold(
+        body: CustomScrollView(
+          slivers: [
+            SliverAppBar(
+              systemOverlayStyle: SystemUiOverlayStyle.light,
+              toolbarHeight: kToolbarHeight + 10,
+              expandedHeight: kToolbarHeight + 100,
+              automaticallyImplyLeading: false,
+              forceElevated: true,
+              scrolledUnderElevation: 8,
+              shadowColor: widget.color.withOpacity(0.5),
+              title: TextButton.icon(
+                onPressed: () => Navigator.of(context).pop(),
+                label: Text(' Kembali', style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Colors.white
+                )),
+                icon: const Icon(Icons.arrow_back, color: Colors.white)
+              ),
+              actions: const [
+                CartWidget(color: Colors.white),
+                SizedBox(width: 12),
+              ],
+              flexibleSpace: FlexibleSpaceBar(
+                titlePadding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
+                title: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Image(image: AssetImage(widget.logo), height: 36, width: 200, alignment: Alignment.centerLeft),
+                      ],
+                    ),
+                  ],
                 ),
-                actions: const [
-                  CartWidget(color: Colors.white),
-                  SizedBox(width: 12),
-                ],
-                flexibleSpace: FlexibleSpaceBar(
-                  titlePadding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
-                  title: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          Image(image: AssetImage(widget.logo), height: 36, width: 200, alignment: Alignment.centerLeft),
-                        ],
-                      ),
-                    ],
-                  ),
-                  background: ClipRRect(
-                    borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(12), bottomRight: Radius.circular(12),),
-                    child: Container(
-                      foregroundDecoration: BoxDecoration(
-                        border: Border(bottom: BorderSide(color: widget.color, width: 3)),
-                        gradient: LinearGradient(
-                          begin: Alignment.bottomCenter,
-                          end: Alignment.topCenter,
-                          colors: [
-                            Theme.of(context).hoverColor,
-                            Theme.of(context).colorScheme.shadow,
-                          ]
-                        )
-                      ),
-                      child: Image.asset(widget.background,
-                        fit: BoxFit.cover,
-                      ),
+                background: ClipRRect(
+                  borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(12), bottomRight: Radius.circular(12),),
+                  child: Container(
+                    foregroundDecoration: BoxDecoration(
+                      border: Border(bottom: BorderSide(color: widget.color, width: 3)),
+                      gradient: LinearGradient(
+                        begin: Alignment.bottomCenter,
+                        end: Alignment.topCenter,
+                        colors: [
+                          Theme.of(context).hoverColor,
+                          Theme.of(context).colorScheme.shadow,
+                        ]
+                      )
+                    ),
+                    child: Image.asset(widget.background,
+                      fit: BoxFit.cover,
                     ),
                   ),
                 ),
               ),
-              SliverPadding(
-                padding: const EdgeInsets.fromLTRB(30, 12, 16, 8),
-                sliver: SliverToBoxAdapter(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Hasil Terbaru', style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        letterSpacing: 0
-                      )),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          IconButton(onPressed: () {}, icon: const Icon(Icons.filter_list)),
-                          IconButton(
-                            onPressed: () {},
-                            icon: const Icon(Icons.grid_view_rounded)
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+            ),
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(30, 12, 16, 8),
+              sliver: SliverToBoxAdapter(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Hasil Terbaru', style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      letterSpacing: 0
+                    )),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        IconButton(onPressed: () {}, icon: const Icon(Icons.filter_list)),
+                        IconButton(
+                          onPressed: () {},
+                          icon: const Icon(Icons.grid_view_rounded)
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-              FutureBuilder(
-                future: _getItems,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
-                    return SliverPadding(
-                      padding: const EdgeInsets.fromLTRB(30, 0, 16, 30),
-                      sliver: SliverGrid(
-                        gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                          maxCrossAxisExtent: 260, mainAxisSpacing: 24, crossAxisSpacing: 24,
-                          mainAxisExtent: 230
-                        ),
-                        delegate: SliverChildListDelegate(
-                          snapshot.data!.map((element) {
-                            String dimension = Item.defineDimension(element['OITMs'].first['spesification']);
-                            String weight = Item.defineWeight(element['OITMs'].first['weight']);
-                            return ItemWidget(
-                              onTap: () {
-                                pushItemDetailPage(
-                                  context: context,
-                                  brand: widget.brand,
-                                  item: element,
-                                  hero: element['description'],
-                                  color: widget.color
-                                );
-                              },
-                              color: widget.color,
-                              item: element,
-                              dimension: dimension,
-                              weight: weight,
-                            );
-                          }).toList()
-                        ),
-                      )
-                    );
-                  } else if (snapshot.connectionState == ConnectionState.done && snapshot.hasError) {
-                    return SliverToBoxAdapter(
-                      child: Center(
-                        child: HandleNoInternet(message: 'Periksa Koneksi Internet Anda', color: widget.color)
+            ),
+            FutureBuilder(
+              future: _getItems,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
+                  return SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(30, 0, 16, 30),
+                    sliver: SliverGrid(
+                      gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                        maxCrossAxisExtent: 260, mainAxisSpacing: 24, crossAxisSpacing: 24,
+                        mainAxisExtent: 230
                       ),
-                    );
-                  }
-                  return const SliverToBoxAdapter(
+                      delegate: SliverChildListDelegate(
+                        snapshot.data!.map((element) {
+                          String dimension = Item.defineDimension(element['OITMs'].first['spesification']);
+                          String weight = Item.defineWeight(element['OITMs'].first['weight']);
+                          return ItemWidget(
+                            onTap: () {
+                              pushItemDetailPage(
+                                context: context,
+                                brand: widget.brand,
+                                item: element,
+                                hero: element['description'],
+                                color: widget.color
+                              );
+                            },
+                            color: widget.color,
+                            item: element,
+                            dimension: dimension,
+                            weight: weight,
+                          );
+                        }).toList()
+                      ),
+                    )
+                  );
+                } else if (snapshot.connectionState == ConnectionState.done && snapshot.hasError) {
+                  return SliverToBoxAdapter(
                     child: Center(
-                      child: HandleLoading()
+                      child: HandleNoInternet(message: 'Periksa Koneksi Internet Anda', color: widget.color)
                     ),
                   );
-                },
-              ),
-            ]
-          ),
+                }
+                return const SliverToBoxAdapter(
+                  child: Center(
+                    child: HandleLoading()
+                  ),
+                );
+              },
+            ),
+          ]
         ),
       ),
     );

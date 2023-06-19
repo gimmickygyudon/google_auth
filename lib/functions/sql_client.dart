@@ -7,10 +7,10 @@ import 'dart:convert';
 
 import 'package:http/retry.dart';
 
-// String server = 'http://192.168.1.19:8080';
+String server = 'http://192.168.1.19:8080';
 
 // Server Lokal
-String server = 'http://192.168.1.106:8080';
+// String server = 'http://192.168.1.106:8080';
 
 class SQL {
   static const int clientRetries = 5;
@@ -60,7 +60,7 @@ class SQL {
   }
 
 
-  static Future<List<Map<String, dynamic>>> retrieveAll(String api) async {
+  static Future<List<Map<String, dynamic>>> retrieveAll({required String api}) async {
     Map<String, String> requestHeaders = {
       'Content-Type': 'application/json',
     };

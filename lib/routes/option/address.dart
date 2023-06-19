@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_auth/functions/push.dart';
 import 'package:google_auth/styles/theme.dart';
-import 'package:google_auth/widgets/label.dart';
 
 class AddressRoute extends StatefulWidget {
   const AddressRoute({super.key, required this.hero});
