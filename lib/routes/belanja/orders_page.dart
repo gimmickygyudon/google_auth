@@ -28,8 +28,6 @@ class _OrdersPageRouteState extends State<OrdersPageRoute> {
 
   @override
   void initState() {
-
-    orderOpen.value = true;
     super.initState();
   }
 

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
@@ -25,11 +27,13 @@ class _AddressAddRouteState extends State<AddressAddRoute> {
   late Position latlang;
   late Future defineLocation;
   UserLocation? userLocation;
-
   late List<Map> locations;
+
+  late ScrollController _scrollController;
 
   @override
   void initState() {
+    _scrollController = ScrollController();
     setLocation();
     getLocation();
     super.initState();
@@ -50,11 +54,11 @@ class _AddressAddRouteState extends State<AddressAddRoute> {
             // TODO move this to class location
             return userLocation = await UserLocation.defineLocationName(currentPosition).then((value) {
               setState(() {
-                locations[0]['value'] = value.province;
-                locations[1]['value'] = value.district;
-                locations[2]['value'] = value.subdistrict;
-                locations[3]['value'] = value.suburb;
-                locations[4]['value'] = value.street;
+                locations[0]['placeholder'] = value.province;
+                locations[1]['placeholder'] = value.district;
+                locations[2]['placeholder'] = value.subdistrict;
+                locations[3]['placeholder'] = value.suburb;
+                locations[4]['placeholder'] = value.street;
               });
               return value;
             });
@@ -69,41 +73,97 @@ class _AddressAddRouteState extends State<AddressAddRoute> {
     locations = [
       {
         'controller': TextEditingController(),
+        'focusNode': FocusNode(),
+        'options': LocationName.getProvince,
         'name': 'Provinsi',
         'icon': Icons.landscape,
-        'value': null
+        'visible': true,
+        'value': null,
+        'placeholder': null
       }, {
         'controller': TextEditingController(),
+        'focusNode': FocusNode(),
+        'options': LocationName.getDistrict,
         'name': 'Kabupaten / Kota',
         'icon': Icons.location_city,
-        'value': null
+        'visible': false,
+        'value': null,
+        'placeholder': null
       }, {
         'controller': TextEditingController(),
+        'focusNode': FocusNode(),
+        'options': LocationName.getProvince,
         'icon': Icons.domain,
         'name': 'Kecamatan',
-        'value': null
+        'visible': false,
+        'value': null,
+        'placeholder': null
       }, {
         'controller': TextEditingController(),
+        'focusNode': FocusNode(),
+        'options': LocationName.getProvince,
         'name': 'Kelurahan / Desa',
         'icon': Icons.holiday_village,
-        'value': null
+        'visible': false,
+        'value': null,
+        'placeholder': null
       }, {
         'controller': TextEditingController(),
+        'focusNode': FocusNode(),
+        'options': LocationName.getProvince,
         'name': 'Alamat',
         'icon': Icons.signpost_rounded,
-        'value': null
+        'visible': false,
+        'value': null,
+        'placeholder': null
       }
     ];
+  }
+
+  double range(int multi) {
+    return 500.0 + (80 * multi) - MediaQuery.of(context).viewInsets.bottom;
   }
 
   void disposeLocation() {
     for (var element in locations) {
       element['controller'].dispose();
+      element['focusNode'].dispose();
     }
+  }
+
+  void setLocationValue({required String value, required int index}) {
+    locations[index]['options']().then((element) {
+      return element.where((String option) {
+        return option == value.toUpperCase();
+      });
+    }).then((value) {
+      setState(() {
+        if (value.isNotEmpty) {
+          locations[index]['value'] = value;
+          locations[index]['visible'] = true;
+
+          for (int i = index + 1; i < locations.length; i++) {
+            locations[i]['visible'] = false;
+            locations[i]['controller'].text = '';
+          }
+          if (index != locations.length) locations[index + 1]['visible'] = true;
+        } else {
+          for (int i = index + 1; i < locations.length; i++) {
+            locations[i]['visible'] = false;
+            locations[i]['controller'].text = '';
+          }
+        }
+      });
+
+      if (index - 1 != locations.length) {
+        locations[index + 1]['focusNode'].requestFocus();
+      }
+    });
   }
 
   @override
   void dispose() {
+    _scrollController.dispose();
     disposeLocation();
     super.dispose();
   }
@@ -122,6 +182,7 @@ class _AddressAddRouteState extends State<AddressAddRoute> {
           centerTitle: true,
         ),
         body: SingleChildScrollView(
+          controller: _scrollController,
           padding: const EdgeInsets.all(20),
           child: Column(
             children: [
@@ -250,14 +311,30 @@ class _AddressAddRouteState extends State<AddressAddRoute> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Column(
-                  children: locations.map((element) {
-                    Widget widget = Padding(
-                      padding: const EdgeInsets.only(bottom: 20),
-                      child: AutoCompleteLocationTextfield(
-                        element: element,
-                        options: LocationName.getProvince,
+                  children: List.generate(locations.length, (index) {
+                    Widget widget = Visibility(
+                      visible: locations[index]['visible'],
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 20),
+                        child: AutoCompleteLocationTextfield(
+                          onTap: () {
+                            return Timer(const Duration(milliseconds: 400), () {
+                              _scrollController.animateTo(range(index + 1),
+                                duration: const Duration(milliseconds: 200), curve: Curves.ease
+                              );
+                            });
+                          },
+                          onDoneEditing: (value) => setLocationValue(value: value, index: index),
+                          element: locations[index],
+                          options: locations[index]['options'],
+                        ),
                       ),
                     );
+                    Timer(const Duration(milliseconds: 400), () {
+                      _scrollController.animateTo(range(index + 1),
+                        duration: const Duration(milliseconds: 200), curve: Curves.ease
+                      );
+                    });
                     return widget;
                   }).toList()
                 ),
@@ -371,11 +448,11 @@ class MarkerLabel extends StatelessWidget {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(locations[3]['value'], style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                              Text(locations[3]['placeholder'], style: Theme.of(context).textTheme.labelSmall?.copyWith(
                                 height: 0,
                                 letterSpacing: 0
                               )),
-                              Text(locations[2]['value'], style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              Text(locations[2]['placeholder'], style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                 color: Theme.of(context).colorScheme.secondary,
                                 fontSize: 10,
                                 height: 0,
@@ -398,36 +475,59 @@ class MarkerLabel extends StatelessWidget {
   }
 }
 
-class LocationTextField extends StatelessWidget {
+class LocationTextField extends StatefulWidget {
   const LocationTextField({
     super.key,
     required this.element,
     required this.textEditingController,
     required this.focusNode,
-    required this.onFieldSubmitted,
+    required this.onDoneEditing,
     this.onTap
   });
 
   final Map element;
   final TextEditingController textEditingController;
   final FocusNode focusNode;
-  final Function onFieldSubmitted;
+  final Function(String)? onDoneEditing;
   final Function? onTap;
+
+  @override
+  State<LocationTextField> createState() => _LocationTextFieldState();
+}
+
+class _LocationTextFieldState extends State<LocationTextField> {
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return TextField(
-      controller: textEditingController,
-      focusNode: focusNode,
-      // onChanged: (value) => onChanged(value),
-      // onSubmitted: (value) => onFieldSubmitted(value),
+      controller: widget.textEditingController,
+      focusNode: widget.element['focusNode'],
+      onTap: () {
+        if (widget.onTap != null) {
+          widget.onTap!();
+        }
+      },
+      onEditingComplete: () {},
+      onSubmitted: (value) {
+        if (widget.onDoneEditing != null) widget.onDoneEditing!(value);
+      },
       textInputAction: TextInputAction.next,
-      maxLines: element['name'] == 'Alamat' ? 3 : null,
+      maxLines: widget.element['name'] == 'Alamat' ? 3 : null,
       decoration: Styles.inputDecorationForm(
         context: context,
-        icon: element['name'] == 'Alamat' ? null : Icon(element['icon']),
-        placeholder: element['name'],
-        hintText: element['value'],
+        icon: widget.element['name'] == 'Alamat' ? null : Icon(widget.element['icon']),
+        placeholder: widget.element['name'],
+        hintText: widget.element['placeholder'],
         labelStyle: const TextStyle(fontSize: 16),
         floatingLabelBehavior: FloatingLabelBehavior.always,
         condition: false
@@ -442,31 +542,35 @@ class AutoCompleteLocationTextfield extends StatefulWidget {
   const AutoCompleteLocationTextfield({
     super.key,
     required this.element,
+    required this.options,
     this.onTap,
-    required this.options
+    this.onDoneEditing,
   });
 
   final Map element;
   final Function? onTap;
   final Future<List<String>> Function() options;
+  final Function(String)? onDoneEditing;
 
   @override
   State<AutoCompleteLocationTextfield> createState() => _AutoCompleteLocationTextfieldState();
 }
 
 class _AutoCompleteLocationTextfieldState extends State<AutoCompleteLocationTextfield> {
-  List<String> _kOptions = <String>['aardvark', 'bobcat', 'chameleon'];
+  // List<String> _kOptions = <String>['aardvark', 'bobcat', 'chameleon'];
 
   @override
   Widget build(BuildContext context) {
-    return Autocomplete(
+    return RawAutocomplete(
+      textEditingController: widget.element['controller'],
+      focusNode: widget.element['focusNode'],
       optionsBuilder: (textEditingValue) async {
         if (textEditingValue.text == '') {
           return const Iterable<String>.empty();
         }
 
-        return widget.options().then((provinces) {
-          return provinces.where((String option) {
+        return widget.options().then((value) {
+          return value.where((String option) {
             return option.contains(textEditingValue.text.toUpperCase());
           });
         });
@@ -494,7 +598,9 @@ class _AutoCompleteLocationTextfieldState extends State<AutoCompleteLocationText
                     itemCount: options.length,
                     itemBuilder: (context, index) {
                       return ListTile(
-                        onTap: () => onSelected(options.toList()[index].toTitleCase()),
+                        onTap: () {
+                          onSelected(options.toList()[index].toTitleCase());
+                        },
                         title: Text(options.toList()[index].toTitleCase()),
                         titleTextStyle: Theme.of(context).textTheme.bodyMedium,
                       );
@@ -512,10 +618,11 @@ class _AutoCompleteLocationTextfieldState extends State<AutoCompleteLocationText
           element: widget.element,
           textEditingController: textEditingController,
           focusNode: focusNode,
-          onFieldSubmitted: onFieldSubmitted
+          onDoneEditing: widget.onDoneEditing
         );
       },
       onSelected: (String selection) {
+        if (widget.onDoneEditing != null) widget.onDoneEditing!(selection);
         debugPrint('You just selected $selection');
       },
     );

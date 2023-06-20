@@ -137,13 +137,19 @@ class UserLocation {
 
 
 class LocationName {
-
-
   static AsyncMemoizer<List<String>> provinceMemorizer = AsyncMemoizer();
+  static AsyncMemoizer<List<String>> districMemorizer = AsyncMemoizer();
+
+  static List<Map> listProvince = List.empty(growable: true);
+  static List<Map> listDistric = List.empty(growable: true);
 
   static Future<List<String>> getProvince() async {
     return provinceMemorizer.runOnce(() {
       return SQL.retrieveAll(api: 'sim/oprv').then((value) {
+        listProvince = value;
+
+        print(listProvince);
+
         List<String> province() {
           return value.map<String>((element) {
             return element['province_name'];
@@ -155,4 +161,17 @@ class LocationName {
     });
   }
 
+  static Future<List<String>> getDistrict() async {
+    return districMemorizer.runOnce(() {
+      return SQL.retrieveAll(api: 'sim/octy').then((value) {
+        List<String> district() {
+          return value.map<String>((element) {
+            return element['city_name'];
+          }).toList();
+        }
+
+        return district();
+      });
+    });
+  }
 }

@@ -184,9 +184,18 @@ class _CardAddressState extends State<CardAddress> {
                         ),
                       ),
                       const SizedBox(width: 10),
-                      Text('My Home', style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                        color: Theme.of(context).colorScheme.primary
-                      ))
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('My Home', style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                            color: Theme.of(context).colorScheme.primary,
+                          )),
+                          Text('Digunakan', style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            fontSize: 10,
+                            color: Theme.of(context).colorScheme.secondary
+                          ))
+                        ],
+                      ),
                     ],
                   ),
                   Padding(
