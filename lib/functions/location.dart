@@ -37,7 +37,8 @@ class UserLocation {
       'postal_code': postal_code,
       'province': province,
       'district': district,
-      'subdistrict': subdistrict
+      'subdistrict': subdistrict,
+      'suburb': suburb
     };
   }
   static Future<Position> determinePosition() async {
@@ -139,17 +140,14 @@ class UserLocation {
 class LocationName {
   static AsyncMemoizer<List<String>> provinceMemorizer = AsyncMemoizer();
   static AsyncMemoizer<List<String>> districMemorizer = AsyncMemoizer();
+  static AsyncMemoizer<List<String>> subdistricMemorizer = AsyncMemoizer();
+  static AsyncMemoizer<List<String>> suburbMemorizer = AsyncMemoizer();
 
-  static List<Map> listProvince = List.empty(growable: true);
-  static List<Map> listDistric = List.empty(growable: true);
+  static List<int?> selectedLocationId = List.filled(5, null, growable: false);
 
   static Future<List<String>> getProvince() async {
     return provinceMemorizer.runOnce(() {
       return SQL.retrieveAll(api: 'sim/oprv').then((value) {
-        listProvince = value;
-
-        print(listProvince);
-
         List<String> province() {
           return value.map<String>((element) {
             return element['province_name'];
@@ -167,6 +165,34 @@ class LocationName {
         List<String> district() {
           return value.map<String>((element) {
             return element['city_name'];
+          }).toList();
+        }
+
+        return district();
+      });
+    });
+  }
+
+  static Future<List<String>> getSubdistrict() async {
+    return subdistricMemorizer.runOnce(() {
+      return SQL.retrieveAll(api: 'sim/osdt').then((value) {
+        List<String> district() {
+          return value.map<String>((element) {
+            return element['sub_district_name'];
+          }).toList();
+        }
+
+        return district();
+      });
+    });
+  }
+
+  static Future<List<String>> getSuburb() async {
+    return suburbMemorizer.runOnce(() {
+      return SQL.retrieveAll(api: 'sim/ovil').then((value) {
+        List<String> district() {
+          return value.map<String>((element) {
+            return element['village_name'];
           }).toList();
         }
 

@@ -21,6 +21,8 @@ class AddressAddRoute extends StatefulWidget {
 
   @override
   State<AddressAddRoute> createState() => _AddressAddRouteState();
+
+  static ValueNotifier isValidated = ValueNotifier(false);
 }
 
 class _AddressAddRouteState extends State<AddressAddRoute> {
@@ -92,7 +94,7 @@ class _AddressAddRouteState extends State<AddressAddRoute> {
       }, {
         'controller': TextEditingController(),
         'focusNode': FocusNode(),
-        'options': LocationName.getProvince,
+        'options': LocationName.getSubdistrict,
         'icon': Icons.domain,
         'name': 'Kecamatan',
         'visible': false,
@@ -101,7 +103,7 @@ class _AddressAddRouteState extends State<AddressAddRoute> {
       }, {
         'controller': TextEditingController(),
         'focusNode': FocusNode(),
-        'options': LocationName.getProvince,
+        'options': LocationName.getSuburb,
         'name': 'Kelurahan / Desa',
         'icon': Icons.holiday_village,
         'visible': false,
@@ -110,7 +112,7 @@ class _AddressAddRouteState extends State<AddressAddRoute> {
       }, {
         'controller': TextEditingController(),
         'focusNode': FocusNode(),
-        'options': LocationName.getProvince,
+        'options': null,
         'name': 'Alamat',
         'icon': Icons.signpost_rounded,
         'visible': false,
@@ -138,18 +140,22 @@ class _AddressAddRouteState extends State<AddressAddRoute> {
       });
     }).then((value) {
       setState(() {
+        String string = value.toString().replaceAll('(', '').replaceAll(')', '').toTitleCase();
+
         if (value.isNotEmpty) {
-          locations[index]['value'] = value;
+          locations[index]['value'] = string;
           locations[index]['visible'] = true;
 
           for (int i = index + 1; i < locations.length; i++) {
             locations[i]['visible'] = false;
+            locations[i]['value'] = null;
             locations[i]['controller'].text = '';
           }
           if (index != locations.length) locations[index + 1]['visible'] = true;
         } else {
           for (int i = index + 1; i < locations.length; i++) {
             locations[i]['visible'] = false;
+            locations[i]['value'] = null;
             locations[i]['controller'].text = '';
           }
         }
@@ -189,8 +195,8 @@ class _AddressAddRouteState extends State<AddressAddRoute> {
               ButtonListTile(
                 icon: Icons.near_me,
                 title: const Text('Lokasi Sekarang'),
-                subtitle: locations[4]['value'] != null
-                ? Text(locations[4]['value'].toString().substring(0, locations[4]['value'].toString().indexOf(',')), style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                subtitle: locations[4]['placeholder'] != null
+                ? Text(locations[4]['placeholder'].toString().substring(0, locations[4]['placeholder'].toString().indexOf(',')), style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(context).colorScheme.secondary
                 ))
                 : Text('Memuat Lokasi...', style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -324,7 +330,13 @@ class _AddressAddRouteState extends State<AddressAddRoute> {
                               );
                             });
                           },
-                          onDoneEditing: (value) => setLocationValue(value: value, index: index),
+                          onDoneEditing: (value) {
+                            if (index == locations.length - 1) {
+                              locations[index]['value'] = value.toTitleCase();
+                            } else {
+                              setLocationValue(value: value, index: index);
+                            }
+                          },
                           element: locations[index],
                           options: locations[index]['options'],
                         ),
@@ -339,6 +351,7 @@ class _AddressAddRouteState extends State<AddressAddRoute> {
                   }).toList()
                 ),
               ),
+              const SizedBox(height: 30),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -351,14 +364,19 @@ class _AddressAddRouteState extends State<AddressAddRoute> {
                     padding: const EdgeInsets.only(right: 10),
                     child: Hero(
                       tag: 'Simpan',
-                      child: ElevatedButton(
-                        onPressed: () => showAddressDialog(
-                          context: context,
-                          hero: 'Simpan',
-                          locations: locations
-                        ),
-                        style: Styles.buttonForm(context: context),
-                        child: const Text('Simpan')
+                      child: ValueListenableBuilder(
+                        valueListenable: AddressAddRoute.isValidated,
+                        builder: (context, value, child) {
+                          return ElevatedButton(
+                            onPressed: value ? () => showAddressDialog(
+                              context: context,
+                              hero: 'Simpan',
+                              locations: locations
+                            ) : null,
+                            style: Styles.buttonForm(context: context),
+                            child: const Text('Simpan')
+                          );
+                        }
                       ),
                     ),
                   )
@@ -521,6 +539,13 @@ class _LocationTextFieldState extends State<LocationTextField> {
       onSubmitted: (value) {
         if (widget.onDoneEditing != null) widget.onDoneEditing!(value);
       },
+      onChanged: (value) {
+        if (value.trim().isNotEmpty && widget.element['name'] == 'Alamat') {
+          AddressAddRoute.isValidated.value = true;
+        } else {
+          AddressAddRoute.isValidated.value = false;
+        }
+      },
       textInputAction: TextInputAction.next,
       maxLines: widget.element['name'] == 'Alamat' ? 3 : null,
       decoration: Styles.inputDecorationForm(
@@ -549,7 +574,7 @@ class AutoCompleteLocationTextfield extends StatefulWidget {
 
   final Map element;
   final Function? onTap;
-  final Future<List<String>> Function() options;
+  final Future<List<String>> Function()? options;
   final Function(String)? onDoneEditing;
 
   @override
@@ -569,11 +594,15 @@ class _AutoCompleteLocationTextfieldState extends State<AutoCompleteLocationText
           return const Iterable<String>.empty();
         }
 
-        return widget.options().then((value) {
-          return value.where((String option) {
-            return option.contains(textEditingValue.text.toUpperCase());
+        if (widget.options != null) {
+          return widget.options!().then((value) {
+            return value.where((String option) {
+              return option.contains(textEditingValue.text.toUpperCase());
+            });
           });
-        });
+        } else {
+          return const Iterable<String>.empty();
+        }
       },
       optionsViewBuilder: (context, onSelected, options) {
         return Padding(
