@@ -39,7 +39,9 @@ class HandleNoInternet extends StatelessWidget {
 }
 
 class HandleLoading extends StatelessWidget {
-  const HandleLoading({super.key});
+  const HandleLoading({super.key, this.strokeWidth});
+
+  final double? strokeWidth;
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +52,7 @@ class HandleLoading extends StatelessWidget {
           height: 54,
           width: 54,
           child: CircularProgressIndicator(
-            strokeWidth: 2,
+            strokeWidth: strokeWidth ?? 2,
             color: Theme.of(context).colorScheme.primary,
           ),
         ),

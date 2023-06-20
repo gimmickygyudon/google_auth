@@ -7,10 +7,10 @@ import 'dart:convert';
 
 import 'package:http/retry.dart';
 
-String server = 'http://192.168.1.19:8080';
+// String server = 'http://192.168.1.19:8080';
 
 // Server Lokal
-// String server = 'http://192.168.1.106:8080';
+String server = 'http://192.168.1.106:8080';
 
 class SQL {
   static const int clientRetries = 5;
@@ -80,7 +80,7 @@ class SQL {
 
       return dataDecoded;
     } else {
-      throw Exception('failed');
+       return Future.error('Periksa Koneksi Internet Anda');
     }
   }
 

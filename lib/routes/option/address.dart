@@ -101,7 +101,7 @@ class _AddressRouteState extends State<AddressRoute> {
                 onChanged: setDelivery,
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(6, 32, 6, 12),
+                padding: const EdgeInsets.fromLTRB(6, 32, 6, 16),
                 child: Column(
                   children: [
                     Text('Tempat Anda', style: Theme.of(context).textTheme.titleMedium?.copyWith(
@@ -142,7 +142,7 @@ class _CardAddressState extends State<CardAddress> {
           Card(
             elevation: 0,
             clipBehavior: Clip.antiAlias,
-            color: true ? Theme.of(context).colorScheme.inversePrimary.withOpacity(0.15) : Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.35),
+            color: true ? Theme.of(context).colorScheme.inversePrimary.withOpacity(0.25) : Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.35),
             child: Container(
               padding: const EdgeInsets.all(18),
               decoration: BoxDecoration(
@@ -154,6 +154,7 @@ class _CardAddressState extends State<CardAddress> {
                 children: [
                   Row(
                     children: [
+                      // TODO: Show Image Uploaded Photo
                       SizedBox(
                         height: 42,
                         width: 42,
@@ -201,20 +202,25 @@ class _CardAddressState extends State<CardAddress> {
                     padding: const EdgeInsets.all(8.0),
                     child: Text('Jl. Rogonoto No.57B, Gondorejo Ledok, Tamanharjo, Kec. Singosari, Kabupaten Malang, Jawa Timur 65153',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.secondary,
                         height: 1.5,
-                        fontWeight: FontWeight.w500,
+                        fontWeight: FontWeight.w400,
                         letterSpacing: 0
                       ),
                     ),
                   ),
                   Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text('+62 341 441111',
-                      textAlign: TextAlign.justify,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        fontWeight: FontWeight.w500,
-                      ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.phone, size: 20),
+                        const SizedBox(width: 8),
+                        Text('+62 341 441111',
+                          textAlign: TextAlign.justify,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],

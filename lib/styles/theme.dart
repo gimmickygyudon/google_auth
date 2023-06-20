@@ -82,7 +82,7 @@ class Themes {
   static InputDecorationTheme inputDecorationThemeForm({required BuildContext context}) {
     return InputDecorationTheme(
       isDense: true,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      contentPadding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide: BorderSide.none
@@ -278,9 +278,9 @@ class Styles {
       prefix: prefix,
       hintText: hintText,
       labelStyle: labelStyle,
-      hintStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
-        color: Theme.of(context).colorScheme.secondary.withOpacity(0.5),
-        letterSpacing: 0
+      hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+        color: Theme.of(context).colorScheme.inverseSurface.withOpacity(0.2),
+        letterSpacing: 0,
       ),
       prefixIcon: isPhone == true ? Row(
         mainAxisSize: MainAxisSize.min,

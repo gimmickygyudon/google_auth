@@ -416,7 +416,7 @@ class AddressCard extends StatelessWidget {
                                     onPressed: () => pushAddress(context: context, hero: 'My Home'),
                                     style: Styles.buttonFlatSmall(context: context),
                                     label: const Text('Ubah'),
-                                    icon: const Icon(Icons.location_on),
+                                    icon: const Icon(Icons.edit_location_outlined),
                                   )
                                 ],
                               ),

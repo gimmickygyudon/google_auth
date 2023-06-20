@@ -195,13 +195,12 @@ class ButtonListTile extends StatelessWidget {
           ),
         ),
         title: title,
-        titleTextStyle: Theme.of(context).textTheme.titleSmall?.copyWith(
-        ),
+        titleTextStyle: Theme.of(context).textTheme.labelLarge,
         subtitle: subtitle,
         subtitleTextStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
           letterSpacing: 0
         ),
-        trailing: Icon(Icons.arrow_forward, color: Theme.of(context).colorScheme.secondary),
+        trailing: trailing ?? Icon(Icons.arrow_forward, color: Theme.of(context).colorScheme.secondary),
       ),
     );
   }
