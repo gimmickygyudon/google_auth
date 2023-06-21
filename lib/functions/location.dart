@@ -6,7 +6,6 @@ import 'package:async/async.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_auth/functions/sql_client.dart';
-import 'package:http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserLocation {
@@ -244,11 +243,11 @@ class LocationManager {
 
 class LocationName {
   static AsyncMemoizer<List<Map>> provinceMemorizer = AsyncMemoizer();
-  static AsyncMemoizer<List<String>> districMemorizer = AsyncMemoizer();
-  static AsyncMemoizer<List<String>> subdistricMemorizer = AsyncMemoizer();
-  static AsyncMemoizer<List<String>> suburbMemorizer = AsyncMemoizer();
+  static AsyncMemoizer<List<Map>> districMemorizer = AsyncMemoizer();
+  static AsyncMemoizer<List<Map>> subdistricMemorizer = AsyncMemoizer();
+  static AsyncMemoizer<List<Map>> suburbMemorizer = AsyncMemoizer();
 
-  static List<String?> selectedLocationName = List.filled(4, null, growable: false);
+  static List<String?> selectedLocationName = List.filled(5, null, growable: false);
 
   static Future<List<Map>> getProvince() async {
     return provinceMemorizer.runOnce(() {
@@ -268,16 +267,11 @@ class LocationName {
     });
   }
 
-  static Future<List<String>> getDistrict() async {
+  static Future<List<Map>> getDistrict() async {
     return districMemorizer.runOnce(() {
       return SQL.retrieveAll(api: 'sim/octy').then((value) {
-        List<String> district() {
-          return value.map<String>((element) {
-            return element['city_name'];
-          }).toList();
-        }
 
-        return district();
+        return value;
       });
     });
   }
@@ -289,37 +283,65 @@ class LocationName {
     .then((value) {
       return SQL.retrieve(api: 'sim/octy', query: 'id_oprv=${value['id_oprv']}')
       .then((value) {
-        return value.map<String>((element) {
-          return element['sub_district_name'];
+        List<String>? strings = List.empty(growable: true);
+        value.map((element) {
+          return strings.add(element['city_name']);
         }).toList();
+
+        return strings;
       });
     });
   }
 
-  static Future<List<String>> getSubdistrict() async {
+  static Future<List<Map>> getSubdistrict() async {
     return subdistricMemorizer.runOnce(() {
       return SQL.retrieveAll(api: 'sim/osdt').then((value) {
-        List<String> district() {
-          return value.map<String>((element) {
-            return element['sub_district_name'];
-          }).toList();
-        }
 
-        return district();
+        return value;
       });
     });
   }
 
-  static Future<List<String>> getSuburb() async {
+  static Future<List<String>> filterSubdistrict() async {
+    return getDistrict().then((value) {
+      return value.where((element) => element['city_name'] == selectedLocationName[1]).single;
+    })
+    .then((value) {
+      return SQL.retrieve(api: 'sim/osdt', query: 'id_octy=${value['id_octy']}')
+      .then((value) {
+        List<String>? strings = List.empty(growable: true);
+        value.map((element) {
+          return strings.add(element['sub_district_name']);
+        }).toList();
+
+        return strings;
+      });
+    });
+  }
+
+  static Future<List<Map>> getSuburb() async {
     return suburbMemorizer.runOnce(() {
       return SQL.retrieveAll(api: 'sim/ovil').then((value) {
-        List<String> district() {
-          return value.map<String>((element) {
-            return element['village_name'];
-          }).toList();
-        }
 
-        return district();
+        return value;
+      });
+    });
+  }
+
+  static Future<List<String>> filterSuburb() async {
+    return getSubdistrict().then((value) {
+      return value.where((element) => element['sub_district_name'] == selectedLocationName[2]).single;
+    })
+    .then((value) {
+      print('suburb: $value');
+      return SQL.retrieve(api: 'sim/ovil', query: 'id_osdt=${value['id_osdt']}')
+      .then((value) {
+        List<String>? strings = List.empty(growable: true);
+        value.map((element) {
+          return strings.add(element['village_name']);
+        }).toList();
+
+        return strings;
       });
     });
   }

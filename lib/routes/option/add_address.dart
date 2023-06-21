@@ -29,7 +29,8 @@ class _AddressAddRouteState extends State<AddressAddRoute> {
   late Position latlang;
   late Future defineLocation;
   UserLocation? userLocation;
-  late List<Map> locations;
+  List<Map> locations = List.empty(growable: true);
+  late List _locations;
 
   late ScrollController _scrollController;
 
@@ -57,10 +58,11 @@ class _AddressAddRouteState extends State<AddressAddRoute> {
             return userLocation = await UserLocation.defineLocationName(currentPosition).then((value) {
               setState(() {
                 locations[0]['placeholder'] = value.province;
-                locations[1]['placeholder'] = value.district;
-                locations[2]['placeholder'] = value.subdistrict;
-                locations[3]['placeholder'] = value.suburb;
-                locations[4]['placeholder'] = value.street;
+                // TODO: move to new variable currentLocation
+                  // locations[1]['placeholder'] = value.district;
+                  // locations[2]['placeholder'] = value.subdistrict;
+                  // locations[3]['placeholder'] = value.suburb;
+                  // locations[4]['placeholder'] = value.street;
               });
               return value;
             });
@@ -72,58 +74,56 @@ class _AddressAddRouteState extends State<AddressAddRoute> {
   }
 
   void setLocation() {
-    locations = [
+    _locations = [
       {
         'controller': TextEditingController(),
         'focusNode': FocusNode(),
-        'options': LocationName.filterProvince(),
+        'options': LocationName.filterProvince,
         'name': 'Provinsi',
         'icon': Icons.landscape,
+        'value': null,
+        'placeholder': null
+      }, {
+        'controller': TextEditingController(),
+        'focusNode': FocusNode(),
+        'options': LocationName.filterDistrict,
+        'name': 'Kabupaten / Kota',
+        'icon': Icons.location_city,
         'visible': true,
         'value': null,
         'placeholder': null
       }, {
         'controller': TextEditingController(),
         'focusNode': FocusNode(),
-        'options': LocationName.filterDistrict(),
-        'name': 'Kabupaten / Kota',
-        'icon': Icons.location_city,
-        'visible': false,
-        'value': null,
-        'placeholder': null
-      }, {
-        'controller': TextEditingController(),
-        'focusNode': FocusNode(),
-        'options': LocationName.getSubdistrict(),
+        'options': LocationName.filterSubdistrict,
         'icon': Icons.domain,
         'name': 'Kecamatan',
-        'visible': false,
         'value': null,
         'placeholder': null
       }, {
         'controller': TextEditingController(),
         'focusNode': FocusNode(),
-        'options': LocationName.getSuburb(),
+        'options': LocationName.filterSuburb,
         'name': 'Kelurahan / Desa',
         'icon': Icons.holiday_village,
-        'visible': false,
         'value': null,
         'placeholder': null
       }, {
         'controller': TextEditingController(),
         'focusNode': FocusNode(),
-        'options': Future.delayed(Duration.zero),
+        'options': Future.value,
         'name': 'Alamat',
         'icon': Icons.signpost_rounded,
-        'visible': false,
         'value': null,
         'placeholder': null
       }
     ];
+
+    locations.add(_locations[0]);
   }
 
   double range(int multi) {
-    return 500.0 + (80 * multi) - MediaQuery.of(context).viewInsets.bottom;
+    return 600.0 + (100 * multi) - MediaQuery.of(context).viewInsets.bottom;
   }
 
   void disposeLocation() {
@@ -134,45 +134,57 @@ class _AddressAddRouteState extends State<AddressAddRoute> {
   }
 
   void setLocationValue({required String value, required int index}) {
-    locations[index]['options'].then((element) {
-      return element.where((String option) {
-        return option == value.toUpperCase();
-      });
-    }).then((value) {
-      setState(() {
-        String string = value.toString().replaceAll('(', '').replaceAll(')', '').toTitleCase();
+    // FIXME: bad coding
+    if (index == 4) {
+      locations[index]['value'] = value;
+    } else {
+      locations[index]['options']().then((element) {
+        return element.where((String option) {
+          return option == value.toUpperCase().replaceAll('(', '').replaceAll(')', '');
+        });
+      }).then((value) {
+        setState(() {
+          String string = value.toString().replaceAll('(', '').replaceAll(')', '').toTitleCase();
+          List<Map> list = locations;
 
-        if (value.isNotEmpty) {
-          locations[index]['value'] = string;
-          locations[index]['visible'] = true;
-          LocationName.selectedLocationName[index] = string;
+          if (string.isNotEmpty) {
+            locations[index]['value'] = string;
+            LocationName.selectedLocationName[index] = string.toUpperCase();
 
-          for (int i = index + 1; i < locations.length; i++) {
-            locations[i]['visible'] = false;
-            locations[i]['value'] = null;
-            locations[i]['controller'].text = '';
-            LocationName.selectedLocationName[i] = null;
+            if (list.contains(_locations[index + 1]) == false) {
+              list.add(_locations[index + 1]);
+            }
+
+            for (int i = index + 1; i < locations.length; i++) {
+              locations[i]['value'] = null;
+              locations[i]['controller'].text = '';
+              LocationName.selectedLocationName[i] = null;
+            }
+
+            locations = list;
+            print(LocationName.selectedLocationName);
+
+            if (index != locations.length) locations[index + 1]['visible'] = true;
+            if (index - 1 != locations.length) {
+              locations[index + 1]['focusNode'].requestFocus();
+            }
+          } else {
+            for (int i = index + 1; i < locations.length; i++) {
+              locations[i]['value'] = null;
+              locations[i]['controller'].text = '';
+              LocationName.selectedLocationName[i] = null;
+              locations.removeRange(i, locations.length);
+            }
           }
-          if (index != locations.length) locations[index + 1]['visible'] = true;
-        } else {
-          for (int i = index + 1; i < locations.length; i++) {
-            locations[i]['visible'] = false;
-            locations[i]['value'] = null;
-            locations[i]['controller'].text = '';
-            LocationName.selectedLocationName[i] = null;
-          }
-        }
+        });
       });
-
-      if (index - 1 != locations.length) {
-        locations[index + 1]['focusNode'].requestFocus();
-      }
-    });
+    }
   }
 
   @override
   void dispose() {
     _scrollController.dispose();
+    LocationName.selectedLocationName = List.filled(5, null, growable: false);
     disposeLocation();
     super.dispose();
   }
@@ -202,12 +214,13 @@ class _AddressAddRouteState extends State<AddressAddRoute> {
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 20),
                   child: SizedBox(
-                    height: locations[4]['placeholder'] != null ? null : 0,
+                    height: locations[0]['placeholder'] != null ? null : 0,
                     width: null,
                     child: Hero(
                       tag: 'Location',
                       child: ButtonListTile(
                         onTap: () {
+                          // FIXME: place holder deprecated
                           setState(() {
                             for (var i = 0; i < locations.length; i++) {
                               locations[i]['value'] = locations[i]['placeholder'];
@@ -221,11 +234,12 @@ class _AddressAddRouteState extends State<AddressAddRoute> {
                         },
                         icon: const Icon(Icons.near_me),
                         title: const Text('Lokasi Sekarang'),
-                        subtitle: locations[4]['placeholder'] != null
-                        ? Text(locations[4]['placeholder'].toString().substring(0, locations[4]['placeholder'].toString().indexOf(',')), style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.secondary
-                        ))
-                        : Text('Memuat Lokasi...', style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        // FIXME: Location name placeholder
+                        subtitle: // locations[0]['placeholder'] != null
+                        // ? Text(locations[4]['placeholder'].toString().substring(0, locations[4]['placeholder'].toString().indexOf(',')), style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        //   color: Theme.of(context).colorScheme.secondary
+                        // ))
+                        Text('Memuat Lokasi...', style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Theme.of(context).colorScheme.secondary
                         ))
                       ),
@@ -347,34 +361,27 @@ class _AddressAddRouteState extends State<AddressAddRoute> {
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Column(
                   children: List.generate(locations.length, (index) {
-                    Widget widget = Visibility(
-                      visible: locations[index]['visible'],
-                      child: Padding(
-                        padding: const EdgeInsets.only(bottom: 20),
-                        child: FutureBuilder(
-                          future: locations[index]['options'],
-                          builder: (context, snapshot) {
-                            return AutoCompleteLocationTextfield(
-                              onTap: () {
-                                return Timer(const Duration(milliseconds: 400), () {
-                                  _scrollController.animateTo(range(index + 1),
-                                    duration: const Duration(milliseconds: 200), curve: Curves.ease
-                                  );
-                                });
-                              },
-                              onDoneEditing: (value) {
-                                if (index == locations.length - 1) {
-                                  locations[index]['value'] = value.toTitleCase();
-                                } else {
-                                  setLocationValue(value: value, index: index);
-                                }
-                              },
-                              isLoading: snapshot.connectionState == ConnectionState.waiting || snapshot.hasError,
-                              element: locations[index],
-                              options: snapshot.data as List<String>?,
-                            );
-                          }
-                        ),
+                    Widget widget = Padding(
+                      padding: const EdgeInsets.only(bottom: 20),
+                      child: FutureBuilder(
+                        future: locations[index]['options'](),
+                        builder: (context, snapshot) {
+                          return AutoCompleteLocationTextfield(
+                            onTap: () {
+                              return Timer(const Duration(milliseconds: 400), () {
+                                _scrollController.animateTo(range(index + 1),
+                                  duration: const Duration(milliseconds: 200), curve: Curves.ease
+                                );
+                              });
+                            },
+                            onDoneEditing: (value) {
+                              setLocationValue(value: value, index: index);
+                            },
+                            isLoading: snapshot.connectionState == ConnectionState.waiting || snapshot.hasError,
+                            element: locations[index],
+                            options: snapshot.data as List<String>?,
+                          );
+                        }
                       ),
                     );
                     return widget;
@@ -496,11 +503,12 @@ class MarkerLabel extends StatelessWidget {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(locations[3]['placeholder'], style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                              // FIXME: placeholder create new variable for currentposition
+                              Text(locations[0]['placeholder'], style: Theme.of(context).textTheme.labelSmall?.copyWith(
                                 height: 0,
                                 letterSpacing: 0
                               )),
-                              Text(locations[2]['placeholder'], style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              Text(locations[0]['placeholder'], style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                 color: Theme.of(context).colorScheme.secondary,
                                 fontSize: 10,
                                 height: 0,
@@ -549,11 +557,17 @@ class _LocationTextFieldState extends State<LocationTextField> {
 
   @override
   void initState() {
+    widget.element['focusNode'].addListener(() {
+      if (widget.element['focusNode'].hasFocus == false) {
+        if (widget.onDoneEditing != null) widget.onDoneEditing!(widget.textEditingController.text.trim());
+      }
+    });
     super.initState();
   }
 
   @override
   void dispose() {
+    widget.element['focusNode'].removeListener(() { });
     super.dispose();
   }
 
@@ -569,11 +583,12 @@ class _LocationTextFieldState extends State<LocationTextField> {
       },
       onEditingComplete: () {},
       onSubmitted: (value) {
-        if (widget.onDoneEditing != null) widget.onDoneEditing!(value);
+        if (widget.onDoneEditing != null) widget.onDoneEditing!(value.trim());
       },
       onChanged: (value) {
         widget.element['value'] == value.trim();
         if (value.trim().isNotEmpty && widget.element['name'] == 'Alamat') {
+          widget.element['value'] = value;
           AddressAddRoute.isValidated.value = true;
         } else {
           AddressAddRoute.isValidated.value = false;
@@ -634,9 +649,9 @@ class _AutoCompleteLocationTextfieldState extends State<AutoCompleteLocationText
       textEditingController: widget.element['controller'],
       focusNode: widget.element['focusNode'],
       optionsBuilder: (textEditingValue) {
-        if (widget.options != null) {
+        if (widget.options != null && widget.element['name'] != 'Alamat') {
           return widget.options!.where((String option) {
-            return option.toUpperCase().contains(textEditingValue.text.toUpperCase());
+            return option.trim().toUpperCase().contains(textEditingValue.text.trim().toUpperCase());
           });
         } else {
           return const Iterable<String>.empty();
@@ -690,7 +705,7 @@ class _AutoCompleteLocationTextfieldState extends State<AutoCompleteLocationText
         );
       },
       onSelected: (String selection) {
-        if (widget.onDoneEditing != null) widget.onDoneEditing!(selection);
+        if (widget.onDoneEditing != null) widget.onDoneEditing!(selection.trim());
         debugPrint('You just selected $selection');
       },
     );
