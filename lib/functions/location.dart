@@ -6,6 +6,7 @@ import 'package:async/async.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_auth/functions/sql_client.dart';
+import 'package:http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserLocation {
@@ -140,6 +141,25 @@ class UserLocation {
   }
 }
 
+class Delivery {
+  static Future<void> setType(String type) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    prefs.setString('delivery_type', type);
+  }
+
+  static Future<String> getType() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    String? type = prefs.getString('delivery_type');
+    if (type == null) {
+      return 'FRANCO';
+    } else {
+      return type;
+    }
+  }
+}
+
 class LocationManager {
   final String name;
   final String phone_number;
@@ -200,15 +220,15 @@ class LocationManager {
     prefs.remove('location');
   }
 
-  static Future<void> delete(int index) async {
+  static Future<void> delete(int i) async {
     retrieve().then((value) {
       List? element = value;
 
-      element?.removeAt(index);
+      element?.removeAt(i);
       if (element != null) {
         set(element);
         getIndex().then((index) {
-          if (index == index) setIndex(element.length - 1);
+          if (i == index) setIndex(element.length - 1);
         });
       }
     });
@@ -237,6 +257,17 @@ class LocationManager {
     final prefs = await SharedPreferences.getInstance();
 
     return prefs.getInt('location_index');
+  }
+
+  static Future<Map?> getCurrentLocation() async {
+    return LocationManager.retrieve().then((value) async {
+      return await getIndex().then((index) {
+        if (index != null) return value?[index];
+
+        return Future.error('Current Location Not Found');
+      });
+
+    });
   }
 
 }

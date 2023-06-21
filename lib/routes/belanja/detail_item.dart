@@ -10,11 +10,11 @@ import '../../functions/sqlite.dart';
 
 class DetailItemRoute extends StatefulWidget {
   const DetailItemRoute({
-    super.key, 
+    super.key,
     required this.brand,
-    required this.hero, 
+    required this.hero,
     required this.color,
-    required this.item, this.type, 
+    required this.item, this.type,
   });
 
   final String hero, brand;
@@ -64,7 +64,7 @@ class _DetailItemRouteState extends State<DetailItemRoute> {
       widget.item['OITMs'].length, (index) {
         return Item.defineWeight(widget.item['OITMs'][index]['weight']);
       }
-    );   
+    );
   }
 
   // late List test;
@@ -75,7 +75,7 @@ class _DetailItemRouteState extends State<DetailItemRoute> {
 
   //   if (widget.item['type'].length > 1) {
   //     int? nextIndex() => indexType != typeLength ? indexType + 1 : null;
-  //     if (nextIndex() != null) { 
+  //     if (nextIndex() != null) {
   //       typeNext = widget.item['type'][nextIndex()]['name'];
   //       typeIndexNext = nextIndex();
   //     } else {
@@ -84,7 +84,7 @@ class _DetailItemRouteState extends State<DetailItemRoute> {
   //     }
 
   //     int? prevIndex() => indexType != 0 ? indexType - 1 : null;
-  //     if (prevIndex() != null) { 
+  //     if (prevIndex() != null) {
   //       typePrev = widget.item['type'][prevIndex()]['name'];
   //       typeIndexPrev = prevIndex();
   //     } else {
@@ -115,9 +115,9 @@ class _DetailItemRouteState extends State<DetailItemRoute> {
   Future<void> addToCart({required String count, required int index}) async {
     Cart.add(
       Cart(
-        name: widget.item['description'], 
-        brand: widget.brand, 
-        dimension: Item.defineDimension(widget.item['OITMs'][index]['spesification']), 
+        name: widget.item['description'],
+        brand: widget.brand,
+        dimension: Item.defineDimension(widget.item['OITMs'][index]['spesification']),
         dimensions: List.generate(
           widget.item['OITMs'].length, (i) {
             return Item.defineDimension(widget.item['OITMs'][i]['spesification']);
@@ -146,9 +146,9 @@ class _DetailItemRouteState extends State<DetailItemRoute> {
           heroTag: 'Order Hero',
           onPressed: () {
             showOrderDialog(
-              context: context, 
-              name: widget.item['description'], 
-              brand: widget.brand, 
+              context: context,
+              name: widget.item['description'],
+              brand: widget.brand,
               hero: 'Order Hero',
               dimensions: dimensions,
               weights: weights,
@@ -215,8 +215,8 @@ class _DetailItemRouteState extends State<DetailItemRoute> {
                               onPressed: () {
                                 pushItemDetailPageReplace(
                                   brand: widget.brand,
-                                  context: context, 
-                                  hero: widget.hero, 
+                                  context: context,
+                                  hero: widget.hero,
                                   color: widget.color,
                                   type: typePrev!,
                                   item: {  } // TODO: next item
@@ -240,8 +240,8 @@ class _DetailItemRouteState extends State<DetailItemRoute> {
                               onPressed: () {
                                 pushItemDetailPageReplace(
                                   brand: widget.brand,
-                                  context: context, 
-                                  hero: widget.hero, 
+                                  context: context,
+                                  hero: widget.hero,
                                   color: widget.color,
                                   type: typeNext!,
                                   item: {  } // TODO: next item
@@ -286,7 +286,7 @@ class _DetailItemRouteState extends State<DetailItemRoute> {
                   }
                 ),
               ),
-              SliverFillRemaining(
+              SliverToBoxAdapter(
                 child: Stack(
                   children: [
                     Container(
@@ -316,9 +316,18 @@ class _DetailItemRouteState extends State<DetailItemRoute> {
                               children: [
                                 Padding(
                                   padding: const EdgeInsets.symmetric(vertical: 24),
-                                  child: ItemSpecs(
-                                    value: dimension,
-                                    diff: ItemDescription.getDiff(widget.item['description']),
+                                  child: SizedBox(
+                                    height: 54,
+                                    child: ListView(
+                                      shrinkWrap: true,
+                                      scrollDirection: Axis.horizontal,
+                                      children: [
+                                        ItemSpecs(
+                                          value: dimension,
+                                          diff: ItemDescription.getDiff(widget.item['description']),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                                 Padding(
@@ -336,7 +345,7 @@ class _DetailItemRouteState extends State<DetailItemRoute> {
                                         ],
                                       ),
                                       const SizedBox(height: 4),
-                                      Text(ItemDescription.getDescription(widget.item['description']), 
+                                      Text(ItemDescription.getDescription(widget.item['description']),
                                         textAlign: TextAlign.justify,
                                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                           color: Theme.of(context).colorScheme.secondary,
@@ -429,7 +438,7 @@ class ItemSpecs extends StatelessWidget {
     List _value = List.from(value);
 
     for (var fill in filler) {
-      diff?.forEach((element) { 
+      diff?.forEach((element) {
         if (fill['name'] == element) _value[index] = "^${_value[index]}";
       });
       index++;
@@ -437,7 +446,7 @@ class ItemSpecs extends StatelessWidget {
     return IntrinsicHeight(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: filler.map((fill) {          
+        children: filler.map((fill) {
           Widget widget = Row(
             children: [
               Column(
@@ -452,7 +461,7 @@ class ItemSpecs extends StatelessWidget {
                     children: [
                       Text(_value[i], style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         fontWeight: FontWeight.w500,
-                        color: _value[i].toString().contains('^') 
+                        color: _value[i].toString().contains('^')
                         ? Theme.of(context).colorScheme.primary
                         : null
                       )),

@@ -31,6 +31,7 @@ class _AddressAddRouteState extends State<AddressAddRoute> {
   UserLocation? userLocation;
   List<Map> locations = List.empty(growable: true);
   late List _locations;
+  Map currentLocation = {};
 
   late ScrollController _scrollController;
 
@@ -57,12 +58,13 @@ class _AddressAddRouteState extends State<AddressAddRoute> {
             // TODO move this to class location
             return userLocation = await UserLocation.defineLocationName(currentPosition).then((value) {
               setState(() {
-                locations[0]['placeholder'] = value.province;
-                // TODO: move to new variable currentLocation
-                  // locations[1]['placeholder'] = value.district;
-                  // locations[2]['placeholder'] = value.subdistrict;
-                  // locations[3]['placeholder'] = value.suburb;
-                  // locations[4]['placeholder'] = value.street;
+                currentLocation = {
+                  'province': value.province,
+                  'district': value.district,
+                  'subdistrict': value.subdistrict,
+                  'suburb': value.suburb,
+                  'street': value.street
+                };
               });
               return value;
             });
@@ -82,7 +84,6 @@ class _AddressAddRouteState extends State<AddressAddRoute> {
         'name': 'Provinsi',
         'icon': Icons.landscape,
         'value': null,
-        'placeholder': null
       }, {
         'controller': TextEditingController(),
         'focusNode': FocusNode(),
@@ -91,7 +92,6 @@ class _AddressAddRouteState extends State<AddressAddRoute> {
         'icon': Icons.location_city,
         'visible': true,
         'value': null,
-        'placeholder': null
       }, {
         'controller': TextEditingController(),
         'focusNode': FocusNode(),
@@ -99,7 +99,6 @@ class _AddressAddRouteState extends State<AddressAddRoute> {
         'icon': Icons.domain,
         'name': 'Kecamatan',
         'value': null,
-        'placeholder': null
       }, {
         'controller': TextEditingController(),
         'focusNode': FocusNode(),
@@ -107,7 +106,6 @@ class _AddressAddRouteState extends State<AddressAddRoute> {
         'name': 'Kelurahan / Desa',
         'icon': Icons.holiday_village,
         'value': null,
-        'placeholder': null
       }, {
         'controller': TextEditingController(),
         'focusNode': FocusNode(),
@@ -115,7 +113,6 @@ class _AddressAddRouteState extends State<AddressAddRoute> {
         'name': 'Alamat',
         'icon': Icons.signpost_rounded,
         'value': null,
-        'placeholder': null
       }
     ];
 
@@ -214,32 +211,47 @@ class _AddressAddRouteState extends State<AddressAddRoute> {
                 child: Padding(
                   padding: const EdgeInsets.only(bottom: 20),
                   child: SizedBox(
-                    height: locations[0]['placeholder'] != null ? null : 0,
+                    height: currentLocation.isNotEmpty ? null : 0,
                     width: null,
                     child: Hero(
                       tag: 'Location',
                       child: ButtonListTile(
                         onTap: () {
-                          // FIXME: place holder deprecated
                           setState(() {
-                            for (var i = 0; i < locations.length; i++) {
-                              locations[i]['value'] = locations[i]['placeholder'];
-                            }
+
+                            List currentLocation_ = [
+                              {
+                                'value': currentLocation['province'],
+                                'icon': Icons.landscape
+                              }, {
+                                'value': currentLocation['district'],
+                                'icon': Icons.location_city
+                              }, {
+                                'value': currentLocation['subdistrict'],
+                                'icon': Icons.domain
+                              }, {
+                                'value': currentLocation['suburb'],
+                                'icon': Icons.holiday_village
+                              }, {
+                                'value': currentLocation['street'],
+                                'icon': Icons.signpost_rounded
+                              },
+                            ];
+
                             showAddressDialog(
                               context: context,
-                              locations: locations,
+                              locations: currentLocation_,
                               hero: 'Location'
                             );
                           });
                         },
                         icon: const Icon(Icons.near_me),
                         title: const Text('Lokasi Sekarang'),
-                        // FIXME: Location name placeholder
-                        subtitle: // locations[0]['placeholder'] != null
-                        // ? Text(locations[4]['placeholder'].toString().substring(0, locations[4]['placeholder'].toString().indexOf(',')), style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        //   color: Theme.of(context).colorScheme.secondary
-                        // ))
-                        Text('Memuat Lokasi...', style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        subtitle: currentLocation['suburb'] != null
+                        ? Text(currentLocation['street'].toString().substring(0, currentLocation['street'].toString().indexOf(',')), style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.secondary
+                        ))
+                        : Text('Memuat Lokasi...', style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Theme.of(context).colorScheme.secondary
                         ))
                       ),
@@ -307,7 +319,10 @@ class _AddressAddRouteState extends State<AddressAddRoute> {
                                 urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                                 userAgentPackageName: 'com.example.app',
                               ),
-                              MarkerLabel(latlang: latlang, locations: locations)
+                              MarkerLabel(
+                                latlang: latlang,
+                                currentLocation: currentLocation,
+                              )
                             ],
                           ),
                         ),
@@ -428,10 +443,10 @@ class _AddressAddRouteState extends State<AddressAddRoute> {
 }
 
 class MarkerLabel extends StatelessWidget {
-  const MarkerLabel({super.key, required this.latlang, required this.locations});
+  const MarkerLabel({super.key, required this.latlang, required this.currentLocation});
 
   final Position latlang;
-  final List<Map> locations;
+  final Map currentLocation;
 
   @override
   Widget build(BuildContext context) {
@@ -503,12 +518,11 @@ class MarkerLabel extends StatelessWidget {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // FIXME: placeholder create new variable for currentposition
-                              Text(locations[0]['placeholder'], style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                              Text(currentLocation['suburb'], style: Theme.of(context).textTheme.labelSmall?.copyWith(
                                 height: 0,
                                 letterSpacing: 0
                               )),
-                              Text(locations[0]['placeholder'], style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              Text(currentLocation['subdistrict'], style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                 color: Theme.of(context).colorScheme.secondary,
                                 fontSize: 10,
                                 height: 0,

@@ -667,6 +667,7 @@ class _AddAddressDialogState extends State<AddAddressDialog> {
                       onChanged: (value) => setValidate(),
                       controller: phonenumberController,
                       keyboardType: TextInputType.phone,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.4),
                       decoration: Styles.inputDecorationForm(
                         context: context,
@@ -704,7 +705,9 @@ class _AddAddressDialogState extends State<AddAddressDialog> {
                       suburb: widget.locations[3]['value'],
                       street: widget.locations[4]['value']
                     ).toMap()).whenComplete(() {
-                      pushAddressReplacement(context: context, hero: 'Dialog');
+                      WidgetsBinding.instance.addPostFrameCallback((_) {
+                        pushAddressReplacement(context: context, hero: widget.hero);
+                      });
                     });
                   } : null,
                   style: Styles.buttonForm(context: context),

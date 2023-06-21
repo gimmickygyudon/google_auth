@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_auth/functions/location.dart';
 import 'package:google_auth/functions/push.dart';
+import 'package:google_auth/routes/belanja/orders_page.dart';
 import 'package:google_auth/styles/theme.dart';
 import 'package:google_auth/widgets/button.dart';
 import 'package:google_auth/widgets/handle.dart';
@@ -18,10 +19,11 @@ class _AddressRouteState extends State<AddressRoute> {
   // TODO: Do This Later
   // late SearchController _searchController;
   late TextEditingController _searchController;
+  // ignore: unused_field
   late Future<List?> _getLocation;
   late int? locationindex;
 
-  late String deliveryType;
+  String? deliveryType;
   List<Map> deliveryTypes = [
     {
       'name': 'FRANCO',
@@ -35,7 +37,6 @@ class _AddressRouteState extends State<AddressRoute> {
   @override
   void initState() {
     _searchController = SearchController();
-    deliveryType = deliveryTypes.first['name'];
 
     _getLocation = _dataLocation();
     super.initState();
@@ -51,22 +52,36 @@ class _AddressRouteState extends State<AddressRoute> {
     return LocationManager.retrieve().then((value) {
       return LocationManager.getIndex().then((index) {
         locationindex = index;
-
-        print(value);
         return value;
       });
     });
   }
 
-  void setDelivery(String value) => setState(() => deliveryType = value);
+  Future<String?> initDelivery() async {
+    return deliveryType = await Delivery.getType().then((value) {
+      return value;
+    });
+  }
+
+  void setDelivery(String value) {
+    setState(() => deliveryType = value);
+    Delivery.setType(value);
+  }
+
   void refresh() => setState(() {
-    _getLocation = _dataLocation();
+    _getLocation = _dataLocation().then((locations) async {
+      LocationManager.getIndex().then((index) {
+        if (index != null) OrdersPageRoute.currentLocation.value = locations?[index];
+      });
+      return locations;
+    });
   });
 
   @override
   Widget build(BuildContext context) {
     return Theme(
       data: Theme.of(context).copyWith(
+        appBarTheme: Themes.appBarTheme(context),
         inputDecorationTheme: Themes.inputDecorationThemeForm(context: context)
       ),
       child: Scaffold(
@@ -106,10 +121,15 @@ class _AddressRouteState extends State<AddressRoute> {
               //     condition: searchController.text.trim().isNotEmpty
               //   ),
               // ),
-              ListRadioDelivery(
-                value: deliveryType,
-                options: deliveryTypes,
-                onChanged: setDelivery,
+              FutureBuilder(
+                future: initDelivery(),
+                builder: (context, snapshot) {
+                  return ListRadioDelivery(
+                    value: snapshot.data.toString(),
+                    options: deliveryTypes,
+                    onChanged: setDelivery,
+                  );
+                }
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(6, 32, 6, 16),
@@ -135,6 +155,7 @@ class _AddressRouteState extends State<AddressRoute> {
                 ),
               ),
               const SizedBox(height: 20),
+              // FIXME: use valuable listener => future builder flash on setstate
               FutureBuilder(
                 future: _dataLocation(),
                 builder: (context, snapshot) {
@@ -150,6 +171,12 @@ class _AddressRouteState extends State<AddressRoute> {
                           padding: const EdgeInsets.only(bottom: 10),
                           child: CardAddress(
                             hero: widget.hero,
+                            onSelect: (index) {
+                              setState(() {
+                                LocationManager.setIndex(index);
+                                OrdersPageRoute.currentLocation.value = snapshot.data?[index];
+                              });
+                            },
                             refresh: refresh,
                             index: index,
                             isSelected: locationindex == index,
@@ -179,7 +206,8 @@ class CardAddress extends StatefulWidget {
     required this.isSelected,
     required this.index,
     required this.location,
-    required this.refresh
+    required this.refresh,
+    required this.onSelect
   });
 
   final String hero;
@@ -187,6 +215,7 @@ class CardAddress extends StatefulWidget {
   final int index;
   final Map location;
   final Function refresh;
+  final Function(int index) onSelect;
 
   @override
   State<CardAddress> createState() => _CardAddressState();
@@ -205,128 +234,133 @@ class _CardAddressState extends State<CardAddress> {
             color: widget.isSelected
             ? Theme.of(context).colorScheme.primary
             : Theme.of(context).colorScheme.inversePrimary.withOpacity(0.25),
-            child: Container(
-              padding: const EdgeInsets.all(18),
-              decoration: BoxDecoration(
-                border: Border.all(color: Theme.of(context).colorScheme.primary, width: 2),
-                borderRadius: BorderRadius.circular(12)
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      // TODO: Show Image Uploaded Photo
-                      SizedBox(
-                        height: 44,
-                        width: 44,
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: widget.isSelected
-                                ? Theme.of(context).colorScheme.surface
-                                : Theme.of(context).colorScheme.primary,
-                                border: Border.all(color: Theme.of(context).colorScheme.primary, width: 2),
-                                borderRadius: BorderRadius.circular(25.7),
-                              ),
-                              child: Icon(Icons.home_outlined, color: widget.isSelected
-                                ? Theme.of(context).colorScheme.primary
-                                : Theme.of(context).colorScheme.surface
-                              )
-                            ),
-                            Align(
-                              alignment: Alignment.topRight,
-                              child: Container(
+            child: InkWell(
+              onTap: () => widget.onSelect(widget.index),
+              splashColor: Theme.of(context).colorScheme.inversePrimary,
+              highlightColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.5),
+              child: Ink(
+                padding: const EdgeInsets.all(18),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Theme.of(context).colorScheme.primary, width: 2),
+                  borderRadius: BorderRadius.circular(12)
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        // TODO: Show Image Uploaded Photo
+                        SizedBox(
+                          height: 44,
+                          width: 44,
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  borderRadius: BorderRadius.circular(25.7)
+                                  color: widget.isSelected
+                                  ? Theme.of(context).colorScheme.surface
+                                  : Theme.of(context).colorScheme.primary,
+                                  border: Border.all(color: Theme.of(context).colorScheme.primary, width: 2),
+                                  borderRadius: BorderRadius.circular(25.7),
                                 ),
-                                child: Icon(Icons.check_circle, size: 16, color: Theme.of(context).colorScheme.inversePrimary)
+                                child: Icon(Icons.home_outlined, color: widget.isSelected
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Theme.of(context).colorScheme.surface
+                                )
+                              ),
+                              if (widget.isSelected) Align(
+                                alignment: Alignment.topRight,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).colorScheme.primary,
+                                    borderRadius: BorderRadius.circular(25.7)
+                                  ),
+                                  child: Icon(Icons.check_circle, size: 16, color: Theme.of(context).colorScheme.inversePrimary)
+                                )
                               )
-                            )
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(widget.location['name'], style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                              color: widget.isSelected
+                              ? Theme.of(context).colorScheme.surface
+                              : Theme.of(context).colorScheme.primary,
+                            )),
+                            widget.isSelected ? Text('Digunakan', style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              fontSize: 10,
+                              letterSpacing: 0,
+                              fontWeight: FontWeight.w500,
+                              color: widget.isSelected
+                              ? Theme.of(context).colorScheme.inversePrimary
+                              : Theme.of(context).colorScheme.secondary
+                            )) : const SizedBox()
                           ],
                         ),
-                      ),
-                      const SizedBox(width: 10),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(widget.location['name'], style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                            color: widget.isSelected
-                            ? Theme.of(context).colorScheme.surface
-                            : Theme.of(context).colorScheme.primary,
-                          )),
-                          widget.isSelected ? Text('Digunakan', style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            fontSize: 10,
-                            letterSpacing: 0,
-                            fontWeight: FontWeight.w500,
-                            color: widget.isSelected
-                            ? Theme.of(context).colorScheme.inversePrimary
-                            : Theme.of(context).colorScheme.secondary
-                          )) : const SizedBox()
-                        ],
-                      ),
-                    ],
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(8, 10, 8, 0),
-                    child: Text(widget.location['district'],
-                      textAlign: TextAlign.justify,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        fontWeight: FontWeight.w500,
-                        color: widget.isSelected
-                        ? Theme.of(context).colorScheme.surface
-                        : null
-                      ),
+                      ],
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text.rich(
-                      TextSpan(
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(8, 10, 8, 0),
+                      child: Text(widget.location['district'],
+                        textAlign: TextAlign.justify,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          fontSize: 11,
-                          height: 1.5,
-                          letterSpacing: 0,
-                          fontWeight: FontWeight.w400,
+                          fontWeight: FontWeight.w500,
                           color: widget.isSelected
                           ? Theme.of(context).colorScheme.surface
                           : null
                         ),
-                        children: [
-                          TextSpan(text: '${widget.location['street']}, '),
-                          TextSpan(text: '${widget.location['subdistrict']}, '),
-                          TextSpan(text: '${widget.location['district']}, '),
-                          TextSpan(text: '${widget.location['province']}'),
-                        ]
-                      )
-                    )
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      children: [
-                        Icon(Icons.phone, size: 20, color: widget.isSelected
-                          ? Theme.of(context).colorScheme.surface
-                          : null
-                        ),
-                        const SizedBox(width: 8),
-                        Text('+62 ${widget.location['phone_number']}',
-                          textAlign: TextAlign.justify,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text.rich(
+                        TextSpan(
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            fontWeight: FontWeight.w500,
+                            fontSize: 11,
+                            height: 1.5,
+                            letterSpacing: 0,
+                            fontWeight: FontWeight.w400,
                             color: widget.isSelected
                             ? Theme.of(context).colorScheme.surface
                             : null
                           ),
-                        ),
-                      ],
+                          children: [
+                            TextSpan(text: '${widget.location['street']}, '),
+                            TextSpan(text: '${widget.location['subdistrict']}, '),
+                            TextSpan(text: '${widget.location['district']}, '),
+                            TextSpan(text: '${widget.location['province']}'),
+                          ]
+                        )
+                      )
                     ),
-                  ),
-                ],
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: [
+                          Icon(Icons.phone, size: 20, color: widget.isSelected
+                            ? Theme.of(context).colorScheme.surface
+                            : null
+                          ),
+                          const SizedBox(width: 8),
+                          Text('+62 ${widget.location['phone_number']}',
+                            textAlign: TextAlign.justify,
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              fontWeight: FontWeight.w500,
+                              color: widget.isSelected
+                              ? Theme.of(context).colorScheme.surface
+                              : null
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

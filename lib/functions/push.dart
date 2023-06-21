@@ -1,5 +1,6 @@
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
+import 'package:google_auth/routes/belanja/checkout.dart';
 import 'package:google_auth/routes/belanja/detail_item.dart';
 import 'package:google_auth/routes/belanja/item.dart';
 import 'package:google_auth/routes/belanja/orders_page.dart';
@@ -192,15 +193,17 @@ Future<void> launchURL({required String url}) async {
 }
 
 void pushOrdersPage({required BuildContext context, required String hero}) {
-  Navigator.push(context, transitionShared(
-    duration: const Duration(milliseconds: 400),
-    reverseDuration: const Duration(milliseconds: 200),
-    transitionType: SharedAxisTransitionType.horizontal,
-    page: OrdersPageRoute(hero: hero))
+  Navigator.push(context, MaterialPageRoute(
+    builder: (context) {
+      return OrdersPageRoute(hero: hero);
+    })
   );
 }
 
-void pushAddress({required BuildContext context, required String hero}) {
+void pushAddress({
+  required BuildContext context,
+  required String hero,
+}) {
   Navigator.push(context, MaterialPageRoute(
     builder: (context) {
       return AddressRoute(hero: hero);
@@ -208,7 +211,10 @@ void pushAddress({required BuildContext context, required String hero}) {
   );
 }
 
-void pushAddressReplacement({required BuildContext context, required String hero}) {
+void pushAddressReplacement({
+  required BuildContext context,
+  required String hero,
+}) {
   Navigator.pushReplacement(context, MaterialPageRoute(
     builder: (context) {
       return AddressRoute(hero: hero);
@@ -223,6 +229,16 @@ void pushAddressAdd({
   Navigator.push(context, MaterialPageRoute(
     builder: (context) {
       return AddressAddRoute(hero: hero);
+    })
+  );
+}
+
+void pushCheckout({
+  required BuildContext context,
+}) {
+  Navigator.push(context, MaterialPageRoute(
+    builder: (context) {
+      return const CheckoutRoute();
     })
   );
 }

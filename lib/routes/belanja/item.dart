@@ -52,11 +52,15 @@ class _ItemRouteState extends State<ItemRoute> {
             SliverAppBar(
               systemOverlayStyle: SystemUiOverlayStyle.light,
               toolbarHeight: kToolbarHeight + 10,
+              collapsedHeight: kToolbarHeight + 50,
               expandedHeight: kToolbarHeight + 100,
               automaticallyImplyLeading: false,
               forceElevated: true,
+              pinned: true,
+              floating: true,
               scrolledUnderElevation: 8,
               shadowColor: widget.color.withOpacity(0.5),
+              backgroundColor: Theme.of(context).colorScheme.secondary,
               title: TextButton.icon(
                 onPressed: () => Navigator.of(context).pop(),
                 label: Text(' Kembali', style: Theme.of(context).textTheme.bodyMedium?.copyWith(
