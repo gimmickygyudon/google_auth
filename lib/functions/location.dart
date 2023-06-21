@@ -1,9 +1,13 @@
 // ignore_for_file: non_constant_identifier_names
 
+import 'dart:convert';
+
 import 'package:async/async.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_auth/functions/sql_client.dart';
+import 'package:http/http.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class UserLocation {
   final String? name;
@@ -42,11 +46,12 @@ class UserLocation {
     };
   }
   static Future<Position> determinePosition() async {
-    bool serviceEnabled;
+    // bool serviceEnabled;
     LocationPermission permission;
 
     // Test if location services are enabled.
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    // serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    await Geolocator.isLocationServiceEnabled();
 
     permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
@@ -136,26 +141,130 @@ class UserLocation {
   }
 }
 
+class LocationManager {
+  final String name;
+  final String phone_number;
+  final String province;
+  final String district;
+  final String subdistrict;
+  final String suburb;
+  final String street;
+
+  const LocationManager({
+    required this.name,
+    required this.phone_number,
+    required this.province,
+    required this.district,
+    required this.subdistrict,
+    required this.suburb,
+    required this.street
+  });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'name': name,
+      'phone_number': phone_number,
+      'street': street,
+      'province': province,
+      'district': district,
+      'subdistrict': subdistrict,
+      'suburb': suburb
+    };
+  }
+
+
+  static Future<void> set(List source) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    prefs.setString('location', jsonEncode(source));
+  }
+
+  static Future<void> add(Map source) async {
+    List? location = await retrieve().then((value) {
+      List? location = value;
+      location?.add(source);
+
+      return location;
+    });
+
+    if (location != null) {
+      set(location);
+    } else {
+      set([source]);
+      setIndex(0);
+    }
+  }
+
+  static Future<void> deleteAll() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    prefs.remove('location');
+  }
+
+  static Future<void> delete(int index) async {
+    retrieve().then((value) {
+      List? element = value;
+
+      element?.removeAt(index);
+      if (element != null) {
+        set(element);
+        getIndex().then((index) {
+          if (index == index) setIndex(element.length - 1);
+        });
+      }
+    });
+  }
+
+  static Future<List?> retrieve() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    String? jsonData = prefs.getString('location');
+    List? items;
+
+    if(jsonData != null) {
+      items = jsonDecode(jsonData);
+    }
+
+    return items;
+  }
+
+  static Future<void> setIndex (int index) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    prefs.setInt('location_index', index);
+  }
+
+  static Future<int?> getIndex() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    return prefs.getInt('location_index');
+  }
+
+}
 
 class LocationName {
-  static AsyncMemoizer<List<String>> provinceMemorizer = AsyncMemoizer();
+  static AsyncMemoizer<List<Map>> provinceMemorizer = AsyncMemoizer();
   static AsyncMemoizer<List<String>> districMemorizer = AsyncMemoizer();
   static AsyncMemoizer<List<String>> subdistricMemorizer = AsyncMemoizer();
   static AsyncMemoizer<List<String>> suburbMemorizer = AsyncMemoizer();
 
-  static List<int?> selectedLocationId = List.filled(5, null, growable: false);
+  static List<String?> selectedLocationName = List.filled(4, null, growable: false);
 
-  static Future<List<String>> getProvince() async {
+  static Future<List<Map>> getProvince() async {
     return provinceMemorizer.runOnce(() {
       return SQL.retrieveAll(api: 'sim/oprv').then((value) {
-        List<String> province() {
-          return value.map<String>((element) {
-            return element['province_name'];
-          }).toList();
-        }
 
-        return province();
+        return value;
       });
+    });
+  }
+
+  static Future<List<String>> filterProvince() {
+    return getProvince().then((province) {
+      return province.map<String>((element) {
+
+        return element['province_name'];
+      }).nonNulls.toList();
     });
   }
 
@@ -169,6 +278,20 @@ class LocationName {
         }
 
         return district();
+      });
+    });
+  }
+
+  static Future<List<String>> filterDistrict() async {
+    return getProvince().then((value) {
+      return value.where((element) => element['province_name'] == selectedLocationName[0]).single;
+    })
+    .then((value) {
+      return SQL.retrieve(api: 'sim/octy', query: 'id_oprv=${value['id_oprv']}')
+      .then((value) {
+        return value.map<String>((element) {
+          return element['sub_district_name'];
+        }).toList();
       });
     });
   }

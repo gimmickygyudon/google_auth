@@ -208,6 +208,14 @@ void pushAddress({required BuildContext context, required String hero}) {
   );
 }
 
+void pushAddressReplacement({required BuildContext context, required String hero}) {
+  Navigator.pushReplacement(context, MaterialPageRoute(
+    builder: (context) {
+      return AddressRoute(hero: hero);
+    })
+  );
+}
+
 void pushAddressAdd({
   required BuildContext context,
   required String hero

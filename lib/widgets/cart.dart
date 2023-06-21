@@ -44,6 +44,7 @@ class _CartWidgetState extends State<CartWidget> {
             PopupMenuButton(
               padding: EdgeInsets.zero,
               elevation: 8,
+              position: PopupMenuPosition.under,
               shadowColor: Theme.of(context).colorScheme.shadow,
               surfaceTintColor: Theme.of(context).colorScheme.inversePrimary,
               constraints: const BoxConstraints(maxWidth: 500, minWidth: 500),
@@ -65,10 +66,10 @@ class _CartWidgetState extends State<CartWidget> {
                             ],
                           ),
                           ElevatedButton.icon(
-                            onPressed: () {},
+                            onPressed: () => pushAddress(context: context, hero: 'Lokasi'),
                             style: Styles.buttonFlatSmall(context: context),
                             label: const Text('Lokasi'),
-                            icon: const Icon(Icons.location_on)
+                            icon: const Icon(Icons.share_location_sharp)
                           )
                         ],
                       ),

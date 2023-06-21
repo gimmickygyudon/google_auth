@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 
 class ThemeNotifier with ChangeNotifier {
 
-  bool darkMode = false;
+  static var brightness = SchedulerBinding.instance.platformDispatcher.platformBrightness;
+  bool darkMode = brightness == Brightness.dark;
   final darkTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,

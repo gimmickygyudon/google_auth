@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_auth/functions/conversion.dart';
+import 'package:google_auth/functions/location.dart';
 import 'package:google_auth/functions/string.dart';
 import 'package:google_auth/strings/item.dart';
+import 'package:google_auth/strings/user.dart';
 import 'package:google_auth/widgets/profile.dart';
 
+import '../functions/push.dart';
 import '../styles/theme.dart';
 
 Future<void> showRegisteredUser(BuildContext context, {
@@ -534,16 +537,49 @@ class DeleteDialog extends StatelessWidget {
   }
 }
 
-class AddAddressDialog extends StatelessWidget {
+class AddAddressDialog extends StatefulWidget {
   const AddAddressDialog({super.key, required this.locations, required this.hero});
 
   final List locations;
   final String hero;
 
   @override
+  State<AddAddressDialog> createState() => _AddAddressDialogState();
+}
+
+class _AddAddressDialogState extends State<AddAddressDialog> {
+  late TextEditingController nameController;
+  late TextEditingController phonenumberController;
+
+  late ValueNotifier isValidated;
+
+  @override
+  void initState() {
+    nameController = TextEditingController();
+    phonenumberController = TextEditingController();
+    isValidated = ValueNotifier(false);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    phonenumberController.dispose();
+    super.dispose();
+  }
+
+  setValidate() {
+    if (nameController.text.trim().isNotEmpty && phonenumberController.text.trim().isNotEmpty) {
+      isValidated.value = true;
+    } else {
+      isValidated.value = false;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Hero(
-      tag: hero,
+      tag: widget.hero,
       child: Theme(
         data: Theme.of(context).copyWith(
           inputDecorationTheme: Themes.inputDecorationThemeForm(context: context)
@@ -566,68 +602,80 @@ class AddAddressDialog extends StatelessWidget {
                   letterSpacing: 0,
                   color: Theme.of(context).colorScheme.secondary
                 )),
-                const SizedBox(height: 16),
+                Container(
+                  margin: const EdgeInsets.symmetric(vertical: 24),
+                  height: 1,
+                  width: double.infinity,
+                  color: Theme.of(context).colorScheme.outlineVariant,
+                ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(locations[4]['icon'], size: 20),
+                        Icon(widget.locations[4]['icon'], size: 20),
                         const SizedBox(width: 8),
-                        Flexible(child: Text(locations[4]['value'], style: Theme.of(context).textTheme.bodySmall)),
+                        Flexible(child: Text(widget.locations[4]['value'], style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          height: 0
+                        ))),
                       ],
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 12),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(locations[2]['icon'], size: 20),
+                        Icon(widget.locations[2]['icon'], size: 20),
                         const SizedBox(width: 8),
-                        Flexible(child: Text(locations[2]['value'], style: Theme.of(context).textTheme.bodySmall)),
+                        Flexible(child: Text(widget.locations[2]['value'], style: Theme.of(context).textTheme.bodySmall)),
                       ],
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 12),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(locations[1]['icon'], size: 20),
+                        Icon(widget.locations[1]['icon'], size: 20),
                         const SizedBox(width: 8),
-                        Flexible(child: Text(locations[1]['value'], style: Theme.of(context).textTheme.bodySmall)),
+                        Flexible(child: Text(widget.locations[1]['value'], style: Theme.of(context).textTheme.bodySmall)),
                       ],
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 12),
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(locations[0]['icon'], size: 20),
+                        Icon(widget.locations[0]['icon'], size: 20),
                         const SizedBox(width: 8),
-                        Flexible(child: Text(locations[0]['value'], style: Theme.of(context).textTheme.bodySmall)),
+                        Flexible(child: Text(widget.locations[0]['value'], style: Theme.of(context).textTheme.bodySmall)),
                       ],
                     ),
-                    Container(
-                      margin: const EdgeInsets.symmetric(vertical: 24),
-                      height: 1,
-                      width: double.infinity,
-                      color: Theme.of(context).colorScheme.outlineVariant,
-                    ),
+                    const SizedBox(height: 30),
                     TextField(
+                      onChanged: (value) => setValidate(),
+                      controller: nameController,
+                      textInputAction: TextInputAction.next,
+                      keyboardType: TextInputType.name,
                       decoration: Styles.inputDecorationForm(
                         context: context,
-                        placeholder: 'Nama Lokasi',
+                        placeholder: 'Nama Lokasi / Tempat',
                         hintText: 'Gudang #2',
                         floatingLabelBehavior: FloatingLabelBehavior.always,
-                        condition: false
+                        condition: nameController.text.trim().isNotEmpty
                       ),
                     ),
                     const SizedBox(height: 20),
                     TextField(
+                      onChanged: (value) => setValidate(),
+                      controller: phonenumberController,
+                      keyboardType: TextInputType.phone,
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.4),
                       decoration: Styles.inputDecorationForm(
                         context: context,
+                        labelStyle: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.4),
                         placeholder: 'Kontak Telepon',
-                        floatingLabelBehavior: FloatingLabelBehavior.always,
                         isPhone: true,
-                        condition: false
+                        hintText: currentUser['phone_number'],
+                        floatingLabelBehavior: FloatingLabelBehavior.always,
+                        condition: phonenumberController.text.trim().isNotEmpty
                       ),
                     )
                   ]
@@ -642,12 +690,27 @@ class AddAddressDialog extends StatelessWidget {
               onPressed: () => Navigator.of(context).pop(),
               child: const Text('Batal'),
             ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              style: Styles.buttonForm(context: context),
-              child: const Text('Simpan'),
+            ValueListenableBuilder(
+              valueListenable: isValidated,
+              builder: (context, isValidated, child) {
+                return TextButton(
+                  onPressed: isValidated ? () {
+                    LocationManager.add(LocationManager(
+                      name: nameController.text,
+                      phone_number: phonenumberController.text,
+                      province: widget.locations[0]['value'],
+                      district: widget.locations[1]['value'],
+                      subdistrict: widget.locations[2]['value'],
+                      suburb: widget.locations[3]['value'],
+                      street: widget.locations[4]['value']
+                    ).toMap()).whenComplete(() {
+                      pushAddressReplacement(context: context, hero: 'Dialog');
+                    });
+                  } : null,
+                  style: Styles.buttonForm(context: context),
+                  child: const Text('Simpan'),
+                );
+              }
             ),
           ],
         ),

@@ -169,30 +169,31 @@ class ButtonListTile extends StatelessWidget {
     required this.icon,
     required this.title,
     this.subtitle,
-    this.trailing
+    this.trailing,
+    required this.onTap, this.bgRadius, this.borderRadius, this.color
   });
 
-  final IconData icon;
+  final Function() onTap;
+  final Widget icon;
   final Widget? title, subtitle, trailing;
+  final double? bgRadius;
+  final BorderRadius? borderRadius;
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
     return Card(
       elevation: 0,
       margin: EdgeInsets.zero,
-      color: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.25),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
+      color: color ?? Theme.of(context).colorScheme.inversePrimary.withOpacity(0.25),
+      shape: RoundedRectangleBorder(borderRadius: borderRadius ?? BorderRadius.circular(50)),
       clipBehavior: Clip.antiAlias,
       child: ListTile(
-        onTap: () {},
+        onTap: () => onTap(),
         leading: CircleAvatar(
-          radius: 24,
+          radius: bgRadius ?? 24,
           backgroundColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.5),
-          child: Icon(
-            icon,
-            size: 26,
-            color: Theme.of(context).colorScheme.primary
-          ),
+          child: icon,
         ),
         title: title,
         titleTextStyle: Theme.of(context).textTheme.labelLarge,
