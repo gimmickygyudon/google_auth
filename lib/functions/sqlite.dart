@@ -140,12 +140,12 @@ class UserReport {
   final String remarks;
 
   const UserReport({
-    required this.id_osfb, 
-    required this.document_date, 
-    required this.id_ousr, 
+    required this.id_osfb,
+    required this.document_date,
+    required this.id_ousr,
     required this.remarks,
   });
-  
+
   Map<String, dynamic> toMap() {
     return {
       'id_osfb': id_osfb,
@@ -154,7 +154,7 @@ class UserReport {
       'remarks': remarks,
     };
   }
-  
+
   @override
   String toString() {
     return '{id_ousr: $id_ousr, document_date: $document_date, id_ousr: $id_ousr, remarks: $remarks}';
@@ -166,12 +166,12 @@ class UserReport {
     Function? setCount
   }) async {
     List? tickets = await SQL.retrieveJoin(
-      api: 'osfb', 
+      api: 'osfb',
       query: 'id_ousr',
       limit: limit,
       offset: offset,
       setCount: setCount,
-      param: currentUser['id_ousr'].toString(), 
+      param: currentUser['id_ousr'].toString(),
     );
 
     return tickets;
@@ -199,7 +199,7 @@ class UserReport1 {
       'description': description,
     };
   }
-  
+
   @override
   String toString() {
     return '{id_sfb1: $id_sfb1, id_osfb: $id_osfb, type_feed: $type_feed, description: $description}';
@@ -220,7 +220,7 @@ class UserReport2 {
     required this.file_name,
     required this.file_type,
   });
-  
+
   Map<String, String> toMap() {
     return {
       'id_sfb2': 'NULL',
@@ -230,7 +230,7 @@ class UserReport2 {
       'file_type': file_type,
     };
   }
-  
+
   @override
   String toString() {
     return '{id_sfb2: $id_sfb2, id_osfb: $id_osfb, type: $type, file_name: $file_name, file_type: $file_type}';
@@ -290,7 +290,7 @@ class UserRegister {
     userMap['user_password'] = md5.convert(utf8.encode(user.user_password)).toString();
 
     print('sqlite(insert): $userMap');
-    
+
     await UserRegister.initializeDatabase().then((db) async {
       db.insert(
         'ousr',
@@ -313,22 +313,22 @@ class UserRegister {
 
       return maps.where((element) => element[item] == source).map((value) {
         return UserRegister(
-          id_ousr: value['id_ousr'], 
+          id_ousr: value['id_ousr'],
           login_type: value['login_type'],
-          user_email: value['user_email'], 
-          user_name: value['user_name'], 
-          phone_number: value['phone_number'], 
+          user_email: value['user_email'],
+          user_name: value['user_name'],
+          phone_number: value['phone_number'],
           user_password: value['user_password']
         );
       }).toList();
     } else {
       return List.generate(maps.length, (i) {
         return UserRegister(
-          id_ousr: maps[i]['id_ousr'], 
+          id_ousr: maps[i]['id_ousr'],
           login_type: maps[i]['login_type'],
-          user_email: maps[i]['user_email'], 
-          user_name: maps[i]['user_name'], 
-          phone_number: maps[i]['phone_number'], 
+          user_email: maps[i]['user_email'],
+          user_name: maps[i]['user_name'],
+          phone_number: maps[i]['phone_number'],
           user_password: maps[i]['user_password']
         );
       });
@@ -339,7 +339,7 @@ class UserRegister {
 class Cart {
   final String name;
   final String brand;
-  final String dimension; 
+  final String dimension;
   final List<String> dimensions;
   final String weight;
   final List<String> weights;
@@ -387,11 +387,21 @@ class Cart {
     }
   }
 
+  static Future<void> counts({required int index, required String count}) async {
+    await Cart.getItems().then((value) {
+      List? elements = value;
+
+      elements?[index]['count'] = count;
+
+      if (elements != null) Cart.set(elements);
+    });
+  }
+
   static Future<void> update({required int index, required List<String> element, required int selectedIndex}) async {
     await Cart.getItems().then((value) {
       List? elements = value;
 
-      for (String e in element) { 
+      for (String e in element) {
         elements?[index][e] = elements[index]['${e}s'][selectedIndex];
       }
 
@@ -403,11 +413,11 @@ class Cart {
     await Cart.getItems().then((value) {
       List? elements = value;
 
-      for (int i in index) { 
+      for (int i in index) {
         elements?[i] = null;
       }
 
-      if (elements != null) { 
+      if (elements != null) {
         elements.removeWhere((element) => element == null);
         Cart.set(elements);
       } else {
@@ -425,7 +435,7 @@ class Cart {
 
   static Future<void> removeAll() async {
     final prefs = await SharedPreferences.getInstance();
-    
+
     CartWidget.cartNotifier.value = List.empty(growable: true);
     prefs.remove('Cart');
   }
@@ -452,10 +462,10 @@ class Cart {
 class Item {
 
   // TODO: Need Rework
-  static Map<String, AsyncMemoizer<List?>> listMemoizer = 
-  { 
+  static Map<String, AsyncMemoizer<List?>> listMemoizer =
+  {
     'Indostar': AsyncMemoizer<List?>(),
-    'ECO': AsyncMemoizer<List?>() 
+    'ECO': AsyncMemoizer<List?>()
   };
 
   static Future<List?> getItems({required String brand}) {
@@ -495,11 +505,11 @@ class Item {
 
     return s;
   }
-  
+
   // TODO: move this to strings.dart
   static const List<Map> recommenditems = [{
     'name': 'Indostar',
-    'subitem': [ 
+    'subitem': [
       {
         'name': 'Indostar Board',
         'img': 'assets/Indostar Board.png',
@@ -549,7 +559,7 @@ class Item {
             'diff': ['Panjang', 'Lebar']
           }
         ]
-      }, 
+      },
     ],
     'img': 'assets/Logo Indostar.png',
     'bg': 'assets/background-1a.jpg',
@@ -557,7 +567,7 @@ class Item {
   },
   {
     'name': 'ECO',
-    'subitem': [ 
+    'subitem': [
       {
         'name': 'ECO Board',
         'img': 'assets/Indostar Board.png',

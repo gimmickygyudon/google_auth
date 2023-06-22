@@ -8,6 +8,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_auth/functions/sql_client.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../routes/belanja/orders_page.dart';
+
 class UserLocation {
   final String? name;
   final String? street;
@@ -144,6 +146,7 @@ class Delivery {
   static Future<void> setType(String type) async {
     final prefs = await SharedPreferences.getInstance();
 
+    OrdersPageRoute.delivertype.value = type;
     prefs.setString('delivery_type', type);
   }
 
@@ -255,7 +258,14 @@ class LocationManager {
   static Future<int?> getIndex() async {
     final prefs = await SharedPreferences.getInstance();
 
-    return prefs.getInt('location_index');
+    int? index = prefs.getInt('location_index');
+    if (index != null) {
+      if (index < 0) {
+        index = 0;
+      }
+    }
+
+    return index;
   }
 
   static Future<Map?> getCurrentLocation() async {

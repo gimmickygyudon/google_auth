@@ -333,149 +333,157 @@ class _OrderDialogState extends State<OrderDialog> {
       weight = setWeight(weight: double.parse(widget.weights[index]), count: double.parse(jumlahController.text));
     }
 
-    return Center(
-      child: Hero(
-        tag: widget.hero,
-        child: Material(
-          type: MaterialType.transparency,
-          child: Theme(
-            data: Theme.of(context).copyWith(
-              inputDecorationTheme: Themes.inputDecorationThemeForm(context: context)
-            ),
-            child: Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.background,
-                borderRadius: BorderRadius.circular(25.7)
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Row(
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: Center(
+        child: SingleChildScrollView(
+          child: Hero(
+            tag: widget.hero,
+            child: Material(
+              type: MaterialType.transparency,
+              child: Theme(
+                data: Theme.of(context).copyWith(
+                  inputDecorationTheme: Themes.inputDecorationThemeForm(context: context)
+                ),
+                child: Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.background,
+                    borderRadius: BorderRadius.circular(25.7)
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Image.asset(ItemDescription.getLogo(widget.name), width: 200, fit: BoxFit.cover),
-                      IconButton(
-                        onPressed: () => Navigator.pop(context),
-                        icon: const Icon(Icons.cancel, size: 30)
-                      )
-                    ],
-                  ),
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height / 4,
-                    child: Stack(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Center(child: Image.asset(ItemDescription.getImage(widget.name), fit: BoxFit.cover)),
-                        ),
-                        Align(
-                          alignment: Alignment.bottomLeft,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.background
-                            ),
-                            child: Row(
-                              children: [
-                                Image.asset('assets/logo IBM p C.png', height: 18),
-                                const SizedBox(width: 8),
-                                Text(widget.name.toTitleCase(), style: Theme.of(context).textTheme.titleMedium),
-                              ],
-                            )
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  DropdownButtonFormField(
-                    value: spesification,
-                    onChanged: (value) {
-                      setState(() {
-                        spesification = value.toString();
-                        index = spesifications.indexOf(value);
-                      });
-                    },
-                    decoration: Styles.inputDecorationForm(
-                      context: context,
-                      placeholder: 'Spesifikasi',
-                      condition: true
-                    ),
-                    borderRadius: BorderRadius.circular(12),
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w500,
-                      height: 1.25
-                    ),
-                    isExpanded: true,
-                    items: spesifications.map((item) {
-                      return DropdownMenuItem(
-                        value: item,
-                        child: Text(item)
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: jumlahController,
-                    onChanged: (value) {
-                      setState(() {
-                        validate(value);
-                      });
-                    },
-                    keyboardType: TextInputType.number,
-                    inputFormatters: [ FilteringTextInputFormatter.allow(RegExp("[0-9]")) ],
-                    decoration: Styles.inputDecorationForm(
-                      context: context,
-                      placeholder: 'Jumlah',
-                      suffixIcon: Row(
-                        mainAxisSize: MainAxisSize.min,
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          IconButton(onPressed: () => setJumlah(isPlus: false), icon: const Icon(Icons.remove_circle_outline), iconSize: 24, color: Theme.of(context).colorScheme.secondary),
-                          IconButton(onPressed: () => setJumlah(isPlus: true), icon: const Icon(Icons.add_circle_outline), iconSize: 24, color: Theme.of(context).colorScheme.secondary),
-                          const SizedBox(width: 8)
+                          Image.asset(ItemDescription.getLogo(widget.name), width: 200, height: 100, alignment: Alignment.topLeft),
+                          IconButton(
+                            onPressed: () => Navigator.pop(context),
+                            icon: const Icon(Icons.cancel, size: 30)
+                          )
                         ],
                       ),
-                      condition: jumlahController.text.trim().isNotEmpty
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        style: ButtonStyle(
-                          foregroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.secondary)
-                        ),
-                        child: const Text('Batal')
-                      ),
-                      Row(
-                        children: [
-                          if (jumlahController.text.trim().isNotEmpty) ...[
-                            Text(weight,
-                              style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                                color: Theme.of(context).colorScheme.primary
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height / 4,
+                        child: Stack(
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: Center(child: Image.asset(ItemDescription.getImage(widget.name), fit: BoxFit.cover)),
+                            ),
+                            Align(
+                              alignment: Alignment.bottomLeft,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).colorScheme.background
+                                ),
+                                child: Row(
+                                  children: [
+                                    Image.asset('assets/logo IBM p C.png', height: 18),
+                                    const SizedBox(width: 8),
+                                    Text(widget.name.toTitleCase(), style: Theme.of(context).textTheme.titleMedium),
+                                  ],
+                                )
                               ),
                             ),
                           ],
-                          const SizedBox(width: 12),
-                          ElevatedButton.icon(
-                            onPressed: jumlahController.text.trim().isNotEmpty
-                              ? () => widget.onPressed(count: jumlahController.text, index: index).whenComplete(() {
-                                Navigator.pop(context);
-                              })
-                              : null,
-                            style: Styles.buttonForm(context: context),
-                            icon: const Icon(Icons.shopping_bag),
-                            label: const Text('Pesan')
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      DropdownButtonFormField(
+                        value: spesification,
+                        onChanged: (value) {
+                          setState(() {
+                            spesification = value.toString();
+                            index = spesifications.indexOf(value);
+                          });
+                        },
+                        decoration: Styles.inputDecorationForm(
+                          context: context,
+                          placeholder: 'Spesifikasi',
+                          labelStyle: Theme.of(context).textTheme.bodyLarge,
+                          condition: true
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w500,
+                          height: 1.25
+                        ),
+                        isExpanded: true,
+                        items: spesifications.map((item) {
+                          return DropdownMenuItem(
+                            value: item,
+                            child: Text(item)
+                          );
+                        }).toList(),
+                      ),
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        controller: jumlahController,
+                        onChanged: (value) {
+                          setState(() {
+                            validate(value);
+                          });
+                        },
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [ FilteringTextInputFormatter.allow(RegExp("[0-9]")) ],
+                        decoration: Styles.inputDecorationForm(
+                          context: context,
+                          placeholder: 'Jumlah',
+                          labelStyle: Theme.of(context).textTheme.bodyLarge,
+                          suffixIcon: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(onPressed: () => setJumlah(isPlus: false), icon: const Icon(Icons.remove_circle), iconSize: 24, color: Theme.of(context).colorScheme.secondary),
+                              IconButton(onPressed: () => setJumlah(isPlus: true), icon: const Icon(Icons.add_circle), iconSize: 24, color: Theme.of(context).colorScheme.secondary),
+                              const SizedBox(width: 8)
+                            ],
                           ),
-                        ],
-                      )
-                    ]
+                          condition: jumlahController.text.trim().isNotEmpty
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            style: ButtonStyle(
+                              foregroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.secondary)
+                            ),
+                            child: const Text('Batal')
+                          ),
+                          Row(
+                            children: [
+                              if (jumlahController.text.trim().isNotEmpty) ...[
+                                Text(weight,
+                                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                    color: Theme.of(context).colorScheme.primary
+                                  ),
+                                ),
+                              ],
+                              const SizedBox(width: 12),
+                              ElevatedButton.icon(
+                                onPressed: jumlahController.text.trim().isNotEmpty
+                                  ? () => widget.onPressed(count: jumlahController.text, index: index).whenComplete(() {
+                                    Navigator.pop(context);
+                                  })
+                                  : null,
+                                style: Styles.buttonForm(context: context),
+                                icon: const Icon(Icons.shopping_bag),
+                                label: const Text('Pesan')
+                              ),
+                            ],
+                          )
+                        ]
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ),

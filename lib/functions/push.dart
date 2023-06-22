@@ -235,10 +235,11 @@ void pushAddressAdd({
 
 void pushCheckout({
   required BuildContext context,
+  required List<bool> checkedItems
 }) {
   Navigator.push(context, MaterialPageRoute(
     builder: (context) {
-      return const CheckoutRoute();
+      return CheckoutRoute(checkedItems: checkedItems);
     })
   );
 }

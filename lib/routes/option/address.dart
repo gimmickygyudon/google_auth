@@ -14,7 +14,10 @@ class AddressRoute extends StatefulWidget {
   @override
   State<AddressRoute> createState() => _AddressRouteState();
 
-  static ValueNotifier locations = ValueNotifier({});
+  static ValueNotifier locations = ValueNotifier({
+    'locationindex': '',
+    'locations': []
+  });
 }
 
 class _AddressRouteState extends State<AddressRoute> {
@@ -176,9 +179,8 @@ class _AddressRouteState extends State<AddressRoute> {
               ValueListenableBuilder(
                 valueListenable: AddressRoute.locations,
                 builder: (context, snapshot, child) {
-                  print(snapshot);
                   if (snapshot['locations'] == null) {
-                    return const HandleLoading();
+                    return const Center(child: HandleLoading());
                   } else if (snapshot['locations'].isNotEmpty) {
                     return ListView.builder(
                       physics: const NeverScrollableScrollPhysics(),
@@ -205,7 +207,7 @@ class _AddressRouteState extends State<AddressRoute> {
                     );
                   } else {
                     // TODO: get handle widget
-                    return const HandleLoading();
+                    return const Center(child: HandleLoading());
                   }
                 }
               )

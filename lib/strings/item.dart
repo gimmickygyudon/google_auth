@@ -24,22 +24,42 @@ class ItemDescription{
   }
 
   static String getLogo(String value) {
-    String string = value.toUpperCase().replaceAll('INDOSTAR', '').replaceAll('ECO', '').trim();
-    switch (string) {
-      case 'IMPERIAL':
-        return 'assets/INDOSTAR LOGO POST.png';
-      case 'MATRIC':
-        return 'assets/INDOSTAR LOGO POST.png';
-      case 'SQUARE':
-        return 'assets/INDOSTAR LOGO POST.png';
-      case 'PLANK POLOS':
-        return 'assets/Logo Indostar Plank.png';
-      case 'PLANK MOTIF':
-        return 'assets/Logo Indostar Plank.png';
-      case 'BES':
-        return 'assets/Logo IndostarBes.png';
-      default:
-        return '';
+    if (value.contains('ECO')) {
+      String string = value.toUpperCase().replaceAll('INDOSTAR', '').replaceAll('ECO', '').trim();
+      switch (string) {
+        case 'IMPERIAL':
+          return 'assets/Logo Merk ECO Board.png';
+        case 'MATRIC':
+          return 'assets/Logo Merk ECO Board.png';
+        case 'SQUARE':
+          return 'assets/Logo Merk ECO Board.png';
+        case 'PLANK POLOS':
+          return 'assets/Logo ECOplank.png';
+        case 'PLANK MOTIF':
+          return 'assets/Logo ECOplank.png';
+        case 'BES':
+          return 'assets/Logo ECObes.png';
+        default:
+          return '';
+      }
+    } else {
+      String string = value.toUpperCase().replaceAll('INDOSTAR', '').replaceAll('ECO', '').trim();
+      switch (string) {
+        case 'IMPERIAL':
+          return 'assets/INDOSTAR LOGO POST.png';
+        case 'MATRIC':
+          return 'assets/INDOSTAR LOGO POST.png';
+        case 'SQUARE':
+          return 'assets/INDOSTAR LOGO POST.png';
+        case 'PLANK POLOS':
+          return 'assets/Logo Indostar Plank.png';
+        case 'PLANK MOTIF':
+          return 'assets/Logo Indostar Plank.png';
+        case 'BES':
+          return 'assets/Logo IndostarBes.png';
+        default:
+          return '';
+      }
     }
   }
 

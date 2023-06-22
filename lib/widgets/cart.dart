@@ -250,34 +250,44 @@ class CartListWidget extends StatelessWidget {
         children: [
           Row(
             children: [
-              Stack(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    margin: const EdgeInsets.only(bottom: 8, right: 16),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      color: Theme.of(context).primaryColorLight.withOpacity(0.5)
-                    ),
-                    child: Stack(
-                      children: [
-                        Image.asset(ItemDescription.getImage(item?['name']), width: 60, fit: BoxFit.cover),
-                      ],
-                    )
-                  ),
-                  Positioned.fill(
-                    right: 12,
-                    bottom: 6,
-                    child: Align(
-                      alignment: Alignment.bottomRight,
-                      child: Badge.count(
-                        count: int.parse(item?['count']),
-                        largeSize: 20,
-                        padding: const EdgeInsets.symmetric(horizontal: 6),
+              SizedBox(
+                width: 90,
+                child: Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Stack(
+                    children: [
+                      Container(
+                        width: 90,
+                        height: 60,
+                        padding: const EdgeInsets.all(8),
+                        margin: const EdgeInsets.only(bottom: 8),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          color: Theme.of(context).primaryColorLight.withOpacity(0.5)
+                        ),
+                        child: Image.asset(ItemDescription.getImage(item?['name']), fit: BoxFit.contain)
+                      ),
+                      Align(
+                        alignment: Alignment.topLeft,
+                        child: Padding(
+                          padding: const EdgeInsets.all(4),
+                          child: Image.asset(ItemDescription.getLogo(item?['name']), height: 30, alignment: Alignment.topLeft, fit: BoxFit.scaleDown),
+                        ),
+                      ),
+                      Positioned.fill(
+                        bottom: 6,
+                        child: Align(
+                          alignment: Alignment.bottomRight,
+                          child: Badge.count(
+                            count: int.parse(item?['count']),
+                            largeSize: 18,
+                            padding: const EdgeInsets.symmetric(horizontal: 6),
+                          )
+                        ),
                       )
-                    ),
-                  )
-                ],
+                    ],
+                  ),
+                ),
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

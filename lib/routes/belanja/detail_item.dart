@@ -286,7 +286,7 @@ class _DetailItemRouteState extends State<DetailItemRoute> {
                   }
                 ),
               ),
-              SliverToBoxAdapter(
+              SliverFillRemaining(
                 child: Stack(
                   children: [
                     Container(
