@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:flutter/services.dart';
 
 class ThemeNotifier with ChangeNotifier {
 
@@ -9,7 +8,7 @@ class ThemeNotifier with ChangeNotifier {
   final darkTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,
-    colorSchemeSeed: Colors.lightBlue,
+    colorSchemeSeed: Colors.blue,
     snackBarTheme: const SnackBarThemeData(backgroundColor: Colors.black),
     pageTransitionsTheme: const PageTransitionsTheme(
       builders: <TargetPlatform, PageTransitionsBuilder>{
@@ -20,7 +19,7 @@ class ThemeNotifier with ChangeNotifier {
 
   final lightTheme = ThemeData(
     useMaterial3: true,
-    colorSchemeSeed: Colors.lightBlue,
+    colorSchemeSeed: Colors.blue,
     snackBarTheme: const SnackBarThemeData(backgroundColor: Colors.white),
     pageTransitionsTheme: const PageTransitionsTheme(
       builders: <TargetPlatform, PageTransitionsBuilder>{
@@ -33,19 +32,11 @@ class ThemeNotifier with ChangeNotifier {
   ThemeMode _themeData = ThemeMode.system;
   ThemeMode getTheme() => _themeData;
 
-  void setThemeMode(bool darkMode) async {
+  void setThemeMode(bool darkMode, BuildContext context) {
     if (darkMode) {
       _themeData = ThemeMode.dark;
-      SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-        systemNavigationBarIconBrightness: Brightness.light,
-        systemNavigationBarColor: Colors.black
-      ));
     } else {
       _themeData = ThemeMode.light;
-      SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-        systemNavigationBarIconBrightness: Brightness.dark,
-        systemNavigationBarColor: Colors.white
-      ));
     }
     notifyListeners();
   }

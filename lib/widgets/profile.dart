@@ -22,11 +22,11 @@ class UserProfile extends StatelessWidget {
           children: [
             Padding(
               padding: EdgeInsets.all(source?['photo_url'] != null ? 2 : 0),
-              child: source?['photo_url'] != null 
+              child: source?['photo_url'] != null
               ? CircleAvatar(
                 backgroundImage: NetworkImage(source?['photo_url']),
                 radius: 32
-              ) 
+              )
               : Icon(Icons.account_circle, size: 80, color: Theme.of(context).colorScheme.secondary),
             ),
             if (source?['photo_url'] != null) Container(
@@ -94,10 +94,10 @@ class _ProfileMenuState extends State<ProfileMenu> {
               leading: const Icon(Icons.dark_mode),
               title: const Text('Mode Gelap'),
               trailing: Switch(
-                value: theme.darkMode, 
+                value: theme.darkMode,
                 onChanged: (value) {
-                  theme.setThemeMode(value);
-                  theme.darkMode = value;               
+                  theme.setThemeMode(value, context);
+                  theme.darkMode = value;
                 },
               ),
             ),

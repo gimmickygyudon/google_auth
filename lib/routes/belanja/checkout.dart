@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_auth/styles/theme.dart';
+import 'package:google_auth/widgets/profile.dart';
 
 class CheckoutRoute extends StatefulWidget {
   const CheckoutRoute({super.key});
@@ -27,55 +28,46 @@ class _CheckoutRouteState extends State<CheckoutRoute>  with SingleTickerProvide
 
   @override
   Widget build(BuildContext context) {
-    return Theme(
-      data: Theme.of(context).copyWith(
-        appBarTheme: Themes.appBarTheme(context)
-      ),
-      child: Scaffold(
-        body: NestedScrollView(
-          controller: _scrollController,
-          headerSliverBuilder: (context, innerBoxIsScrolled) => [
-            SliverAppBar(
-              pinned: true,
-              floating: true,
-              snap: true,
-              titleSpacing: 0,
-              title: Text.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(text: 'Orders: ', style: Theme.of(context).textTheme.labelLarge),
-                    TextSpan(text: '0001/VI/23', style: Theme.of(context).textTheme.bodyMedium)
-                  ]
-                )
-              ),
-              actions: [
-                ElevatedButton(
-                  onPressed: () {},
-                  style: Styles.buttonFlatSmall(context: context),
-                  child: Text('Invoice')
-                ),
-                const SizedBox(width: 12)
-              ],
-              bottom: TabBar(
-                controller: _tabController,
-                tabs: const [
-                  Tab(child: Text('Barang')),
-                  Tab(child: Text('Tujuan')),
-                  Tab(child: Text('Pengiriman'))
+    return Scaffold(
+      body: NestedScrollView(
+        controller: _scrollController,
+        headerSliverBuilder: (context, innerBoxIsScrolled) => [
+          SliverAppBar(
+            pinned: true,
+            floating: true,
+            snap: true,
+            titleSpacing: 0,
+            title: Text.rich(
+              TextSpan(
+                children: [
+                  TextSpan(text: 'Orders: ', style: Theme.of(context).textTheme.labelLarge),
+                  TextSpan(text: '0001/VI/23', style: Theme.of(context).textTheme.bodyMedium)
                 ]
-              ),
-            )
-          ],
-          body: TabBarView(
-            controller: _tabController,
-            children: const [
-              ItemPage(),
-              Placeholder(),
-              Placeholder()
-            ]
+              )
+            ),
+            actions: [
+              ProfileMenu(color: Theme.of(context).colorScheme.inverseSurface),
+              const SizedBox(width: 12)
+            ],
+            bottom: TabBar(
+              controller: _tabController,
+              tabs: const [
+                Tab(child: Text('Barang')),
+                Tab(child: Text('Tujuan')),
+                Tab(child: Text('Pengiriman'))
+              ]
+            ),
           )
+        ],
+        body: TabBarView(
+          controller: _tabController,
+          children: const [
+            ItemPage(),
+            Placeholder(),
+            Placeholder()
+          ]
         )
-      ),
+      )
     );
   }
 }
@@ -95,8 +87,10 @@ class _ItemPageState extends State<ItemPage> {
       persistentFooterButtons: [
         ElevatedButton(
           onPressed: () {},
-          child: Text('data')
-        )
+          style: Styles.buttonFlatSmall(context: context),
+          child: const Text('Invoice')
+        ),
+        const SizedBox(width: 1),
       ],
       body: CustomScrollView(
         slivers: [

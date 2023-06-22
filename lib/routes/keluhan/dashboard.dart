@@ -108,264 +108,262 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
 
   @override
   Widget build(BuildContext context) {
-    return Theme(
-      data: Theme.of(context).copyWith(appBarTheme: Themes.appBarTheme(context)),
-      child: NestedScrollView(
-        controller: _scrollController,
-        headerSliverBuilder: (context, innerBoxIsScrolled) => [
-          SliverAppBar(
-            snap: true,
-            pinned: true,
-            floating: true,
-            automaticallyImplyLeading: false,
-            toolbarHeight: kToolbarHeight + 100,
-            actions: const [ SizedBox() ],
-            title: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 12),
-                      Row(
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          Text('Kritik & Saran',
-                            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              letterSpacing: -0.5,
-                              color: Theme.of(context).colorScheme.inverseSurface
-                            )
-                          ),
-                        ],
-                      ),
-                      Text('Gunakan Kategori Laporan Keluhan.',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.secondary,
-                          letterSpacing: 0
-                        )
-                      ),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      const SizedBox(height: 24),
-                      Row(
-                        children: [
-                          const SizedBox(width: 0),
-                          TextButton.icon(
-                            onPressed: () => pushReportPage(context: context, laporanList: laporanList),
-                            icon: const Icon(Icons.flag_circle, size: 20),
-                            label: const Text('Lapor Keluhan'),
-                            style: Styles.buttonFlatSmall(context: context),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            bottom: TabBar(
-              controller: _tabController,
-              labelStyle: Theme.of(context).textTheme.labelLarge?.copyWith(
-                letterSpacing: 0
-              ),
-              tabs: [
-                const Tab(text: 'Buat Keluhan'),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
+    return NestedScrollView(
+      controller: _scrollController,
+      headerSliverBuilder: (context, innerBoxIsScrolled) => [
+        SliverAppBar(
+          snap: true,
+          pinned: true,
+          floating: true,
+          automaticallyImplyLeading: false,
+          toolbarHeight: kToolbarHeight + 100,
+          forceElevated: true,
+          surfaceTintColor: Theme.of(context).colorScheme.inversePrimary,
+          actions: const [ SizedBox() ],
+          title: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Tab(text: 'Pendapat Anda'),
-                    Visibility(
-                      visible: tickets > 0,
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 6),
-                        child: Badge(
-                          largeSize: 18,
-                          backgroundColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.25),
-                          label: Text(tickets.toString()),
-                          textColor:Theme.of(context).colorScheme.primary ,
-                        )
-                      ),
-                    )
+                    const SizedBox(height: 12),
+                    Row(
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        Text('Kritik & Saran',
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            letterSpacing: -0.5,
+                            color: Theme.of(context).colorScheme.inverseSurface
+                          )
+                        ),
+                      ],
+                    ),
+                    Text('Pendapat Anda Sangatlah Penting.',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.secondary,
+                        letterSpacing: 0
+                      )
+                    ),
                   ],
                 ),
-              ]
+                Column(
+                  children: [
+                    const SizedBox(height: 20),
+                    Row(
+                      children: [
+                        const SizedBox(width: 0),
+                        TextButton.icon(
+                          onPressed: () => pushReportPage(context: context, laporanList: laporanList),
+                          icon: const Icon(Icons.flag_circle, size: 20),
+                          label: const Text('Lapor Keluhan'),
+                          style: Styles.buttonFlatSmall(context: context),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
-        ],
-        body: TabBarView(
-          controller: _tabController,
-          children: [
-            BuatLaporanWidget(scrollController: _scrollController, laporanList: laporanList),
-            CustomScrollView(
-              controller: _scrollController,
-              slivers: [
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 10),
-                  sliver: SliverToBoxAdapter(
-                    child: FutureBuilder(
-                      future: _getList,
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.done && snapshot.hasError) {
-                          return HandleNoInternet(message: snapshot.error.toString(), onPressed: () {});
-                        }
-                        else if (snapshot.connectionState == ConnectionState.done && snapshot.data != null) {
-                          return Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Icon(Icons.check_circle, size: 20, color: Theme.of(context).colorScheme.secondary),
-                                      const SizedBox(width: 8),
-                                      DropdownButtonHideUnderline(
-                                        child: DropdownButton(
-                                          value: sortValue,
-                                          onChanged: (value) {
-                                            setState(() {
-                                              sortValue = value!;
-                                            });
-                                          },
-                                          borderRadius: BorderRadius.circular(12),
-                                          items: sortList.map((item) {
-                                            return DropdownMenuItem(
-                                              value: item,
-                                              child: Text(item, style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                                color: Theme.of(context).colorScheme.secondary,
-                                              ))
-                                            );
-                                          }).toList(),
+          bottom: TabBar(
+            controller: _tabController,
+            labelStyle: Theme.of(context).textTheme.labelLarge?.copyWith(),
+            unselectedLabelColor: Theme.of(context).colorScheme.secondary,
+            tabs: [
+              const Tab(text: 'Buat Keluhan'),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Tab(text: 'Pendapat Anda'),
+                  Visibility(
+                    visible: tickets > 0,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 6),
+                      child: Badge(
+                        largeSize: 18,
+                        backgroundColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.25),
+                        label: Text(tickets.toString()),
+                        textColor:Theme.of(context).colorScheme.primary ,
+                      )
+                    ),
+                  )
+                ],
+              ),
+            ]
+          ),
+        ),
+      ],
+      body: TabBarView(
+        controller: _tabController,
+        children: [
+          BuatLaporanWidget(scrollController: _scrollController, laporanList: laporanList),
+          CustomScrollView(
+            controller: _scrollController,
+            slivers: [
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 36, vertical: 10),
+                sliver: SliverToBoxAdapter(
+                  child: FutureBuilder(
+                    future: _getList,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.done && snapshot.hasError) {
+                        return HandleNoInternet(message: snapshot.error.toString(), onPressed: () {});
+                      }
+                      else if (snapshot.connectionState == ConnectionState.done && snapshot.data != null) {
+                        return Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(Icons.check_circle, size: 20, color: Theme.of(context).colorScheme.secondary),
+                                    const SizedBox(width: 8),
+                                    DropdownButtonHideUnderline(
+                                      child: DropdownButton(
+                                        value: sortValue,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            sortValue = value!;
+                                          });
+                                        },
+                                        borderRadius: BorderRadius.circular(12),
+                                        items: sortList.map((item) {
+                                          return DropdownMenuItem(
+                                            value: item,
+                                            child: Text(item, style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                              color: Theme.of(context).colorScheme.secondary,
+                                            ))
+                                          );
+                                        }).toList(),
+                                      ),
+                                    )
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Text(tickets.toString(), style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                      color: Theme.of(context).colorScheme.secondary
+                                    )),
+                                    const SizedBox(width: 2),
+                                    Icon(Icons.question_answer, size: 18, color: Theme.of(context).colorScheme.secondary),
+                                  ],
+                                )
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                            ListView.builder(
+                              controller: _scrollController,
+                              shrinkWrap: true,
+                              itemCount: snapshot.data?.length,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemBuilder: (context, index) {
+                                DateTime dateTime = DateTime.parse(snapshot.data?[index]['document_date']);
+                                dateTime = dateTime.add(DateTime.parse(snapshot.data?[index]['document_date']).timeZoneOffset);
+                                return Column(
+                                  children: [
+                                    Row(
+                                      children: [
+                                        CircleAvatar(
+                                          radius: 18,
+                                          backgroundColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.25),
+                                          child: Icon(
+                                            laporanList.singleWhere((element) {
+                                              return element['name'] == getLaporan(snapshot.data?[index]['SFB1']['type_feed']);
+                                            })['icon'],
+                                            color: Theme.of(context).colorScheme.primary
+                                          )
                                         ),
-                                      )
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      Text(tickets.toString(), style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                                        color: Theme.of(context).colorScheme.secondary
-                                      )),
-                                      const SizedBox(width: 2),
-                                      Icon(Icons.question_answer, size: 18, color: Theme.of(context).colorScheme.secondary),
-                                    ],
-                                  )
-                                ],
-                              ),
-                              const SizedBox(height: 16),
-                              ListView.builder(
-                                controller: _scrollController,
-                                shrinkWrap: true,
-                                itemCount: snapshot.data?.length,
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemBuilder: (context, index) {
-                                  DateTime dateTime = DateTime.parse(snapshot.data?[index]['document_date']);
-                                  dateTime = dateTime.add(DateTime.parse(snapshot.data?[index]['document_date']).timeZoneOffset);
-                                  return Column(
-                                    children: [
-                                      Row(
+                                        const SizedBox(width: 12),
+                                        Text(getLaporan(snapshot.data?[index]['SFB1']['type_feed']), style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                          color: Theme.of(context).colorScheme.primary,
+                                        )),
+                                        Text(' #${snapshot.data![index]['id_osfb'].toString()}', style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                          color: Theme.of(context).colorScheme.secondary.withOpacity(0.5),
+                                        )),
+                                      ],
+                                    ),
+                                    ListTile(
+                                      contentPadding: EdgeInsets.zero,
+                                      title: Text(snapshot.data?[index]['SFB1']['description']),
+                                      titleTextStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                        fontWeight: FontWeight.w500,
+                                        letterSpacing: 0,
+                                        height: 2
+                                      ),
+                                      subtitle: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
-                                          CircleAvatar(
-                                            radius: 18,
-                                            backgroundColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.25),
-                                            child: Icon(
-                                              laporanList.singleWhere((element) {
-                                                return element['name'] == getLaporan(snapshot.data?[index]['SFB1']['type_feed']);
-                                              })['icon'],
-                                              color: Theme.of(context).colorScheme.primary
-                                            )
-                                          ),
-                                          const SizedBox(width: 12),
-                                          Text(getLaporan(snapshot.data?[index]['SFB1']['type_feed']), style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                                            color: Theme.of(context).colorScheme.primary,
+                                          Text(DateFormat('EEEE, dd MMMM, ''yyyy', 'id').format(dateTime), style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                            color: Theme.of(context).colorScheme.secondary.withOpacity(0.75),
                                           )),
-                                          Text(' #${snapshot.data![index]['id_osfb'].toString()}', style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                            color: Theme.of(context).colorScheme.secondary.withOpacity(0.5),
+                                          Text(DateFormat('HH:mm', 'id').format(DateTime.parse(snapshot.data?[index]['document_date'])), style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                            color: Theme.of(context).colorScheme.secondary.withOpacity(0.75),
                                           )),
                                         ],
                                       ),
-                                      ListTile(
-                                        contentPadding: EdgeInsets.zero,
-                                        title: Text(snapshot.data?[index]['SFB1']['description']),
-                                        titleTextStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                          fontWeight: FontWeight.w500,
-                                          letterSpacing: 0,
-                                          height: 2
-                                        ),
-                                        subtitle: Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(DateFormat('EEEE, dd MMMM, ''yyyy', 'id').format(dateTime), style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                              color: Theme.of(context).colorScheme.secondary.withOpacity(0.75),
-                                            )),
-                                            Text(DateFormat('HH:mm', 'id').format(DateTime.parse(snapshot.data?[index]['document_date'])), style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                              color: Theme.of(context).colorScheme.secondary.withOpacity(0.75),
-                                            )),
-                                          ],
-                                        ),
+                                    ),
+                                    Divider(color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.25)),
+                                    const SizedBox(height: 12)
+                                  ],
+                                );
+                            }),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                for (int index = 0; index < pages(); index++) ...[
+                                  TextButton(
+                                    style: ButtonStyle(
+                                      padding: const MaterialStatePropertyAll(EdgeInsets.zero),
+                                      textStyle: MaterialStatePropertyAll(Theme.of(context).textTheme.labelLarge?.copyWith(
+                                        fontWeight: index + 1 == currentPage ? FontWeight.w800 : null)
                                       ),
-                                      Divider(color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.25)),
-                                      const SizedBox(height: 12)
-                                    ],
-                                  );
-                              }),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  for (int index = 0; index < pages(); index++) ...[
-                                    TextButton(
-                                      style: ButtonStyle(
-                                        padding: const MaterialStatePropertyAll(EdgeInsets.zero),
-                                        textStyle: MaterialStatePropertyAll(Theme.of(context).textTheme.labelLarge?.copyWith(
-                                          fontWeight: index + 1 == currentPage ? FontWeight.w800 : null)
-                                        ),
-                                        foregroundColor: MaterialStatePropertyAll(
-                                          index + 1 == currentPage ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.secondary.withOpacity(0.75)
-                                        )
-                                      ),
-                                      onPressed: index + 1 != currentPage ? () => changePage(index + 1) : null,
-                                      child: Text((index + 1).toString())
-                                    )
-                                  ]
+                                      foregroundColor: MaterialStatePropertyAll(
+                                        index + 1 == currentPage ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.secondary.withOpacity(0.75)
+                                      )
+                                    ),
+                                    onPressed: index + 1 != currentPage ? () => changePage(index + 1) : null,
+                                    child: Text((index + 1).toString())
+                                  )
                                 ]
-                              )
-                            ],
-                          );
-                        } else if (snapshot.connectionState == ConnectionState.done && snapshot.hasData == false) {
-                          return SizedBox(
-                            height: MediaQuery.of(context).size.height / 2 - (kToolbarHeight + kBottomNavigationBarHeight),
-                            child: Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.handshake_outlined, size: 72, color: Theme.of(context).colorScheme.primary),
-                                  const SizedBox(height: 24),
-                                  Text('Kamu Hebat !', style: Theme.of(context).textTheme.titleLarge),
-                                  const SizedBox(height: 8),
-                                  Text('Tempat ini sepertinya tidak digunakan.',
-                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: Theme.of(context).colorScheme.secondary,
-                                    )
-                                  ),
-                                ],
-                              ),
+                              ]
+                            )
+                          ],
+                        );
+                      } else if (snapshot.connectionState == ConnectionState.done && snapshot.hasData == false) {
+                        return SizedBox(
+                          height: MediaQuery.of(context).size.height / 2 - (kToolbarHeight + kBottomNavigationBarHeight),
+                          child: Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.handshake_outlined, size: 72, color: Theme.of(context).colorScheme.primary),
+                                const SizedBox(height: 24),
+                                Text('Kamu Hebat !', style: Theme.of(context).textTheme.titleLarge),
+                                const SizedBox(height: 8),
+                                Text('Tempat ini sepertinya tidak digunakan.',
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: Theme.of(context).colorScheme.secondary,
+                                  )
+                                ),
+                              ],
                             ),
-                          );
-                        } else {
-                          return const HandleLoading();
-                        }
+                          ),
+                        );
+                      } else {
+                        return const HandleLoading();
                       }
-                    ),
+                    }
                   ),
                 ),
-              ],
-            )
-          ]
-        ),
+              ),
+            ],
+          )
+        ]
       ),
     );
   }

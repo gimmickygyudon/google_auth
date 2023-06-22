@@ -6,7 +6,6 @@ import 'package:async/async.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_auth/functions/sql_client.dart';
-import 'package:http/http.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class UserLocation {

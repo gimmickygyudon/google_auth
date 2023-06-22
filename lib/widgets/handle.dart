@@ -111,7 +111,7 @@ class HandleEmptyOrder extends StatelessWidget {
           const SizedBox(height: 92),
           const Icon(Icons.shopping_bag_outlined, size: 72),
           const SizedBox(height: 24),
-          Text('Kami Menawarkan Barang Berkualitas Tinggi Berstandart',
+          Text('Kami Menawarkan Barang Berkualitas Tinggi Berstandar',
             textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
               color: Theme.of(context).colorScheme.secondary,

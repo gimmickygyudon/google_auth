@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+// TODO: Depecrated Class
 class BottomNavigation extends StatefulWidget {
   const BottomNavigation({super.key, required this.currentPage, required this.pageController, required this.changePage});
 
@@ -103,6 +104,83 @@ class _BottomNavigationState extends State<BottomNavigation> {
           )
         ]
       ),
+    );
+  }
+}
+
+class NavigationBarBottom extends StatefulWidget {
+  const NavigationBarBottom({
+    super.key,
+    required this.currentPage,
+    required this.pageController,
+    required this.changePage
+  });
+
+  final int currentPage;
+  final PageController pageController;
+  final Function changePage;
+
+  @override
+  State<NavigationBarBottom> createState() => _NavigationBarBottomState();
+}
+
+class _NavigationBarBottomState extends State<NavigationBarBottom> {
+  final List<Map<String, dynamic>> bottomMenu = [
+    {
+      'value': 0,
+      'icon': Icons.cottage,
+      'icon_outline': Icons.cottage_outlined,
+      'title': 'Beranda'
+    },
+    {
+      'icon': Icons.star,
+      'icon_outline': Icons.star_border,
+      'title': 'Promo'
+    },
+    {
+      'icon': Icons.shopping_bag,
+      'icon_outline': Icons.shopping_bag_outlined,
+      'title': 'Belanja'
+    },
+    {
+      'icon': Icons.help,
+      'icon_outline': Icons.help_outline,
+      'title': 'Keluhan'
+    },
+    {
+      'icon': Icons.notes,
+      'icon_outline': Icons.notes_rounded,
+      'title': 'Menu'
+    },
+  ];
+
+  void toPage(int page) {
+    widget.pageController.animateToPage(
+      page,
+      curve: Curves.easeIn,
+      duration: const Duration(milliseconds: 200)
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return NavigationBar(
+      onDestinationSelected: (int index) {
+        if (index == 4) {
+          Scaffold.of(context).openEndDrawer();
+        } else {
+          toPage(index);
+        }
+      },
+      elevation: 4,
+      selectedIndex: widget.currentPage,
+      destinations: bottomMenu.map((item) {
+        return NavigationDestination(
+          selectedIcon: Icon(item['icon']),
+          icon: Icon(item['icon_outline']),
+          label: item['title']
+        );
+      }).toList()
     );
   }
 }

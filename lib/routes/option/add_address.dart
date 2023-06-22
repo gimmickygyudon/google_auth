@@ -38,7 +38,6 @@ class _AddressAddRouteState extends State<AddressAddRoute> {
   @override
   void initState() {
     _scrollController = ScrollController();
-    setLocation();
     getLocation();
     super.initState();
   }
@@ -65,6 +64,58 @@ class _AddressAddRouteState extends State<AddressAddRoute> {
                   'suburb': value.suburb,
                   'street': value.street
                 };
+
+                  _locations = [
+                  {
+                    'controller': TextEditingController(),
+                    'focusNode': FocusNode(),
+                    'options': LocationName.filterProvince,
+                    'name': 'Provinsi',
+                    'icon': Icons.landscape,
+                    'value': null,
+                    'placeholder': null
+                  }, {
+                    'controller': TextEditingController(),
+                    'focusNode': FocusNode(),
+                    'options': LocationName.filterDistrict,
+                    'name': 'Kabupaten / Kota',
+                    'icon': Icons.location_city,
+                    'visible': true,
+                    'value': null,
+                    'placeholder': null
+                  }, {
+                    'controller': TextEditingController(),
+                    'focusNode': FocusNode(),
+                    'options': LocationName.filterSubdistrict,
+                    'icon': Icons.domain,
+                    'name': 'Kecamatan',
+                    'value': null,
+                    'placeholder': null
+                  }, {
+                    'controller': TextEditingController(),
+                    'focusNode': FocusNode(),
+                    'options': LocationName.filterSuburb,
+                    'name': 'Kelurahan / Desa',
+                    'icon': Icons.holiday_village,
+                    'value': null,
+                    'placeholder': null
+                  }, {
+                    'controller': TextEditingController(),
+                    'focusNode': FocusNode(),
+                    'options': Future.value,
+                    'name': 'Alamat',
+                    'icon': Icons.signpost_rounded,
+                    'value': null,
+                  }
+                ];
+
+                _locations[0]['placeholder'] = value.province;
+                _locations[1]['placeholder'] = value.district;
+                _locations[2]['placeholder'] = value.subdistrict;
+                _locations[3]['placeholder'] = value.suburb;
+                _locations[4]['placeholder'] = value.street;
+
+                locations.add(_locations[0]);
               });
               return value;
             });
@@ -73,50 +124,6 @@ class _AddressAddRouteState extends State<AddressAddRoute> {
       });
       return latlang = currentPosition;
     });
-  }
-
-  void setLocation() {
-    _locations = [
-      {
-        'controller': TextEditingController(),
-        'focusNode': FocusNode(),
-        'options': LocationName.filterProvince,
-        'name': 'Provinsi',
-        'icon': Icons.landscape,
-        'value': null,
-      }, {
-        'controller': TextEditingController(),
-        'focusNode': FocusNode(),
-        'options': LocationName.filterDistrict,
-        'name': 'Kabupaten / Kota',
-        'icon': Icons.location_city,
-        'visible': true,
-        'value': null,
-      }, {
-        'controller': TextEditingController(),
-        'focusNode': FocusNode(),
-        'options': LocationName.filterSubdistrict,
-        'icon': Icons.domain,
-        'name': 'Kecamatan',
-        'value': null,
-      }, {
-        'controller': TextEditingController(),
-        'focusNode': FocusNode(),
-        'options': LocationName.filterSuburb,
-        'name': 'Kelurahan / Desa',
-        'icon': Icons.holiday_village,
-        'value': null,
-      }, {
-        'controller': TextEditingController(),
-        'focusNode': FocusNode(),
-        'options': Future.value,
-        'name': 'Alamat',
-        'icon': Icons.signpost_rounded,
-        'value': null,
-      }
-    ];
-
-    locations.add(_locations[0]);
   }
 
   double range(int multi) {
@@ -159,7 +166,6 @@ class _AddressAddRouteState extends State<AddressAddRoute> {
             }
 
             locations = list;
-            print(LocationName.selectedLocationName);
 
             if (index != locations.length) locations[index + 1]['visible'] = true;
             if (index - 1 != locations.length) {
@@ -196,7 +202,6 @@ class _AddressAddRouteState extends State<AddressAddRoute> {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Alamat Baru'),
-          titleTextStyle: Theme.of(context).textTheme.titleMedium,
           centerTitle: true,
         ),
         body: SingleChildScrollView(
@@ -242,11 +247,13 @@ class _AddressAddRouteState extends State<AddressAddRoute> {
                               context: context,
                               locations: currentLocation_,
                               hero: 'Location'
-                            );
+                            ).then((value) {
+                              if (value == true) Navigator.pop(context);
+                            });
                           });
                         },
                         icon: const Icon(Icons.near_me),
-                        title: const Text('Lokasi Sekarang'),
+                        title: const Text('Alamat Saat Ini'),
                         subtitle: currentLocation['suburb'] != null
                         ? Text(currentLocation['street'].toString().substring(0, currentLocation['street'].toString().indexOf(',')), style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Theme.of(context).colorScheme.secondary
@@ -264,7 +271,7 @@ class _AddressAddRouteState extends State<AddressAddRoute> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Lokasi Anda', style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    Text('Lokasi Saya', style: Theme.of(context).textTheme.labelLarge?.copyWith(
                       color: Theme.of(context).colorScheme.secondary,
                       letterSpacing: 0
                     )),

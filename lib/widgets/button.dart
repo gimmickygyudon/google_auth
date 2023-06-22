@@ -185,14 +185,14 @@ class ButtonListTile extends StatelessWidget {
     return Card(
       elevation: 0,
       margin: EdgeInsets.zero,
-      color: color ?? Theme.of(context).colorScheme.inversePrimary.withOpacity(0.25),
+      color: color ?? Theme.of(context).colorScheme.inversePrimary.withOpacity(0.25).withBlue(150),
       shape: RoundedRectangleBorder(borderRadius: borderRadius ?? BorderRadius.circular(50)),
       clipBehavior: Clip.antiAlias,
       child: ListTile(
         onTap: () => onTap(),
         leading: CircleAvatar(
           radius: bgRadius ?? 24,
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.5),
+          backgroundColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.75).withBlue(150),
           child: icon,
         ),
         title: title,

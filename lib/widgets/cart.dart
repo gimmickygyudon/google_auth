@@ -66,10 +66,10 @@ class _CartWidgetState extends State<CartWidget> {
                             ],
                           ),
                           ElevatedButton.icon(
-                            onPressed: () => pushAddress(context: context, hero: 'Lokasi'),
+                            onPressed: () => pushAddress(context: context, hero: 'Pengiriman'),
                             style: Styles.buttonFlatSmall(context: context),
-                            label: const Text('Lokasi'),
-                            icon: const Icon(Icons.share_location_sharp)
+                            label: const Text('Pengiriman'),
+                            icon: const Icon(Icons.local_shipping_outlined)
                           )
                         ],
                       ),

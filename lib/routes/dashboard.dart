@@ -150,6 +150,7 @@ class _DashboardRouteState extends State<DashboardRoute> {
         itemBuilder: (context, index) => routes[index]
       ),
       bottomNavigationBar: BottomNavigation(currentPage: currentPage, pageController: _pageController, changePage: changePage)
+      // bottomNavigationBar: NavigationBarBottom(currentPage: currentPage, pageController: _pageController, changePage: changePage),
     );
   }
 }

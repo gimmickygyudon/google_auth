@@ -25,10 +25,10 @@ class OrdersPageRoute extends StatefulWidget {
 }
 
 class _OrdersPageRouteState extends State<OrdersPageRoute> {
-  final ValueNotifier<bool> orderOpen = ValueNotifier(false);
+  final ValueNotifier<bool> orderOpen = ValueNotifier(true);
 
   late Future _getCurrentLocation;
-  String? deliveryType;
+  late String deliveryType;
 
   List checkedItems = List.empty(growable: true);
   bool firstInit = false;
@@ -37,7 +37,7 @@ class _OrdersPageRouteState extends State<OrdersPageRoute> {
   void initState() {
     _getCurrentLocation = LocationManager.getCurrentLocation().then((value) {
       return Delivery.getType().then((type) {
-        deliveryType = type;
+        setState(() => deliveryType = type);
         return value;
       });
     });
@@ -106,8 +106,9 @@ class _OrdersPageRouteState extends State<OrdersPageRoute> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.1),
       appBar: AppBar(
-        title: const Text('Buat Pesanan'),
+        title: const Text('Pesanan'),
         titleTextStyle: Theme.of(context).textTheme.titleMedium,
         centerTitle: true,
         shape: const RoundedRectangleBorder(
@@ -116,8 +117,7 @@ class _OrdersPageRouteState extends State<OrdersPageRoute> {
             bottomRight: Radius.circular(20)
           )
         ),
-        scrolledUnderElevation: 8,
-        shadowColor: Theme.of(context).colorScheme.shadow.withOpacity(0.5),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.005),
         actions: [
           ProfileMenu(color: Theme.of(context).colorScheme.onSurface),
           const SizedBox(width: 12)
@@ -420,7 +420,7 @@ class AddressCard extends StatelessWidget {
                           child: Container(
                             decoration: BoxDecoration(
                               border: Border(
-                                top: BorderSide(color: Theme.of(context).colorScheme.primary, width: 6)
+                                bottom: BorderSide(color: Theme.of(context).colorScheme.primary, width: 6),
                               )
                             ),
                             child: Padding(
@@ -438,11 +438,9 @@ class AddressCard extends StatelessWidget {
                                           Text('Pengiriman', style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                             fontWeight: FontWeight.w500
                                           )),
-                                          const SizedBox(height: 4),
+                                          const SizedBox(height: 2),
                                           Row(
                                             children: [
-                                              Icon(Icons.home, size: 18, color: Theme.of(context).colorScheme.secondary),
-                                              const SizedBox(width: 4),
                                               Text(snapshot['name'], style: Theme.of(context).textTheme.labelMedium?.copyWith(
                                                 letterSpacing: 0,
                                                 color: Theme.of(context).colorScheme.secondary,
@@ -454,8 +452,8 @@ class AddressCard extends StatelessWidget {
                                       ElevatedButton.icon(
                                         onPressed: () => pushAddress(context: context, hero: snapshot['name']),
                                         style: Styles.buttonFlatSmall(context: context),
-                                        label: const Text('Ubah'),
-                                        icon: const Icon(Icons.edit_location_outlined),
+                                        label: const Text('Ganti'),
+                                        icon: const Icon(Icons.edit_location_alt),
                                       )
                                     ],
                                   ),
@@ -488,11 +486,12 @@ class AddressCard extends StatelessWidget {
                                             ),
                                             const SizedBox(height: 12),
                                             Text('${snapshot['street']}, ${snapshot['subdistrict']}, ${snapshot['district']}, ${snapshot['province']}',
-                                              textAlign: TextAlign.justify,
                                               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                                 color: Theme.of(context).colorScheme.secondary,
                                                 fontWeight: FontWeight.w500,
-                                                letterSpacing: 0
+                                                letterSpacing: 0,
+                                                wordSpacing: 2,
+                                                height: 1.4
                                               ),
                                             ),
                                           ],
@@ -535,9 +534,9 @@ class AddressCard extends StatelessWidget {
                                         style: Styles.buttonFlat(
                                           context: context,
                                           borderRadius: BorderRadius.circular(12),
-                                          backgroundColor: Theme.of(context).colorScheme.primary.withBlue(100)
+                                          backgroundColor: Theme.of(context).colorScheme.primary.withGreen(160)
                                         ),
-                                        icon: const Icon(Icons.arrow_circle_right_outlined, size: 22),
+                                        icon: const Icon(Icons.arrow_forward, size: 22),
                                         label: const Text('Checkout'),
                                       ),
                                     ),

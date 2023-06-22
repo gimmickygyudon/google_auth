@@ -29,28 +29,34 @@ class MyApp extends StatelessWidget {
         darkTheme: theme.darkTheme,
         themeMode: theme.getTheme(),
         builder: (context, child) {
-          return MediaQuery(
-            data: MediaQuery.of(context).copyWith(textScaleFactor: 1.3),
-            child: ResponsiveWrapper.builder(
-              child,
-              maxWidth: 600,
-              minWidth: 200,
-              maxWidthLandscape: 4000,
-              minWidthLandscape: 600,
-              breakpointsLandscape: [
-                const ResponsiveBreakpoint.resize(400, name: MOBILE, scaleFactor: 0.75),
-                const ResponsiveBreakpoint.resize(600, name: TABLET, scaleFactor: 0.75),
-                const ResponsiveBreakpoint.resize(1024, name: DESKTOP),
-                const ResponsiveBreakpoint.resize(1600, name: '4K'),
-              ],
-              defaultScale: true,
-              breakpoints: [
-                const ResponsiveBreakpoint.resize(200, name: MOBILE, scaleFactor: 0.8),
-                const ResponsiveBreakpoint.resize(400, name: TABLET, scaleFactor: 0.45),
-                const ResponsiveBreakpoint.resize(1024, name: DESKTOP),
-                const ResponsiveBreakpoint.resize(1600, name: '4K'),
-              ]
+          return ResponsiveBreakpoints.builder(
+            child: Builder(
+              builder: (context) {
+                return Container(
+                  color: Theme.of(context).colorScheme.background,
+                  child: ResponsiveScaledBox(
+                    autoCalculateMediaQueryData: true,
+                    width: ResponsiveValue<double>(
+                      context,
+                      conditionalValues: [
+                        Condition.equals(name: MOBILE, value: 450),
+                      ],
+                    ).value,
+                    child: child!
+                  )
+                );
+              }
             ),
+            breakpoints: [
+              const Breakpoint(start: 0, end: 450, name: MOBILE),
+              const Breakpoint(start: 451, end: 850, name: TABLET),
+              const Breakpoint(start: 851, end: double.infinity, name: DESKTOP),
+            ],
+            breakpointsLandscape: [
+              const Breakpoint(start: 0, end: 450, name: MOBILE),
+              const Breakpoint(start: 451, end: 800, name: TABLET),
+              const Breakpoint(start: 801, end: double.infinity, name: DESKTOP),
+            ],
           );
         },
         home: const MyHomePage(title: 'Customer'),

@@ -628,10 +628,10 @@ packages:
     dependency: "direct main"
     description:
       name: responsive_framework
-      sha256: e083346029b008335b008274c4d3fac5b9e0ca8796f201ed20884f579101d584
+      sha256: "97d4a8b9468c0ecaafe8566645d70cc59480e4b03704a1b936396e68775e2c34"
       url: "https://pub.dev"
     source: hosted
-    version: "0.2.0"
+    version: "1.1.0"
   shared_preferences:
     dependency: "direct main"
     description:
