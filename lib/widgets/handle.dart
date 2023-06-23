@@ -131,3 +131,36 @@ class HandleEmptyOrder extends StatelessWidget {
     );
   }
 }
+
+class HandleEmptyAddress extends StatelessWidget {
+  const HandleEmptyAddress({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 32),
+      child: Column(
+        children: [
+          const SizedBox(height: 92),
+          const Icon(Icons.home_work_outlined, size: 72),
+          const SizedBox(height: 24),
+          Text('Sepertinya Anda Belum Menambah Lokasi Pengiriman',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+              color: Theme.of(context).colorScheme.secondary,
+              letterSpacing: 0
+            )
+          ),
+          const SizedBox(height: 48),
+          ElevatedButton.icon(
+            onPressed: () => pushAddressAdd(context: context, hero: 'Add'),
+            style: Styles.buttonLight(context: context),
+            label: const Text('Tambah Sekarang'),
+            icon: const Icon(Icons.add_location_alt)
+          ),
+          const SizedBox(height: 92),
+        ],
+      ),
+    );
+  }
+}

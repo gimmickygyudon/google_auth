@@ -3,6 +3,7 @@ import 'package:google_auth/functions/location.dart';
 import 'package:google_auth/functions/push.dart';
 import 'package:google_auth/functions/sqlite.dart';
 import 'package:google_auth/functions/string.dart';
+import 'package:google_auth/routes/alamat/address.dart';
 import 'package:google_auth/strings/item.dart';
 import 'package:google_auth/styles/theme.dart';
 import 'package:google_auth/widgets/cart.dart';
@@ -200,7 +201,7 @@ class _OrdersPageRouteState extends State<OrdersPageRoute> with SingleTickerProv
               ),
             ),
             body: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -441,9 +442,12 @@ class AddressCard extends StatelessWidget {
       curve: Curves.ease,
       duration: const Duration(milliseconds: 400),
       child: ValueListenableBuilder(
-        valueListenable: OrdersPageRoute.currentLocation,
-        builder: (context, snapshot, child) {
-          if (snapshot.isNotEmpty) {
+        valueListenable: AddressRoute.locations,
+        builder: (context, locations, child) {
+          Map? snapshot;
+          if (locations['locations'].isNotEmpty) snapshot = locations?['locations'][locations?['locationindex']];
+
+          if (snapshot != null) {
             return ValueListenableBuilder(
             valueListenable: orderOpen,
             builder: (context, orderOpen, child) {
@@ -455,7 +459,7 @@ class AddressCard extends StatelessWidget {
                     Padding(
                       padding: padding ?? const EdgeInsets.symmetric(vertical: 12, horizontal: 18),
                       child: Hero(
-                        tag: snapshot['name'],
+                        tag: snapshot?['name'],
                         child: Card(
                           margin: EdgeInsets.zero,
                           elevation: 0,
@@ -491,7 +495,7 @@ class AddressCard extends StatelessWidget {
                                           ),
                                           Row(
                                             children: [
-                                              Text(snapshot['name'], style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                              Text(snapshot?['name'], style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                                 color: Theme.of(context).colorScheme.inversePrimary,
                                                 fontWeight: FontWeight.w500,
                                                 letterSpacing: 0,
@@ -501,7 +505,7 @@ class AddressCard extends StatelessWidget {
                                         ],
                                       ),
                                       ElevatedButton.icon(
-                                        onPressed: () => pushAddress(context: context, hero: snapshot['name']),
+                                        onPressed: () => pushAddress(context: context, hero: snapshot?['name']),
                                         style: Styles.buttonInverseFlatSmall(context: context),
                                         label: const Text('Ganti'),
                                         icon: const Icon(Icons.edit_location_alt),
@@ -522,14 +526,14 @@ class AddressCard extends StatelessWidget {
                                         child: Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
-                                            Text(snapshot['district'],
+                                            Text(snapshot?['district'],
                                               textAlign: TextAlign.justify,
                                               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                                 color: Theme.of(context).colorScheme.inversePrimary,
                                                 fontWeight: FontWeight.w500,
                                               ),
                                             ),
-                                            Text('+62 ${snapshot['phone_number']}',
+                                            Text('+62 ${snapshot?['phone_number']}',
                                               textAlign: TextAlign.justify,
                                               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                                 color: Theme.of(context).colorScheme.surface,
@@ -537,7 +541,7 @@ class AddressCard extends StatelessWidget {
                                               ),
                                             ),
                                             const SizedBox(height: 12),
-                                            Text('${snapshot['street']}, ${snapshot['subdistrict']}, ${snapshot['district']}, ${snapshot['province']}',
+                                            Text('${snapshot?['street']}, ${snapshot?['subdistrict']}, ${snapshot?['district']}, ${snapshot?['province']}',
                                               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                                 color: Theme.of(context).colorScheme.surfaceVariant,
                                                 fontWeight: FontWeight.w500,
@@ -621,8 +625,10 @@ class AddressCard extends StatelessWidget {
               );
             }
           );
+          } else if (orderOpen.value == true) {
+            return const HandleEmptyAddress();
           } else {
-            return LinearProgressIndicator(color: Theme.of(context).colorScheme.primary, minHeight: 6);
+            return const SizedBox();
           }
         }
       ),

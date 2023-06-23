@@ -32,10 +32,13 @@ class MyApp extends StatelessWidget {
           darkTheme: theme.darkTheme,
           themeMode: theme.getTheme(),
           localizationsDelegates: const [
-            GlobalMaterialLocalizations.delegate
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
           ],
           supportedLocales: const [
            Locale('id'),
+           Locale('en')
          ],
           builder: (context, child) {
             return ResponsiveBreakpoints.builder(
@@ -44,7 +47,7 @@ class MyApp extends StatelessWidget {
                   return Container(
                     color: Theme.of(context).colorScheme.background,
                     child: ResponsiveScaledBox(
-                      autoCalculateMediaQueryData: true,
+                      autoCalculateMediaQueryData: false,
                       width: ResponsiveValue<double>(
                         context,
                         conditionalValues: [

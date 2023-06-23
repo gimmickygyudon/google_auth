@@ -154,7 +154,7 @@ class _AddressRouteState extends State<AddressRoute> {
               Hero(
                 tag: 'Add',
                 child: ButtonListTile(
-                  icon: const Icon(Icons.add_location_alt_outlined),
+                  icon: const Icon(Icons.add_location_alt),
                   bgRadius: 20,
                   title: const Text('Tambah Alamat Baru'),
                   onTap: () => pushAddressAdd(context: context, hero: 'Add')
@@ -179,8 +179,9 @@ class _AddressRouteState extends State<AddressRoute> {
               ValueListenableBuilder(
                 valueListenable: AddressRoute.locations,
                 builder: (context, snapshot, child) {
-                  if (snapshot['locations'] == null) {
-                    return const Center(child: HandleLoading());
+                  print(snapshot);
+                  if (snapshot['locations'].isEmpty) {
+                    return const Center(child: HandleEmptyAddress());
                   } else if (snapshot['locations'].isNotEmpty) {
                     return ListView.builder(
                       physics: const NeverScrollableScrollPhysics(),
@@ -206,7 +207,6 @@ class _AddressRouteState extends State<AddressRoute> {
                       }
                     );
                   } else {
-                    // TODO: get handle widget
                     return const Center(child: HandleLoading());
                   }
                 }

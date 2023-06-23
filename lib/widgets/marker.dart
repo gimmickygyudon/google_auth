@@ -60,13 +60,13 @@ class MarkerLabel extends StatelessWidget {
           point: LatLng(latlang.latitude, latlang.longitude),
           builder: (context) {
             return Transform.translate(
-              offset: const Offset(0, -44),
+              offset: const Offset(0, -48),
               child: Column(
                 children: [
                   PhysicalModel(
                     elevation: 4,
                     shadowColor: Theme.of(context).colorScheme.shadow.withOpacity(0.25),
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(12),
                     color: Theme.of(context).colorScheme.surface,
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(10, 8, 0, 8),
@@ -75,18 +75,19 @@ class MarkerLabel extends StatelessWidget {
                         children: [
                           CircleAvatar(
                             radius: 16,
-                            child: Icon(Icons.location_on, size: 22, color: Theme.of(context).colorScheme.primary),
+                            child: Icon(Icons.location_on_outlined, size: 24, color: Theme.of(context).colorScheme.primary),
                           ),
                           const SizedBox(width: 6),
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(currentLocation['suburb'], style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                              Text(currentLocation['suburb'], style: Theme.of(context).textTheme.labelMedium?.copyWith(
                                 height: 0,
                                 letterSpacing: 0
                               )),
                               Text(currentLocation['subdistrict'], style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                 color: Theme.of(context).colorScheme.secondary,
+                                fontSize: 10,
                                 letterSpacing: 0
                               )),
                             ],
