@@ -2,15 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_auth/functions/conversion.dart';
+import 'package:google_auth/functions/date.dart';
 import 'package:google_auth/functions/sqlite.dart';
 import 'package:google_auth/functions/string.dart';
 import 'package:google_auth/routes/belanja/orders_page.dart';
 import 'package:google_auth/strings/item.dart';
 import 'package:google_auth/strings/user.dart';
+import 'package:google_auth/styles/theme.dart';
+import 'package:google_auth/widgets/bottomsheet.dart';
+import 'package:google_auth/widgets/button.dart';
 import 'package:google_auth/widgets/cart.dart';
 import 'package:google_auth/widgets/dialog.dart';
 import 'package:google_auth/widgets/handle.dart';
 import 'package:google_auth/widgets/profile.dart';
+import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -97,7 +102,14 @@ class _CheckoutRouteState extends State<CheckoutRoute>  with SingleTickerProvide
               tabs: const [
                 Tab(child: Text('Barang')),
                 Tab(child: Text('Tujuan')),
-                Tab(child: Text('Pengiriman'))
+                Tab(child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.check_circle_outline, size: 16),
+                    SizedBox(width: 6),
+                    Text('Checkout'),
+                  ],
+                ))
               ]
             ),
           )
@@ -107,7 +119,11 @@ class _CheckoutRouteState extends State<CheckoutRoute>  with SingleTickerProvide
           children: [
             ItemPage(checkedItems: widget.checkedItems),
             const LocationWidget(),
-            const DeliveryWidget()
+            DeliveryWidget(
+              tabController: _tabController,
+              scrollController: _scrollController,
+              checkedItems: widget.checkedItems,
+            )
           ]
         )
       )
@@ -203,7 +219,7 @@ class _ItemPageState extends State<ItemPage> {
           body: CustomScrollView(
             slivers: [
               SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 20),
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 10),
                 sliver: SliverList.builder(
                   itemCount: item.length,
                   itemBuilder: (context, index) {
@@ -476,13 +492,11 @@ class _LocationWidgetState extends State<LocationWidget> with AutomaticKeepAlive
                       constraints: BoxConstraints(
                         maxWidth: MediaQuery.of(context).size.width
                       ),
-                      child: Expanded(
-                        child: Text(
-                          currentLocation['street'],
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            height: 0,
-                            letterSpacing: 0
-                          ),
+                      child: Text(
+                        currentLocation['street'],
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          height: 0,
+                          letterSpacing: 0
                         ),
                       ),
                     ),
@@ -527,30 +541,303 @@ class _LocationWidgetState extends State<LocationWidget> with AutomaticKeepAlive
 }
 
 class DeliveryWidget extends StatefulWidget {
-  const DeliveryWidget({super.key});
+  const DeliveryWidget({super.key, required this.checkedItems, required this.tabController, required this.scrollController});
+
+  final List checkedItems;
+  final TabController tabController;
+  final ScrollController scrollController;
 
   @override
   State<DeliveryWidget> createState() => _DeliveryWidgetState();
 }
 
 class _DeliveryWidgetState extends State<DeliveryWidget> {
+  late TextEditingController dateTextController, timeTextController;
+  String? selectedDate, selectedTime;
+
+  @override
+  void initState() {
+    dateTextController = TextEditingController();
+    timeTextController = TextEditingController();
+    super.initState();
+  }
+
+  String totalWeight() {
+    double total = 0;
+    for (var i = 0; i < CartWidget.cartNotifier.value.length; i++) {
+      if (widget.checkedItems[i] == true) {
+        total += double.parse(CartWidget.cartNotifier.value[i]['weight']) * int.parse(CartWidget.cartNotifier.value[i]['count']);
+      }
+    }
+
+    return setWeight(weight: total, count: 1);
+  }
+
+  int totalCount() {
+    int total = 0;
+    for (var i = 0; i < CartWidget.cartNotifier.value.length; i++) {
+      if (widget.checkedItems[i] == true) {
+        total += int.parse(CartWidget.cartNotifier.value[i]['count']);
+      }
+    }
+
+    return total;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ValueListenableBuilder(
-              valueListenable: OrdersPageRoute.delivertype,
-              builder: (context, deliveryType, child) => AddressCard(
-                orderOpen: ValueNotifier(true),
-                deliveryType: deliveryType,
-                padding: EdgeInsets.zero,
-                borderRadius: BorderRadius.zero,
+    return Theme(
+      data: Theme.of(context).copyWith(
+        inputDecorationTheme: Themes.inputDecorationTheme(context: context)
+      ),
+      child: Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.secondary.withOpacity(0.025),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: ValueListenableBuilder(
+                  valueListenable: OrdersPageRoute.delivertype,
+                  builder: (context, deliveryType, child) => AddressCard(
+                    orderOpen: ValueNotifier(true),
+                    deliveryType: deliveryType,
+                    padding: EdgeInsets.zero,
+                  ),
+                ),
               ),
-            )
-          ],
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+                child: Card(
+                  margin: EdgeInsets.zero,
+                  shadowColor: Colors.transparent,
+                  color: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.15).withBlue(150),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  clipBehavior: Clip.antiAlias,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+                    decoration: BoxDecoration(
+                      border: Border(
+                        top: BorderSide(color: Theme.of(context).colorScheme.primary.withBlue(50).withOpacity(0.4), width: 6),
+                      )
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text('Jadwal Pengiriman', style: Theme.of(context).textTheme.titleMedium),
+                        const SizedBox(height: 2),
+                        Text('Tanggal Dokumen: ${DateNow()}', style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).colorScheme.primary.withBlue(50).withOpacity(0.85),
+                          letterSpacing: 0
+                        )),
+                        const SizedBox(height: 20),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border: Border(
+                                bottom: BorderSide(color: Theme.of(context).colorScheme.primary.withBlue(50).withOpacity(0.4), width: 6),
+                              )
+                            ),
+                            child: ButtonListTile(
+                              dense: true,
+                              icon: const Icon(Icons.date_range),
+                              title: Text(selectedDate != null ? 'Tanggal Pengiriman' : 'Pilih Tanggal', style: Theme.of(context).textTheme.bodySmall?.copyWith()),
+                              subtitle: Text(selectedDate ?? DateNow(), style: Theme.of(context).textTheme.titleSmall?.copyWith()),
+                              bgRadius: 18,
+                              borderRadius: const BorderRadius.only(
+                                topLeft: Radius.circular(12),
+                                topRight: Radius.circular(12)
+                              ),
+                              trailing: const Icon(Icons.expand_more),
+                              onTap: () => Date.showDate(context).then((value) {
+                                if (value == null) {
+                                  return false;
+                                }
+                                setState(() {
+                                  String date = DateFormat('EEEE, dd MMMM, ''yyyy', 'id').format(value);
+                                  selectedDate = date;
+                                });
+                              }),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border: Border(
+                                bottom: BorderSide(color: Theme.of(context).colorScheme.primary.withBlue(50).withOpacity(0.4), width: 6),
+                              )
+                            ),
+                            child: ButtonListTile(
+                              dense: true,
+                              visualDensity: VisualDensity.compact,
+                              icon: const Icon(Icons.schedule),
+                              title: Text(selectedTime != null ? 'Waktu Pengiriman' : 'Pilih Waktu', style: Theme.of(context).textTheme.bodySmall?.copyWith()),
+                              subtitle: Text(selectedTime ?? TimeNow(), style: Theme.of(context).textTheme.titleSmall?.copyWith()),
+                              bgRadius: 18,
+                              borderRadius: const BorderRadius.only(
+                                topLeft: Radius.circular(12),
+                                topRight: Radius.circular(12)
+                              ),
+                              trailing: const Icon(Icons.expand_more),
+                              onTap: () => Date.showTime(context).then((value) {
+                                if (value == null) {
+                                  return false;
+                                }
+                                setState(() {
+                                  selectedTime = value.format(context);
+                                });
+                              }),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 18),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.5),
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5)
+                    ),
+                    borderRadius: BorderRadius.circular(12)
+                 ),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Voucher Discount', style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.secondary
+                          )),
+                          ElevatedButton(
+                            onPressed: () {},
+                            style: Styles.buttonFlatSmall(
+                              context: context,
+                              borderRadius: BorderRadius.circular(8),
+                              backgroundColor: Theme.of(context).colorScheme.outline,
+                            ),
+                            child: const Text('Lihat')
+                          )
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              ValueListenableBuilder(
+                valueListenable: CartWidget.cartNotifier,
+                builder: (context, value, child) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        InkWell(
+                          onTap: () {
+                            widget.scrollController.animateTo(0, duration: const Duration(milliseconds: 800), curve: Curves.ease);
+                            widget.tabController.animateTo(0);
+                          },
+                          child: Ink(
+                            padding: const EdgeInsets.all(20),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text('Jumlah Barang', style: Theme.of(context).textTheme.labelLarge),
+                                Text(totalCount().toString(), style: Theme.of(context).textTheme.labelLarge)
+                              ],
+                            ),
+                          ),
+                        ),
+                        Divider(height: 0, color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5)),
+                        Container(
+                          padding: const EdgeInsets.all(20),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('Tonase', style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                color: Theme.of(context).colorScheme.primary
+                              )),
+                              Text(totalWeight(), style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                color: Theme.of(context).colorScheme.primary
+                              ))
+                            ],
+                          ),
+                        ),
+                        Divider(height: 0, color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5)),
+                      ],
+                    ),
+                  );
+                }
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: () => showPaymentSheet(context),
+                      style: Styles.buttonForm(
+                        context: context,
+                      ),
+                      label: const Text('Pembayaran'),
+                      icon: const Icon(Icons.expand_more)
+                    )
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 30),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(' Catatan', style: Theme.of(context).textTheme.titleLarge),
+                        Expanded(child: Divider(indent: 16, endIndent: 8, height: 0, color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5)))
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    TextField(
+                      maxLines: 3,
+                      decoration: Styles.inputDecorationForm(
+                        context: context,
+                        placeholder: 'Spesial Instruksi',
+                        hintText: 'Contoh: Barang dibawah dengan alas plastik',
+                        floatingLabelBehavior: FloatingLabelBehavior.always,
+                        labelStyle: const TextStyle(fontSize: 16),
+                        condition: false
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    TextField(
+                      decoration: Styles.inputDecorationForm(
+                        context: context,
+                        placeholder: 'Nomor Referensi',
+                        floatingLabelBehavior: FloatingLabelBehavior.always,
+                        labelStyle: const TextStyle(fontSize: 16),
+                        condition: false
+                      ),
+                    )
+                  ],
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );

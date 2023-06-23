@@ -69,6 +69,12 @@ class _OrdersPageRouteState extends State<OrdersPageRoute> with SingleTickerProv
     }
   }
 
+  setOrderOpen(bool value) {
+    setState(() {
+      orderOpen.value = value;
+    });
+  }
+
   void _removeItems() {
     setState(() {
       int i = 0;
@@ -202,6 +208,7 @@ class _OrdersPageRouteState extends State<OrdersPageRoute> with SingleTickerProv
                     valueListenable: OrdersPageRoute.delivertype,
                     builder: (context, deliveryType, child) {
                       return AddressCard(
+                        onCancel: setOrderOpen,
                         orderOpen: orderOpen,
                         deliveryType: deliveryType,
                         checkedItems: checkedItems,
@@ -417,7 +424,8 @@ class AddressCard extends StatelessWidget {
     required this.orderOpen,
     required this.deliveryType,
     this.checkedItems,
-    this.padding, this.borderRadius
+    this.padding, this.borderRadius,
+    this.onCancel
   });
 
   final ValueNotifier orderOpen;
@@ -425,6 +433,7 @@ class AddressCard extends StatelessWidget {
   final List<bool>? checkedItems;
   final EdgeInsetsGeometry? padding;
   final BorderRadius? borderRadius;
+  final Function? onCancel;
 
   @override
   Widget build(BuildContext context) {
@@ -446,11 +455,11 @@ class AddressCard extends StatelessWidget {
                     Padding(
                       padding: padding ?? const EdgeInsets.symmetric(vertical: 12, horizontal: 18),
                       child: Hero(
-                        tag: 'My Home',
+                        tag: snapshot['name'],
                         child: Card(
                           margin: EdgeInsets.zero,
                           elevation: 0,
-                          color: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.25),
+                          color: Theme.of(context).colorScheme.primary,
                           clipBehavior: Clip.antiAlias,
                           shape: RoundedRectangleBorder(
                             borderRadius: borderRadius ?? BorderRadius.circular(20)
@@ -458,7 +467,7 @@ class AddressCard extends StatelessWidget {
                           child: Container(
                             decoration: BoxDecoration(
                               border: Border(
-                                bottom: BorderSide(color: Theme.of(context).colorScheme.primary, width: 6),
+                                bottom: BorderSide(color: Theme.of(context).colorScheme.inversePrimary, width: 6),
                               )
                             ),
                             child: Padding(
@@ -475,17 +484,17 @@ class AddressCard extends StatelessWidget {
                                         children: [
                                           Row(
                                             children: [
-                                              Text('Pengiriman', style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                                fontWeight: FontWeight.w500
+                                              Text('Alamat Pengiriman', style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                                color: Theme.of(context).colorScheme.surface,
                                               )),
                                             ],
                                           ),
-                                          const SizedBox(height: 2),
                                           Row(
                                             children: [
-                                              Text(snapshot['name'], style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                              Text(snapshot['name'], style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                                color: Theme.of(context).colorScheme.inversePrimary,
+                                                fontWeight: FontWeight.w500,
                                                 letterSpacing: 0,
-                                                color: Theme.of(context).colorScheme.secondary,
                                               )),
                                             ],
                                           ),
@@ -493,7 +502,7 @@ class AddressCard extends StatelessWidget {
                                       ),
                                       ElevatedButton.icon(
                                         onPressed: () => pushAddress(context: context, hero: snapshot['name']),
-                                        style: Styles.buttonFlatSmall(context: context),
+                                        style: Styles.buttonInverseFlatSmall(context: context),
                                         label: const Text('Ganti'),
                                         icon: const Icon(Icons.edit_location_alt),
                                       )
@@ -516,20 +525,21 @@ class AddressCard extends StatelessWidget {
                                             Text(snapshot['district'],
                                               textAlign: TextAlign.justify,
                                               style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                                color: Theme.of(context).colorScheme.inversePrimary,
                                                 fontWeight: FontWeight.w500,
-                                                color: Theme.of(context).colorScheme.primary,
                                               ),
                                             ),
                                             Text('+62 ${snapshot['phone_number']}',
                                               textAlign: TextAlign.justify,
                                               style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                                color: Theme.of(context).colorScheme.surface,
                                                 fontWeight: FontWeight.w500,
                                               ),
                                             ),
                                             const SizedBox(height: 12),
                                             Text('${snapshot['street']}, ${snapshot['subdistrict']}, ${snapshot['district']}, ${snapshot['province']}',
                                               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                                color: Theme.of(context).colorScheme.secondary,
+                                                color: Theme.of(context).colorScheme.surfaceVariant,
                                                 fontWeight: FontWeight.w500,
                                                 letterSpacing: 0,
                                                 wordSpacing: 2,
@@ -554,12 +564,14 @@ class AddressCard extends StatelessWidget {
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Text('Tipe Pengiriman', style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                            color: Theme.of(context).colorScheme.secondary
+                                            fontWeight: FontWeight.w500,
+                                            color: Theme.of(context).colorScheme.inversePrimary,
                                           )),
                                           const SizedBox(height: 4),
                                           Text(deliveryType ?? 'Memuat Data...',
                                             textAlign: TextAlign.justify,
                                             style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                              color: Theme.of(context).colorScheme.surface,
                                               fontWeight: FontWeight.w500,
                                             ),
                                           ),
@@ -572,15 +584,28 @@ class AddressCard extends StatelessWidget {
                                     padding: const EdgeInsets.only(top: 16),
                                     child: Align(
                                       alignment: Alignment.bottomRight,
-                                      child: ElevatedButton.icon(
-                                        onPressed: () => pushCheckout(context: context, checkedItems: checkedItems!),
-                                        style: Styles.buttonFlat(
-                                          context: context,
-                                          borderRadius: BorderRadius.circular(12),
-                                          backgroundColor: Theme.of(context).colorScheme.primary.withGreen(160)
-                                        ),
-                                        icon: const Icon(Icons.arrow_forward, size: 22),
-                                        label: const Text('Checkout'),
+                                      child: Row(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          TextButton(
+                                            onPressed: () {
+                                              if (onCancel != null) onCancel!(false);
+                                            },
+                                            style: Styles.buttonFlat(context: context),
+                                            child: const Text('Batal')
+                                          ),
+                                          const SizedBox(width: 8),
+                                          ElevatedButton.icon(
+                                            onPressed: () => pushCheckout(context: context, checkedItems: checkedItems!),
+                                            style: Styles.buttonFlat(
+                                              context: context,
+                                              borderRadius: BorderRadius.circular(12),
+                                              backgroundColor: Theme.of(context).colorScheme.primary.withGreen(160)
+                                            ),
+                                            icon: const Icon(Icons.arrow_forward, size: 22),
+                                            label: const Text('Checkout'),
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   )

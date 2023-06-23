@@ -101,6 +101,36 @@ class Themes {
       )
     );
   }
+
+  static InputDecorationTheme inputDecorationTheme({required BuildContext context}) {
+    return InputDecorationTheme(
+      isDense: true,
+      contentPadding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: Theme.of(context).colorScheme.outline, width: 1)
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2)
+      ),
+      labelStyle: TextStyle(
+        fontSize: 12,
+        fontWeight: FontWeight.w400,
+        letterSpacing: 0,
+        color: Theme.of(context).colorScheme.secondary
+      ),
+      floatingLabelStyle: TextStyle(
+        fontWeight: FontWeight.w500,
+        letterSpacing: 0,
+        color: Theme.of(context).colorScheme.primary
+      )
+    );
+  }
 }
 
 class Styles {
@@ -161,7 +191,7 @@ class Styles {
       shape: borderRadius != null ? MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: borderRadius)) : null,
       visualDensity: VisualDensity.compact,
       iconSize: const MaterialStatePropertyAll(18),
-      textStyle: MaterialStatePropertyAll(Theme.of(context).textTheme.labelSmall?.copyWith(
+      textStyle: MaterialStatePropertyAll(Theme.of(context).textTheme.labelMedium?.copyWith(
         letterSpacing: 0
       )),
       foregroundColor: MaterialStateProperty.resolveWith((states) {
@@ -172,6 +202,42 @@ class Styles {
         }
       }),
       backgroundColor: MaterialStateProperty.resolveWith((states) {
+        if (states.contains(MaterialState.disabled)) {
+          return null;
+        } else {
+          return backgroundColor ?? Theme.of(context).colorScheme.primary;
+        }
+      }),
+      overlayColor: MaterialStateProperty.resolveWith((states) {
+        if (states.contains(MaterialState.disabled)) {
+          return null;
+        } else {
+          return overlayColor ?? Theme.of(context).colorScheme.inversePrimary;
+        }
+      }),
+    );
+  }
+
+  static ButtonStyle buttonInverseFlatSmall({
+    required BuildContext context,
+    Color? backgroundColor,
+    Color? foregroundColor,
+    Color? overlayColor,
+    BorderRadiusGeometry? borderRadius,
+  }) {
+    return ButtonStyle(
+      elevation: const MaterialStatePropertyAll(0),
+      shape: borderRadius != null ? MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: borderRadius)) : null,
+      visualDensity: VisualDensity.compact,
+      iconSize: const MaterialStatePropertyAll(18),
+      backgroundColor: MaterialStateProperty.resolveWith((states) {
+        if (states.contains(MaterialState.disabled)) {
+          return null;
+        } else {
+          return foregroundColor ?? Theme.of(context).colorScheme.surface;
+        }
+      }),
+      foregroundColor: MaterialStateProperty.resolveWith((states) {
         if (states.contains(MaterialState.disabled)) {
           return null;
         } else {

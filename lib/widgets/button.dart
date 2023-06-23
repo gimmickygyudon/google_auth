@@ -170,7 +170,7 @@ class ButtonListTile extends StatelessWidget {
     required this.title,
     this.subtitle,
     this.trailing,
-    required this.onTap, this.bgRadius, this.borderRadius, this.color
+    required this.onTap, this.bgRadius, this.borderRadius, this.color, this.bgColor, this.dense, this.visualDensity
   });
 
   final Function() onTap;
@@ -178,7 +178,9 @@ class ButtonListTile extends StatelessWidget {
   final Widget? title, subtitle, trailing;
   final double? bgRadius;
   final BorderRadius? borderRadius;
-  final Color? color;
+  final Color? color, bgColor;
+  final bool? dense;
+  final VisualDensity? visualDensity;
 
   @override
   Widget build(BuildContext context) {
@@ -189,10 +191,12 @@ class ButtonListTile extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: borderRadius ?? BorderRadius.circular(50)),
       clipBehavior: Clip.antiAlias,
       child: ListTile(
+        dense: dense ?? false,
+        visualDensity: visualDensity,
         onTap: () => onTap(),
         leading: CircleAvatar(
           radius: bgRadius ?? 24,
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.75).withBlue(150),
+          backgroundColor: bgColor ?? Theme.of(context).colorScheme.inversePrimary.withOpacity(0.75).withBlue(150),
           child: icon,
         ),
         title: title,

@@ -1,7 +1,8 @@
 // ignore_for_file: non_constant_identifier_names
 import 'package:intl/intl.dart';
-String DateNow() => DateFormat('EEEE, dd MMMM, ''yyyy', 'id').format(DateTime.now());
+String DateNow() => DateFormat('EEEE, dd MMMM ''yyyy', 'id').format(DateTime.now());
 String DateNowSQL() => DateFormat('y-MM-d H:m:ss').format(DateTime.now());
+String TimeNow() => DateFormat('H:mm').format(DateTime.now());
 
 Map<String, dynamic> currentUserFormat(
   {

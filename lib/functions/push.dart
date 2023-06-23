@@ -6,13 +6,13 @@ import 'package:google_auth/routes/belanja/item.dart';
 import 'package:google_auth/routes/belanja/orders_page.dart';
 import 'package:google_auth/routes/beranda/customer.dart';
 import 'package:google_auth/routes/keluhan/report_page.dart';
-import 'package:google_auth/routes/option/address.dart';
+import 'package:google_auth/routes/alamat/address.dart';
 import 'package:google_auth/routes/start_page.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../routes/dashboard.dart';
 import '../routes/login_page.dart';
-import '../routes/option/add_address.dart';
+import '../routes/alamat/add_address.dart';
 import '../routes/register_page.dart';
 
 PageRouteBuilder transitionShared({
