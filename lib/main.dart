@@ -38,7 +38,6 @@ class MyApp extends StatelessWidget {
           ],
           supportedLocales: const [
            Locale('id'),
-           Locale('en')
          ],
           builder: (context, child) {
             return ResponsiveBreakpoints.builder(
@@ -47,7 +46,7 @@ class MyApp extends StatelessWidget {
                   return Container(
                     color: Theme.of(context).colorScheme.background,
                     child: ResponsiveScaledBox(
-                      autoCalculateMediaQueryData: false,
+                      autoCalculateMediaQueryData: true,
                       width: ResponsiveValue<double>(
                         context,
                         conditionalValues: [

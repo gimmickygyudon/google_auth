@@ -8,6 +8,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_auth/functions/sql_client.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../routes/alamat/address.dart';
 import '../routes/belanja/orders_page.dart';
 
 class UserLocation {
@@ -193,6 +194,39 @@ class LocationManager {
     };
   }
 
+  static Future<List?> getDataLocation() {
+    return LocationManager.retrieve().then((value) {
+      return LocationManager.getIndex().then((index) {
+        AddressRoute.locations.value['locationindex'] = index;
+        return value;
+      });
+    });
+  }
+
+  static Future<List<int>> getLocationsId() async {
+    Map? currentLocation;
+    int id_oprv, id_octy, id_osdt, id_ovil;
+
+    currentLocation = AddressRoute.locations.value['locations'][AddressRoute.locations.value?['locationindex']];
+    id_oprv = await LocationName.getProvince().then((province) {
+      return province.firstWhere((element) => element['province_name'] == currentLocation?['province'].toString().toUpperCase())['id_oprv'];
+    });
+
+    id_octy = await LocationName.getDistrict().then((district) {
+      return district.firstWhere((element) => element['city_name'] == currentLocation?['district'].toString().toUpperCase())['id_octy'];
+    });
+
+    id_osdt = await LocationName.getSubdistrict().then((subdistrict) {
+      String? currentSubdistrict = currentLocation?['subdistrict'].toString().toUpperCase().replaceAll('KECAMATAN', '').trim();
+      return subdistrict.firstWhere((element) => element['sub_district_name'] == currentSubdistrict)['id_osdt'];
+    });
+
+    id_ovil = await LocationName.getSuburb().then((suburb) {
+      return suburb.firstWhere((element) => element['village_name'] == currentLocation?['suburb'].toString().toUpperCase())['id_ovil'];
+    });
+
+    return [id_oprv, id_octy, id_osdt, id_ovil];
+  }
 
   static Future<void> set(List source) async {
     final prefs = await SharedPreferences.getInstance();
@@ -373,7 +407,6 @@ class LocationName {
       return value.where((element) => element['sub_district_name'] == selectedLocationName[2]).single;
     })
     .then((value) {
-      print('suburb: $value');
       return SQL.retrieve(api: 'sim/ovil', query: 'id_osdt=${value['id_osdt']}')
       .then((value) {
         List<String>? strings = List.empty(growable: true);

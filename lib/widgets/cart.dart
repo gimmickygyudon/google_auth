@@ -67,9 +67,9 @@ class _CartWidgetState extends State<CartWidget> {
                           ),
                           ElevatedButton.icon(
                             onPressed: () => pushAddress(context: context, hero: 'Pengiriman'),
-                            style: Styles.buttonFlatSmall(context: context),
-                            label: const Text('Pengiriman'),
-                            icon: const Icon(Icons.local_shipping_outlined)
+                            style: Styles.buttonLightSmall(context: context),
+                            label: const Text('Lokasi Saya'),
+                            icon: const Icon(Icons.location_history)
                           )
                         ],
                       ),
@@ -183,8 +183,8 @@ class _CartWidgetState extends State<CartWidget> {
                                   backgroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.primary),
                                   overlayColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.inversePrimary)
                                 ),
-                                icon: const Icon(Icons.playlist_add, size: 26),
-                                label: const Text('Buat Pesanan')
+                                icon: const Icon(Icons.local_shipping, size: 26),
+                                label: const Text('Pengiriman')
                               ),
                             ),
                           ],

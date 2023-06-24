@@ -6,7 +6,7 @@ import 'package:google_auth/styles/theme.dart';
 import 'package:google_auth/widgets/handle.dart';
 import 'package:google_auth/widgets/radio.dart';
 
-Future<void> showPaymentSheet(BuildContext context) {
+Future<void> showPaymentSheet(BuildContext context, Function(int indexPaymentsType) onConfirm) {
   AsyncMemoizer<List<String>> paymentsMemoizer = AsyncMemoizer();
 
   List<Map> payments = [
@@ -23,6 +23,7 @@ Future<void> showPaymentSheet(BuildContext context) {
   ];
 
   String? selected;
+  int selectedIndex = 1;
   Future<List<String>> getPayments() {
     return paymentsMemoizer.runOnce(() {
       return Payment.getPaymentType().then((value) {
@@ -56,9 +57,10 @@ Future<void> showPaymentSheet(BuildContext context) {
         }
         return StatefulBuilder(
           builder: (context, setState) {
-            void setPayment(String payment) {
+            void setPayment(String payment, int index) {
               setState(() {
                 selected = payment;
+                selectedIndex = index;
               });
             }
             return Padding(
@@ -68,22 +70,22 @@ Future<void> showPaymentSheet(BuildContext context) {
                   Center(
                     child: Column(
                       children: [
-                        Text('Metode Pembayaran', style: Theme.of(context).textTheme.titleLarge),
+                        Text('Pembayaran', style: Theme.of(context).textTheme.titleLarge),
                         Text('Pilih Metode Pembayaran', style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Theme.of(context).colorScheme.secondary
                         )),
-                        const SizedBox(height: 12)
+                        const SizedBox(height: 24)
                       ],
                     )
                   ),
-                ] + payments.map((payment) {
-                  return PaymentRadioList(
+                  for (var i = 0; i < payments.length; i++)
+                  PaymentRadioList(
+                    index: i + 1,
                     payments: payments,
-                    payment: payment,
+                    payment: payments[i],
                     selected: selected,
                     onChanged: setPayment
-                  );
-                }).toList() + [
+                  ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(10, 20, 20, 20),
                     child: Row(
@@ -97,7 +99,9 @@ Future<void> showPaymentSheet(BuildContext context) {
                           icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.secondary),
                         ),
                         ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            onConfirm(selectedIndex);
+                          },
                           style: Styles.buttonFlat(context: context),
                           child: const Text('Pesan Sekarang')
                         ),

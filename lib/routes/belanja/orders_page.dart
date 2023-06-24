@@ -21,7 +21,6 @@ class OrdersPageRoute extends StatefulWidget {
   @override
   State<OrdersPageRoute> createState() => _OrdersPageRouteState();
 
-  static ValueNotifier<Map> currentLocation = ValueNotifier({});
   static ValueNotifier<String?> delivertype = ValueNotifier(null);
 }
 
@@ -41,33 +40,28 @@ class _OrdersPageRouteState extends State<OrdersPageRoute> with SingleTickerProv
     _scrollController = ScrollController();
     _tabController = TabController(length: pages.length, vsync: this);
 
-    LocationManager.getCurrentLocation().then((value) {
-      if (value != null) {
-        OrdersPageRoute.currentLocation.value = value;
-      }
-      return Delivery.getType().then((type) {
-        OrdersPageRoute.delivertype.value = type;
-        return value;
-      });
-    }).onError((error, stackTrace) {
-      return OrdersPageRoute.currentLocation.value = {};
-    });
-
-    setCurrentLocation();
+    _getDatalocation();
+    setDeliveryType();
     super.initState();
   }
 
-  Future<void> setCurrentLocation() async {
-    Map? currentLocation = await LocationManager.getCurrentLocation().then((value) {
+  Future<void> setDeliveryType() async {
+    await LocationManager.getCurrentLocation().then((value) {
       return Delivery.getType().then((type) {
         OrdersPageRoute.delivertype.value = type;
         return value;
       });
     });
+  }
 
-    if (currentLocation != null) {
-      OrdersPageRoute.currentLocation.value = currentLocation;
-    }
+  _getDatalocation() {
+    LocationManager.getDataLocation().then((value) {
+      setState(() {
+        AddressRoute.locations.value['locations'] = value;
+      });
+
+      return value;
+    });
   }
 
   setOrderOpen(bool value) {

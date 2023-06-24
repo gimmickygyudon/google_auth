@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_auth/functions/location.dart';
 import 'package:google_auth/functions/push.dart';
-import 'package:google_auth/routes/belanja/orders_page.dart';
 import 'package:google_auth/styles/theme.dart';
 import 'package:google_auth/widgets/button.dart';
 import 'package:google_auth/widgets/handle.dart';
@@ -25,7 +24,6 @@ class _AddressRouteState extends State<AddressRoute> {
   // late SearchController _searchController;
   late TextEditingController _searchController;
   // ignore: unused_field
-  late int? locationindex;
 
   String? deliveryType;
   List<Map> deliveryTypes = [
@@ -41,7 +39,7 @@ class _AddressRouteState extends State<AddressRoute> {
   @override
   void initState() {
     _searchController = SearchController();
-    _dataLocation().then((value) {
+    LocationManager.getDataLocation().then((value) {
       setState(() {
         AddressRoute.locations.value['locations'] = value;
       });
@@ -57,16 +55,6 @@ class _AddressRouteState extends State<AddressRoute> {
     super.dispose();
   }
 
-  Future<List?> _dataLocation() {
-    return LocationManager.retrieve().then((value) {
-      return LocationManager.getIndex().then((index) {
-        locationindex = index;
-        AddressRoute.locations.value['locationindex'] = index;
-        return value;
-      });
-    });
-  }
-
   Future<String?> initDelivery() async {
     return deliveryType = await Delivery.getType().then((value) {
       return value;
@@ -79,10 +67,9 @@ class _AddressRouteState extends State<AddressRoute> {
   }
 
   void refresh() => setState(() {
-    _dataLocation().then((locations) async {
+    LocationManager.getDataLocation().then((locations) async {
       LocationManager.getIndex().then((index) {
         if (index != null) {
-          OrdersPageRoute.currentLocation.value = locations?[index];
           AddressRoute.locations.value['locationindex'] = index;
         }
       });
@@ -179,7 +166,6 @@ class _AddressRouteState extends State<AddressRoute> {
               ValueListenableBuilder(
                 valueListenable: AddressRoute.locations,
                 builder: (context, snapshot, child) {
-                  print(snapshot);
                   if (snapshot['locations'].isEmpty) {
                     return const Center(child: HandleEmptyAddress());
                   } else if (snapshot['locations'].isNotEmpty) {
@@ -194,8 +180,8 @@ class _AddressRouteState extends State<AddressRoute> {
                             onSelect: (index) {
                               setState(() {
                                 LocationManager.setIndex(index);
-                                OrdersPageRoute.currentLocation.value = snapshot['locations'][index];
                                 AddressRoute.locations.value['locationindex'] = index;
+                                AddressRoute.locations.notifyListeners();
                               });
                             },
                             refresh: refresh,

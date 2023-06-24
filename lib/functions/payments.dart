@@ -3,21 +3,21 @@
 import 'package:google_auth/functions/sql_client.dart';
 
 class Payment {
-  final int id_opor;
+  final int? id_opor;
   final String purchase_order_code, customer_reference_number, id_ousr, id_usr1;
   final String delivery_date, delivery_type, document_remarks, payment_type;
 
-  const Payment(
-    this.id_opor,
-    this.purchase_order_code,
-    this.customer_reference_number,
-    this.id_ousr,
-    this.id_usr1,
-    this.delivery_date,
-    this.delivery_type,
-    this.document_remarks,
-    this.payment_type
-  );
+  const Payment({
+    required this.id_opor,
+    required this.purchase_order_code,
+    required this.customer_reference_number,
+    required this.id_ousr,
+    required this.id_usr1,
+    required this.delivery_date,
+    required this.delivery_type,
+    required this.document_remarks,
+    required this.payment_type
+  });
 
   Map<String, dynamic> toMap() {
     return {
@@ -38,6 +38,12 @@ class Payment {
       List<String> list = value.map<String>((element) { return element['description']; }).toList();
 
       return list;
+    });
+  }
+
+  static Future<void> insertPurchaseOrder(Payment payment) {
+    return SQL.insert(item: payment.toMap(), api: 'opor').then((value) {
+      print(value);
     });
   }
 

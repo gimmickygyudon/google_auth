@@ -293,6 +293,27 @@ class Styles {
     );
   }
 
+  static ButtonStyle buttonLightSmall({required BuildContext context}) {
+    return ButtonStyle(
+      elevation: const MaterialStatePropertyAll(0),
+      shape: MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(25.7))),
+      visualDensity: VisualDensity.compact,
+      iconSize: const MaterialStatePropertyAll(16),
+      padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(horizontal: 12, vertical: 8)),
+      textStyle: MaterialStatePropertyAll(Theme.of(context).textTheme.labelMedium?.copyWith(
+        letterSpacing: 0
+      )),
+      backgroundColor: MaterialStateProperty.resolveWith((states) {
+        if (states.contains(MaterialState.disabled)) return null;
+        return Theme.of(context).colorScheme.inversePrimary.withOpacity(0.25);
+      }),
+      foregroundColor: MaterialStateProperty.resolveWith((states) {
+        if (states.contains(MaterialState.disabled)) return null;
+        return Theme.of(context).colorScheme.primary;
+      }),
+    );
+  }
+
   static ButtonStyle buttonDanger({required BuildContext context}) {
     return ButtonStyle(
       shape: MaterialStatePropertyAll(RoundedRectangleBorder(
@@ -318,7 +339,8 @@ class Styles {
     bool? visibility, visibilityDisabled, alignLabelWithHint, isPhone,
     Widget? prefix, suffixIcon,
     TextStyle? labelStyle,
-    FloatingLabelBehavior? floatingLabelBehavior
+    FloatingLabelBehavior? floatingLabelBehavior,
+    OutlineInputBorder? border,
   }) {
     bool? visibility_ = visibility;
 
@@ -376,7 +398,7 @@ class Styles {
           width: 1
         )
       )
-      : null,
+      : border,
       focusedBorder: condition
       ? OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -388,7 +410,7 @@ class Styles {
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2)
         )
-      : null
+      : border
     );
   }
 }

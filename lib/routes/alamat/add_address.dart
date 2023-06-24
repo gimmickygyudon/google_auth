@@ -186,6 +186,37 @@ class _AddressAddRouteState extends State<AddressAddRoute> {
     }
   }
 
+  void useCurrentLocation() {
+    setState(() {
+      List currentLocation_ = [
+        {
+          'value': currentLocation['province'],
+          'icon': Icons.landscape
+        }, {
+          'value': currentLocation['district'],
+          'icon': Icons.location_city
+        }, {
+          'value': currentLocation['subdistrict'],
+          'icon': Icons.domain
+        }, {
+          'value': currentLocation['suburb'],
+          'icon': Icons.holiday_village
+        }, {
+          'value': currentLocation['street'],
+          'icon': Icons.signpost_rounded
+        },
+      ];
+
+      showAddressDialog(
+        context: context,
+        locations: currentLocation_,
+        hero: 'Location'
+      ).then((value) {
+        if (value == true) Navigator.pop(context);
+      });
+    });
+  }
+
   @override
   void dispose() {
     _scrollController.dispose();
@@ -223,39 +254,9 @@ class _AddressAddRouteState extends State<AddressAddRoute> {
                     child: Hero(
                       tag: 'Location',
                       child: ButtonListTile(
-                        onTap: () {
-                          setState(() {
-
-                            List currentLocation_ = [
-                              {
-                                'value': currentLocation['province'],
-                                'icon': Icons.landscape
-                              }, {
-                                'value': currentLocation['district'],
-                                'icon': Icons.location_city
-                              }, {
-                                'value': currentLocation['subdistrict'],
-                                'icon': Icons.domain
-                              }, {
-                                'value': currentLocation['suburb'],
-                                'icon': Icons.holiday_village
-                              }, {
-                                'value': currentLocation['street'],
-                                'icon': Icons.signpost_rounded
-                              },
-                            ];
-
-                            showAddressDialog(
-                              context: context,
-                              locations: currentLocation_,
-                              hero: 'Location'
-                            ).then((value) {
-                              if (value == true) Navigator.pop(context);
-                            });
-                          });
-                        },
+                        onTap: () => useCurrentLocation(),
                         icon: const Icon(Icons.near_me),
-                        title: const Text('Alamat Saat Ini'),
+                        title: const Text('Gunakan Lokasi Saat Ini'),
                         subtitle: currentLocation['suburb'] != null
                         ? Text(currentLocation['street'].toString().substring(0, currentLocation['street'].toString().indexOf(',')), style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Theme.of(context).colorScheme.secondary
@@ -309,6 +310,7 @@ class _AddressAddRouteState extends State<AddressAddRoute> {
                           constraints: const BoxConstraints(maxHeight: 200),
                           child: FlutterMap(
                             options: MapOptions(
+                              onTap: (tapPosition, point) => useCurrentLocation(),
                               enableScrollWheel: true,
                               center: LatLng(latlang.latitude, latlang.longitude),
                               zoom: 12,
