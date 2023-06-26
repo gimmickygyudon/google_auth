@@ -337,6 +337,7 @@ class UserRegister {
 }
 
 class Cart {
+  final String id_oitm;
   final String name;
   final String brand;
   final String dimension;
@@ -346,6 +347,7 @@ class Cart {
   final String count;
 
   const Cart({
+    required this.id_oitm,
     required this.name,
     required this.brand,
     required this.dimension,
@@ -357,6 +359,7 @@ class Cart {
 
   Map<String, dynamic> toMap() {
     return {
+      'id_oitm': id_oitm,
       'name': name,
       'brand': brand,
       'dimension': dimension,

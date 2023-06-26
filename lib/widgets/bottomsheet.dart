@@ -6,7 +6,10 @@ import 'package:google_auth/styles/theme.dart';
 import 'package:google_auth/widgets/handle.dart';
 import 'package:google_auth/widgets/radio.dart';
 
-Future<void> showPaymentSheet(BuildContext context, Function(int indexPaymentsType) onConfirm) {
+Future<void> showPaymentSheet({
+  required BuildContext context,
+  required Function(int indexPaymentsType) onConfirm,
+}) {
   AsyncMemoizer<List<String>> paymentsMemoizer = AsyncMemoizer();
 
   List<Map> payments = [
@@ -42,6 +45,8 @@ Future<void> showPaymentSheet(BuildContext context, Function(int indexPaymentsTy
     showDragHandle: true,
     barrierColor: Colors.black38,
     builder: (context) {
+
+    bool isLoading = false;
     return FutureBuilder(
       future: getPayments(),
       builder: (context, snapshot) {
@@ -108,11 +113,26 @@ Future<void> showPaymentSheet(BuildContext context, Function(int indexPaymentsTy
                             icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.secondary),
                           ),
                           ElevatedButton(
-                            onPressed: () {
-                              onConfirm(selectedIndex);
+                            onPressed: isLoading == true ? null : () {
+                              setState(() => isLoading = true);
+                              onConfirm(selectedIndex).whenComplete(() {
+                                setState(() => isLoading = false);
+                              });
                             },
-                            style: Styles.buttonFlat(context: context),
-                            child: const Text('Pesan Sekarang')
+                            style: Styles.buttonFlat(context: context, isLoading: isLoading),
+                            child: isLoading
+                            ? const Row(
+                              children: [
+                                SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(strokeWidth: 2)
+                                ),
+                                SizedBox(width: 8),
+                                Text('Memproses...')
+                              ],
+                            )
+                            : const Text('Pesan Sekarang')
                           ),
                         ],
                       ),

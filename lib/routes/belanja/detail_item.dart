@@ -67,37 +67,6 @@ class _DetailItemRouteState extends State<DetailItemRoute> {
     );
   }
 
-  // late List test;
-  // void setSuggestion() {
-
-  //   indexType = widget.item['type'].indexWhere((element) => element['name'] == type);
-  //   int typeLength = (widget.item['type'].length - 1);
-
-  //   if (widget.item['type'].length > 1) {
-  //     int? nextIndex() => indexType != typeLength ? indexType + 1 : null;
-  //     if (nextIndex() != null) {
-  //       typeNext = widget.item['type'][nextIndex()]['name'];
-  //       typeIndexNext = nextIndex();
-  //     } else {
-  //       typeNext = widget.item['type'][0]['name'];
-  //       typeIndexNext = 0;
-  //     }
-
-  //     int? prevIndex() => indexType != 0 ? indexType - 1 : null;
-  //     if (prevIndex() != null) {
-  //       typePrev = widget.item['type'][prevIndex()]['name'];
-  //       typeIndexPrev = prevIndex();
-  //     } else {
-  //       typePrev = widget.item['type'][typeLength]['name'];
-  //       typeIndexPrev = typeLength;
-  //     }
-
-  //     if (typeNext == typePrev) {
-  //       indexType == typeLength ? typeNext = null : typePrev = null;
-  //     }
-  //   }
-  // }
-
   void hideTitleSuggestion() {
     _scrollController = ScrollController()..addListener(() {
       if (toolbarHeight <= (MediaQuery.of(context).padding.top + kToolbarHeight).round() + 50 && _hideTitleSuggestion == false) {
@@ -115,6 +84,7 @@ class _DetailItemRouteState extends State<DetailItemRoute> {
   Future<void> addToCart({required String count, required int index}) async {
     Cart.add(
       Cart(
+        id_oitm: widget.item['OITMs'][index]['id_oitm'],
         name: widget.item['description'],
         brand: widget.brand,
         dimension: Item.defineDimension(widget.item['OITMs'][index]['spesification']),

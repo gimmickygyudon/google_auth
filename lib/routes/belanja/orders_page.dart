@@ -25,7 +25,7 @@ class OrdersPageRoute extends StatefulWidget {
 }
 
 class _OrdersPageRouteState extends State<OrdersPageRoute> with SingleTickerProviderStateMixin {
-  final ValueNotifier<bool> orderOpen = ValueNotifier(true);
+  final ValueNotifier<bool> orderOpen = ValueNotifier(false);
 
   late ScrollController _scrollController;
   late TabController _tabController;

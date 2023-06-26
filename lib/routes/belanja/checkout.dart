@@ -3,6 +3,8 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_auth/functions/conversion.dart';
 import 'package:google_auth/functions/date.dart';
+import 'package:google_auth/functions/push.dart';
+import 'package:google_auth/functions/sql_client.dart';
 import 'package:google_auth/functions/sqlite.dart';
 import 'package:google_auth/functions/string.dart';
 import 'package:google_auth/routes/belanja/orders_page.dart';
@@ -15,6 +17,7 @@ import 'package:google_auth/widgets/cart.dart';
 import 'package:google_auth/widgets/dialog.dart';
 import 'package:google_auth/widgets/handle.dart';
 import 'package:google_auth/widgets/profile.dart';
+import 'package:google_auth/widgets/snackbar.dart';
 import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
@@ -439,7 +442,7 @@ class _LocationWidgetState extends State<LocationWidget> with AutomaticKeepAlive
             panel: const Center(
               child: Text("This is the sliding Widget"),
             ),
-            minHeight: 140,
+            minHeight: 130,
             collapsed: Column(
               children: [
                 Container(
@@ -541,8 +544,8 @@ class DeliveryWidget extends StatefulWidget {
 }
 
 class _DeliveryWidgetState extends State<DeliveryWidget> {
-  late TextEditingController dateTextController, timeTextController;
-  String? selectedDate, selectedTime;
+  String? selectedDate = DateNow();
+  String? selectedTime = TimeNow();
   DateTime? date;
   TimeOfDay? time;
 
@@ -551,8 +554,6 @@ class _DeliveryWidgetState extends State<DeliveryWidget> {
 
   @override
   void initState() {
-    dateTextController = TextEditingController();
-    timeTextController = TextEditingController();
     referenceNumberTextController = TextEditingController();
     documentremarksTextController = TextEditingController();
     super.initState();
@@ -560,8 +561,6 @@ class _DeliveryWidgetState extends State<DeliveryWidget> {
 
   @override
   void dispose() {
-    dateTextController.dispose();
-    timeTextController.dispose();
     referenceNumberTextController.dispose();
     documentremarksTextController.dispose();
     super.dispose();
@@ -597,280 +596,329 @@ class _DeliveryWidgetState extends State<DeliveryWidget> {
       ),
       child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.secondary.withOpacity(0.025),
-        body: Scrollbar(
-          thickness: 6,
-          thumbVisibility: true,
-          trackVisibility: true,
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(12),
-            child: ValueListenableBuilder(
-              valueListenable: OrdersPageRoute.delivertype,
-              builder: (context, deliveryType, child) {
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: AddressCard(
-                        orderOpen: ValueNotifier(true),
-                        deliveryType: deliveryType,
-                        padding: EdgeInsets.zero,
-                      ),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(12),
+          child: ValueListenableBuilder(
+            valueListenable: OrdersPageRoute.delivertype,
+            builder: (context, deliveryType, child) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: AddressCard(
+                      orderOpen: ValueNotifier(true),
+                      deliveryType: deliveryType,
+                      padding: EdgeInsets.zero,
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
-                      child: Card(
-                        margin: EdgeInsets.zero,
-                        shadowColor: Colors.transparent,
-                        color: Theme.of(context).colorScheme.primary.withOpacity(0.05).withBlue(50),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                        clipBehavior: Clip.antiAlias,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-                          decoration: BoxDecoration(
-                            border: Border(
-                              top: BorderSide(color: Theme.of(context).colorScheme.primary.withBlue(50).withOpacity(0.4), width: 6),
-                            )
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text('Jadwal Pengiriman', style: Theme.of(context).textTheme.titleMedium),
-                              const SizedBox(height: 2),
-                              Text('Tanggal Dokumen: ${DateNow()}', style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                fontWeight: FontWeight.w500,
-                                color: Theme.of(context).colorScheme.primary.withBlue(50).withOpacity(0.85),
-                                letterSpacing: 0
-                              )),
-                              const SizedBox(height: 20),
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    border: Border(
-                                      bottom: BorderSide(color: Theme.of(context).colorScheme.primary.withBlue(50).withOpacity(0.4), width: 6),
-                                    )
-                                  ),
-                                  child: ButtonListTile(
-                                    dense: true,
-                                    icon: const Icon(Icons.date_range),
-                                    title: Text(selectedDate != null ? 'Tanggal Pengiriman' : 'Pilih Tanggal', style: Theme.of(context).textTheme.bodySmall?.copyWith()),
-                                    subtitle: Text(selectedDate ?? DateNow(), style: Theme.of(context).textTheme.titleSmall?.copyWith()),
-                                    color: Theme.of(context).colorScheme.primary.withOpacity(0.1).withBlue(0),
-                                    bgRadius: 18,
-                                    borderRadius: const BorderRadius.only(
-                                      topLeft: Radius.circular(12),
-                                      topRight: Radius.circular(12)
-                                    ),
-                                    trailing: const Icon(Icons.expand_more),
-                                    onTap: () => Date.showDate(context, date).then((value) {
-                                      if (value == null) {
-                                        return false;
-                                      }
-                                      setState(() {
-                                        date = value;
-                                        String string = DateFormat('EEEE, dd MMMM, ''yyyy', 'id').format(value);
-                                        selectedDate = string;
-                                      });
-                                    }),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 20),
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    border: Border(
-                                      bottom: BorderSide(color: Theme.of(context).colorScheme.primary.withBlue(50).withOpacity(0.4), width: 6),
-                                    )
-                                  ),
-                                  child: ButtonListTile(
-                                    dense: true,
-                                    visualDensity: VisualDensity.compact,
-                                    icon: const Icon(Icons.schedule),
-                                    title: Text(selectedTime != null ? 'Waktu Pengiriman' : 'Pilih Waktu', style: Theme.of(context).textTheme.bodySmall?.copyWith()),
-                                    subtitle: Text(selectedTime ?? TimeNow(), style: Theme.of(context).textTheme.titleSmall?.copyWith()),
-                                    color: Theme.of(context).colorScheme.primary.withOpacity(0.1).withBlue(0),
-                                    bgRadius: 18,
-                                    borderRadius: const BorderRadius.only(
-                                      topLeft: Radius.circular(12),
-                                      topRight: Radius.circular(12)
-                                    ),
-                                    trailing: const Icon(Icons.expand_more),
-                                    onTap: () => Date.showTime(context, time).then((value) {
-                                      if (value == null) {
-                                        return false;
-                                      }
-                                      setState(() {
-                                        time = value;
-                                        selectedTime = value.format(context);
-                                      });
-                                    }),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 20),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 18),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+                    child: Card(
+                      margin: EdgeInsets.zero,
+                      shadowColor: Colors.transparent,
+                      color: Theme.of(context).colorScheme.primary.withOpacity(0.05).withBlue(50),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                      clipBehavior: Clip.antiAlias,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+                        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
                         decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.5),
-                          border: Border.all(
-                            color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5)
-                          ),
-                          borderRadius: BorderRadius.circular(12)
-                       ),
+                          border: Border(
+                            top: BorderSide(color: Theme.of(context).colorScheme.primary.withBlue(50).withOpacity(0.4), width: 6),
+                          )
+                        ),
                         child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
                           children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text('Voucher Discount', style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                  color: Theme.of(context).colorScheme.secondary,
-                                )),
-                                ElevatedButton(
-                                  onPressed: () {},
-                                  style: Styles.buttonFlatSmall(
-                                    context: context,
-                                    borderRadius: BorderRadius.circular(8),
-                                    backgroundColor: Theme.of(context).colorScheme.secondary,
+                            Text('Jadwal Pengiriman', style: Theme.of(context).textTheme.titleMedium),
+                            const SizedBox(height: 2),
+                            Text('Tanggal Dokumen: ${DateNow()}', style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              fontWeight: FontWeight.w500,
+                              color: Theme.of(context).colorScheme.primary.withBlue(50).withOpacity(0.85),
+                              letterSpacing: 0
+                            )),
+                            const SizedBox(height: 20),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    bottom: BorderSide(color: Theme.of(context).colorScheme.primary.withBlue(50).withOpacity(0.4), width: 6),
+                                  )
+                                ),
+                                child: ButtonListTile(
+                                  dense: true,
+                                  icon: const Icon(Icons.date_range),
+                                  title: Text(selectedDate != null ? 'Tanggal Pengiriman' : 'Pilih Tanggal', style: Theme.of(context).textTheme.bodySmall?.copyWith()),
+                                  subtitle: Text(selectedDate ?? DateNow(), style: Theme.of(context).textTheme.titleSmall?.copyWith()),
+                                  color: Theme.of(context).colorScheme.primary.withOpacity(0.1).withBlue(0),
+                                  bgRadius: 18,
+                                  borderRadius: const BorderRadius.only(
+                                    topLeft: Radius.circular(12),
+                                    topRight: Radius.circular(12)
                                   ),
-                                  child: const Text('Lihat')
-                                )
-                              ],
+                                  trailing: const Icon(Icons.expand_more),
+                                  onTap: () => Date.showDate(context, date).then((value) {
+                                    if (value == null) {
+                                      return false;
+                                    }
+                                    setState(() {
+                                      date = value;
+                                      String string = DateFormat('EEEE, dd MMMM, ''yyyy', 'id').format(value);
+                                      selectedDate = string;
+                                    });
+                                  }),
+                                ),
+                              ),
                             ),
+                            const SizedBox(height: 20),
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    bottom: BorderSide(color: Theme.of(context).colorScheme.primary.withBlue(50).withOpacity(0.4), width: 6),
+                                  )
+                                ),
+                                child: ButtonListTile(
+                                  dense: true,
+                                  visualDensity: VisualDensity.compact,
+                                  icon: const Icon(Icons.schedule),
+                                  title: Text(selectedTime != null ? 'Waktu Pengiriman' : 'Pilih Waktu', style: Theme.of(context).textTheme.bodySmall?.copyWith()),
+                                  subtitle: Text(selectedTime ?? TimeNow(), style: Theme.of(context).textTheme.titleSmall?.copyWith()),
+                                  color: Theme.of(context).colorScheme.primary.withOpacity(0.1).withBlue(0),
+                                  bgRadius: 18,
+                                  borderRadius: const BorderRadius.only(
+                                    topLeft: Radius.circular(12),
+                                    topRight: Radius.circular(12)
+                                  ),
+                                  trailing: const Icon(Icons.expand_more),
+                                  onTap: () => Date.showTime(context, time).then((value) {
+                                    if (value == null) {
+                                      return false;
+                                    }
+                                    setState(() {
+                                      time = value;
+                                      selectedTime = value.format(context);
+                                    });
+                                  }),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 20),
                           ],
                         ),
                       ),
                     ),
-                    ValueListenableBuilder(
-                      valueListenable: CartWidget.cartNotifier,
-                      builder: (context, value, child) {
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
+                  ),
+                  const SizedBox(height: 18),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.5),
+                        border: Border.all(
+                          color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5)
+                        ),
+                        borderRadius: BorderRadius.circular(12)
+                     ),
+                      child: Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              InkWell(
-                                onTap: () {
-                                  widget.scrollController.animateTo(0, duration: const Duration(milliseconds: 800), curve: Curves.ease);
-                                  widget.tabController.animateTo(0);
-                                },
-                                child: Ink(
-                                  padding: const EdgeInsets.all(20),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text('Jumlah Barang', style: Theme.of(context).textTheme.labelLarge),
-                                      Text(totalCount().toString(), style: Theme.of(context).textTheme.labelLarge)
-                                    ],
-                                  ),
+                              Text('Voucher Discount', style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: Theme.of(context).colorScheme.secondary,
+                              )),
+                              ElevatedButton(
+                                onPressed: () {},
+                                style: Styles.buttonFlatSmall(
+                                  context: context,
+                                  borderRadius: BorderRadius.circular(8),
+                                  backgroundColor: Theme.of(context).colorScheme.secondary,
                                 ),
-                              ),
-                              Divider(height: 0, color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5)),
-                              Container(
+                                child: const Text('Lihat')
+                              )
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  ValueListenableBuilder(
+                    valueListenable: CartWidget.cartNotifier,
+                    builder: (context, value, child) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            InkWell(
+                              onTap: () {
+                                widget.scrollController.animateTo(0, duration: const Duration(milliseconds: 800), curve: Curves.ease);
+                                widget.tabController.animateTo(0);
+                              },
+                              child: Ink(
                                 padding: const EdgeInsets.all(20),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
-                                    Text('Tonase', style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                                      color: Theme.of(context).colorScheme.primary
-                                    )),
-                                    Text(totalWeight(), style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                                      color: Theme.of(context).colorScheme.primary
-                                    ))
+                                    Text('Jumlah Barang', style: Theme.of(context).textTheme.labelLarge),
+                                    Text(totalCount().toString(), style: Theme.of(context).textTheme.labelLarge)
                                   ],
                                 ),
                               ),
-                              Divider(height: 0, color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5)),
-                            ],
+                            ),
+                            Divider(height: 0, color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5)),
+                            Container(
+                              padding: const EdgeInsets.all(20),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text('Tonase', style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                    color: Theme.of(context).colorScheme.primary
+                                  )),
+                                  Text(totalWeight(), style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                    color: Theme.of(context).colorScheme.primary
+                                  ))
+                                ],
+                              ),
+                            ),
+                            Divider(height: 0, color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5)),
+                          ],
+                        ),
+                      );
+                    }
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            showPaymentSheet(
+                              context: context,
+                              onConfirm: (indexPaymentsType) async {
+                                List? itemList;
+                                List<int> itemindex = List.empty(growable: true);
+                                itemList = await Cart.getItems().then((value) {
+                                  int i = -1;
+                                  if (value != null) {
+                                    return value.map((e) {
+                                      i++;
+                                      if (widget.checkedItems[i] == true) {
+                                        itemindex.add(i);
+                                        return value[i];
+                                      } else {
+                                        return null;
+                                      }
+                                    }).nonNulls.toList();
+                                  } else {
+
+                                    return null;
+                                  }
+                                });
+
+                                Map? currentLocation = await LocationManager.getCurrentLocation().then((currentLocation) {
+                                  return currentLocation;
+                                }).onError((error, stackTrace) {
+                                  showSnackBar(context, snackBarError(context: context, content: error.toString()));
+                                  return Future.error(error.toString());
+                                });
+
+                                List<int> locationIds = await LocationManager.getLocationsId().then((locationIds) async {
+                                  return locationIds;
+                                }).onError((error, stackTrace) {
+                                  showSnackBar(context, snackBarError(context: context, content: error.toString()));
+                                  return Future.error(error.toString());
+                                });
+
+                                SQL.insert(api: 'po', item: {
+                                  'id_usr1': null,
+                                  'id_ousr': currentUser['id_ousr'],
+                                  'delivery_name': currentLocation?['name'],
+                                  'delivery_street': currentLocation?['street'],
+                                  'id_oprv': locationIds[0],
+                                  'id_octy': locationIds[1],
+                                  'id_osdt': locationIds[2],
+                                  'id_ovil': locationIds[3],
+                                  'phone_number': currentLocation?['phone_number'],
+
+                                  'id_opor': null,
+                                  'customer_reference_number': referenceNumberTextController.text,
+                                  'delivery_date': '$selectedDate - $selectedTime',
+                                  'delivery_type': deliveryType,
+                                  'document_remarks': documentremarksTextController.text,
+                                  'payment_type': indexPaymentsType.toString(),
+
+                                  'por1': itemList
+                                })
+                                .then((_) {
+                                  Cart.remove(index: itemindex);
+                                  pushDashboard(context);
+                                  showSnackBar(context, snackBarComplete(
+                                    context: context,
+                                    content: 'Barang Berhasil di Pesan',
+                                    duration: const Duration(seconds: 2)
+                                  ));
+                                });
+                              }
+                            );
+                          },
+                          style: Styles.buttonForm(
+                            context: context,
                           ),
-                        );
-                      }
+                          label: const Text('Pembayaran'),
+                          icon: const Icon(Icons.expand_more)
+                        )
+                      ],
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          ElevatedButton.icon(
-                            onPressed: () {
-                              showPaymentSheet(context, (indexPaymentsType) {
-                                // Payment(
-                                //   id_opor: null,
-                                //   purchase_order_code: "0001/VI/23",
-                                //   customer_reference_number: referenceNumberTextController.text,
-                                //   id_ousr: currentUser['id_ousr'], id_usr1: id_usr1,
-                                //   delivery_date: '${dateTextController.text} - ${timeTextController.text}',
-                                //   delivery_type: deliveryType!,
-                                //   document_remarks: documentremarksTextController.text,
-                                //   payment_type: indexPaymentsType.toString()
-                                // );
-                                print(indexPaymentsType);
-                                LocationManager.getLocationsId();
-                              });
-                            },
-                            style: Styles.buttonForm(
-                              context: context,
-                            ),
-                            label: const Text('Pembayaran'),
-                            icon: const Icon(Icons.expand_more)
-                          )
-                        ],
-                      ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 30),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.text_snippet_outlined),
+                            Text(' Catatan', style: Theme.of(context).textTheme.titleMedium),
+                            Expanded(child: Divider(indent: 16, endIndent: 8, height: 0, color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5)))
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        TextField(
+                          maxLines: 3,
+                          controller: documentremarksTextController,
+                          decoration: Styles.inputDecorationForm(
+                            context: context,
+                            placeholder: 'Spesial Instruksi',
+                            hintText: 'Contoh: Barang dibawah dengan alas plastik',
+                            floatingLabelBehavior: FloatingLabelBehavior.always,
+                            labelStyle: const TextStyle(fontSize: 16, letterSpacing: 0),
+                            condition: false
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        TextField(
+                          controller: referenceNumberTextController,
+                          decoration: Styles.inputDecorationForm(
+                            context: context,
+                            placeholder: 'Nomor Referensi',
+                            floatingLabelBehavior: FloatingLabelBehavior.always,
+                            labelStyle: const TextStyle(fontSize: 16, letterSpacing: 0),
+                            condition: false
+                          ),
+                        )
+                      ],
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 30),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              const Icon(Icons.text_snippet_outlined),
-                              Text(' Catatan', style: Theme.of(context).textTheme.titleMedium),
-                              Expanded(child: Divider(indent: 16, endIndent: 8, height: 0, color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5)))
-                            ],
-                          ),
-                          const SizedBox(height: 20),
-                          TextField(
-                            maxLines: 3,
-                            controller: documentremarksTextController,
-                            decoration: Styles.inputDecorationForm(
-                              context: context,
-                              placeholder: 'Spesial Instruksi',
-                              hintText: 'Contoh: Barang dibawah dengan alas plastik',
-                              floatingLabelBehavior: FloatingLabelBehavior.always,
-                              labelStyle: const TextStyle(fontSize: 16, letterSpacing: 0),
-                              condition: false
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-                          TextField(
-                            controller: referenceNumberTextController,
-                            decoration: Styles.inputDecorationForm(
-                              context: context,
-                              placeholder: 'Nomor Referensi',
-                              floatingLabelBehavior: FloatingLabelBehavior.always,
-                              labelStyle: const TextStyle(fontSize: 16, letterSpacing: 0),
-                              condition: false
-                            ),
-                          )
-                        ],
-                      ),
-                    )
-                  ],
-                );
-              }
-            ),
+                  )
+                ],
+              );
+            }
           ),
         ),
       ),

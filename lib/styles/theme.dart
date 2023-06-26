@@ -259,19 +259,37 @@ class Styles {
     Color? backgroundColor,
     Color? foregroundColor,
     Color? overlayColor,
+    bool? isLoading,
     BorderRadiusGeometry? borderRadius,
   }) {
     return ButtonStyle(
       elevation: const MaterialStatePropertyAll(0),
       shape: borderRadius != null ? MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: borderRadius)) : null,
       backgroundColor: MaterialStateProperty.resolveWith((states) {
-         return backgroundColor ?? Theme.of(context).colorScheme.primary;
+        if (isLoading == true) {
+          return Theme.of(context).colorScheme.inversePrimary.withOpacity(0.5);
+        }
+        else if (states.contains(MaterialState.disabled)) {
+          return Theme.of(context).colorScheme.secondary.withOpacity(0.1);
+        } else {
+          return foregroundColor ?? Theme.of(context).colorScheme.primary;
+        }
       }),
       foregroundColor: MaterialStateProperty.resolveWith((states) {
-         return foregroundColor ?? Theme.of(context).colorScheme.surface;
+        if (isLoading == true) {
+          return Theme.of(context).colorScheme.primary;
+        } else if (states.contains(MaterialState.disabled)) {
+          return null;
+        } else {
+          return backgroundColor ?? Theme.of(context).colorScheme.surface;
+        }
       }),
       overlayColor: MaterialStateProperty.resolveWith((states) {
-         return overlayColor ?? Theme.of(context).colorScheme.inversePrimary;
+        if (states.contains(MaterialState.disabled)) {
+          return null;
+        } else {
+          return overlayColor ?? Theme.of(context).colorScheme.inversePrimary;
+        }
       }),
     );
   }
