@@ -3,11 +3,11 @@ import 'package:flutter/material.dart';
 class Date {
   static DateTime now = DateTime.now();
 
-  static Future<DateTime?> showDate(BuildContext context) async {
+  static Future<DateTime?> showDate(BuildContext context, DateTime? date) async {
 
     final DateTime? result = await showDatePicker(
       context: context,
-      initialDate: DateTime(now.year, now.month, now.day),
+      initialDate: date ?? DateTime(now.year, now.month, now.day),
       firstDate: DateTime(now.year, now.month, now.day),
       lastDate: DateTime(2030, 12, 31),
       currentDate: DateTime.now(),
@@ -18,11 +18,11 @@ class Date {
     return result;
   }
 
-  static Future<DateTimeRange?> showDateRange(BuildContext context) async {
+  static Future<DateTimeRange?> showDateRange(BuildContext context, DateTime? date) async {
     final DateTimeRange? result = await showDateRangePicker(
       context: context,
       locale: const Locale('id', 'ID'),
-      firstDate: DateTime(now.year, now.month, now.day),
+      firstDate: date ?? DateTime(now.year, now.month, now.day),
       lastDate: DateTime(2030, 12, 31),
       currentDate: DateTime.now(),
       saveText: 'Selesai',
@@ -31,11 +31,12 @@ class Date {
     return result;
   }
 
-  static Future<TimeOfDay?> showTime(BuildContext context) async {
+  static Future<TimeOfDay?> showTime(BuildContext context, TimeOfDay? time) async {
 
     final TimeOfDay? result = await showTimePicker(
       context: context,
-      initialTime: TimeOfDay.now(),
+      initialEntryMode: TimePickerEntryMode.input,
+      initialTime: time ?? TimeOfDay.now(),
       hourLabelText: 'Jam',
       minuteLabelText: 'Menit',
       confirmText: 'Selesai',

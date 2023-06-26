@@ -53,66 +53,76 @@ Future<void> showPaymentSheet(BuildContext context, Function(int indexPaymentsTy
             ],
           );
         } else if (snapshot.hasError) {
-          return const HandleNoInternet(message: 'Periksa Koneksi Internet Anda');
-        }
-        return StatefulBuilder(
-          builder: (context, setState) {
-            void setPayment(String payment, int index) {
-              setState(() {
-                selected = payment;
-                selectedIndex = index;
-              });
-            }
-            return Padding(
-              padding: const EdgeInsets.all(0),
-              child: Wrap(
-                children: <Widget>[
-                  Center(
-                    child: Column(
-                      children: [
-                        Text('Pembayaran', style: Theme.of(context).textTheme.titleLarge),
-                        Text('Pilih Metode Pembayaran', style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Theme.of(context).colorScheme.secondary
-                        )),
-                        const SizedBox(height: 24)
-                      ],
-                    )
-                  ),
-                  for (var i = 0; i < payments.length; i++)
-                  PaymentRadioList(
-                    index: i + 1,
-                    payments: payments,
-                    payment: payments[i],
-                    selected: selected,
-                    onChanged: setPayment
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(10, 20, 20, 20),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        TextButton.icon(
-                          onPressed: () => Navigator.pop(context),
-                          label: Text('Tutup', style: Theme.of(context).textTheme.titleMedium?.copyWith(
+          return Wrap(
+            children: [
+              Center(child: HandleNoInternet(
+                message: 'Periksa Koneksi Internet Anda',
+                onPressed: () => Navigator.pop(context),
+                buttonText: 'Tutup',
+              )),
+              const SizedBox(height: 400)
+            ],
+          );
+        } else {
+          return StatefulBuilder(
+            builder: (context, setState) {
+              void setPayment(String payment, int index) {
+                setState(() {
+                  selected = payment;
+                  selectedIndex = index;
+                });
+              }
+              return Padding(
+                padding: const EdgeInsets.all(0),
+                child: Wrap(
+                  children: <Widget>[
+                    Center(
+                      child: Column(
+                        children: [
+                          Text('Pembayaran', style: Theme.of(context).textTheme.titleLarge),
+                          Text('Pilih Metode Pembayaran', style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             color: Theme.of(context).colorScheme.secondary
                           )),
-                          icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.secondary),
-                        ),
-                        ElevatedButton(
-                          onPressed: () {
-                            onConfirm(selectedIndex);
-                          },
-                          style: Styles.buttonFlat(context: context),
-                          child: const Text('Pesan Sekarang')
-                        ),
-                      ],
+                          const SizedBox(height: 24)
+                        ],
+                      )
                     ),
-                  )
-                ],
-              ),
-            );
-          }
-        );
+                    for (var i = 0; i < payments.length; i++)
+                    PaymentRadioList(
+                      index: i + 1,
+                      payments: payments,
+                      payment: payments[i],
+                      selected: selected,
+                      onChanged: setPayment
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(10, 20, 20, 20),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          TextButton.icon(
+                            onPressed: () => Navigator.pop(context),
+                            label: Text('Tutup', style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.secondary
+                            )),
+                            icon: Icon(Icons.arrow_back, color: Theme.of(context).colorScheme.secondary),
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              onConfirm(selectedIndex);
+                            },
+                            style: Styles.buttonFlat(context: context),
+                            child: const Text('Pesan Sekarang')
+                          ),
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+              );
+            }
+          );
+        }
       }
     );
   });

@@ -4,7 +4,6 @@ import 'package:google_auth/widgets/handle.dart';
 import 'package:intl/intl.dart';
 
 import '../../functions/push.dart';
-import '../../styles/theme.dart';
 
 class KeluhanRoute extends StatefulWidget {
   const KeluhanRoute({super.key});
@@ -116,14 +115,13 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
           pinned: true,
           floating: true,
           automaticallyImplyLeading: false,
-          toolbarHeight: kToolbarHeight + 100,
+          toolbarHeight: kToolbarHeight + 40,
           forceElevated: true,
           surfaceTintColor: Theme.of(context).colorScheme.inversePrimary,
           actions: const [ SizedBox() ],
           title: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -140,27 +138,11 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
                         ),
                       ],
                     ),
-                    Text('Pendapat Anda Sangatlah Penting.',
+                    Text('Pendapat Anda Sangatlah Diperlukan.',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Theme.of(context).colorScheme.secondary,
                         letterSpacing: 0
                       )
-                    ),
-                  ],
-                ),
-                Column(
-                  children: [
-                    const SizedBox(height: 20),
-                    Row(
-                      children: [
-                        const SizedBox(width: 0),
-                        TextButton.icon(
-                          onPressed: () => pushReportPage(context: context, laporanList: laporanList),
-                          icon: const Icon(Icons.flag_circle, size: 20),
-                          label: const Text('Lapor Keluhan'),
-                          style: Styles.buttonFlatSmall(context: context),
-                        ),
-                      ],
                     ),
                   ],
                 ),
@@ -172,11 +154,29 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
             labelStyle: Theme.of(context).textTheme.labelLarge?.copyWith(),
             unselectedLabelColor: Theme.of(context).colorScheme.secondary,
             tabs: [
-              const Tab(text: 'Buat Keluhan'),
+              const Tab(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.flag),
+                    SizedBox(width: 8),
+                    Text('Buat Keluhan')
+                  ],
+                )
+              ),
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Tab(text: 'Pendapat Anda'),
+                  const Tab(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.location_history),
+                        SizedBox(width: 8),
+                        Text('Pendapat Anda')
+                      ],
+                    )
+                  ),
                   Visibility(
                     visible: tickets > 0,
                     child: Padding(

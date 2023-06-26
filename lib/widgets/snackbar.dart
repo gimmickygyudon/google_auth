@@ -75,21 +75,27 @@ SnackBar snackBarError({
           border: Border(top: BorderSide(color: Theme.of(context).colorScheme.error, width: 3))
         ),
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Row(
-              children: [
-                const SizedBox(width: 6),
-                Icon(icon, color: Theme.of(context).colorScheme.error),
-                const SizedBox(width: 12),
-                Text(
-                  content,
-                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.inverseSurface,
-                    letterSpacing: 0
+            ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width - 90),
+              child: Row(
+                children: [
+                  const SizedBox(width: 6),
+                  Icon(icon, color: Theme.of(context).colorScheme.error),
+                  const SizedBox(width: 12),
+                  Flexible(
+                    child: Text(
+                      content,
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.inverseSurface,
+                        letterSpacing: 0
+                      ),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
             IconButton(
               onPressed: () => hideSnackBar(context),

@@ -139,7 +139,7 @@ class _BelanjaRouteState extends State<BelanjaRoute> {
                                 borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(8), bottomRight: Radius.circular(8)),
                                 child: Container(
                                   width: double.infinity,
-                                  padding: const EdgeInsets.fromLTRB(10, 2, 0, 6),
+                                  padding: const EdgeInsets.fromLTRB(0, 2, 0, 6),
                                   clipBehavior: Clip.antiAlias,
                                   decoration: BoxDecoration(
                                     color: Theme.of(context).colorScheme.surfaceTint,
@@ -147,7 +147,7 @@ class _BelanjaRouteState extends State<BelanjaRoute> {
                                   foregroundDecoration: BoxDecoration(
                                     border: Border(bottom: BorderSide(color: Theme.of(context).colorScheme.inversePrimary, width: 4))
                                   ),
-                                  child: Text('Indostar Board', style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                                  child: Text('Indostar Board', textAlign: TextAlign.center, style: Theme.of(context).textTheme.labelMedium?.copyWith(
                                     color: Theme.of(context).colorScheme.surface,
                                     letterSpacing: 0,
                                   ))

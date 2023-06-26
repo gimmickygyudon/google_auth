@@ -25,7 +25,7 @@ class OrdersPageRoute extends StatefulWidget {
 }
 
 class _OrdersPageRouteState extends State<OrdersPageRoute> with SingleTickerProviderStateMixin {
-  final ValueNotifier<bool> orderOpen = ValueNotifier(false);
+  final ValueNotifier<bool> orderOpen = ValueNotifier(true);
 
   late ScrollController _scrollController;
   late TabController _tabController;
@@ -33,7 +33,15 @@ class _OrdersPageRouteState extends State<OrdersPageRoute> with SingleTickerProv
   List<bool> checkedItems = List.empty(growable: true);
   bool firstInit = false;
 
-  List pages = ['Buat Pesanan', 'Riwayat'];
+  List<Map> pages = [
+    {
+      'name': 'Buat Pesanan',
+      'icon': Icons.shopping_bag_outlined
+    }, {
+      'name': 'Riwayat',
+      'icon': Icons.history
+    }
+  ];
 
   @override
   void initState() {
@@ -132,7 +140,16 @@ class _OrdersPageRouteState extends State<OrdersPageRoute> with SingleTickerProv
           bottom: TabBar(
             controller: _tabController,
             tabs: pages.map((page) {
-              return Tab(child: Text(page));
+              return Tab(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(page['icon']),
+                    const SizedBox(width: 8),
+                    Text(page['name']),
+                  ],
+                )
+              );
             }).toList()
           ),
         ),
@@ -498,11 +515,10 @@ class AddressCard extends StatelessWidget {
                                           ),
                                         ],
                                       ),
-                                      ElevatedButton.icon(
+                                      ElevatedButton(
                                         onPressed: () => pushAddress(context: context, hero: snapshot?['name']),
                                         style: Styles.buttonInverseFlatSmall(context: context),
-                                        label: const Text('Ganti'),
-                                        icon: const Icon(Icons.edit_location_alt),
+                                        child: const Text('Ubah'),
                                       )
                                     ],
                                   ),
@@ -592,13 +608,14 @@ class AddressCard extends StatelessWidget {
                                             style: Styles.buttonFlat(context: context),
                                             child: const Text('Batal')
                                           ),
-                                          const SizedBox(width: 8),
+                                          const SizedBox(width: 16),
                                           ElevatedButton.icon(
                                             onPressed: () => pushCheckout(context: context, checkedItems: checkedItems!),
                                             style: Styles.buttonFlat(
                                               context: context,
                                               borderRadius: BorderRadius.circular(12),
-                                              backgroundColor: Theme.of(context).colorScheme.primary.withGreen(160)
+                                              backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+                                              foregroundColor: Theme.of(context).colorScheme.inverseSurface
                                             ),
                                             icon: const Icon(Icons.arrow_forward, size: 22),
                                             label: const Text('Checkout'),

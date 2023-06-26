@@ -3,11 +3,14 @@ import 'package:google_auth/functions/push.dart';
 import 'package:google_auth/styles/theme.dart';
 
 class HandleNoInternet extends StatelessWidget {
-  const HandleNoInternet({super.key, required this.message, this.color, this.onPressed});
+  const HandleNoInternet({
+    super.key, required this.message, this.color, this.onPressed, this.buttonText
+  });
 
   final String message;
   final Color? color;
   final Function? onPressed;
+  final String? buttonText;
 
   @override
   Widget build(BuildContext context) {
@@ -26,13 +29,13 @@ class HandleNoInternet extends StatelessWidget {
           letterSpacing: 0
         )),
         const SizedBox(height: 48),
-      //OutlinedButton(
-      //  onPressed: () {
-      //    if (onPressed != null) onPressed!();
-      //  },
-      //  style: ButtonStyle(side: MaterialStatePropertyAll(BorderSide(color: Theme.of(context).colorScheme.primary))),
-      //  child: const Text('Muat Ulang')
-      //)
+        if(onPressed != null) OutlinedButton(
+         onPressed: () {
+           onPressed!();
+         },
+         style: ButtonStyle(side: MaterialStatePropertyAll(BorderSide(color: Theme.of(context).colorScheme.primary))),
+         child: Text(buttonText ?? 'Muat Ulang')
+        )
       ],
     );
   }
@@ -164,3 +167,74 @@ class HandleEmptyAddress extends StatelessWidget {
     );
   }
 }
+
+class HandleLocationDisabled extends StatelessWidget {
+  const HandleLocationDisabled({super.key, required this.buttonPressed});
+
+  final Function buttonPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 32),
+      child: Column(
+        children: [
+          const SizedBox(height: 60),
+          const Icon(Icons.wrong_location_outlined, size: 72),
+          const SizedBox(height: 24),
+          Text('Tidak dapat menghubungi layanan GPS di device anda.',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+              color: Theme.of(context).colorScheme.secondary,
+              letterSpacing: 0
+            )
+          ),
+          const SizedBox(height: 48),
+          ElevatedButton.icon(
+            onPressed: () => buttonPressed(),
+            style: Styles.buttonLight(context: context),
+            label: const Text('Hidukan Layanan Lokasi'),
+            icon: const Icon(Icons.toggle_off_outlined, size: 32)
+          ),
+          const SizedBox(height: 92),
+        ],
+      ),
+    );
+  }
+}
+
+class HandleLocationPermission extends StatelessWidget {
+  const HandleLocationPermission({super.key, required this.buttonPressed});
+
+  final Function buttonPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 32),
+      child: Column(
+        children: [
+          const SizedBox(height: 60),
+          const Icon(Icons.wrong_location_outlined, size: 72),
+          const SizedBox(height: 24),
+          Text('Tidak dapat menghubungi layanan GPS di device anda.',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+              color: Theme.of(context).colorScheme.secondary,
+              letterSpacing: 0
+            )
+          ),
+          const SizedBox(height: 48),
+          ElevatedButton.icon(
+            onPressed: () => buttonPressed(),
+            style: Styles.buttonLight(context: context),
+            label: const Text('Ubah Akses Layanan Lokasi'),
+            icon: const Icon(Icons.toggle_off_outlined, size: 32)
+          ),
+          const SizedBox(height: 92),
+        ],
+      ),
+    );
+  }
+}
+

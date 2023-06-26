@@ -162,7 +162,6 @@ class _AddressRouteState extends State<AddressRoute> {
                   ],
                 ),
               ),
-              // FIXME: use valuable listener => future builder flash on setstate
               ValueListenableBuilder(
                 valueListenable: AddressRoute.locations,
                 builder: (context, snapshot, child) {
@@ -180,8 +179,6 @@ class _AddressRouteState extends State<AddressRoute> {
                             onSelect: (index) {
                               setState(() {
                                 LocationManager.setIndex(index);
-                                AddressRoute.locations.value['locationindex'] = index;
-                                AddressRoute.locations.notifyListeners();
                               });
                             },
                             refresh: refresh,
@@ -411,7 +408,6 @@ class _CardAddressState extends State<CardAddress> {
                     PopupMenuItem(
                       onTap: () {
                         LocationManager.delete(widget.index);
-                        AddressRoute.locations.value['locations'].removeAt(widget.index);
                         widget.refresh();
                       },
                       height: 45,

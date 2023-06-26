@@ -69,7 +69,7 @@ class _CartWidgetState extends State<CartWidget> {
                             onPressed: () => pushAddress(context: context, hero: 'Pengiriman'),
                             style: Styles.buttonLightSmall(context: context),
                             label: const Text('Lokasi Saya'),
-                            icon: const Icon(Icons.location_history)
+                            icon: const Icon(Icons.location_on)
                           )
                         ],
                       ),

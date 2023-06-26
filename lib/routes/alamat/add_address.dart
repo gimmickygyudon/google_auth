@@ -7,7 +7,6 @@ import 'package:google_auth/functions/string.dart';
 import 'package:google_auth/widgets/dialog.dart';
 import 'package:google_auth/widgets/handle.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../functions/location.dart';
 import '../../styles/theme.dart';
@@ -25,7 +24,7 @@ class AddressAddRoute extends StatefulWidget {
   static ValueNotifier isValidated = ValueNotifier(false);
 }
 
-class _AddressAddRouteState extends State<AddressAddRoute> {
+class _AddressAddRouteState extends State<AddressAddRoute> with WidgetsBindingObserver {
   late Position latlang;
   late Future defineLocation;
   UserLocation? userLocation;
@@ -34,19 +33,47 @@ class _AddressAddRouteState extends State<AddressAddRoute> {
   Map currentLocation = {};
 
   late ScrollController _scrollController;
+  ValueNotifier<AppLifecycleState?> appState = ValueNotifier(null);
 
   @override
   void initState() {
     AddressAddRoute.isValidated.value = false;
     _scrollController = ScrollController();
-    getLocation();
+    getCurrentLocation();
+    getLocations();
 
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
   }
 
-  void getLocation() {
-    defineLocation = UserLocation.determinePosition()
-    .onError((error, stackTrace) => Future.error(error.toString()))
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    appState.value = state;
+    switch (state) {
+      case AppLifecycleState.resumed:
+        break;
+      case AppLifecycleState.inactive:
+        break;
+      case AppLifecycleState.paused:
+        break;
+      case AppLifecycleState.detached:
+        break;
+      case AppLifecycleState.hidden:
+        break;
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    LocationName.selectedLocationName = List.filled(5, null, growable: false);
+    disposeLocation();
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  Future<void> getCurrentLocation() async {
+    return defineLocation = UserLocation.determinePosition()
     .then((currentPosition) async {
       await Geolocator.getLastKnownPosition().then((lastPosition) async {
         double? distance;
@@ -67,57 +94,12 @@ class _AddressAddRouteState extends State<AddressAddRoute> {
                   'street': value.street
                 };
 
-                  _locations = [
-                  {
-                    'controller': TextEditingController(),
-                    'focusNode': FocusNode(),
-                    'options': LocationName.filterProvince,
-                    'name': 'Provinsi',
-                    'icon': Icons.landscape,
-                    'value': null,
-                    'placeholder': null
-                  }, {
-                    'controller': TextEditingController(),
-                    'focusNode': FocusNode(),
-                    'options': LocationName.filterDistrict,
-                    'name': 'Kabupaten / Kota',
-                    'icon': Icons.location_city,
-                    'visible': true,
-                    'value': null,
-                    'placeholder': null
-                  }, {
-                    'controller': TextEditingController(),
-                    'focusNode': FocusNode(),
-                    'options': LocationName.filterSubdistrict,
-                    'icon': Icons.domain,
-                    'name': 'Kecamatan',
-                    'value': null,
-                    'placeholder': null
-                  }, {
-                    'controller': TextEditingController(),
-                    'focusNode': FocusNode(),
-                    'options': LocationName.filterSuburb,
-                    'name': 'Kelurahan / Desa',
-                    'icon': Icons.holiday_village,
-                    'value': null,
-                    'placeholder': null
-                  }, {
-                    'controller': TextEditingController(),
-                    'focusNode': FocusNode(),
-                    'options': Future.value,
-                    'name': 'Alamat',
-                    'icon': Icons.signpost_rounded,
-                    'value': null,
-                  }
-                ];
-
                 _locations[0]['placeholder'] = value.province;
                 _locations[1]['placeholder'] = value.district;
                 _locations[2]['placeholder'] = value.subdistrict;
                 _locations[3]['placeholder'] = value.suburb;
                 _locations[4]['placeholder'] = value.street;
 
-                locations.add(_locations[0]);
               });
               return value;
             });
@@ -126,6 +108,53 @@ class _AddressAddRouteState extends State<AddressAddRoute> {
       });
       return latlang = currentPosition;
     });
+  }
+
+  void getLocations() {
+    _locations = [
+      {
+        'controller': TextEditingController(),
+        'focusNode': FocusNode(),
+        'options': LocationName.filterProvince,
+        'name': 'Provinsi',
+        'icon': Icons.landscape,
+        'value': null,
+        'placeholder': null
+      }, {
+        'controller': TextEditingController(),
+        'focusNode': FocusNode(),
+        'options': LocationName.filterDistrict,
+        'name': 'Kabupaten / Kota',
+        'icon': Icons.location_city,
+        'visible': true,
+        'value': null,
+        'placeholder': null
+      }, {
+        'controller': TextEditingController(),
+        'focusNode': FocusNode(),
+        'options': LocationName.filterSubdistrict,
+        'icon': Icons.domain,
+        'name': 'Kecamatan',
+        'value': null,
+        'placeholder': null
+      }, {
+        'controller': TextEditingController(),
+        'focusNode': FocusNode(),
+        'options': LocationName.filterSuburb,
+        'name': 'Kelurahan / Desa',
+        'icon': Icons.holiday_village,
+        'value': null,
+        'placeholder': null
+      }, {
+        'controller': TextEditingController(),
+        'focusNode': FocusNode(),
+        'options': Future.value,
+        'name': 'Alamat',
+        'icon': Icons.signpost_rounded,
+        'value': null,
+      }
+    ];
+    locations.add(_locations[0]);
   }
 
   double range(int multi) {
@@ -218,14 +247,6 @@ class _AddressAddRouteState extends State<AddressAddRoute> {
   }
 
   @override
-  void dispose() {
-    _scrollController.dispose();
-    LocationName.selectedLocationName = List.filled(5, null, growable: false);
-    disposeLocation();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Theme(
       data: Theme.of(context).copyWith(
@@ -246,11 +267,11 @@ class _AddressAddRouteState extends State<AddressAddRoute> {
                 duration: const Duration(milliseconds: 700),
                 curve: Curves.fastOutSlowIn,
                 alignment: Alignment.topRight,
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 20),
-                  child: SizedBox(
-                    height: currentLocation.isNotEmpty ? null : 0,
-                    width: null,
+                child: SizedBox(
+                  height: currentLocation.isNotEmpty ? null : 0,
+                  width: null,
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 20),
                     child: Hero(
                       tag: 'Location',
                       child: ButtonListTile(
@@ -289,10 +310,10 @@ class _AddressAddRouteState extends State<AddressAddRoute> {
               ),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: FutureBuilder(
-                  future: defineLocation,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
+                child: ValueListenableBuilder(
+                  valueListenable: appState,
+                  builder: (context, appState, child) {
+                    if (appState == AppLifecycleState.inactive) {
                       return Container(
                         padding: const EdgeInsets.only(top: 24),
                         height: 200,
@@ -303,45 +324,66 @@ class _AddressAddRouteState extends State<AddressAddRoute> {
                         ),
                         child: const Center(child: HandleLoading(strokeWidth: 3)),
                       );
-                    } else if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
-                      return ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxHeight: 200),
-                          child: FlutterMap(
-                            options: MapOptions(
-                              onTap: (tapPosition, point) => useCurrentLocation(),
-                              enableScrollWheel: true,
-                              center: LatLng(latlang.latitude, latlang.longitude),
-                              zoom: 12,
+                    } else {
+                      return FutureBuilder(
+                      future: defineLocation,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return Container(
+                            padding: const EdgeInsets.only(top: 24),
+                            height: 200,
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.surfaceVariant,
+                              borderRadius: BorderRadius.circular(12)
                             ),
-                            nonRotatedChildren: [
-                              RichAttributionWidget(
-                                attributions: [
-                                  TextSourceAttribution(
-                                    'OpenStreetMap contributors',
-                                    onTap: () => launchUrl(Uri.parse('https://openstreetmap.org/copyright')),
+                            child: const Center(child: HandleLoading(strokeWidth: 3)),
+                          );
+                        } else if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
+                          return ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child: ConstrainedBox(
+                              constraints: const BoxConstraints(maxHeight: 200),
+                              child: FlutterMap(
+                                options: MapOptions(
+                                  onTap: (tapPosition, point) => useCurrentLocation(),
+                                  enableScrollWheel: true,
+                                  center: LatLng(latlang.latitude, latlang.longitude),
+                                  zoom: 12,
+                                ),
+                                nonRotatedChildren: const [
+                                  RichAttributionWidget(
+                                    attributions: [
+                                      TextSourceAttribution(
+                                        'OpenStreetMap contributors',
+                                      ),
+                                    ],
                                   ),
                                 ],
+                                children: [
+                                  TileLayer(
+                                    urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                    userAgentPackageName: 'com.example.app',
+                                  ),
+                                  MarkerLabel(
+                                    latlang: latlang,
+                                    currentLocation: currentLocation,
+                                  )
+                                ],
                               ),
-                            ],
-                            children: [
-                              TileLayer(
-                                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                                userAgentPackageName: 'com.example.app',
-                              ),
-                              MarkerLabel(
-                                latlang: latlang,
-                                currentLocation: currentLocation,
-                              )
-                            ],
-                          ),
-                        ),
-                      );
-                    } else {
-                      return const HandleNoInternet(message: 'Tidak Ada Koneksi Internet');
+                            ),
+                          );
+                        } else {
+                          return HandleLocationDisabled(
+                            buttonPressed: () {
+                              getCurrentLocation().whenComplete(() => Navigator.pop(context));
+                            }
+                          );
+                        }
+                      },
+                    );
                     }
-                  },
+                  }
                 ),
               ),
               Padding(

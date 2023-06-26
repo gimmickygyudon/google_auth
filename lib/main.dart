@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:google_auth/styles/scroll.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_framework/responsive_framework.dart';
@@ -25,52 +26,64 @@ class MyApp extends StatelessWidget {
     return Consumer<ThemeNotifier>(
       builder: (context, theme, child) => MediaQuery(
         data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
-        child: MaterialApp(
-          debugShowCheckedModeBanner: false,
-          title: 'Customer',
-          theme: theme.lightTheme,
-          darkTheme: theme.darkTheme,
-          themeMode: theme.getTheme(),
-          localizationsDelegates: const [
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: const [
-           Locale('id'),
-         ],
-          builder: (context, child) {
-            return ResponsiveBreakpoints.builder(
-              child: Builder(
-                builder: (context) {
-                  return Container(
-                    color: Theme.of(context).colorScheme.background,
-                    child: ResponsiveScaledBox(
-                      autoCalculateMediaQueryData: true,
-                      width: ResponsiveValue<double>(
-                        context,
-                        conditionalValues: [
-                          Condition.equals(name: MOBILE, value: 450),
-                        ],
-                      ).value,
-                      child: child!
-                    )
-                  );
-                }
-              ),
-              breakpoints: [
-                const Breakpoint(start: 0, end: 450, name: MOBILE),
-                const Breakpoint(start: 451, end: 850, name: TABLET),
-                const Breakpoint(start: 851, end: double.infinity, name: DESKTOP),
-              ],
-              breakpointsLandscape: [
-                const Breakpoint(start: 0, end: 450, name: MOBILE),
-                const Breakpoint(start: 451, end: 800, name: TABLET),
-                const Breakpoint(start: 801, end: double.infinity, name: DESKTOP),
-              ],
-            );
+        child: GestureDetector(
+          onTap: () {
+            FocusScopeNode currentFocus = FocusScope.of(context);
+            if (!currentFocus.hasPrimaryFocus &&
+                currentFocus.focusedChild != null) {
+              FocusManager.instance.primaryFocus?.unfocus();
+            }
           },
-          home: const MyHomePage(title: 'Customer'),
+          child: MaterialApp(
+            debugShowCheckedModeBanner: false,
+            title: 'Customer',
+            theme: theme.lightTheme,
+            darkTheme: theme.darkTheme,
+            themeMode: theme.getTheme(),
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [
+             Locale('id'),
+           ],
+            builder: (context, child) {
+              return ResponsiveBreakpoints.builder(
+                child: Builder(
+                  builder: (context) {
+                    return ScrollConfiguration(
+                      behavior: const ScrollBehaviorModified(),
+                      child: Container(
+                        color: Theme.of(context).colorScheme.background,
+                        child: ResponsiveScaledBox(
+                          autoCalculateMediaQueryData: true,
+                          width: ResponsiveValue<double>(
+                            context,
+                            conditionalValues: [
+                              Condition.equals(name: MOBILE, value: 450),
+                            ],
+                          ).value,
+                          child: child!
+                        )
+                      ),
+                    );
+                  }
+                ),
+                breakpoints: [
+                  const Breakpoint(start: 0, end: 450, name: MOBILE),
+                  const Breakpoint(start: 451, end: 850, name: TABLET),
+                  const Breakpoint(start: 851, end: double.infinity, name: DESKTOP),
+                ],
+                breakpointsLandscape: [
+                  const Breakpoint(start: 0, end: 450, name: MOBILE),
+                  const Breakpoint(start: 451, end: 800, name: TABLET),
+                  const Breakpoint(start: 801, end: double.infinity, name: DESKTOP),
+                ],
+              );
+            },
+            home: const MyHomePage(title: 'Customer'),
+          ),
         ),
       ),
     );

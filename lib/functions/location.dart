@@ -3,6 +3,7 @@
 import 'dart:convert';
 
 import 'package:async/async.dart';
+import 'package:flutter/foundation.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_auth/functions/sql_client.dart';
@@ -47,32 +48,36 @@ class UserLocation {
       'suburb': suburb
     };
   }
-  static Future<Position> determinePosition() async {
-    // bool serviceEnabled;
-    LocationPermission permission;
 
-    // Test if location services are enabled.
-    // serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    await Geolocator.isLocationServiceEnabled();
-
-    permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
+  static Future<LocationPermission> checkPermission() async {
+    return await Geolocator.requestPermission()
+    .then((permission) async {
+      if (permission == LocationPermission.whileInUse || permission == LocationPermission.always) {
+        // Test if location services are enabled.
+        Geolocator.isLocationServiceEnabled();
+        // if (!serviceEnabled) {
+        //   // Location services are not enabled don't continue
+        //   // accessing the position and request users of the
+        //   // App to enable the location services.
+        //   return Future.error('Tidak dapat menghubungi layanan GPS anda.');
+        // }
+        return permission;
+      } else if (permission == LocationPermission.denied) {
         // Permissions are denied, next time you could try
         // requesting permissions again (this is also where
         // Android's shouldShowRequestPermissionRationale
         // returned true. According to Android guidelines
         // your App should show an explanatory UI now.
         return Future.error('Location permissions are denied');
+      } else {
+        // Permissions are denied forever, handle appropriately.
+        return Future.error('Location permissions are permanently denied, we cannot request permissions.');
       }
-    }
+    });
+  }
 
-    if (permission == LocationPermission.deniedForever) {
-      // Permissions are denied forever, handle appropriately.
-      return Future.error(
-        'Location permissions are permanently denied, we cannot request permissions.');
-    }
+  static Future<Position> determinePosition() async {
+    checkPermission();
 
     // When we reach here, permissions are granted and we can
     // continue accessing the position of the device.
@@ -163,7 +168,7 @@ class Delivery {
   }
 }
 
-class LocationManager {
+class LocationManager extends ChangeNotifier {
   final String name;
   final String phone_number;
   final String province;
@@ -172,7 +177,7 @@ class LocationManager {
   final String suburb;
   final String street;
 
-  const LocationManager({
+  LocationManager({
     required this.name,
     required this.phone_number,
     required this.province,
@@ -238,6 +243,8 @@ class LocationManager {
     List? location = await retrieve().then((value) {
       List? location = value;
       location?.add(source);
+      AddressRoute.locations.value['locations'].add(source);
+      AddressRoute.locations.notifyListeners();
 
       return location;
     });
@@ -261,6 +268,8 @@ class LocationManager {
       List? element = value;
 
       element?.removeAt(i);
+      AddressRoute.locations.value['locations'].removeAt(i);
+      AddressRoute.locations.notifyListeners();
       if (element != null) {
         set(element);
         getIndex().then((index) {
@@ -286,6 +295,8 @@ class LocationManager {
   static Future<void> setIndex (int index) async {
     final prefs = await SharedPreferences.getInstance();
 
+    AddressRoute.locations.value['locationindex'] = index;
+    AddressRoute.locations.notifyListeners();
     prefs.setInt('location_index', index);
   }
 

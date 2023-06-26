@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:google_auth/functions/conversion.dart';
 import 'package:google_auth/functions/location.dart';
 import 'package:google_auth/functions/string.dart';
-import 'package:google_auth/routes/alamat/address.dart';
 import 'package:google_auth/strings/item.dart';
 import 'package:google_auth/widgets/profile.dart';
 
@@ -587,147 +586,148 @@ class _AddAddressDialogState extends State<AddAddressDialog> {
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
-      child: Hero(
-        tag: widget.hero,
-        child: Theme(
-          data: Theme.of(context).copyWith(
-            inputDecorationTheme: Themes.inputDecorationThemeForm(context: context)
-          ),
-          // TODO: Add Upload Photo Image
-          // FIXME: Janky Double Context
-          child: AlertDialog(
-            titleTextStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
-              fontWeight: FontWeight.w500
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Hero(
+          tag: widget.hero,
+          child: Theme(
+            data: Theme.of(context).copyWith(
+              inputDecorationTheme: Themes.inputDecorationThemeForm(context: context)
             ),
-            surfaceTintColor: Colors.transparent,
-            elevation: 0,
-            iconPadding: const EdgeInsets.fromLTRB(24, 32, 24, 0),
-            contentPadding: const EdgeInsets.fromLTRB(32, 20, 32, 32),
-            content: SingleChildScrollView(
-              child: ListBody(
-                children: <Widget>[
-                  const SizedBox(height: 6),
-                  Text('Tambahkan alamat ini ke lokasi pemesanan.', style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    letterSpacing: 0,
-                    color: Theme.of(context).colorScheme.secondary
-                  )),
-                  Container(
-                    margin: const EdgeInsets.symmetric(vertical: 24),
-                    height: 1,
-                    width: double.infinity,
-                    color: Theme.of(context).colorScheme.outlineVariant,
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Icon(widget.locations[4]['icon'], size: 20),
-                          const SizedBox(width: 8),
-                          Flexible(child: Text(widget.locations[4]['value'], style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            height: 0
-                          ))),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Icon(widget.locations[2]['icon'], size: 20),
-                          const SizedBox(width: 8),
-                          Flexible(child: Text(widget.locations[2]['value'], style: Theme.of(context).textTheme.bodySmall)),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Icon(widget.locations[1]['icon'], size: 20),
-                          const SizedBox(width: 8),
-                          Flexible(child: Text(widget.locations[1]['value'], style: Theme.of(context).textTheme.bodySmall)),
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Icon(widget.locations[0]['icon'], size: 20),
-                          const SizedBox(width: 8),
-                          Flexible(child: Text(widget.locations[0]['value'], style: Theme.of(context).textTheme.bodySmall)),
-                        ],
-                      ),
-                      const SizedBox(height: 30),
-                      TextField(
-                        onChanged: (value) => setValidate(),
-                        controller: nameController,
-                        textInputAction: TextInputAction.next,
-                        keyboardType: TextInputType.name,
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.3),
-                        decoration: Styles.inputDecorationForm(
-                          context: context,
-                          placeholder: 'Nama Lokasi / Tempat',
-                          labelStyle: Theme.of(context).textTheme.bodyLarge,
-                          hintText: 'Gudang #2',
-                          floatingLabelBehavior: FloatingLabelBehavior.always,
-                          condition: nameController.text.trim().isNotEmpty
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      TextField(
-                        onChanged: (value) => setValidate(),
-                        controller: phonenumberController,
-                        keyboardType: TextInputType.phone,
-                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.3),
-                        decoration: Styles.inputDecorationForm(
-                          context: context,
-                          labelStyle: Theme.of(context).textTheme.bodyLarge,
-                          placeholder: 'Kontak Telepon',
-                          isPhone: true,
-                          floatingLabelBehavior: FloatingLabelBehavior.always,
-                          condition: phonenumberController.text.trim().isNotEmpty
-                        ),
-                      )
-                    ]
-                  ),
-                ],
+            // TODO: Add Upload Photo Image
+            // FIXME: Janky Double Context
+            child: AlertDialog(
+              titleTextStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.w500
               ),
-            ),
-            actionsAlignment: MainAxisAlignment.spaceBetween,
-            actions: <Widget>[
-              TextButton(
-                style: ButtonStyle(foregroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.secondary)),
-                onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Batal'),
+              surfaceTintColor: Colors.transparent,
+              elevation: 0,
+              iconPadding: const EdgeInsets.fromLTRB(24, 32, 24, 0),
+              contentPadding: const EdgeInsets.fromLTRB(32, 20, 32, 32),
+              content: SingleChildScrollView(
+                child: ListBody(
+                  children: <Widget>[
+                    const SizedBox(height: 6),
+                    Text('Tambahkan alamat ini ke lokasi pemesanan.', style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      letterSpacing: 0,
+                      color: Theme.of(context).colorScheme.secondary
+                    )),
+                    Container(
+                      margin: const EdgeInsets.symmetric(vertical: 24),
+                      height: 1,
+                      width: double.infinity,
+                      color: Theme.of(context).colorScheme.outlineVariant,
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(widget.locations[4]['icon'], size: 20),
+                            const SizedBox(width: 8),
+                            Flexible(child: Text(widget.locations[4]['value'], style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              height: 0
+                            ))),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(widget.locations[2]['icon'], size: 20),
+                            const SizedBox(width: 8),
+                            Flexible(child: Text(widget.locations[2]['value'], style: Theme.of(context).textTheme.bodySmall)),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(widget.locations[1]['icon'], size: 20),
+                            const SizedBox(width: 8),
+                            Flexible(child: Text(widget.locations[1]['value'], style: Theme.of(context).textTheme.bodySmall)),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(widget.locations[0]['icon'], size: 20),
+                            const SizedBox(width: 8),
+                            Flexible(child: Text(widget.locations[0]['value'], style: Theme.of(context).textTheme.bodySmall)),
+                          ],
+                        ),
+                        const SizedBox(height: 30),
+                        TextField(
+                          onChanged: (value) => setValidate(),
+                          controller: nameController,
+                          textInputAction: TextInputAction.next,
+                          keyboardType: TextInputType.name,
+                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.3),
+                          decoration: Styles.inputDecorationForm(
+                            context: context,
+                            placeholder: 'Nama Lokasi / Tempat',
+                            labelStyle: Theme.of(context).textTheme.bodyLarge,
+                            hintText: 'Gudang #2',
+                            floatingLabelBehavior: FloatingLabelBehavior.always,
+                            condition: nameController.text.trim().isNotEmpty
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        TextField(
+                          onChanged: (value) => setValidate(),
+                          controller: phonenumberController,
+                          keyboardType: TextInputType.phone,
+                          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(height: 1.3),
+                          decoration: Styles.inputDecorationForm(
+                            context: context,
+                            labelStyle: Theme.of(context).textTheme.bodyLarge,
+                            placeholder: 'Kontak Telepon',
+                            isPhone: true,
+                            floatingLabelBehavior: FloatingLabelBehavior.always,
+                            condition: phonenumberController.text.trim().isNotEmpty
+                          ),
+                        )
+                      ]
+                    ),
+                  ],
+                ),
               ),
-              ValueListenableBuilder(
-                valueListenable: isValidated,
-                builder: (context, isValidated, child) {
-                  return TextButton(
-                    onPressed: isValidated ? () {
-                      LocationManager location = LocationManager(
-                        name: nameController.text,
-                        phone_number: phonenumberController.text,
-                        province: widget.locations[0]['value'],
-                        district: widget.locations[1]['value'],
-                        subdistrict: widget.locations[2]['value'],
-                        suburb: widget.locations[3]['value'],
-                        street: widget.locations[4]['value']
-                      );
+              actionsAlignment: MainAxisAlignment.spaceBetween,
+              actions: <Widget>[
+                TextButton(
+                  style: ButtonStyle(foregroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.secondary)),
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: const Text('Batal'),
+                ),
+                ValueListenableBuilder(
+                  valueListenable: isValidated,
+                  builder: (context, isValidated, child) {
+                    return TextButton(
+                      onPressed: isValidated ? () {
+                        LocationManager location = LocationManager(
+                          name: nameController.text,
+                          phone_number: phonenumberController.text,
+                          province: widget.locations[0]['value'],
+                          district: widget.locations[1]['value'],
+                          subdistrict: widget.locations[2]['value'],
+                          suburb: widget.locations[3]['value'],
+                          street: widget.locations[4]['value']
+                        );
 
-                      LocationManager.add(location.toMap()).whenComplete(() {
-                        AddressRoute.locations.value['locations'].add(location.toMap());
-                        AddressRoute.locations.notifyListeners();
-                        Navigator.pop(context, true);
-                      });
-                    } : null,
-                    style: Styles.buttonForm(context: context),
-                    child: const Text('Simpan'),
-                  );
-                }
-              ),
-            ],
+                        LocationManager.add(location.toMap()).whenComplete(() {
+                          Navigator.pop(context, true);
+                        });
+                      } : null,
+                      style: Styles.buttonForm(context: context),
+                      child: const Text('Simpan'),
+                    );
+                  }
+                ),
+              ],
+            ),
           ),
         ),
       ),

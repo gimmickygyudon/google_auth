@@ -233,6 +233,17 @@ void pushAddressAdd({
   );
 }
 
+void pushAddressAddReplacement({
+  required BuildContext context,
+  required String hero
+}) {
+  Navigator.pushReplacement(context, MaterialPageRoute(
+    builder: (context) {
+      return AddressAddRoute(hero: hero);
+    })
+  );
+}
+
 void pushCheckout({
   required BuildContext context,
   required List<bool> checkedItems

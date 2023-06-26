@@ -120,7 +120,7 @@ class _ItemRouteState extends State<ItemRoute> {
                         IconButton(onPressed: () {}, icon: const Icon(Icons.filter_list)),
                         IconButton(
                           onPressed: () {},
-                          icon: const Icon(Icons.grid_view_rounded)
+                          icon: const Icon(Icons.grid_view)
                         ),
                       ],
                     ),

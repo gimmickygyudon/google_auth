@@ -75,7 +75,7 @@ class MarkerLabel extends StatelessWidget {
                         children: [
                           CircleAvatar(
                             radius: 16,
-                            child: Icon(Icons.location_on_outlined, size: 24, color: Theme.of(context).colorScheme.primary),
+                            child: Icon(Icons.location_on, size: 22, color: Theme.of(context).colorScheme.primary),
                           ),
                           const SizedBox(width: 6),
                           Column(
