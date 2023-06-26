@@ -6,7 +6,6 @@ import 'package:google_auth/functions/sqlite.dart';
 import 'package:google_auth/functions/string.dart';
 import 'package:google_auth/routes/alamat/address.dart';
 import 'package:google_auth/strings/item.dart';
-import 'package:google_auth/strings/user.dart';
 import 'package:google_auth/styles/theme.dart';
 import 'package:google_auth/widgets/cart.dart';
 import 'package:google_auth/widgets/dialog.dart';

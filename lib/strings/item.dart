@@ -7,15 +7,15 @@ class ItemDescription{
     // TODO: need diff sub category image
     switch (string) {
       case 'IMPERIAL':
-        return 'assets/Indostar Board.png';
+        return 'assets/Indostar Board Imperial.png';
       case 'MATRIC':
-        return 'assets/Indostar Board.png';
+        return 'assets/Indostar Board Matric.png';
       case 'SQUARE':
-        return 'assets/Indostar Board.png';
+        return 'assets/Indostar Board Square.png';
       case 'PLANK POLOS':
-        return 'assets/Indostar Plank.png';
+        return 'assets/Indostar Plank 1.png';
       case 'PLANK MOTIF':
-        return 'assets/Indostar Plank.png';
+        return 'assets/Indostar Plank Texture.png';
       case 'BES':
         return 'assets/Indostar Bes.png';
       default:
