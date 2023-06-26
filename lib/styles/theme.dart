@@ -268,8 +268,7 @@ class Styles {
       backgroundColor: MaterialStateProperty.resolveWith((states) {
         if (isLoading == true) {
           return Theme.of(context).colorScheme.inversePrimary.withOpacity(0.5);
-        }
-        else if (states.contains(MaterialState.disabled)) {
+        } else if (states.contains(MaterialState.disabled)) {
           return Theme.of(context).colorScheme.secondary.withOpacity(0.1);
         } else {
           return foregroundColor ?? Theme.of(context).colorScheme.primary;

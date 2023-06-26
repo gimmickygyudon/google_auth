@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_auth/functions/location.dart';
+import 'package:google_auth/functions/payments.dart';
 import 'package:google_auth/functions/push.dart';
 import 'package:google_auth/functions/sqlite.dart';
 import 'package:google_auth/functions/string.dart';
 import 'package:google_auth/routes/alamat/address.dart';
 import 'package:google_auth/strings/item.dart';
+import 'package:google_auth/strings/user.dart';
 import 'package:google_auth/styles/theme.dart';
 import 'package:google_auth/widgets/cart.dart';
 import 'package:google_auth/widgets/dialog.dart';
@@ -423,8 +425,238 @@ class _OrdersPageRouteState extends State<OrdersPageRoute> with SingleTickerProv
               ),
             )
           ),
-          Placeholder()
+          const OrderHistoryPage()
         ],
+      ),
+    );
+  }
+}
+
+class OrderHistoryPage extends StatefulWidget {
+  const OrderHistoryPage({super.key});
+
+  @override
+  State<OrderHistoryPage> createState() => _OrderHistoryPageState();
+}
+
+class _OrderHistoryPageState extends State<OrderHistoryPage> {
+
+  late Future _purchaseOrder;
+
+  @override
+  void initState() {
+    _purchaseOrder = Payment.getPaymentHistory();
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.5),
+      child: FutureBuilder(
+        future: _purchaseOrder,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const HandleLoading();
+          } else if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
+            return ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              itemCount: snapshot.data.length,
+              itemBuilder: (context, index) {
+                return ListOrderHistory(index: index, item: snapshot.data[index]);
+              }
+            );
+          } else {
+            return const HandleNoInternet(message: 'Periksa Koneksi Internet Anda');
+          }
+        }
+      ),
+    );
+  }
+}
+
+
+class ListOrderHistory extends StatefulWidget {
+  const ListOrderHistory({super.key, required this.index, required this.item});
+
+  final int index;
+  final Map item;
+
+  @override
+  State<ListOrderHistory> createState() => _ListOrderHistoryState();
+}
+
+class _ListOrderHistoryState extends State<ListOrderHistory> {
+
+  late bool isOpen;
+
+  @override
+  void initState() {
+    isOpen = false;
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8)
+        ),
+        clipBehavior: Clip.antiAlias,
+        surfaceTintColor: Colors.transparent,
+        elevation: 8,
+        shadowColor: isOpen ? null : Colors.transparent,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Theme(
+              data: Theme.of(context).copyWith(
+                dividerColor: Colors.transparent
+              ),
+              child: ExpansionTile(
+                backgroundColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.05),
+                title: Text('Orders: ${widget.item['purchase_order_code']}', style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  letterSpacing: 0
+                )),
+                subtitle: IntrinsicHeight(
+                  child: Row(
+                    children: [
+                      Text(widget.item['delivery_date'], style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.secondary
+                      )),
+                      const VerticalDivider(),
+                      Icon(Icons.local_shipping, size: 18, color: Theme.of(context).colorScheme.secondary),
+                      const SizedBox(width: 8),
+                      Text(widget.item['delivery_type'], style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.secondary
+                      )),
+                    ],
+                  ),
+                ),
+                trailing: CircleAvatar(
+                  backgroundColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.25),
+                  child: Icon(Icons.location_on, color: Theme.of(context).colorScheme.primary)
+                ),
+                onExpansionChanged: (value) {
+                  setState(() {
+                    isOpen = value;
+                  });
+                },
+                children: [
+                  SizedBox(
+                    height: 300,
+                    child: ListView.builder(
+                      itemCount: widget.item['POR1s'].length,
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      itemBuilder: (context, index) {
+                        return Column(
+                          children: [
+                            Row(
+                              children: [
+                                SizedBox(
+                                  height: 120,
+                                  child: Stack(
+                                    children: [
+                                      Badge.count(
+                                        alignment: Alignment.topLeft,
+                                        offset: const Offset(0, 10),
+                                        count: widget.item['POR1s'][index]['order_qty'],
+                                        largeSize: 20,
+                                        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+                                        textStyle: Theme.of(context).textTheme.labelLarge,
+                                        textColor: Theme.of(context).colorScheme.inverseSurface,
+                                        child: AspectRatio(
+                                          aspectRatio: 1/1,
+                                          child: Image.asset('assets/Indostar Board.png'),
+                                        ),
+                                      ),
+                                      Align(
+                                        alignment: Alignment.bottomLeft,
+                                        child: Padding(
+                                          padding: const EdgeInsets.all(4),
+                                          child: Image.asset('assets/INDOSTAR LOGO POST.png', height: 25, alignment: Alignment.topLeft, fit: BoxFit.scaleDown),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 20),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Indostarbes', style: Theme.of(context).textTheme.titleMedium?.copyWith()),
+                                    Text('Indostar', style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: Theme.of(context).colorScheme.secondary
+                                    )),
+                                    const SizedBox(height: 8),
+                                    const Row(
+                                      children: [
+                                        Text('3000 x 800 x 3.5'),
+                                        SizedBox(width: 20),
+                                        Text('4.9 Ton'),
+                                      ],
+                                    )
+                                  ],
+                                )
+                              ],
+                            ),
+                            Divider(color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5), height: 40)
+                          ],
+                        );
+                      },
+                    ),
+                  )
+                ],
+              ),
+            ),
+            Container(
+              color: isOpen ? Theme.of(context).colorScheme.inversePrimary.withOpacity(0.05) : null,
+              child: Divider(color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5))
+            ),
+            Container(
+              color: isOpen ? Theme.of(context).colorScheme.inversePrimary.withOpacity(0.05) : null,
+              padding: const EdgeInsets.fromLTRB(16, 8, 20, 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('X20 Barang', style: Theme.of(context).textTheme.bodySmall),
+                      const SizedBox(height: 2),
+                      Text('10 Ton', style: Theme.of(context).textTheme.titleMedium)
+                    ],
+                  ),
+                  Tooltip(
+                    triggerMode: TooltipTriggerMode.tap,
+                    message: 'Pesanan Belum Terkirim. Periksa Koneksi Internet Anda',
+                    child: Container(
+                      padding: const EdgeInsets.fromLTRB(12, 8, 8, 8),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: Theme.of(context).colorScheme.tertiary.withOpacity(0.5)
+                        )
+                      ),
+                      child: Row(
+                        children: [
+                          Text('Belum Terkirim', style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            letterSpacing: 0,
+                            color: Theme.of(context).colorScheme.tertiary
+                          )),
+                          const SizedBox(width: 6),
+                          Icon(Icons.circle_outlined, size: 16, color: Theme.of(context).colorScheme.tertiary),
+                        ],
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -614,8 +846,8 @@ class AddressCard extends StatelessWidget {
                                             style: Styles.buttonFlat(
                                               context: context,
                                               borderRadius: BorderRadius.circular(12),
-                                              backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-                                              foregroundColor: Theme.of(context).colorScheme.inverseSurface
+                                              backgroundColor: Theme.of(context).colorScheme.inverseSurface,
+                                              foregroundColor: Theme.of(context).colorScheme.inversePrimary
                                             ),
                                             icon: const Icon(Icons.arrow_forward, size: 22),
                                             label: const Text('Checkout'),

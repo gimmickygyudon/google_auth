@@ -41,9 +41,10 @@ class Payment {
     });
   }
 
-  static Future<void> insertPurchaseOrder(Payment payment) {
-    return SQL.insert(item: payment.toMap(), api: 'opor').then((value) {
+  static Future<List> getPaymentHistory() {
+    return SQL.retrieveAll(api: 'po').then((value) {
       print(value);
+      return value;
     });
   }
 
