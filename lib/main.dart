@@ -25,7 +25,10 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<ThemeNotifier>(
       builder: (context, theme, child) => MediaQuery(
-        data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: true),
+        data: MediaQuery.of(context).copyWith(
+          alwaysUse24HourFormat: true,
+          textScaleFactor: 1.0
+        ),
         child: GestureDetector(
           onTap: () {
             FocusScopeNode currentFocus = FocusScope.of(context);

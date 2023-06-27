@@ -8,10 +8,10 @@ import 'dart:convert';
 import 'package:http/retry.dart';
 
 // PUB
-// String server = 'http://192.168.1.19:8080';
+String server = 'http://192.168.1.19:8080';
 
 // LOCAL
-String server = 'http://192.168.1.106:8080';
+// String server = 'http://192.168.1.106:8080';
 
 class SQL {
   static const int clientRetries = 5;
@@ -108,6 +108,7 @@ class SQL {
 
     if (response.statusCode == 200) {
       List<dynamic> data = (json.decode(response.body)) as List;
+
       if (data.length == 1) return data.last;
 
       return data;

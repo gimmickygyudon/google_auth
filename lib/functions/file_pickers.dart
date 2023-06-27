@@ -16,7 +16,7 @@ Future<PlatformFile?> pickFile() async {
 
     return fileDescription;
   } else {
-    print("No file selected");
+    // print("No file selected");
     return null;
   }
 }
@@ -34,7 +34,7 @@ Future <List<PlatformFile?>> pickFiles() async {
 
     return fileDescription;
   } else {
-    print("No file selected");
+    // print("No file selected");
     return List.empty();
   }
 }

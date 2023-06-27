@@ -1,3 +1,4 @@
+import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import 'package:google_auth/functions/location.dart';
 import 'package:google_auth/functions/payments.dart';
@@ -64,7 +65,7 @@ class _OrdersPageRouteState extends State<OrdersPageRoute> with SingleTickerProv
   }
 
   _getDatalocation() {
-    LocationManager.getDataLocation().then((value) {
+    LocationManager.getLocalDataLocation().then((value) {
       setState(() {
         AddressRoute.locations.value['locations'] = value;
       });
@@ -220,7 +221,7 @@ class _OrdersPageRouteState extends State<OrdersPageRoute> with SingleTickerProv
                   ValueListenableBuilder(
                     valueListenable: OrdersPageRoute.delivertype,
                     builder: (context, deliveryType, child) {
-                      return AddressCard(
+                      return CurrentAddressCard(
                         onCancel: setOrderOpen,
                         orderOpen: orderOpen,
                         deliveryType: deliveryType,
@@ -441,10 +442,17 @@ class OrderHistoryPage extends StatefulWidget {
 class _OrderHistoryPageState extends State<OrderHistoryPage> {
 
   late Future _purchaseOrder;
+  bool isLocal = false;
 
   @override
   void initState() {
-    _purchaseOrder = Payment.getPaymentHistory();
+    _purchaseOrder = Payment.getPaymentHistory()
+      .onError((error, stackTrace) async {
+        List? payments = await Payment.getPaymentHistoryLocal();
+        isLocal = true;
+        return payments;
+      });
+
     super.initState();
   }
 
@@ -462,7 +470,7 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
               itemCount: snapshot.data.length,
               itemBuilder: (context, index) {
-                return ListOrderHistory(index: index, item: snapshot.data[index]);
+                return ListOrderHistory(index: index, item: snapshot.data[index], isLocal: isLocal);
               }
             );
           } else {
@@ -476,10 +484,11 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
 
 
 class ListOrderHistory extends StatefulWidget {
-  const ListOrderHistory({super.key, required this.index, required this.item});
+  const ListOrderHistory({super.key, required this.index, required this.item, required this.isLocal});
 
   final int index;
   final Map item;
+  final bool isLocal;
 
   @override
   State<ListOrderHistory> createState() => _ListOrderHistoryState();
@@ -488,11 +497,35 @@ class ListOrderHistory extends StatefulWidget {
 class _ListOrderHistoryState extends State<ListOrderHistory> {
 
   late bool isOpen;
+  late List<Future> _getItem;
+  late ScrollController _scrollController;
 
   @override
   void initState() {
     isOpen = false;
+    _scrollController = ScrollController();
+    setGetitem();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void setGetitem() {
+    _getItem = List.empty(growable: true);
+
+    if (widget.isLocal == false) {
+      for (var i = 0; i < widget.item['POR1s'].length; i++) {
+        _getItem.add(Item.getItem(id_oitm: widget.item['POR1s'][i]['id_oitm']));
+      }
+    } else {
+      for (var i = 0; i < widget.item['POR1s'].length; i++) {
+        _getItem.add(Future.value(widget.item['POR1s'][i]));
+      }
+    }
   }
 
   @override
@@ -516,7 +549,7 @@ class _ListOrderHistoryState extends State<ListOrderHistory> {
               ),
               child: ExpansionTile(
                 backgroundColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.05),
-                title: Text('Orders: ${widget.item['purchase_order_code']}', style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                title: Text(widget.isLocal ? '# 00${widget.index + 1}' : 'Orders: ${widget.item['purchase_order_code']}', style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   letterSpacing: 0
                 )),
                 subtitle: IntrinsicHeight(
@@ -526,17 +559,18 @@ class _ListOrderHistoryState extends State<ListOrderHistory> {
                         color: Theme.of(context).colorScheme.secondary
                       )),
                       const VerticalDivider(),
-                      Icon(Icons.local_shipping, size: 18, color: Theme.of(context).colorScheme.secondary),
+                      const SizedBox(width: 6),
+                      Icon(
+                        Icons.local_shipping,
+                        size: 18,
+                        color: Theme.of(context).colorScheme.primary.withBlue(50).withOpacity(0.85),
+                      ),
                       const SizedBox(width: 8),
-                      Text(widget.item['delivery_type'], style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.secondary
+                      Text(widget.item['delivery_type'], style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                        color: Theme.of(context).colorScheme.primary.withBlue(50).withOpacity(0.85),
                       )),
                     ],
                   ),
-                ),
-                trailing: CircleAvatar(
-                  backgroundColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.25),
-                  child: Icon(Icons.location_on, color: Theme.of(context).colorScheme.primary)
                 ),
                 onExpansionChanged: (value) {
                   setState(() {
@@ -544,67 +578,118 @@ class _ListOrderHistoryState extends State<ListOrderHistory> {
                   });
                 },
                 children: [
-                  SizedBox(
+                  AddressCard(
+                    padding: EdgeInsets.zero,
+                    borderRadius: BorderRadius.zero,
+                    deliveryType: widget.item['delivery_type'],
+                    item: widget.item,
+                    locationId: widget.item['id_usr1'],
+                  ),
+                  Container(
+                    color: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.1),
                     height: 300,
-                    child: ListView.builder(
-                      itemCount: widget.item['POR1s'].length,
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      itemBuilder: (context, index) {
-                        return Column(
-                          children: [
-                            Row(
-                              children: [
-                                SizedBox(
-                                  height: 120,
-                                  child: Stack(
-                                    children: [
-                                      Badge.count(
-                                        alignment: Alignment.topLeft,
-                                        offset: const Offset(0, 10),
-                                        count: widget.item['POR1s'][index]['order_qty'],
-                                        largeSize: 20,
-                                        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-                                        textStyle: Theme.of(context).textTheme.labelLarge,
-                                        textColor: Theme.of(context).colorScheme.inverseSurface,
-                                        child: AspectRatio(
-                                          aspectRatio: 1/1,
-                                          child: Image.asset('assets/Indostar Board.png'),
-                                        ),
-                                      ),
-                                      Align(
-                                        alignment: Alignment.bottomLeft,
-                                        child: Padding(
-                                          padding: const EdgeInsets.all(4),
-                                          child: Image.asset('assets/INDOSTAR LOGO POST.png', height: 25, alignment: Alignment.topLeft, fit: BoxFit.scaleDown),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(width: 20),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
+                    child:  MediaQuery.removePadding(
+                      context: context,
+                      removeTop: true,
+                      child: Scrollbar(
+                        controller: _scrollController,
+                        thumbVisibility: true,
+                        trackVisibility: true,
+                        child: ListView.builder(
+                          controller: _scrollController,
+                          itemCount: widget.item['POR1s'].length,
+                          padding: const EdgeInsets.symmetric(horizontal: 20),
+                          itemBuilder: (context, index) {
+                            return FutureBuilder(
+                              future: _getItem[index],
+                              builder: (context, snapshot) {
+                                print(widget.item['POR1s'][index]['count']);
+                                // FIXME: variable naming
+                                String? count() {
+                                  if (widget.item['POR1s'][index]['order_qty'] != null) {
+                                    return widget.item['POR1s'][index]['order_qty'].toString();
+                                  } else {
+                                    return widget.item['POR1s'][index]['count'];
+                                  }
+                                }
+
+                                if (snapshot.connectionState == ConnectionState.waiting) {
+                                  return const HandleLoading();
+                                } else if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
+                                  return Column(
                                   children: [
-                                    Text('Indostarbes', style: Theme.of(context).textTheme.titleMedium?.copyWith()),
-                                    Text('Indostar', style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: Theme.of(context).colorScheme.secondary
-                                    )),
-                                    const SizedBox(height: 8),
-                                    const Row(
+                                    Row(
                                       children: [
-                                        Text('3000 x 800 x 3.5'),
-                                        SizedBox(width: 20),
-                                        Text('4.9 Ton'),
+                                        Container(
+                                          margin: const EdgeInsets.only(top: 10),
+                                          height: 100,
+                                          child: Stack(
+                                            children: [
+                                              AspectRatio(
+                                                aspectRatio: 1/1,
+                                                child: Image.asset(ItemDescription.getImage(
+                                                  Item.defineName(widget.isLocal ? snapshot.data['name'] :  snapshot.data['item_description']))
+                                                ),
+                                              ),
+                                              Align(
+                                                alignment: Alignment.bottomLeft,
+                                                child: Padding(
+                                                  padding: const EdgeInsets.all(4),
+                                                  child: Image.asset(ItemDescription.getLogo(Item.defineName(widget.isLocal ? snapshot.data['name'] :  snapshot.data['item_description'])),
+                                                    height: 25, alignment: Alignment.topLeft, fit: BoxFit.scaleDown,
+                                                    width: 100,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        const SizedBox(width: 20),
+                                        Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            IntrinsicHeight(
+                                              child: Row(
+                                                children: [
+                                                  Text(Item.defineName(widget.isLocal ? snapshot.data['name'] :  snapshot.data['item_description']), style: Theme.of(context).textTheme.titleMedium?.copyWith()),
+                                                  const VerticalDivider(width: 30, indent: 5, endIndent: 5),
+                                                  Text('x${count()}', style: Theme.of(context).textTheme.labelLarge?.copyWith())
+                                                ],
+                                              ),
+                                            ),
+                                            Text('Indostar', style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                              color: Theme.of(context).colorScheme.secondary
+                                            )),
+                                            const SizedBox(height: 8),
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                Text(Item.defineDimension(widget.isLocal ? snapshot.data['dimension'] : snapshot.data['spesification'])),
+                                                const Padding(
+                                                  padding: EdgeInsets.symmetric(horizontal: 10),
+                                                  child: Text('-'),
+                                                ),
+                                                Text(setWeight(count: 1, weight: double.parse(Item.defineWeight(snapshot.data['weight'])))),
+                                              ],
+                                            )
+                                          ],
+                                        )
                                       ],
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                                      child: Divider(color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5)),
                                     )
                                   ],
-                                )
-                              ],
-                            ),
-                            Divider(color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5), height: 40)
-                          ],
-                        );
-                      },
+                                );
+                                } else {
+                                  return const HandleNoInternet(message: 'Periksa Koneksi Internet Anda');
+                                }
+                              }
+                            );
+                          },
+                        ),
+                      ),
                     ),
                   )
                 ],
@@ -612,20 +697,24 @@ class _ListOrderHistoryState extends State<ListOrderHistory> {
             ),
             Container(
               color: isOpen ? Theme.of(context).colorScheme.inversePrimary.withOpacity(0.05) : null,
-              child: Divider(color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5))
+              child: Divider(
+                color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5),
+                height: 0,
+                endIndent: isOpen ? 0 : 16, indent: isOpen ? 0 : 16,
+              )
             ),
             Container(
               color: isOpen ? Theme.of(context).colorScheme.inversePrimary.withOpacity(0.05) : null,
-              padding: const EdgeInsets.fromLTRB(16, 8, 20, 16),
+              padding: const EdgeInsets.fromLTRB(16, 14, 20, 16),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('X20 Barang', style: Theme.of(context).textTheme.bodySmall),
+                      Text('x${widget.item['POR1s'].length.toString()} Barang', style: Theme.of(context).textTheme.bodySmall),
                       const SizedBox(height: 2),
-                      Text('10 Ton', style: Theme.of(context).textTheme.titleMedium)
+                      // if(totalWeight != null) Text(totalWeight!, style: Theme.of(context).textTheme.titleMedium)
                     ],
                   ),
                   Tooltip(
@@ -636,7 +725,7 @@ class _ListOrderHistoryState extends State<ListOrderHistory> {
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
                         border: Border.all(
-                          color: Theme.of(context).colorScheme.tertiary.withOpacity(0.5)
+                          color: Theme.of(context).colorScheme.tertiary
                         )
                       ),
                       child: Row(
@@ -661,8 +750,209 @@ class _ListOrderHistoryState extends State<ListOrderHistory> {
   }
 }
 
-class AddressCard extends StatelessWidget {
+class AddressCard extends StatefulWidget {
   const AddressCard({
+    super.key,
+    required this.deliveryType,
+    required this.locationId,
+    this.padding,
+    this.borderRadius,
+    this.item,
+  });
+
+  final String? deliveryType;
+  final EdgeInsetsGeometry? padding;
+  final BorderRadius? borderRadius;
+  final String? locationId;
+  final Map? item;
+
+  @override
+  State<AddressCard> createState() => _AddressCardState();
+}
+
+class _AddressCardState extends State<AddressCard> {
+  late Future location;
+  AsyncMemoizer locationMemoizer = AsyncMemoizer();
+
+  @override
+  void initState() {
+    if (widget.locationId != null) {
+      location = locationMemoizer.runOnce(() {
+        return LocationManager.getDataLocation(id: widget.locationId!)?.then((value) async {
+          Map location = LocationManager(
+            name: value['delivery_name'],
+            phone_number: value['phone_number'],
+            province: await LocationName.getProvinceName(id: value['id_oprv']).then((value) => value.toString().toTitleCase()),
+            district: await LocationName.getDistrictName(id: value['id_octy']).then((value) => value.toString().toTitleCase()),
+            subdistrict: await LocationName.getSubDistrictName(id: value['id_osdt']).then((value) => value.toString().toTitleCase()),
+            suburb: await LocationName.getSuburbName(id: value['id_ovil']).then((value) => value.toString().toTitleCase()),
+            street: value['delivery_street']
+          ).toMap();
+          return location;
+        });
+      });
+    } else {
+      location = Future.value(
+        LocationManager(
+          name: widget.item?['delivery_name'],
+          phone_number: widget.item?['phone_number'],
+          province: widget.item?['province'],
+          district: widget.item?['district'],
+          subdistrict: widget.item?['subdistrict'],
+          suburb: widget.item?['suburb'],
+          street: widget.item?['delivery_street']
+        ).toMap()
+      );
+    }
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: location,
+      builder: (context, location) {
+        if (location.connectionState == ConnectionState.waiting) {
+          return const LinearProgressIndicator();
+        } else if (location.connectionState == ConnectionState.done && location.hasData) {
+          return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: widget.padding ?? const EdgeInsets.symmetric(vertical: 12, horizontal: 18),
+              child: Hero(
+                tag: location.data['name'],
+                child: Card(
+                  margin: EdgeInsets.zero,
+                  elevation: 0,
+                  color: Theme.of(context).colorScheme.primary,
+                  clipBehavior: Clip.antiAlias,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: widget.borderRadius ?? BorderRadius.circular(20)
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Text('Alamat Pengiriman', style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                      color: Theme.of(context).colorScheme.surface,
+                                    )),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Text(location.data['name'], style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                      color: Theme.of(context).colorScheme.inversePrimary,
+                                      fontWeight: FontWeight.w500,
+                                      letterSpacing: 0,
+                                    )),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            CircleAvatar(
+                              radius: 18,
+                              child: Icon(Icons.location_on, color: Theme.of(context).colorScheme.primary)
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(location.data['district'],
+                                    textAlign: TextAlign.justify,
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: Theme.of(context).colorScheme.inversePrimary,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  Text('+62 ${location.data['phone_number']}',
+                                    textAlign: TextAlign.justify,
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: Theme.of(context).colorScheme.surface,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Text('${location.data['street']}, ${location.data['subdistrict']}, ${location.data['district']}, ${location.data['province']}',
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: Theme.of(context).colorScheme.surfaceVariant,
+                                      fontWeight: FontWeight.w500,
+                                      letterSpacing: 0,
+                                      wordSpacing: 2,
+                                      height: 1.4
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CircleAvatar(
+                              radius: 18,
+                              child: Icon(Icons.local_shipping, color: Theme.of(context).colorScheme.primary)
+                            ),
+                            const SizedBox(width: 12),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Tipe Pengiriman', style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  fontWeight: FontWeight.w500,
+                                  color: Theme.of(context).colorScheme.inversePrimary,
+                                )),
+                                const SizedBox(height: 4),
+                                Text(widget.deliveryType ?? 'Memuat Data...',
+                                  textAlign: TextAlign.justify,
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                    color: Theme.of(context).colorScheme.surface,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+        } else {
+          return const HandleNoInternet(message: 'Periksa Koneksi Internet Anda');
+        }
+      }
+    );
+  }
+}
+
+
+class CurrentAddressCard extends StatelessWidget {
+  const CurrentAddressCard({
     super.key,
     required this.orderOpen,
     required this.deliveryType,

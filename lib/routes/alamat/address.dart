@@ -39,7 +39,7 @@ class _AddressRouteState extends State<AddressRoute> {
   @override
   void initState() {
     _searchController = SearchController();
-    LocationManager.getDataLocation().then((value) {
+    LocationManager.getLocalDataLocation().then((value) {
       setState(() {
         AddressRoute.locations.value['locations'] = value;
       });
@@ -67,7 +67,7 @@ class _AddressRouteState extends State<AddressRoute> {
   }
 
   void refresh() => setState(() {
-    LocationManager.getDataLocation().then((locations) async {
+    LocationManager.getLocalDataLocation().then((locations) async {
       LocationManager.getIndex().then((index) {
         if (index != null) {
           AddressRoute.locations.value['locationindex'] = index;

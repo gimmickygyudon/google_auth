@@ -171,7 +171,7 @@ class Delivery {
 class LocationManager extends ChangeNotifier {
   final String name;
   final String phone_number;
-  final String province;
+  final String? province;
   final String district;
   final String subdistrict;
   final String suburb;
@@ -199,7 +199,26 @@ class LocationManager extends ChangeNotifier {
     };
   }
 
-  static Future<List?> getDataLocation() {
+  static Map<String, AsyncMemoizer<Map>> dataLocationMemoizer = {};
+
+  static Future<Map>? getDataLocation({required String id}) {
+    if (dataLocationMemoizer.containsKey(id) == true) {
+      return dataLocationMemoizer[id]?.runOnce(() {
+        return SQL.retrieve(api: 'usr1', query: 'id_usr1=$id').then((value) {
+          return value;
+        });
+      });
+    } else {
+      dataLocationMemoizer.addAll({id: AsyncMemoizer<Map>()});
+      return dataLocationMemoizer[id]?.runOnce(() {
+        return SQL.retrieve(api: 'usr1', query: 'id_usr1=$id').then((value) {
+          return value;
+        });
+      });
+    }
+  }
+
+  static Future<List?> getLocalDataLocation() {
     return LocationManager.retrieve().then((value) {
       return LocationManager.getIndex().then((index) {
         AddressRoute.locations.value['locationindex'] = index;
@@ -343,6 +362,25 @@ class LocationName {
     });
   }
 
+
+  static Map<String, AsyncMemoizer<String>> provinceNameMemoizer = {};
+  static Future<String?> getProvinceName({required String id}) async {
+    if (provinceNameMemoizer.containsKey(id) == true) {
+      return provinceNameMemoizer[id]?.runOnce(() {
+        return SQL.retrieve(api: 'sim/oprv', query: 'id_oprv=$id').then((value) {
+          return value['province_name'];
+        });
+      });
+    } else {
+      provinceNameMemoizer.addAll({id: AsyncMemoizer<String>()});
+      return provinceNameMemoizer[id]?.runOnce(() {
+        return SQL.retrieve(api: 'sim/oprv', query: 'id_oprv=$id').then((value) {
+          return value['province_name'];
+        });
+      });
+    }
+  }
+
   static Future<List<String>> filterProvince() {
     return getProvince().then((province) {
       return province.map<String>((element) {
@@ -352,6 +390,7 @@ class LocationName {
     });
   }
 
+
   static Future<List<Map>> getDistrict() async {
     return districMemorizer.runOnce(() {
       return SQL.retrieveAll(api: 'sim/octy').then((value) {
@@ -359,6 +398,24 @@ class LocationName {
         return value;
       });
     });
+  }
+
+  static Map<String, AsyncMemoizer<String>> districtNameMemoizer = {};
+  static Future<String?> getDistrictName({required String id}) async {
+    if (districtNameMemoizer.containsKey(id) == true) {
+      return districtNameMemoizer[id]?.runOnce(() {
+        return SQL.retrieve(api: 'sim/octy', query: 'id_octy=$id').then((value) {
+          return value['city_name'];
+        });
+      });
+    } else {
+      districtNameMemoizer.addAll({id: AsyncMemoizer<String>()});
+      return districtNameMemoizer[id]?.runOnce(() {
+        return SQL.retrieve(api: 'sim/octy', query: 'id_octy=$id').then((value) {
+          return value['city_name'];
+        });
+      });
+    }
   }
 
   static Future<List<String>> filterDistrict() async {
@@ -387,6 +444,24 @@ class LocationName {
     });
   }
 
+  static Map<String, AsyncMemoizer<String>> subDistrictNameMemoizer = {};
+  static Future<String?> getSubDistrictName({required String id}) async {
+    if (subDistrictNameMemoizer.containsKey(id) == true) {
+      return subDistrictNameMemoizer[id]?.runOnce(() {
+        return SQL.retrieve(api: 'sim/osdt', query: 'id_osdt=$id').then((value) {
+          return value['sub_district_name'];
+        });
+      });
+    } else {
+      subDistrictNameMemoizer.addAll({id: AsyncMemoizer<String>()});
+      return subDistrictNameMemoizer[id]?.runOnce(() {
+        return SQL.retrieve(api: 'sim/osdt', query: 'id_osdt=$id').then((value) {
+          return value['sub_district_name'];
+        });
+      });
+    }
+  }
+
   static Future<List<String>> filterSubdistrict() async {
     return getDistrict().then((value) {
       return value.where((element) => element['city_name'] == selectedLocationName[1]).single;
@@ -411,6 +486,24 @@ class LocationName {
         return value;
       });
     });
+  }
+
+  static Map<String, AsyncMemoizer<String>> suburbNameMemoizer = {};
+  static Future<String?> getSuburbName({required String id}) async {
+    if (suburbNameMemoizer.containsKey(id) == true) {
+      return suburbNameMemoizer[id]?.runOnce(() {
+        return SQL.retrieve(api: 'sim/ovil', query: 'id_ovil=$id').then((value) {
+          return value['village_name'];
+        });
+      });
+    } else {
+      suburbNameMemoizer.addAll({id: AsyncMemoizer<String>()});
+      return suburbNameMemoizer[id]?.runOnce(() {
+        return SQL.retrieve(api: 'sim/ovil', query: 'id_ovil=$id').then((value) {
+          return value['village_name'];
+        });
+      });
+    }
   }
 
   static Future<List<String>> filterSuburb() async {

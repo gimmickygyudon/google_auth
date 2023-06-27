@@ -6,6 +6,7 @@ import 'dart:convert';
 import 'package:async/async.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
+import 'package:google_auth/functions/string.dart';
 import 'package:google_auth/strings/user.dart';
 import 'package:google_auth/widgets/cart.dart';
 import 'package:path/path.dart';
@@ -56,7 +57,6 @@ class UserLog {
     // Check if the database exists
     await databaseExists(path).then((value) async => print(value));
 
-    // if (exists) print('sqlite(initializeDatabase): file exists');
     database = await openDatabase(
       join(await getDatabasesPath(), 'olog.db'),
       singleInstance: true,
@@ -463,19 +463,57 @@ class Cart {
 }
 
 class Item {
+  final String id_oitm;
+  final String item_description;
+  final String spesification;
+  final String weight;
+
+  Item({
+    required this.id_oitm,
+    required this.item_description,
+    required this.spesification,
+    required this.weight
+  });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id_oitm': id_oitm,
+      'item_description': item_description,
+      'spesification': spesification,
+      'weight': weight,
+    };
+  }
 
   // TODO: Need Rework
-  static Map<String, AsyncMemoizer<List?>> listMemoizer =
+  static Map<String, AsyncMemoizer<List?>> listItemsMemoizer =
   {
     'Indostar': AsyncMemoizer<List?>(),
     'ECO': AsyncMemoizer<List?>()
   };
 
   static Future<List?> getItems({required String brand}) {
-    return listMemoizer[brand]!.runOnce(() {
+    return listItemsMemoizer[brand]!.runOnce(() {
       FutureOr<List?> list = fetchItems(brand: brand);
       return list;
     });
+  }
+
+  static Map<String, AsyncMemoizer<Map>> itemMemoizer = {};
+  static Future<Map> getItem({required String id_oitm}) {
+    if (itemMemoizer.containsKey(id_oitm)) {
+      return itemMemoizer[id_oitm]!.runOnce(() {
+        return SQL.retrieve(api: 'sim/oitm', query: 'id_oitm=$id_oitm').then((value) {
+          return value;
+        });
+      });
+    } else {
+      itemMemoizer.addAll({id_oitm: AsyncMemoizer<Map>()});
+      return itemMemoizer[id_oitm]!.runOnce(() {
+        return SQL.retrieve(api: 'sim/oitm', query: 'id_oitm=$id_oitm').then((value) {
+          return value;
+        });
+      });
+    }
   }
 
   static FutureOr<List?> fetchItems({required String brand}) {
@@ -490,6 +528,10 @@ class Item {
     }
 
     return SQL.retrieveJoin(api: 'sim/brn1', param: param, query: 'id_brn1');
+  }
+
+  static String defineName(String value) {
+    return value.replaceAll(RegExp(r'[0-9]'), '').toTitleCase().replaceAll(' X', '').replaceAll(' .', '');
   }
 
   static String defineDimension(String value) {
