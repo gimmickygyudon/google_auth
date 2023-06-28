@@ -69,9 +69,7 @@ class _AddressRouteState extends State<AddressRoute> {
   void refresh() => setState(() {
     LocationManager.getLocalDataLocation().then((locations) async {
       LocationManager.getIndex().then((index) {
-        if (index != null) {
-          AddressRoute.locations.value['locationindex'] = index;
-        }
+        AddressRoute.locations.value['locationindex'] = index;
       });
       return locations;
     });

@@ -120,11 +120,9 @@ void pushRegisterGoogle(BuildContext context, String logintype_, Map? source) {
 }
 
 void pushDashboard(BuildContext context, {int? currentPage}) {
-  Navigator.pushReplacement(context, transitionFadeThrough(
-    duration: const Duration(milliseconds: 500),
-    reverseDuration: const Duration(milliseconds: 500),
-    page: DashboardRoute(currentPage: currentPage)
-  ));
+  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
+    return DashboardRoute(currentPage: currentPage);
+  }));
 }
 
 void pushAddCustomer(BuildContext context) {

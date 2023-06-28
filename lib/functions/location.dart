@@ -220,8 +220,9 @@ class LocationManager extends ChangeNotifier {
 
   static Future<List?> getLocalDataLocation() {
     return LocationManager.retrieve().then((value) {
-      return LocationManager.getIndex().then((index) {
+      return LocationManager.getIndex().then((index) async {
         AddressRoute.locations.value['locationindex'] = index;
+        OrdersPageRoute.delivertype.value = await Delivery.getType();
         return value;
       });
     });
@@ -235,7 +236,6 @@ class LocationManager extends ChangeNotifier {
     id_oprv = await LocationName.getProvince().then((province) {
       return province.firstWhere((element) => element['province_name'] == currentLocation?['province'].toString().toUpperCase())['id_oprv'];
     });
-
     id_octy = await LocationName.getDistrict().then((district) {
       return district.firstWhere((element) => element['city_name'] == currentLocation?['district'].toString().toUpperCase())['id_octy'];
     });
@@ -263,6 +263,10 @@ class LocationManager extends ChangeNotifier {
       List? location = value;
       location?.add(source);
       AddressRoute.locations.value['locations'].add(source);
+      if (AddressRoute.locations.value['locations'].length < 2) {
+        AddressRoute.locations.value['locationindex'] = 0;
+        setIndex(0);
+      }
       AddressRoute.locations.notifyListeners();
 
       return location;
@@ -319,7 +323,7 @@ class LocationManager extends ChangeNotifier {
     prefs.setInt('location_index', index);
   }
 
-  static Future<int?> getIndex() async {
+  static Future<int> getIndex() async {
     final prefs = await SharedPreferences.getInstance();
 
     int? index = prefs.getInt('location_index');
@@ -327,6 +331,8 @@ class LocationManager extends ChangeNotifier {
       if (index < 0) {
         index = 0;
       }
+    } else {
+      index = 0;
     }
 
     return index;
@@ -335,7 +341,11 @@ class LocationManager extends ChangeNotifier {
   static Future<Map?> getCurrentLocation() async {
     return LocationManager.retrieve().then((value) async {
       return await getIndex().then((index) {
-        if (index != null) return value?[index];
+        if (value != null) {
+          if (value.isNotEmpty) {
+            return value[index];
+          }
+        }
 
         return Future.error('Current Location Not Found');
       });
@@ -359,6 +369,16 @@ class LocationName {
 
         return value;
       });
+    })
+    .onError((error, stackTrace) {
+      return SQL.retrieveAll(api: 'sim/oprv');
+    })
+    .then((value) {
+      if (value.isEmpty) {
+        return SQL.retrieveAll(api: 'sim/oprv');
+      } else {
+        return value;
+      }
     });
   }
 
@@ -397,6 +417,16 @@ class LocationName {
 
         return value;
       });
+    })
+    .onError((error, stackTrace) {
+      return SQL.retrieveAll(api: 'sim/oprv');
+    })
+    .then((value) {
+      if (value.isEmpty) {
+        return SQL.retrieveAll(api: 'sim/octy');
+      } else {
+        return value;
+      }
     });
   }
 
@@ -441,6 +471,16 @@ class LocationName {
 
         return value;
       });
+    })
+    .onError((error, stackTrace) {
+      return SQL.retrieveAll(api: 'sim/oprv');
+    })
+    .then((value) {
+      if (value.isEmpty) {
+        return SQL.retrieveAll(api: 'sim/osdt');
+      } else {
+        return value;
+      }
     });
   }
 
@@ -485,6 +525,16 @@ class LocationName {
 
         return value;
       });
+    })
+    .onError((error, stackTrace) {
+      return SQL.retrieveAll(api: 'sim/oprv');
+    })
+    .then((value) {
+      if (value.isEmpty) {
+        return SQL.retrieveAll(api: 'sim/ovil');
+      } else {
+        return value;
+      }
     });
   }
 

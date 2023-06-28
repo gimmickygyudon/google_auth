@@ -7,7 +7,6 @@ import 'package:google_auth/functions/conversion.dart';
 import 'package:google_auth/functions/date.dart';
 import 'package:google_auth/functions/payments.dart';
 import 'package:google_auth/functions/push.dart';
-import 'package:google_auth/functions/sql_client.dart';
 import 'package:google_auth/functions/sqlite.dart';
 import 'package:google_auth/functions/string.dart';
 import 'package:google_auth/routes/belanja/orders_page.dart';
@@ -862,36 +861,47 @@ class _DeliveryWidgetState extends State<DeliveryWidget> {
                                           POR1s: jsonEncode(itemList),
                                           isSent: 0
                                         )
-                                      );
+                                      ).then((value) {
+                                        Cart.remove(index: itemindex);
+                                        pushDashboard(context);
+                                        showSnackBar(context, snackBarComplete(
+                                          context: context,
+                                          content: 'Barang Berhasil di Pesan',
+                                          duration: const Duration(seconds: 2)
+                                        ));
+                                      });
                                     }
 
                                     List<int> locationIds = await LocationManager.getLocationsId().then((locationIds) async {
                                       return locationIds;
                                     }).onError((error, stackTrace) {
-                                      // showSnackBar(context, snackBarError(context: context, content: error.toString()));
                                       insertLocal();
                                       return Future.error(error.toString());
                                     });
 
-                                    SQL.insert(api: 'po', item: {
-                                      'id_usr1': null,
-                                      'id_ousr': currentUser['id_ousr'],
-                                      'delivery_name': currentLocation?['name'],
-                                      'delivery_street': currentLocation?['street'],
-                                      'id_oprv': locationIds[0],
-                                      'id_octy': locationIds[1],
-                                      'id_osdt': locationIds[2],
-                                      'id_ovil': locationIds[3],
-                                      'phone_number': currentLocation?['phone_number'],
-
-                                      'id_opor': null,
-                                      'customer_reference_number': referenceNumberTextController.text,
-                                      'delivery_date': '$selectedDate - $selectedTime',
-                                      'delivery_type': deliveryType,
-                                      'document_remarks': documentremarksTextController.text,
-                                      'payment_type': indexPaymentsType.toString(),
-
-                                      'por1': itemList
+                                    Payment.insertPayment(
+                                      Payment(
+                                        id_opor: null,
+                                        customer_reference_number: referenceNumberTextController.text,
+                                        id_ousr: currentUser['id_ousr'].toString(),
+                                        delivery_date: '$selectedDate - $selectedTime',
+                                        delivery_type: deliveryType,
+                                        document_remarks: documentremarksTextController.text,
+                                        payment_type: indexPaymentsType.toString(),
+                                        delivery_name: currentLocation?['name'],
+                                        delivery_street: currentLocation?['street'],
+                                        province: locationIds[0].toString(),
+                                        district: locationIds[1].toString(),
+                                        subdistrict: locationIds[2].toString(),
+                                        suburb: locationIds[3].toString(),
+                                        phone_number: currentLocation?['phone_number'],
+                                        POR1s: itemList,
+                                        isSent: 1
+                                      )
+                                    )
+                                    .onError((error, stackTrace) {
+                                      insertLocal();
+                                      return Future.error(error.toString());
                                     })
                                     .then((_) {
                                       Cart.remove(index: itemindex);

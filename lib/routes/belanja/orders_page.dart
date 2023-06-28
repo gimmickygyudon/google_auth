@@ -1,4 +1,5 @@
 import 'package:async/async.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_auth/functions/location.dart';
 import 'package:google_auth/functions/payments.dart';
@@ -7,10 +8,12 @@ import 'package:google_auth/functions/sqlite.dart';
 import 'package:google_auth/functions/string.dart';
 import 'package:google_auth/routes/alamat/address.dart';
 import 'package:google_auth/strings/item.dart';
+import 'package:google_auth/strings/user.dart';
 import 'package:google_auth/styles/theme.dart';
 import 'package:google_auth/widgets/cart.dart';
 import 'package:google_auth/widgets/dialog.dart';
 import 'package:google_auth/widgets/handle.dart';
+import 'package:google_auth/widgets/label.dart';
 import 'package:google_auth/widgets/profile.dart';
 
 import '../../functions/conversion.dart';
@@ -160,7 +163,6 @@ class _OrdersPageRouteState extends State<OrdersPageRoute> with SingleTickerProv
         controller: _tabController,
         children: [
           Scaffold(
-            backgroundColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.1),
             bottomNavigationBar: AnimatedSize(
               duration: const Duration(milliseconds: 600),
               curve: Curves.easeOut,
@@ -332,6 +334,7 @@ class _OrdersPageRouteState extends State<OrdersPageRoute> with SingleTickerProv
                                   controlAffinity: ListTileControlAffinity.leading,
                                   selected: checkedItems[index],
                                   selectedTileColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.25),
+                                  tileColor: Theme.of(context).colorScheme.background,
                                   contentPadding: const EdgeInsets.symmetric(horizontal: 6),
                                   checkboxShape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(4),
@@ -446,11 +449,21 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
 
   @override
   void initState() {
-    _purchaseOrder = Payment.getPaymentHistory()
+    _purchaseOrder = Payment.getPaymentHistory(id_ousr: currentUser['id_ousr'].toString())
       .onError((error, stackTrace) async {
-        List? payments = await Payment.getPaymentHistoryLocal();
+        List? payments = await Payment.getPaymentHistoryLocal(id_ousr: currentUser['id_ousr'].toString());
         isLocal = true;
         return payments;
+      })
+      .then((value) {
+        if (isLocal == false) {
+          return Payment.syncPaymentHistory(id_ousr: currentUser['id_ousr'].toString()).then((_) {
+            return _purchaseOrder = Payment.getPaymentHistory(id_ousr: currentUser['id_ousr'].toString()).then((value) {
+              return _purchaseOrder = Future.value(value);
+            });
+          });
+        }
+        return value;
       });
 
     super.initState();
@@ -465,6 +478,8 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const HandleLoading();
+          } else if (snapshot.data == null || snapshot.data.isEmpty) {
+            return const HandleEmptyOrder();
           } else if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
             return ListView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
@@ -531,7 +546,7 @@ class _ListOrderHistoryState extends State<ListOrderHistory> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.only(bottom: 20),
       child: Card(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8)
@@ -549,29 +564,31 @@ class _ListOrderHistoryState extends State<ListOrderHistory> {
               ),
               child: ExpansionTile(
                 backgroundColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.05),
-                title: Text(widget.isLocal ? '# 00${widget.index + 1}' : 'Orders: ${widget.item['purchase_order_code']}', style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                title: Text(widget.isLocal ? '# 00${widget.index + 1}' : 'Pesanan: ${widget.item['purchase_order_code']}', style: Theme.of(context).textTheme.labelLarge?.copyWith(
                   letterSpacing: 0
                 )),
                 subtitle: IntrinsicHeight(
                   child: Row(
                     children: [
-                      Text(widget.item['delivery_date'], style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      Text('Dikirim  -  ${widget.item['delivery_date']}', style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        letterSpacing: 0,
                         color: Theme.of(context).colorScheme.secondary
                       )),
-                      const VerticalDivider(),
-                      const SizedBox(width: 6),
+                      const VerticalDivider(width: 20),
                       Icon(
                         Icons.local_shipping,
-                        size: 18,
+                        size: 16,
                         color: Theme.of(context).colorScheme.primary.withBlue(50).withOpacity(0.85),
                       ),
                       const SizedBox(width: 8),
-                      Text(widget.item['delivery_type'], style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      Text(widget.item['delivery_type'], style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        letterSpacing: 0,
                         color: Theme.of(context).colorScheme.primary.withBlue(50).withOpacity(0.85),
                       )),
                     ],
                   ),
                 ),
+                trailing: const Icon(Icons.arrow_drop_down),
                 onExpansionChanged: (value) {
                   setState(() {
                     isOpen = value;
@@ -591,10 +608,9 @@ class _ListOrderHistoryState extends State<ListOrderHistory> {
                     child:  MediaQuery.removePadding(
                       context: context,
                       removeTop: true,
-                      child: Scrollbar(
+                      child: CupertinoScrollbar(
                         controller: _scrollController,
                         thumbVisibility: true,
-                        trackVisibility: true,
                         child: ListView.builder(
                           controller: _scrollController,
                           itemCount: widget.item['POR1s'].length,
@@ -712,34 +728,19 @@ class _ListOrderHistoryState extends State<ListOrderHistory> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('x${widget.item['POR1s'].length.toString()} Barang', style: Theme.of(context).textTheme.bodySmall),
+                      Row(
+                        children: [
+                          Icon(Icons.layers_outlined, size: 20, color: Theme.of(context).colorScheme.primary),
+                          const SizedBox(width: 8),
+                          Text('${widget.item['POR1s'].length.toString()}  Model Barang', style: Theme.of(context).textTheme.bodySmall),
+                        ],
+                      ),
                       const SizedBox(height: 2),
+                      // TODO: total weight and jumlah
                       // if(totalWeight != null) Text(totalWeight!, style: Theme.of(context).textTheme.titleMedium)
                     ],
                   ),
-                  Tooltip(
-                    triggerMode: TooltipTriggerMode.tap,
-                    message: 'Pesanan Belum Terkirim. Periksa Koneksi Internet Anda',
-                    child: Container(
-                      padding: const EdgeInsets.fromLTRB(12, 8, 8, 8),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(
-                          color: Theme.of(context).colorScheme.tertiary
-                        )
-                      ),
-                      child: Row(
-                        children: [
-                          Text('Belum Terkirim', style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            letterSpacing: 0,
-                            color: Theme.of(context).colorScheme.tertiary
-                          )),
-                          const SizedBox(width: 6),
-                          Icon(Icons.circle_outlined, size: 16, color: Theme.of(context).colorScheme.tertiary),
-                        ],
-                      ),
-                    ),
-                  )
+                  widget.isLocal ? const LabelNoSend() : const LabelSend()
                 ],
               ),
             ),
