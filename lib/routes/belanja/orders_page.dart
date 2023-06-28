@@ -215,216 +215,220 @@ class _OrdersPageRouteState extends State<OrdersPageRoute> with SingleTickerProv
                 ),
               ),
             ),
-            body: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ValueListenableBuilder(
-                    valueListenable: OrdersPageRoute.delivertype,
-                    builder: (context, deliveryType, child) {
-                      return CurrentAddressCard(
-                        onCancel: setOrderOpen,
-                        orderOpen: orderOpen,
-                        deliveryType: deliveryType,
-                        checkedItems: checkedItems,
-                      );
-                    }
-                  ),
-                  if (orderOpen.value) Divider(
-                    indent: 16,
-                    endIndent: 16,
-                    height: 72, color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5)
-                  ),
-                  ListTile(
-                    contentPadding: const EdgeInsets.only(left: 16),
-                    titleTextStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: Theme.of(context).colorScheme.secondary
+            body: Container(
+              height: double.infinity,
+              color: Theme.of(context).colorScheme.secondary.withOpacity(0.05),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    ValueListenableBuilder(
+                      valueListenable: OrdersPageRoute.delivertype,
+                      builder: (context, deliveryType, child) {
+                        return CurrentAddressCard(
+                          onCancel: setOrderOpen,
+                          orderOpen: orderOpen,
+                          deliveryType: deliveryType,
+                          checkedItems: checkedItems,
+                        );
+                      }
                     ),
-                    title: const Text('Pesanan Anda,'),
-                    subtitleTextStyle: Theme.of(context).textTheme.displaySmall?.copyWith(
-                      fontWeight: FontWeight.w500
+                    if (orderOpen.value) Divider(
+                      indent: 16,
+                      endIndent: 16,
+                      height: 72, color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5)
                     ),
-                    textColor: checkedItems.contains(true) ? Theme.of(context).colorScheme.primary : null,
-                    subtitle: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (checkedItems.isNotEmpty) ...[
-                          Text(checkedItems.where((element) => element == true).length.toString()),
-                          const SizedBox(width: 12),
-                        ],
-                        Text(checkedItems.isNotEmpty ? 'Dipilih' : 'Kosong', style: Theme.of(context).textTheme.displaySmall),
-                      ],
-                    ),
-                    trailing: Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
+                    ListTile(
+                      contentPadding: const EdgeInsets.only(left: 16),
+                      titleTextStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        color: Theme.of(context).colorScheme.secondary
+                      ),
+                      title: const Text('Pesanan Anda,'),
+                      subtitleTextStyle: Theme.of(context).textTheme.displaySmall?.copyWith(
+                        fontWeight: FontWeight.w500
+                      ),
+                      textColor: checkedItems.contains(true) ? Theme.of(context).colorScheme.primary : null,
+                      subtitle: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          IconButton.filled(
-                            onPressed: checkedItems.contains(true) ? () => showDeleteDialog(context: context, onConfirm: _removeItems) : null,
-                            style: Styles.buttonDanger(context: context),
-                            icon: const Icon(Icons.delete)
+                          if (checkedItems.isNotEmpty) ...[
+                            Text(checkedItems.where((element) => element == true).length.toString()),
+                            const SizedBox(width: 12),
+                          ],
+                          Text(checkedItems.isNotEmpty ? 'Dipilih' : 'Kosong', style: Theme.of(context).textTheme.displaySmall),
+                        ],
+                      ),
+                      trailing: Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton.filled(
+                              onPressed: checkedItems.contains(true) ? () => showDeleteDialog(context: context, onConfirm: _removeItems) : null,
+                              style: Styles.buttonDanger(context: context),
+                              icon: const Icon(Icons.delete)
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          if (checkedItems.isNotEmpty) ElevatedButton.icon(
+                            onPressed: () => setState(() {
+                              if (checkedItems.every((element) => element == true)) {
+                                checkedItems = List.filled(checkedItems.length, false);
+
+                                orderOpen.value = false;
+                              } else {
+                                checkedItems = List.filled(checkedItems.length, true);
+                              }
+                            }),
+                            style: Styles.buttonLight(context: context),
+                            icon: Icon(checkedItems.every((element) => element == true) ? Icons.check_box : Icons.check_box_outline_blank),
+                            label: const Text('Semua'),
                           ),
                         ],
                       ),
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        if (checkedItems.isNotEmpty) ElevatedButton.icon(
-                          onPressed: () => setState(() {
-                            if (checkedItems.every((element) => element == true)) {
-                              checkedItems = List.filled(checkedItems.length, false);
-
-                              orderOpen.value = false;
-                            } else {
-                              checkedItems = List.filled(checkedItems.length, true);
+                    ValueListenableBuilder(
+                      valueListenable: CartWidget.cartNotifier,
+                      builder: (context, item, child) {
+                        // TODO: Dirty Fix
+                        if (item.isNotEmpty) {
+                          if (firstInit == false) {
+                            for (int i = 0; i < item.length; i++) {
+                              checkedItems.add(false);
                             }
-                          }),
-                          style: Styles.buttonLight(context: context),
-                          icon: Icon(checkedItems.every((element) => element == true) ? Icons.check_box : Icons.check_box_outline_blank),
-                          label: const Text('Semua'),
-                        ),
-                      ],
-                    ),
-                  ),
-                  ValueListenableBuilder(
-                    valueListenable: CartWidget.cartNotifier,
-                    builder: (context, item, child) {
-                      // TODO: Dirty Fix
-                      if (item.isNotEmpty) {
-                        if (firstInit == false) {
-                          for (int i = 0; i < item.length; i++) {
-                            checkedItems.add(false);
+                            firstInit = true;
+                            WidgetsBinding.instance.addPostFrameCallback((_) { setState(() {});});
                           }
-                          firstInit = true;
-                          WidgetsBinding.instance.addPostFrameCallback((_) { setState(() {});});
-                        }
-                        return ListView.builder(
-                          shrinkWrap: true,
-                          padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: item.length,
-                          itemBuilder: (context, index) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              child: Material(
-                                type: MaterialType.transparency,
-                                child: CheckboxListTile(
-                                  value: checkedItems[index],
-                                  onChanged: (value) {
-                                    setState(() {
-                                      checkedItems[index] = value!;
-                                      if (checkedItems.contains(true) == false) orderOpen.value = false;
-                                    });
-                                  },
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    side: BorderSide(
-                                      color: checkedItems[index] ? Theme.of(context).colorScheme.primary : Colors.transparent,
-                                      width: 2
-                                    )
-                                  ),
-                                  isThreeLine: true,
-                                  controlAffinity: ListTileControlAffinity.leading,
-                                  selected: checkedItems[index],
-                                  selectedTileColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.25),
-                                  tileColor: Theme.of(context).colorScheme.background,
-                                  contentPadding: const EdgeInsets.symmetric(horizontal: 6),
-                                  checkboxShape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  title: Text(item[index]['name'].toString().toTitleCase()),
-                                  subtitle: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      Text(item[index]['brand'].toString().toTitleCase(),
-                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                          color: Theme.of(context).colorScheme.primary
-                                        ),
-                                      ),
-                                      const SizedBox(height: 6),
-                                      DropdownButtonHideUnderline(
-                                        child: DropdownButton<String>(
-                                          padding: EdgeInsets.zero,
-                                          isDense: true,
-                                          borderRadius: BorderRadius.circular(10),
-                                          value: spesification(item[index]),
-                                          onChanged: (value) {
-                                            String dimension = value!.substring(0, value.indexOf('•')).trim();
-                                            setState(() {
-                                              Cart.update(
-                                                index: index,
-                                                element: ['dimension', 'weight'],
-                                                selectedIndex: item[index]['dimensions'].indexOf(dimension)
-                                              );
-                                            });
-                                          },
-                                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                            color: Theme.of(context).colorScheme.secondary,
-                                            height: 0
-                                          ),
-                                          items: spesifications(item[index]).map<DropdownMenuItem<String>>((element) {
-                                            return DropdownMenuItem<String>(
-                                              value: element,
-                                              child: Text(element)
-                                            );
-                                          }).toList()
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  secondary: AspectRatio(
-                                    aspectRatio: 1.25 / 1,
-                                    child: Stack(
-                                      fit: StackFit.expand,
+                          return ListView.builder(
+                            shrinkWrap: true,
+                            padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: item.length,
+                            itemBuilder: (context, index) {
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 8),
+                                child: Material(
+                                  type: MaterialType.transparency,
+                                  child: CheckboxListTile(
+                                    value: checkedItems[index],
+                                    onChanged: (value) {
+                                      setState(() {
+                                        checkedItems[index] = value!;
+                                        if (checkedItems.contains(true) == false) orderOpen.value = false;
+                                      });
+                                    },
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                      side: BorderSide(
+                                        color: checkedItems[index] ? Theme.of(context).colorScheme.primary : Colors.transparent,
+                                        width: 2
+                                      )
+                                    ),
+                                    isThreeLine: true,
+                                    controlAffinity: ListTileControlAffinity.leading,
+                                    selected: checkedItems[index],
+                                    selectedTileColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.25),
+                                    tileColor: Theme.of(context).colorScheme.background,
+                                    contentPadding: const EdgeInsets.symmetric(horizontal: 6),
+                                    checkboxShape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    title: Text(item[index]['name'].toString().toTitleCase()),
+                                    subtitle: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisAlignment: MainAxisAlignment.start,
                                       children: [
-                                        Container(
-                                          padding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
-                                          decoration: BoxDecoration(
-                                            color: Theme.of(context).colorScheme.surfaceVariant,
-                                            borderRadius: BorderRadius.circular(8)
-                                          ),
-                                          child: Image.asset(ItemDescription.getImage(item[index]['name']))
-                                        ),
-                                        Align(
-                                          alignment: Alignment.topLeft,
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(4),
-                                            child: Image.asset(ItemDescription.getLogo(item[index]['name']), height: 25, alignment: Alignment.topLeft, fit: BoxFit.scaleDown),
+                                        Text(item[index]['brand'].toString().toTitleCase(),
+                                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                            color: Theme.of(context).colorScheme.primary
                                           ),
                                         ),
-                                        Align(
-                                          alignment: Alignment.bottomRight,
-                                          child: Padding(
-                                            padding: const EdgeInsets.all(4),
-                                            child: Badge.count(
-                                              count: int.parse(item[index]['count']),
-                                              largeSize: 20,
-                                              padding: const EdgeInsets.symmetric(horizontal: 6),
+                                        const SizedBox(height: 6),
+                                        DropdownButtonHideUnderline(
+                                          child: DropdownButton<String>(
+                                            padding: EdgeInsets.zero,
+                                            isDense: true,
+                                            borderRadius: BorderRadius.circular(10),
+                                            value: spesification(item[index]),
+                                            onChanged: (value) {
+                                              String dimension = value!.substring(0, value.indexOf('•')).trim();
+                                              setState(() {
+                                                Cart.update(
+                                                  index: index,
+                                                  element: ['dimension', 'weight'],
+                                                  selectedIndex: item[index]['dimensions'].indexOf(dimension)
+                                                );
+                                              });
+                                            },
+                                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                              color: Theme.of(context).colorScheme.secondary,
+                                              height: 0
+                                            ),
+                                            items: spesifications(item[index]).map<DropdownMenuItem<String>>((element) {
+                                              return DropdownMenuItem<String>(
+                                                value: element,
+                                                child: Text(element)
+                                              );
+                                            }).toList()
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    secondary: AspectRatio(
+                                      aspectRatio: 1.25 / 1,
+                                      child: Stack(
+                                        fit: StackFit.expand,
+                                        children: [
+                                          Container(
+                                            padding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
+                                            decoration: BoxDecoration(
+                                              color: Theme.of(context).colorScheme.surfaceVariant,
+                                              borderRadius: BorderRadius.circular(8)
+                                            ),
+                                            child: Image.asset(ItemDescription.getImage(item[index]['name']))
+                                          ),
+                                          Align(
+                                            alignment: Alignment.topLeft,
+                                            child: Padding(
+                                              padding: const EdgeInsets.all(4),
+                                              child: Image.asset(ItemDescription.getLogo(item[index]['name']), height: 25, alignment: Alignment.topLeft, fit: BoxFit.scaleDown),
                                             ),
                                           ),
-                                        )
-                                      ],
+                                          Align(
+                                            alignment: Alignment.bottomRight,
+                                            child: Padding(
+                                              padding: const EdgeInsets.all(4),
+                                              child: Badge.count(
+                                                count: int.parse(item[index]['count']),
+                                                largeSize: 20,
+                                                padding: const EdgeInsets.symmetric(horizontal: 6),
+                                              ),
+                                            ),
+                                          )
+                                        ],
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            );
-                          }
-                        );
-                      } else {
-                        return const HandleEmptyOrder();
+                              );
+                            }
+                          );
+                        } else {
+                          return const HandleEmptyOrder();
+                        }
                       }
-                    }
-                  ),
-                ],
+                    ),
+                  ],
+                ),
               ),
             )
           ),

@@ -113,13 +113,12 @@ class _DetailItemRouteState extends State<DetailItemRoute> {
       child: Scaffold(
         backgroundColor: Theme.of(context).colorScheme.background,
         floatingActionButton: FloatingActionButton.extended(
-          heroTag: 'Order Hero',
           onPressed: () {
             showOrderDialog(
               context: context,
               name: widget.item['description'],
               brand: widget.brand,
-              hero: 'Order Hero',
+              hero: widget.hero,
               dimensions: dimensions,
               weights: weights,
               onPressed: addToCart

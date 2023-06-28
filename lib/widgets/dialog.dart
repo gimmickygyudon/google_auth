@@ -5,6 +5,7 @@ import 'package:google_auth/functions/location.dart';
 import 'package:google_auth/functions/string.dart';
 import 'package:google_auth/strings/item.dart';
 import 'package:google_auth/widgets/profile.dart';
+import 'package:google_auth/widgets/snackbar.dart';
 
 import '../styles/theme.dart';
 
@@ -52,7 +53,7 @@ Future<void> showOrderDialog({
   return Navigator.push(context, PageRouteBuilder(
     opaque: false,
     barrierDismissible: true,
-    barrierColor: Colors.black26,
+    barrierColor: Colors.black45,
     pageBuilder: (context, animation, secondaryAnimation) {
       return OrderDialog(name: name, brand: brand, hero: hero, dimensions: dimensions, weights: weights, onPressed: onPressed);
     })
@@ -367,7 +368,7 @@ class _OrderDialogState extends State<OrderDialog> {
                         ],
                       ),
                       SizedBox(
-                        height: MediaQuery.of(context).size.height / 4,
+                        height: MediaQuery.of(context).size.height / 3,
                         child: Stack(
                           children: [
                             Padding(
@@ -433,12 +434,13 @@ class _OrderDialogState extends State<OrderDialog> {
                         decoration: Styles.inputDecorationForm(
                           context: context,
                           placeholder: 'Jumlah',
-                          labelStyle: Theme.of(context).textTheme.bodyLarge,
+                          floatingLabelBehavior: FloatingLabelBehavior.always,
+                          labelStyle: Theme.of(context).textTheme.titleMedium?.copyWith(),
                           suffixIcon: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              IconButton(onPressed: () => setJumlah(isPlus: false), icon: const Icon(Icons.remove_circle), iconSize: 24, color: Theme.of(context).colorScheme.secondary),
-                              IconButton(onPressed: () => setJumlah(isPlus: true), icon: const Icon(Icons.add_circle), iconSize: 24, color: Theme.of(context).colorScheme.secondary),
+                              IconButton(onPressed: () => setJumlah(isPlus: false), icon: const Icon(Icons.remove), iconSize: 24, color: Theme.of(context).colorScheme.secondary),
+                              IconButton(onPressed: () => setJumlah(isPlus: true), icon: const Icon(Icons.add), iconSize: 24, color: Theme.of(context).colorScheme.secondary),
                               const SizedBox(width: 8)
                             ],
                           ),
@@ -467,13 +469,28 @@ class _OrderDialogState extends State<OrderDialog> {
                               ],
                               const SizedBox(width: 12),
                               ElevatedButton.icon(
-                                onPressed: jumlahController.text.trim().isNotEmpty
-                                  ? () => widget.onPressed(count: jumlahController.text, index: index).whenComplete(() {
-                                    Navigator.pop(context);
-                                  })
-                                  : null,
+                                onPressed: () {
+                                  showSnackBar(context, snackBarShop(duration: const Duration(seconds: 6), context: context, content: 'Pesanan ada di keranjang belanja anda.'));
+                                },
+                                // onPressed: jumlahController.text.trim().isNotEmpty
+                                //   ? () => widget.onPressed(count: jumlahController.text, index: index).whenComplete(() {
+                                //     Navigator.pop(context);
+                                //   })
+                                //   : null,
                                 style: Styles.buttonForm(context: context),
-                                icon: const Icon(Icons.shopping_bag),
+                                icon: Stack(
+                                  alignment: Alignment.bottomRight,
+                                  children: [
+                                    Icon(Icons.shopping_bag_outlined, size: 24, color: Theme.of(context).colorScheme.surface),
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(context).colorScheme.primary,
+                                        borderRadius: BorderRadius.circular(12)
+                                      ),
+                                      child: Icon(Icons.add, size: 10, color: Theme.of(context).colorScheme.surface)
+                                    ),
+                                  ],
+                                ),
                                 label: const Text('Pesan')
                               ),
                             ],
