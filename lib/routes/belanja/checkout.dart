@@ -1,6 +1,8 @@
 import 'dart:convert';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_auth/functions/conversion.dart';
@@ -9,6 +11,7 @@ import 'package:google_auth/functions/payments.dart';
 import 'package:google_auth/functions/push.dart';
 import 'package:google_auth/functions/sqlite.dart';
 import 'package:google_auth/functions/string.dart';
+import 'package:google_auth/functions/validate.dart';
 import 'package:google_auth/routes/belanja/orders_page.dart';
 import 'package:google_auth/strings/item.dart';
 import 'package:google_auth/strings/user.dart';
@@ -121,14 +124,11 @@ class ItemPage extends StatefulWidget {
 }
 
 class _ItemPageState extends State<ItemPage> {
-  List setSpesifications(Map data) {
-    List<String> spesifications = List.generate(data['dimensions'].length, (i) => '${data['dimensions'][i] + '  •  *' + setWeight(weight: double.parse(data['weights'][i]), count: double.parse(data['count']))}');
-    return spesifications;
-  }
 
-  int selectedIndex(Map data) => data['dimensions'].indexOf(data['dimension']);
-  List spesifications(Map data) => setSpesifications(data);
-  String spesification(Map data) => spesifications(data)[selectedIndex(data)];
+  @override
+  void initState() {
+    super.initState();
+  }
 
   String totalWeight() {
     double total = 0;
@@ -207,133 +207,7 @@ class _ItemPageState extends State<ItemPage> {
                       visible: widget.checkedItems[index],
                       child: ListTileTheme(
                         minVerticalPadding: 14,
-                        child: Stack(
-                          alignment: Alignment.centerRight,
-                          children: [
-                            ListTile(
-                              visualDensity: const VisualDensity(vertical: 2),
-                              leading: AspectRatio(
-                                aspectRatio: 4/3,
-                                child: Stack(
-                                  fit: StackFit.expand,
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
-                                      decoration: BoxDecoration(
-                                        color: Theme.of(context).colorScheme.background,
-                                        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 1),
-                                        borderRadius: BorderRadius.circular(4)
-                                      ),
-                                      child: Image.asset(ItemDescription.getImage(item[index]['name']))
-                                    ),
-                                    Align(
-                                      alignment: Alignment.topLeft,
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(4),
-                                        child: Image.asset(ItemDescription.getLogo(item[index]['name']), height: 30, alignment: Alignment.topLeft, fit: BoxFit.scaleDown),
-                                      ),
-                                    ),
-                                    Align(
-                                      alignment: Alignment.bottomRight,
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(4),
-                                        child: Badge.count(
-                                          count: int.parse(item[index]['count']),
-                                          padding: const EdgeInsets.symmetric(horizontal: 5),
-                                        ),
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                              isThreeLine: true,
-                              title: Text(item[index]['name'].toString().toTitleCase(), style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                              )),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Text(item[index]['brand'].toString().toTitleCase(), style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: Theme.of(context).colorScheme.primary
-                                  )),
-                                  const SizedBox(height: 8),
-                                  DropdownButtonHideUnderline(
-                                    child: DropdownButton<String>(
-                                      padding: EdgeInsets.zero,
-                                      isDense: true,
-                                      borderRadius: BorderRadius.circular(10),
-                                      value: spesification(item[index]),
-                                      onChanged: (value) {
-                                        String dimension = value!.substring(0, value.indexOf('•')).trim();
-                                        setState(() {
-                                          Cart.update(
-                                            index: index,
-                                            element: ['dimension', 'weight'],
-                                            selectedIndex: item[index]['dimensions'].indexOf(dimension)
-                                          );
-                                        });
-                                      },
-                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                        color: Theme.of(context).colorScheme.secondary,
-                                        height: 0
-                                      ),
-                                      items: spesifications(item[index]).map<DropdownMenuItem<String>>((element) {
-                                        return DropdownMenuItem<String>(
-                                          value: element,
-                                          child: Text(element)
-                                        );
-                                      }).toList()
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Container(
-                              margin: const EdgeInsets.only(right: 8),
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
-                                borderRadius: BorderRadius.circular(12)
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  IconButton(
-                                    visualDensity: VisualDensity.compact,
-                                    onPressed: () {
-                                      String plus = (int.parse(CartWidget.cartNotifier.value[index]['count']) + 1).toString();
-                                      Cart.counts(index: index, count: plus);
-                                    },
-                                    iconSize: 20,
-                                    icon: const Icon(Icons.add)
-                                  ),
-                                  if (int.parse(item[index]['count']) > 1) IconButton(
-                                    visualDensity: VisualDensity.compact,
-                                    onPressed: () {
-                                      String minus = (int.parse(CartWidget.cartNotifier.value[index]['count']) - 1).toString();
-                                      Cart.counts(index: index, count: minus);
-                                    },
-                                    iconSize: 20,
-                                    icon: const Icon(Icons.remove)
-                                  ),
-                                  if (int.parse(item[index]['count']) < 2) IconButton(
-                                    visualDensity: VisualDensity.compact,
-                                    onPressed: () {
-                                      showDeleteDialog(
-                                        context: context,
-                                        onConfirm: () {
-                                          Cart.remove(index: [index]);
-                                        }
-                                      );
-                                    },
-                                    iconSize: 20,
-                                    color: Theme.of(context).colorScheme.error,
-                                    icon: const Icon(Icons.delete)
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        )
+                        child: OrderListItemWidget(item: item, index: index)
                       ),
                     );
                   }
@@ -343,6 +217,213 @@ class _ItemPageState extends State<ItemPage> {
           ),
         );
       }
+    );
+  }
+}
+
+class OrderListItemWidget extends StatefulWidget {
+  const OrderListItemWidget({super.key, required this.item, required this.index});
+
+  final List item;
+  final int index;
+
+  @override
+  State<OrderListItemWidget> createState() => _OrderListItemWidgetState();
+}
+
+class _OrderListItemWidgetState extends State<OrderListItemWidget> {
+  late TextEditingController _textEditingController;
+
+  @override
+  void initState() {
+    _textEditingController = TextEditingController(text: widget.item[widget.index]['count']);
+    super.initState();
+  }
+
+  List setSpesifications(Map data) {
+    List<String> spesifications = List.generate(data['dimensions'].length, (i) => '${data['dimensions'][i] + '  •  *' + setWeight(weight: double.parse(data['weights'][i]), count: double.parse(data['count']))}');
+    return spesifications;
+  }
+
+  int selectedIndex(Map data) => data['dimensions'].indexOf(data['dimension']);
+  List spesifications(Map data) => setSpesifications(data);
+  String spesification(Map data) => spesifications(data)[selectedIndex(data)];
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      alignment: Alignment.centerRight,
+      children: [
+        ListTile(
+          visualDensity: const VisualDensity(vertical: 2),
+          leading: AspectRatio(
+            aspectRatio: 4/3,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.background,
+                    border: Border.all(color: Theme.of(context).colorScheme.outlineVariant, width: 1),
+                    borderRadius: BorderRadius.circular(4)
+                  ),
+                  child: Image.asset(ItemDescription.getImage(widget.item[widget.index]['name']))
+                ),
+                Align(
+                  alignment: Alignment.topLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.all(4),
+                    child: Image.asset(ItemDescription.getLogo(widget.item[widget.index]['name']), height: 30, alignment: Alignment.topLeft, fit: BoxFit.scaleDown),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: Padding(
+                    padding: const EdgeInsets.all(4),
+                    child: Badge.count(
+                      count: int.parse(widget.item[widget.index]['count']),
+                      padding: const EdgeInsets.symmetric(horizontal: 5),
+                    ),
+                  ),
+                )
+              ],
+            ),
+          ),
+          isThreeLine: true,
+          title: Text(widget.item[widget.index]['name'].toString().toTitleCase(), style: Theme.of(context).textTheme.labelLarge?.copyWith(
+          )),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Text(widget.item[widget.index]['brand'].toString().toTitleCase(), style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.primary
+              )),
+              const SizedBox(height: 8),
+              DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  padding: EdgeInsets.zero,
+                  isDense: true,
+                  borderRadius: BorderRadius.circular(10),
+                  value: spesification(widget.item[widget.index]),
+                  onChanged: (value) {
+                    String dimension = value!.substring(0, value.indexOf('•')).trim();
+                    setState(() {
+                      Cart.update(
+                        index: widget.index,
+                        element: ['dimension', 'weight'],
+                        selectedIndex: widget.item[widget.index]['dimensions'].indexOf(dimension)
+                      );
+                    });
+                  },
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.secondary,
+                    height: 0
+                  ),
+                  items: spesifications(widget.item[widget.index]).map<DropdownMenuItem<String>>((element) {
+                    return DropdownMenuItem<String>(
+                      value: element,
+                      child: Text(element)
+                    );
+                  }).toList()
+                ),
+              ),
+            ],
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(right: 8),
+          child: TextFormField(
+            controller: _textEditingController,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly
+            ],
+            onChanged: (value) {
+              String count = Validate.validateQuantity(
+                context: context,
+                value: value,
+                textEditingController: _textEditingController,
+                deleteItem: true,
+                index: widget.index
+              );
+
+              Cart.counts(index: widget.index, count: count);
+            },
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: Theme.of(context).colorScheme.onInverseSurface,
+              contentPadding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
+              labelText: 'Jumlah',
+              floatingLabelBehavior: FloatingLabelBehavior.always,
+              floatingLabelStyle: const TextStyle(fontWeight: FontWeight.w500, letterSpacing: 0),
+              border: const OutlineInputBorder(),
+              constraints: const BoxConstraints(
+                maxHeight: 40,
+                maxWidth: 80
+              )
+            )
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class AddMinusWidget extends StatelessWidget {
+  const AddMinusWidget({
+    super.key, required this.index, required this.item,
+  });
+
+  final int index;
+  final List item;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(right: 8),
+      decoration: BoxDecoration(
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+        borderRadius: BorderRadius.circular(12)
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            visualDensity: VisualDensity.compact,
+            onPressed: () {
+              String plus = (int.parse(CartWidget.cartNotifier.value[index]['count']) + 1).toString();
+              Cart.counts(index: index, count: plus);
+            },
+            iconSize: 20,
+            icon: const Icon(Icons.add)
+          ),
+          if (int.parse(item[index]['count']) > 1) IconButton(
+            visualDensity: VisualDensity.compact,
+            onPressed: () {
+              String minus = (int.parse(CartWidget.cartNotifier.value[index]['count']) - 1).toString();
+              Cart.counts(index: index, count: minus);
+            },
+            iconSize: 20,
+            icon: const Icon(Icons.remove)
+          ),
+          if (int.parse(item[index]['count']) < 2) IconButton(
+            visualDensity: VisualDensity.compact,
+            onPressed: () {
+              showDeleteDialog(
+                context: context,
+                onConfirm: () {
+                  Cart.remove(index: [index]);
+                }
+              );
+            },
+            iconSize: 20,
+            color: Theme.of(context).colorScheme.error,
+            icon: const Icon(Icons.delete)
+          ),
+        ],
+      ),
     );
   }
 }
@@ -601,10 +682,8 @@ class _DeliveryWidgetState extends State<DeliveryWidget> {
         body:  MediaQuery.removePadding(
           context: context,
           removeTop: true,
-          child: Scrollbar(
+          child: CupertinoScrollbar(
             thumbVisibility: true,
-            trackVisibility: true,
-            thickness: 6,
             controller: widget.scrollController,
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(12),
@@ -809,6 +888,7 @@ class _DeliveryWidgetState extends State<DeliveryWidget> {
                           children: [
                             ElevatedButton.icon(
                               onPressed: () {
+                                // FIXME: Whole Function inside widget state;
                                 showPaymentSheet(
                                   context: context,
                                   onConfirm: (indexPaymentsType) async {

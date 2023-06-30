@@ -16,51 +16,32 @@ SnackBar snackBarShop({
   Color? color,
 }) {
   return SnackBar(
-    padding: const EdgeInsets.fromLTRB(0, 0, 0, 6),
+    padding: const EdgeInsets.fromLTRB(6, 0, 0, 0),
     duration: duration,
-    backgroundColor: Theme.of(context).colorScheme.primary,
+    backgroundColor: Theme.of(context).colorScheme.primary.withBlue(100),
+    showCloseIcon: true,
     content: Consumer(
-      builder: (context, value, child) => Container(
-        padding: const EdgeInsets.fromLTRB(8, 8, 8, 4),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                const SizedBox(width: 6),
-                Stack(
-                  alignment: Alignment.bottomRight,
-                  children: [
-                    Icon(Icons.shopping_bag_outlined, size: 30, color: Theme.of(context).colorScheme.surface),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.primary,
-                        borderRadius: BorderRadius.circular(12)
-                      ),
-                      child: Icon(Icons.add, size: 14, color: Theme.of(context).colorScheme.surface)
-                    ),
-                  ],
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  content,
-                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                    color: Theme.of(context).colorScheme.surface,
-                    letterSpacing: 0
-                  ),
-                ),
-              ],
-            ),
-            IconButton(
-              onPressed: () => hideSnackBar(context),
-              color: Theme.of(context).colorScheme.surface,
-              style: const ButtonStyle(
-                visualDensity: VisualDensity(vertical: -4, horizontal: -4)
+      builder: (context, value, child) => Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              const SizedBox(width: 6),
+              Badge(
+                label: const Text('+1'),
+                child: Icon(Icons.shopping_bag, color: Theme.of(context).colorScheme.surface)
               ),
-              icon: const Icon(Icons.close)
-            )
-          ],
-        ),
+              const SizedBox(width: 16),
+              Text(
+                content,
+                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                  color: Theme.of(context).colorScheme.surface,
+                  letterSpacing: 0
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     ),
   );

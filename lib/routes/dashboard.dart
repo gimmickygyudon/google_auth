@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:google_auth/routes/belanja/dashboard.dart';
 import 'package:google_auth/routes/beranda/dashboard.dart';
+import 'package:google_auth/routes/gallery/dashboard.dart';
 import 'package:google_auth/routes/keluhan/dashboard.dart';
 import 'package:google_auth/widgets/navigationbar.dart';
 import 'package:google_auth/widgets/cart.dart';
@@ -30,6 +31,7 @@ class _DashboardRouteState extends State<DashboardRoute> {
     const BerandaRoute(),
     Container(),
     const BelanjaRoute(),
+    const GalleryRoute(),
     const KeluhanRoute(),
     Container(),
   ];
@@ -89,19 +91,12 @@ class _DashboardRouteState extends State<DashboardRoute> {
         ),
       ),
       appBar: AppBar(
-        elevation: 8,
+        elevation: 2,
         shadowColor: Theme.of(context).shadowColor,
         automaticallyImplyLeading: false,
         toolbarHeight: kToolbarHeight,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            bottomLeft: Radius.circular(20),
-            bottomRight: Radius.circular(20)
-          )
-        ),
         flexibleSpace: FlexibleSpaceBar(
           background: ClipRRect(
-            borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(12), bottomRight: Radius.circular(12)),
             child: Container(
               foregroundDecoration: BoxDecoration(
                 gradient: LinearGradient(

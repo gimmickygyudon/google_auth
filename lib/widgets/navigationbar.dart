@@ -32,6 +32,11 @@ class _BottomNavigationState extends State<BottomNavigation> {
       'title': 'Belanja'
     },
     {
+      'icon': Icons.photo_library,
+      'icon_outline': Icons.photo_library_outlined,
+      'title': 'Galeri'
+    },
+    {
       'icon': Icons.help,
       'icon_outline': Icons.help_outline,
       'title': 'Keluhan'
@@ -79,7 +84,7 @@ class _BottomNavigationState extends State<BottomNavigation> {
         selectedLabelStyle: Theme.of(context).textTheme.bodySmall,
         unselectedLabelStyle: Theme.of(context).textTheme.bodySmall,
         onTap: (value) {
-          if (value == 4) {
+          if (value == 5) {
             Scaffold.of(context).openEndDrawer();
           } else {
             toPage(value);

@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:google_auth/functions/conversion.dart';
 import 'package:google_auth/functions/location.dart';
 import 'package:google_auth/functions/string.dart';
+import 'package:google_auth/functions/validate.dart';
 import 'package:google_auth/strings/item.dart';
 import 'package:google_auth/widgets/profile.dart';
 import 'package:google_auth/widgets/snackbar.dart';
@@ -266,14 +267,12 @@ class _OrderDialogState extends State<OrderDialog> {
   late String spesification;
   late List spesifications;
   late TextEditingController jumlahController;
-  late bool isValidated;
   late int index;
 
   late String weight;
 
   @override
   void initState() {
-    isValidated = false;
     index = 0;
     weight = widget.weights[index];
 
@@ -296,24 +295,6 @@ class _OrderDialogState extends State<OrderDialog> {
     return list;
   }
 
-  void validate(String value) {
-    if (value.isNotEmpty) {
-      if (int.parse(value) < 1) {
-        jumlahController.text = '';
-      }
-    }
-
-    if (value.trim().isNotEmpty || value.trim() != '0') {
-      setState(() {
-        isValidated = true;
-      });
-    } else {
-      setState(() {
-        isValidated = false;
-      });
-    }
-  }
-
   void setJumlah({required bool isPlus}) {
     setState(() {
       if (jumlahController.text.trim().isEmpty) jumlahController.text = '0';
@@ -334,41 +315,42 @@ class _OrderDialogState extends State<OrderDialog> {
     }
 
     return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Center(
-        child: SingleChildScrollView(
-          child: Hero(
-            tag: widget.hero,
-            child: Material(
-              type: MaterialType.transparency,
-              child: Theme(
-                data: Theme.of(context).copyWith(
-                  inputDecorationTheme: Themes.inputDecorationThemeForm(context: context)
+      appBar: AppBar(
+        toolbarHeight: kToolbarHeight,
+        title: Padding(
+          padding: const EdgeInsets.only(top: 10),
+          child: Image.asset(ItemDescription.getLogo(widget.name), width: 200, height: 100),
+        ),
+        actions: [
+          IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: const Icon(Icons.cancel, size: 30)
+          )
+        ],
+      ),
+      body: SingleChildScrollView(
+        child: Hero(
+          tag: widget.hero,
+          child: Material(
+            type: MaterialType.transparency,
+            child: Theme(
+              data: Theme.of(context).copyWith(
+                inputDecorationTheme: Themes.inputDecorationThemeForm(context: context)
+              ),
+              child: Container(
+                padding: const EdgeInsets.all(24),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.background,
+                  borderRadius: BorderRadius.circular(25.7)
                 ),
-                child: Container(
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.background,
-                    borderRadius: BorderRadius.circular(25.7)
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Image.asset(ItemDescription.getLogo(widget.name), width: 200, height: 100, alignment: Alignment.topLeft),
-                          IconButton(
-                            onPressed: () => Navigator.pop(context),
-                            icon: const Icon(Icons.cancel, size: 30)
-                          )
-                        ],
-                      ),
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height / 3,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Flexible(
+                      child: SizedBox(
+                        height: MediaQuery.of(context).size.height / 2,
                         child: Stack(
                           children: [
                             Padding(
@@ -393,112 +375,94 @@ class _OrderDialogState extends State<OrderDialog> {
                           ],
                         ),
                       ),
-                      const SizedBox(height: 20),
-                      DropdownButtonFormField(
-                        value: spesification,
-                        onChanged: (value) {
-                          setState(() {
-                            spesification = value.toString();
-                            index = spesifications.indexOf(value);
-                          });
-                        },
-                        decoration: Styles.inputDecorationForm(
-                          context: context,
-                          placeholder: 'Spesifikasi',
-                          labelStyle: Theme.of(context).textTheme.bodyLarge,
-                          condition: true
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w500,
-                          height: 1.25
-                        ),
-                        isExpanded: true,
-                        items: spesifications.map((item) {
-                          return DropdownMenuItem(
-                            value: item,
-                            child: Text(item)
-                          );
-                        }).toList(),
+                    ),
+                    const SizedBox(height: 20),
+                    DropdownButtonFormField(
+                      value: spesification,
+                      onChanged: (value) {
+                        setState(() {
+                          spesification = value.toString();
+                          index = spesifications.indexOf(value);
+                        });
+                      },
+                      decoration: Styles.inputDecorationForm(
+                        context: context,
+                        placeholder: 'Spesifikasi',
+                        labelStyle: Theme.of(context).textTheme.bodyLarge,
+                        condition: true
                       ),
-                      const SizedBox(height: 12),
-                      TextFormField(
-                        controller: jumlahController,
-                        onChanged: (value) {
-                          setState(() {
-                            validate(value);
-                          });
-                        },
-                        keyboardType: TextInputType.number,
-                        inputFormatters: [ FilteringTextInputFormatter.allow(RegExp("[0-9]")) ],
-                        decoration: Styles.inputDecorationForm(
-                          context: context,
-                          placeholder: 'Jumlah',
-                          floatingLabelBehavior: FloatingLabelBehavior.always,
-                          labelStyle: Theme.of(context).textTheme.titleMedium?.copyWith(),
-                          suffixIcon: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(onPressed: () => setJumlah(isPlus: false), icon: const Icon(Icons.remove), iconSize: 24, color: Theme.of(context).colorScheme.secondary),
-                              IconButton(onPressed: () => setJumlah(isPlus: true), icon: const Icon(Icons.add), iconSize: 24, color: Theme.of(context).colorScheme.secondary),
-                              const SizedBox(width: 8)
-                            ],
-                          ),
-                          condition: jumlahController.text.trim().isNotEmpty
-                        ),
+                      borderRadius: BorderRadius.circular(12),
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w500,
+                        height: 1.25
                       ),
-                      const SizedBox(height: 24),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(context),
-                            style: ButtonStyle(
-                              foregroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.secondary)
-                            ),
-                            child: const Text('Batal')
+                      isExpanded: true,
+                      items: spesifications.map((item) {
+                        return DropdownMenuItem(
+                          value: item,
+                          child: Text(item)
+                        );
+                      }).toList(),
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: jumlahController,
+                      onChanged: (value) => setState(() => Validate.validateQuantity(context: context, value: value, textEditingController: jumlahController)),
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [ FilteringTextInputFormatter.allow(RegExp("[0-9]")) ],
+                      decoration: Styles.inputDecorationForm(
+                        context: context,
+                        placeholder: 'Jumlah',
+                        floatingLabelBehavior: FloatingLabelBehavior.always,
+                        labelStyle: Theme.of(context).textTheme.titleMedium?.copyWith(),
+                        suffixIcon: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(onPressed: () => setJumlah(isPlus: false), icon: const Icon(Icons.remove), iconSize: 24, color: Theme.of(context).colorScheme.secondary),
+                            IconButton(onPressed: () => setJumlah(isPlus: true), icon: const Icon(Icons.add), iconSize: 24, color: Theme.of(context).colorScheme.secondary),
+                            const SizedBox(width: 8)
+                          ],
+                        ),
+                        condition: jumlahController.text.trim().isNotEmpty
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          style: ButtonStyle(
+                            foregroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.secondary)
                           ),
-                          Row(
-                            children: [
-                              if (jumlahController.text.trim().isNotEmpty) ...[
-                                Text(weight,
-                                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                                    color: Theme.of(context).colorScheme.primary
-                                  ),
+                          child: const Text('Batal')
+                        ),
+                        Row(
+                          children: [
+                            if (jumlahController.text.trim().isNotEmpty) ...[
+                              Text(weight,
+                                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                  color: Theme.of(context).colorScheme.primary
                                 ),
-                              ],
-                              const SizedBox(width: 12),
-                              ElevatedButton.icon(
-                                onPressed: () {
-                                  showSnackBar(context, snackBarShop(duration: const Duration(seconds: 6), context: context, content: 'Pesanan ada di keranjang belanja anda.'));
-                                },
-                                // onPressed: jumlahController.text.trim().isNotEmpty
-                                //   ? () => widget.onPressed(count: jumlahController.text, index: index).whenComplete(() {
-                                //     Navigator.pop(context);
-                                //   })
-                                //   : null,
-                                style: Styles.buttonForm(context: context),
-                                icon: Stack(
-                                  alignment: Alignment.bottomRight,
-                                  children: [
-                                    Icon(Icons.shopping_bag_outlined, size: 24, color: Theme.of(context).colorScheme.surface),
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        color: Theme.of(context).colorScheme.primary,
-                                        borderRadius: BorderRadius.circular(12)
-                                      ),
-                                      child: Icon(Icons.add, size: 10, color: Theme.of(context).colorScheme.surface)
-                                    ),
-                                  ],
-                                ),
-                                label: const Text('Pesan')
                               ),
                             ],
-                          )
-                        ]
-                      ),
-                    ],
-                  ),
+                            const SizedBox(width: 12),
+                            ElevatedButton.icon(
+                              onPressed: jumlahController.text.trim().isNotEmpty
+                                ? () => widget.onPressed(count: jumlahController.text, index: index).whenComplete(() {
+                                  showSnackBar(context, snackBarShop(duration: const Duration(seconds: 6), context: context, content: 'Pesanan Anda Masuk di Keranjang Belanja.'));
+                                  Navigator.pop(context);
+                                })
+                                : null,
+                              style: Styles.buttonForm(context: context),
+                              icon: const Icon(Icons.local_shipping, size: 24),
+                              label: const Text('Pesan')
+                            ),
+                          ],
+                        )
+                      ]
+                    ),
+                  ],
                 ),
               ),
             ),

@@ -4,20 +4,58 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 
 import 'package:google_auth/functions/authentication.dart';
+import 'package:google_auth/functions/string.dart';
 import 'package:google_auth/widgets/snackbar.dart';
 import '../strings/user.dart';
 import '../widgets/dialog.dart';
 import 'push.dart';
 import 'sql_client.dart';
+import 'sqlite.dart';
 
 class Validate {
+
+  static String validateQuantity({
+    required BuildContext context,
+    required String value,
+    required TextEditingController textEditingController,
+    bool? deleteItem,
+    int? index,
+  }) {
+    String regvalue = value.removeZeroLeading();
+
+    if (regvalue.isNotEmpty) {
+      if (int.parse(regvalue) < 1) {
+        textEditingController.text = '';
+      }
+    }
+
+    if (regvalue.trim().isNotEmpty || regvalue.trim() != '0') {
+      if (regvalue.isEmpty) {
+        if (deleteItem == true) {
+          showDeleteDialog(
+            context: context,
+            onConfirm: () {
+              Cart.remove(index: [index!]);
+            }
+          );
+        }
+
+        textEditingController.text = '1';
+        return '1';
+      }
+      textEditingController.text = value.removeZeroLeading();
+      return regvalue;
+    } else {
+      return '1';
+    }
+  }
 
   static bool validate(bool condition) {
     bool isValidated = false;
     if (condition) {
       isValidated = true;
-    } else { 
-      isValidated = false; 
+    } else {
+      isValidated = false;
     }
     return isValidated;
   }
@@ -35,8 +73,8 @@ class Validate {
   }
 
   static Future<void> checkUser({
-    required BuildContext context, 
-    Map? source, 
+    required BuildContext context,
+    Map? source,
     required String logintype,
     required String user,
     bool? skipDialog, bool? login,
@@ -45,7 +83,7 @@ class Validate {
 
     void pushDashboard_({required Map source}) => pushDashboard(context);
 
-    String? photourl; 
+    String? photourl;
     String query() => EmailValidator.validate(user) ? 'user_email' : 'phone_number';
     if(source != null) photourl = source.containsKey('photo_url') ? source['photo_url'] : null;
 
@@ -57,10 +95,10 @@ class Validate {
         if (login == true) {
           if (await Validate.checkPassword(context, item: item, password: password!)) {
             currentUser = currentUserFormat(
-              id_ousr: item['id_ousr'], 
-              login_type: logintype, 
-              user_email: item['user_email'], 
-              user_name: item['user_name'], 
+              id_ousr: item['id_ousr'],
+              login_type: logintype,
+              user_email: item['user_email'],
+              user_name: item['user_name'],
               phone_number: item['phone_number'],
               user_password: item['user_password']
             );
@@ -77,9 +115,9 @@ class Validate {
         }
       } else {
         void showRegister(Function callback, String from) {
-          showUnRegisteredUser(context, 
-            value: user, 
-            callback: callback, 
+          showUnRegisteredUser(context,
+            value: user,
+            callback: callback,
             from: from,
             source: source
           );

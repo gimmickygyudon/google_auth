@@ -126,7 +126,6 @@ class _DetailItemRouteState extends State<DetailItemRoute> {
           },
           icon: const Icon(Icons.local_shipping),
           label: const Text('Pesan'),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25.7)),
           backgroundColor: Theme.of(context).colorScheme.primary,
           foregroundColor: Theme.of(context).colorScheme.surface,
         ),
