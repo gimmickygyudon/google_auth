@@ -7,6 +7,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_auth/functions/conversion.dart';
 import 'package:google_auth/functions/date.dart';
+import 'package:google_auth/functions/notification.dart';
 import 'package:google_auth/functions/payments.dart';
 import 'package:google_auth/functions/push.dart';
 import 'package:google_auth/functions/sqlite.dart';
@@ -631,6 +632,9 @@ class _DeliveryWidgetState extends State<DeliveryWidget> {
   String? selectedTime = TimeNow();
   DateTime? date;
   TimeOfDay? time;
+  String? payments;
+  int paymentType = 0;
+  bool isLoading = false;
 
   late TextEditingController referenceNumberTextController;
   late TextEditingController documentremarksTextController;
@@ -647,6 +651,11 @@ class _DeliveryWidgetState extends State<DeliveryWidget> {
     referenceNumberTextController.dispose();
     documentremarksTextController.dispose();
     super.dispose();
+  }
+
+  int setPaymentType(int index) {
+    setState(() => paymentType = index);
+    return paymentType;
   }
 
   String totalWeight() {
@@ -669,6 +678,115 @@ class _DeliveryWidgetState extends State<DeliveryWidget> {
     }
 
     return total;
+  }
+
+  Future<void> onConfirm(String? deliveryType, int indexPaymentsType) async {
+    List? itemList;
+    List<int> itemindex = List.empty(growable: true);
+    itemList = await Cart.getItems().then((value) {
+      int i = -1;
+      if (value != null) {
+        return value.map((e) {
+          i++;
+          if (widget.checkedItems[i] == true) {
+            itemindex.add(i);
+            return value[i];
+          } else {
+            return null;
+          }
+        }).nonNulls.toList();
+      } else {
+
+        return null;
+      }
+    });
+
+    Map? currentLocation = await LocationManager.getCurrentLocation().then((currentLocation) {
+      return currentLocation;
+    }).onError((error, stackTrace) {
+      showSnackBar(context, snackBarError(context: context, content: error.toString()));
+      return Future.error(error.toString());
+    });
+
+    insertLocal() {
+      Payment.insertPaymentLocal(
+        Payment(
+          id_opor: null,
+          customer_reference_number: referenceNumberTextController.text,
+          id_ousr: currentUser['id_ousr'].toString(),
+          delivery_date: '$selectedDate - $selectedTime',
+          delivery_type: deliveryType,
+          document_remarks: documentremarksTextController.text,
+          payment_type: indexPaymentsType.toString(),
+
+          delivery_name: currentLocation?['name'],
+          delivery_street: currentLocation?['street'],
+          province: currentLocation?['province'],
+          district: currentLocation?['district'],
+          subdistrict: currentLocation?['subdistrict'],
+          suburb: currentLocation?['suburb'],
+          phone_number: currentLocation?['phone_number'],
+
+          POR1s: jsonEncode(itemList),
+          isSent: 0
+        )
+      ).then((value) {
+        Cart.remove(index: itemindex);
+        pushDashboard(context);
+        showSnackBar(context, snackBarComplete(
+          context: context,
+          content: 'Barang Berhasil di Pesan',
+          duration: const Duration(seconds: 2)
+        ));
+      });
+    }
+
+    List<int> locationIds = await LocationManager.getLocationsId().then((locationIds) async {
+      return locationIds;
+    }).onError((error, stackTrace) {
+      insertLocal();
+      return Future.error(error.toString());
+    });
+
+    Payment.insertPayment(
+      Payment(
+        id_opor: null,
+        customer_reference_number: referenceNumberTextController.text,
+        id_ousr: currentUser['id_ousr'].toString(),
+        delivery_date: '$selectedDate - $selectedTime',
+        delivery_type: deliveryType,
+        document_remarks: documentremarksTextController.text,
+        payment_type: indexPaymentsType.toString(),
+        delivery_name: currentLocation?['name'],
+        delivery_street: currentLocation?['street'],
+        province: locationIds[0].toString(),
+        district: locationIds[1].toString(),
+        subdistrict: locationIds[2].toString(),
+        suburb: locationIds[3].toString(),
+        phone_number: currentLocation?['phone_number'],
+        POR1s: itemList,
+        isSent: 1
+      )
+    )
+    .onError((error, stackTrace) {
+      insertLocal();
+      return Future.error(error.toString());
+    })
+    .then((value) {
+      Cart.remove(index: itemindex);
+      pushDashboard(context);
+      showSnackBar(context, snackBarComplete(
+        context: context,
+        content: 'Barang Berhasil di Pesan',
+        duration: const Duration(seconds: 2)
+      ));
+
+      NotificationBody.showNotification(
+        id: value['id_ousr'],
+        title: '${value['delivery_name']}  -  $deliveryType',
+        body: 'Barang Berhasil di Pesan.\nLihat Riwayat Pesanan Untuk Lebih Lengkapnya',
+      );
+    });
   }
 
   @override
@@ -883,125 +1001,48 @@ class _DeliveryWidgetState extends State<DeliveryWidget> {
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            ElevatedButton.icon(
-                              onPressed: () {
-                                // FIXME: Whole Function inside widget state;
-                                showPaymentSheet(
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 18),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.primary.withBlue(100).withOpacity(0.1),
+                            border: Border.all(
+                              color: Theme.of(context).colorScheme.primary.withBlue(100).withOpacity(0.5)
+                            ),
+                            borderRadius: BorderRadius.circular(25.7)
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              ElevatedButton.icon(
+                                onPressed: () {
+                                  showPaymentSheet(
+                                    context: context,
+                                    selectedIndex: paymentType,
+                                    onConfirm: (indexPaymentsType) async => setPaymentType(indexPaymentsType)
+                                  );
+                                },
+                                style: Styles.buttonFlatSmall(
                                   context: context,
-                                  onConfirm: (indexPaymentsType) async {
-                                    List? itemList;
-                                    List<int> itemindex = List.empty(growable: true);
-                                    itemList = await Cart.getItems().then((value) {
-                                      int i = -1;
-                                      if (value != null) {
-                                        return value.map((e) {
-                                          i++;
-                                          if (widget.checkedItems[i] == true) {
-                                            itemindex.add(i);
-                                            return value[i];
-                                          } else {
-                                            return null;
-                                          }
-                                        }).nonNulls.toList();
-                                      } else {
-
-                                        return null;
-                                      }
-                                    });
-
-                                    Map? currentLocation = await LocationManager.getCurrentLocation().then((currentLocation) {
-                                      return currentLocation;
-                                    }).onError((error, stackTrace) {
-                                      showSnackBar(context, snackBarError(context: context, content: error.toString()));
-                                      return Future.error(error.toString());
-                                    });
-
-                                    insertLocal() {
-                                      Payment.insertPaymentLocal(
-                                        Payment(
-                                          id_opor: null,
-                                          customer_reference_number: referenceNumberTextController.text,
-                                          id_ousr: currentUser['id_ousr'].toString(),
-                                          delivery_date: '$selectedDate - $selectedTime',
-                                          delivery_type: deliveryType,
-                                          document_remarks: documentremarksTextController.text,
-                                          payment_type: indexPaymentsType.toString(),
-
-                                          delivery_name: currentLocation?['name'],
-                                          delivery_street: currentLocation?['street'],
-                                          province: currentLocation?['province'],
-                                          district: currentLocation?['district'],
-                                          subdistrict: currentLocation?['subdistrict'],
-                                          suburb: currentLocation?['suburb'],
-                                          phone_number: currentLocation?['phone_number'],
-
-                                          POR1s: jsonEncode(itemList),
-                                          isSent: 0
-                                        )
-                                      ).then((value) {
-                                        Cart.remove(index: itemindex);
-                                        pushDashboard(context);
-                                        showSnackBar(context, snackBarComplete(
-                                          context: context,
-                                          content: 'Barang Berhasil di Pesan',
-                                          duration: const Duration(seconds: 2)
-                                        ));
-                                      });
-                                    }
-
-                                    List<int> locationIds = await LocationManager.getLocationsId().then((locationIds) async {
-                                      return locationIds;
-                                    }).onError((error, stackTrace) {
-                                      insertLocal();
-                                      return Future.error(error.toString());
-                                    });
-
-                                    Payment.insertPayment(
-                                      Payment(
-                                        id_opor: null,
-                                        customer_reference_number: referenceNumberTextController.text,
-                                        id_ousr: currentUser['id_ousr'].toString(),
-                                        delivery_date: '$selectedDate - $selectedTime',
-                                        delivery_type: deliveryType,
-                                        document_remarks: documentremarksTextController.text,
-                                        payment_type: indexPaymentsType.toString(),
-                                        delivery_name: currentLocation?['name'],
-                                        delivery_street: currentLocation?['street'],
-                                        province: locationIds[0].toString(),
-                                        district: locationIds[1].toString(),
-                                        subdistrict: locationIds[2].toString(),
-                                        suburb: locationIds[3].toString(),
-                                        phone_number: currentLocation?['phone_number'],
-                                        POR1s: itemList,
-                                        isSent: 1
-                                      )
-                                    )
-                                    .onError((error, stackTrace) {
-                                      insertLocal();
-                                      return Future.error(error.toString());
-                                    })
-                                    .then((_) {
-                                      Cart.remove(index: itemindex);
-                                      pushDashboard(context);
-                                      showSnackBar(context, snackBarComplete(
-                                        context: context,
-                                        content: 'Barang Berhasil di Pesan',
-                                        duration: const Duration(seconds: 2)
-                                      ));
-                                    });
-                                  }
-                                );
-                              },
-                              style: Styles.buttonForm(
-                                context: context,
+                                  borderRadius: BorderRadius.circular(25.7),
+                                  backgroundColor: Theme.of(context).colorScheme.primary.withBlue(100)
+                                ),
+                                label: const Text('Pembayaran'),
+                                icon: const Icon(Icons.arrow_drop_down)
                               ),
-                              label: const Text('Pembayaran'),
-                              icon: const Icon(Icons.expand_more)
-                            )
-                          ],
+                              Row(
+                                children: [
+                                  Icon(Payment.payments[paymentType]['icon'], color: Theme.of(context).colorScheme.primary.withBlue(100)),
+                                  const SizedBox(width: 8),
+                                  Text(Payment.payments[paymentType]['name'], style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                    letterSpacing: 0,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w500,
+                                    color: Theme.of(context).colorScheme.primary.withBlue(100),
+                                  )),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                       Padding(
@@ -1042,7 +1083,38 @@ class _DeliveryWidgetState extends State<DeliveryWidget> {
                             )
                           ],
                         ),
-                      )
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            ElevatedButton.icon(
+                              onPressed: () {
+                                setState(() => isLoading = true);
+                                onConfirm(deliveryType, paymentType).whenComplete(() {
+                                  setState(() => isLoading = false);
+                                });
+                              },
+                              style: Styles.buttonForm(
+                                context: context,
+                                isLoading: isLoading
+                              ),
+                              icon: isLoading
+                              ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(strokeWidth: 2)
+                                )
+                              : const Icon(Icons.local_shipping),
+                              label: isLoading
+                              ? const Text('Memproses...')
+                              : const Text('Checkout')
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 12)
                     ],
                   );
                 }

@@ -4,6 +4,7 @@ import 'package:google_auth/functions/push.dart';
 import 'package:google_auth/styles/theme.dart';
 import 'package:google_auth/widgets/button.dart';
 import 'package:google_auth/widgets/handle.dart';
+import 'package:google_auth/widgets/listtile.dart';
 
 class AddressRoute extends StatefulWidget {
   const AddressRoute({super.key, required this.hero});
@@ -128,10 +129,11 @@ class _AddressRouteState extends State<AddressRoute> {
               FutureBuilder(
                 future: initDelivery(),
                 builder: (context, snapshot) {
-                  return ListRadioDelivery(
-                    value: snapshot.data.toString(),
+                  return ListTileOptions(
+                    title: 'Tipe Pengiriman',
+                    subtitle: snapshot.data.toString(),
                     options: deliveryTypes,
-                    onChanged: setDelivery,
+                    onChanged: setDelivery
                   );
                 }
               ),
@@ -427,76 +429,6 @@ class _CardAddressState extends State<CardAddress> {
             ),
           )
         ],
-      ),
-    );
-  }
-}
-
-class ListRadioDelivery extends StatefulWidget {
-  const ListRadioDelivery({super.key, required this.options, required this.value, required this.onChanged});
-
-  final List options;
-  final String value;
-  final Function onChanged;
-
-  @override
-  State<ListRadioDelivery> createState() => _ListRadioDeliveryState();
-}
-
-class _ListRadioDeliveryState extends State<ListRadioDelivery> {
-  @override
-  Widget build(BuildContext context) {
-    return Theme(
-      data: Theme.of(context).copyWith(
-        dividerColor: Colors.transparent,
-        splashColor: Theme.of(context).colorScheme.inversePrimary
-      ),
-      child: ListTileTheme(
-        dense: true,
-        minVerticalPadding: 0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: ExpansionTile(
-          leading: CircleAvatar(
-            radius: 20,
-            backgroundColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.5),
-            child: Icon(
-              Icons.local_shipping,
-              size: 24,
-              color: Theme.of(context).colorScheme.primary
-            ),
-          ),
-          trailing: const Icon(Icons.arrow_drop_down, size: 30),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          collapsedShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.25),
-          collapsedBackgroundColor: Theme.of(context).colorScheme.secondary.withOpacity(0.05),
-          title: Text('Tipe Pengiriman', style: Theme.of(context).textTheme.labelSmall?.copyWith(
-            color: Theme.of(context).colorScheme.secondary,
-          )),
-          subtitle: Text(widget.value, style: Theme.of(context).textTheme.labelLarge?.copyWith(
-            color: Theme.of(context).colorScheme.primary,
-            height: 0
-          )),
-          children: widget.options.map((element) {
-            return RadioListTile(
-              selected: element['name'] == widget.value,
-              value: element['name'],
-              groupValue: widget.value,
-              onChanged: (e) {
-                widget.onChanged(e);
-              },
-              selectedTileColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.5),
-              title: Text(element['name'], style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                height: 0
-              )),
-              subtitle: Text(element['description'], style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.secondary,
-                height: 0,
-                letterSpacing: 0
-              )),
-            );
-          }).toList(),
-        ),
       ),
     );
   }

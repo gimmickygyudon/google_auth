@@ -319,7 +319,7 @@ class _OrderDialogState extends State<OrderDialog> {
         toolbarHeight: kToolbarHeight,
         title: Padding(
           padding: const EdgeInsets.only(top: 10),
-          child: Image.asset(ItemDescription.getLogo(widget.name), width: 200, height: 100),
+          child: Image.asset(ItemDescription.getLogo(widget.name), height: 40),
         ),
         actions: [
           IconButton(

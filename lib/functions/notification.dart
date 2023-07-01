@@ -1,56 +1,49 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 class NotificationService {
-  NotificationService();
+  static final NotificationService _notificationService = NotificationService._internal();
 
-  final _localNotifications = FlutterLocalNotificationsPlugin();
+  factory NotificationService() {
+    return _notificationService;
+  }
 
-  Future<void> initializePlatformNotifications() async {
-    const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('ic_stat_justwater');
+  NotificationService._internal();
+  static final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
-    const InitializationSettings initializationSettings = InitializationSettings(
+  Future<void> init() async {
+  const AndroidInitializationSettings initializationSettingsAndroid = AndroidInitializationSettings('@mipmap/ic_notification');
+
+    const InitializationSettings initializationSettings =
+    InitializationSettings(
       android: initializationSettingsAndroid,
+      macOS: null
     );
 
-    await _localNotifications.initialize(initializationSettings);
+   await flutterLocalNotificationsPlugin.initialize(initializationSettings);
   }
+}
 
-  void onDidReceiveLocalNotification(int id, String? title, String? body, String? payload) {
-    print('id $id');
-  }
-
-  Future<NotificationDetails> notificationDetails() async {
-    AndroidNotificationDetails androidPlatformChannelSpecifics = const AndroidNotificationDetails(
-      'ibm.mobile',
-      'IBM Mobile',
-      groupKey: 'com.example.flutter_push_notifications',
-      channelDescription: 'channel description',
-      importance: Importance.max,
-      priority: Priority.max,
-      playSound: true,
-      ticker: 'ticker',
-      largeIcon: DrawableResourceAndroidBitmap('assets/logo IBM p C.png'),
+class NotificationBody {
+  static AndroidNotificationDetails androidPlatformChannelSpecifics =
+    const AndroidNotificationDetails(
+        'a',   //Required for Android 8.0 or after
+        'a', //Required for Android 8.0 or after
+        channelDescription: 'a', //Required for Android 8.0 or after
+        icon: '@mipmap/ic_notification',
+        largeIcon: DrawableResourceAndroidBitmap('@mipmap/ic_launcher_monochrome'),
+        importance: Importance.high,
+        priority: Priority.high
     );
 
-    await _localNotifications.getNotificationAppLaunchDetails();
-    NotificationDetails platformChannelSpecifics = NotificationDetails(android: androidPlatformChannelSpecifics);
+  static NotificationDetails platformChannelSpecifics = NotificationDetails(android: androidPlatformChannelSpecifics);
 
-    return platformChannelSpecifics;
-  }
-
-  Future<void> showLocalNotification({
-    required int id,
-    required String title,
-    required String body,
-    required String payload,
-  }) async {
-    final platformChannelSpecifics = await notificationDetails();
-    await _localNotifications.show(
+  static showNotification({required int id, required String title, required String body}) async {
+    await NotificationService.flutterLocalNotificationsPlugin.show(
       id,
       title,
       body,
       platformChannelSpecifics,
-      payload: payload,
+      payload: 'data'
     );
   }
 }

@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 
+import 'package:flutter/material.dart';
 import 'package:google_auth/functions/location.dart';
 import 'package:google_auth/functions/sql_client.dart';
 import 'package:path/path.dart';
@@ -67,6 +68,19 @@ class Payment {
       'isSent': isSent,
     };
   }
+
+  static List<Map> payments = [
+    {
+      'name': 'COD',
+      'icon': Icons.payment
+    }, {
+      'name': 'CASH',
+      'icon': Icons.money
+    }, {
+      'name': 'BANK',
+      'icon': Icons.local_atm
+    }
+  ];
 
   static Future<Database> initializeDatabaseLocal() async {
     var databasesPath = await getDatabasesPath();

@@ -9,32 +9,19 @@ import 'package:google_auth/widgets/radio.dart';
 Future<void> showPaymentSheet({
   required BuildContext context,
   required Function(int indexPaymentsType) onConfirm,
+  required int selectedIndex
 }) {
   AsyncMemoizer<List<String>> paymentsMemoizer = AsyncMemoizer();
 
-  List<Map> payments = [
-    {
-      'name': 'COD',
-      'icon': Icons.payment
-    }, {
-      'name': 'CASH',
-      'icon': Icons.money
-    }, {
-      'name': 'BANK',
-      'icon': Icons.local_atm
-    }
-  ];
-
   String? selected;
-  int selectedIndex = 1;
   Future<List<String>> getPayments() {
     return paymentsMemoizer.runOnce(() {
       return Payment.getPaymentType().then((value) {
         for (var i = 0; i < value.length; i++) {
-          payments[i]['name'] = value[i].toTitleCase();
+          Payment.payments[i]['name'] = value[i].toTitleCase();
         }
 
-        selected = value.first.toTitleCase();
+        selected = value[selectedIndex].toTitleCase();
         return value;
       });
     });
@@ -92,11 +79,11 @@ Future<void> showPaymentSheet({
                         ],
                       )
                     ),
-                    for (var i = 0; i < payments.length; i++)
+                    for (var i = 0; i < Payment.payments.length; i++)
                     PaymentRadioList(
-                      index: i + 1,
-                      payments: payments,
-                      payment: payments[i],
+                      index: i,
+                      payments: Payment.payments,
+                      payment: Payment.payments[i],
                       selected: selected,
                       onChanged: setPayment
                     ),
@@ -116,7 +103,10 @@ Future<void> showPaymentSheet({
                             onPressed: isLoading == true ? null : () {
                               setState(() => isLoading = true);
                               onConfirm(selectedIndex).whenComplete(() {
-                                setState(() => isLoading = false);
+                                setState(() {
+                                  isLoading = false;
+                                });
+                                Navigator.pop(context);
                               });
                             },
                             style: Styles.buttonFlat(context: context, isLoading: isLoading),
