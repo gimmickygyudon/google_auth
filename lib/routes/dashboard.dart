@@ -1,14 +1,17 @@
 import 'package:async/async.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:google_auth/routes/belanja/dashboard.dart';
 import 'package:google_auth/routes/beranda/dashboard.dart';
 import 'package:google_auth/routes/gallery/dashboard.dart';
 import 'package:google_auth/routes/keluhan/dashboard.dart';
+import 'package:google_auth/styles/theme.dart';
 import 'package:google_auth/widgets/navigationbar.dart';
 import 'package:google_auth/widgets/cart.dart';
 import 'package:google_auth/widgets/profile.dart';
 import 'package:google_auth/widgets/snackbar.dart';
+import 'package:provider/provider.dart';
 import '../functions/sqlite.dart';
 import '../strings/user.dart';
 import '../widgets/image.dart';
@@ -27,18 +30,15 @@ class _DashboardRouteState extends State<DashboardRoute> {
   late int currentPage;
   late PageController _pageController;
 
-  List<Widget> routes = [
-    const BerandaRoute(),
-    Container(),
-    const BelanjaRoute(),
-    const GalleryRoute(),
-    const KeluhanRoute(),
-    Container(),
-  ];
+  List<Widget?> routes = List.generate(6, (index) => null);
+  late List<bool> routesLoading;
 
   @override
   void initState() {
     currentPage = widget.currentPage ?? 0;
+    routesLoading = List.generate(routes.length, (index) => true);
+    setRoutes();
+
     _pageController = PageController(initialPage: currentPage);
 
     Cart.getItems();
@@ -52,9 +52,32 @@ class _DashboardRouteState extends State<DashboardRoute> {
     super.dispose();
   }
 
+  setRoutes() {
+    routes = [
+      const BerandaRoute(),
+      Container(),
+      const BelanjaRoute(),
+      GalleryRoute(isLoading: routesLoading[3]),
+      const KeluhanRoute(),
+      Container(),
+    ];
+  }
+
   void changePage(int page) {
     setState(() {
+      if (page == 3) {
+        borderCircular = 0;
+        showtoolbar = false;
+        toolbarHeight = 0;
+      } else {
+        borderCircular = 16;
+        showtoolbar = true;
+        toolbarHeight = kToolbarHeight;
+      }
       currentPage = page;
+      routesLoading.setAll(0, List.generate(routesLoading.length, (index) => true));
+      routesLoading[currentPage] = false;
+      setRoutes();
     });
   }
 
@@ -74,78 +97,99 @@ class _DashboardRouteState extends State<DashboardRoute> {
     });
   }
 
+  double toolbarHeight = kToolbarHeight;
+  bool showtoolbar = true;
+  double borderCircular = 12;
+  BorderRadius borderRadiusAppBar() {
+    return BorderRadius.only(bottomLeft: Radius.circular(borderCircular), bottomRight: Radius.circular(borderCircular));
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      endDrawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            UserAccountsDrawerHeader(
-              currentAccountPicture: PhotoProfile(photo: currentUser['photo_url'], size: 58, color: Theme.of(context).colorScheme.surface),
-              currentAccountPictureSize: const Size(58, 58),
-              accountName: Text(currentUser['user_name'], style: TextStyle(color: Theme.of(context).colorScheme.surface)),
-              accountEmail: Text(currentUser['user_email'], style: TextStyle(color: Theme.of(context).colorScheme.surfaceVariant,fontSize: 12))
-            ),
-          ],
-        ),
-      ),
-      appBar: AppBar(
-        elevation: 2,
-        shadowColor: Theme.of(context).shadowColor,
-        automaticallyImplyLeading: false,
-        toolbarHeight: kToolbarHeight,
-        flexibleSpace: FlexibleSpaceBar(
-          background: ClipRRect(
-            child: Container(
-              foregroundDecoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.bottomCenter,
-                  end: Alignment.topCenter,
-                  colors: [
-                    Theme.of(context).colorScheme.primary.withOpacity(0.65),
-                    Theme.of(context).colorScheme.primary,
-                  ]
-                )
+    return Consumer<ThemeNotifier>(
+      builder: (context, theme, child) => Scaffold(
+        extendBody: showtoolbar == false ? true : false,
+        endDrawer: Drawer(
+          child: ListView(
+            padding: EdgeInsets.zero,
+            children: [
+              UserAccountsDrawerHeader(
+                currentAccountPicture: PhotoProfile(photo: currentUser['photo_url'], size: 58, color: Theme.of(context).colorScheme.surface),
+                currentAccountPictureSize: const Size(58, 58),
+                accountName: Text(currentUser['user_name'], style: TextStyle(color: Theme.of(context).colorScheme.surface)),
+                accountEmail: Text(currentUser['user_email'], style: TextStyle(color: Theme.of(context).colorScheme.surfaceVariant,fontSize: 12))
               ),
-              child: Image.asset('assets/background02.png', fit: BoxFit.cover)
-            )
-          )
+            ],
+          ),
         ),
-        title: Row(
-          children: [
-            IconButton(
-              style: const ButtonStyle(visualDensity: VisualDensity.compact),
-              onPressed: () {}, icon: const Icon(Icons.search), color: Theme.of(context).colorScheme.surface
+        appBar: showtoolbar ? PreferredSize(
+          preferredSize: Size.fromHeight(toolbarHeight),
+          child: AppBar(
+            elevation: 8,
+            shadowColor: theme.darkMode ? Theme.of(context).colorScheme.onPrimary.withOpacity(0.5) : Theme.of(context).colorScheme.inversePrimary.withOpacity(0.5),
+            automaticallyImplyLeading: false,
+            systemOverlayStyle: const SystemUiOverlayStyle(
+              statusBarColor: Colors.transparent,
+              statusBarIconBrightness: Brightness.light
             ),
-            const SizedBox(width: 4),
-            Text('Hi, ${currentUser['user_name']}',
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                color: Theme.of(context).colorScheme.surface
+            shape: RoundedRectangleBorder(borderRadius: borderRadiusAppBar()),
+            flexibleSpace: FlexibleSpaceBar(
+              background: ClipRRect(
+                borderRadius: borderRadiusAppBar(),
+                child: Container(
+                  foregroundDecoration: BoxDecoration(
+                    borderRadius: borderRadiusAppBar(),
+                    gradient: LinearGradient(
+                      begin: Alignment.bottomCenter,
+                      end: Alignment.topCenter,
+                      colors: [
+                        theme.darkMode ? Theme.of(context).colorScheme.onPrimary.withOpacity(0.9) : Theme.of(context).colorScheme.inversePrimary.withOpacity(0.9),
+                        theme.darkMode ? Theme.of(context).colorScheme.onPrimaryContainer : Theme.of(context).colorScheme.primary,
+                      ],
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 1),
+                    child: Image.asset('assets/background02.png', fit: BoxFit.cover),
+                  )
+                )
               )
             ),
-          ],
-        ),
-        titleSpacing: 12,
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        actions: [
-          CartWidget(color: Theme.of(context).colorScheme.surface),
-          IconButton(onPressed: () {}, icon: const Icon(Icons.notifications_none), color: Theme.of(context).colorScheme.surface,
-            style: const ButtonStyle(visualDensity: VisualDensity.compact)
+            title: Row(
+              children: [
+                IconButton(
+                  style: const ButtonStyle(visualDensity: VisualDensity.compact),
+                  onPressed: () {}, icon: const Icon(Icons.search), color: Colors.white
+                ),
+                const SizedBox(width: 4),
+                Text('Hi, ${currentUser['user_name']}',
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    color: Colors.white
+                  )
+                ),
+              ],
+            ),
+            titleSpacing: 12,
+            actions: [
+              const CartWidget(color: Colors.white),
+              IconButton(onPressed: () {}, icon: const Icon(Icons.notifications_none), color: Colors.white,
+                style: const ButtonStyle(visualDensity: VisualDensity.compact)
+              ),
+              const SizedBox(width: 6),
+              const ProfileMenu(color: Colors.white),
+              const SizedBox(width: 12),
+            ],
           ),
-          const SizedBox(width: 6),
-          const ProfileMenu(),
-          const SizedBox(width: 12),
-        ],
+        ) : null,
+        body: PageView.builder(
+          controller: _pageController,
+          onPageChanged: (value) => setState(() => changePage(value)),
+          itemCount: 5,
+          itemBuilder: (context, index) => routes[index]
+        ),
+        bottomNavigationBar: BottomNavigation(currentPage: currentPage, pageController: _pageController, changePage: changePage)
+        // bottomNavigationBar: NavigationBarBottom(currentPage: currentPage, pageController: _pageController, changePage: changePage),
       ),
-      body: PageView.builder(
-        controller: _pageController,
-        onPageChanged: (value) => setState(() => changePage(value)),
-        itemCount: 5,
-        itemBuilder: (context, index) => routes[index]
-      ),
-      bottomNavigationBar: BottomNavigation(currentPage: currentPage, pageController: _pageController, changePage: changePage)
-      // bottomNavigationBar: NavigationBarBottom(currentPage: currentPage, pageController: _pageController, changePage: changePage),
     );
   }
 }

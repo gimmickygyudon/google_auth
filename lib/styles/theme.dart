@@ -271,7 +271,7 @@ class Styles {
         } else if (states.contains(MaterialState.disabled)) {
           return Theme.of(context).colorScheme.secondary.withOpacity(0.1);
         } else {
-          return foregroundColor ?? Theme.of(context).colorScheme.primary;
+          return backgroundColor ?? Theme.of(context).colorScheme.primary;
         }
       }),
       foregroundColor: MaterialStateProperty.resolveWith((states) {
@@ -280,7 +280,7 @@ class Styles {
         } else if (states.contains(MaterialState.disabled)) {
           return null;
         } else {
-          return backgroundColor ?? Theme.of(context).colorScheme.surface;
+          return foregroundColor ?? Theme.of(context).colorScheme.surface;
         }
       }),
       overlayColor: MaterialStateProperty.resolveWith((states) {

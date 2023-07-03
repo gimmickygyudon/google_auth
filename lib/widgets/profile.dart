@@ -92,7 +92,7 @@ class _ProfileMenuState extends State<ProfileMenu> {
               dense: true,
               contentPadding: const EdgeInsets.only(left: 6),
               leading: const Icon(Icons.dark_mode),
-              title: const Text('Mode Gelap'),
+              title: const Text('Mode Malam'),
               trailing: Switch(
                 value: theme.darkMode,
                 onChanged: (value) {

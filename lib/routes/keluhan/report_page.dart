@@ -232,7 +232,7 @@ class _LaporanRouteState extends State<LaporanRoute> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Padding(
-                          padding: const EdgeInsets.only(right: 6, top: 3),
+                          padding: const EdgeInsets.only(right: 6, top: 2),
                           child: laporan.isEmpty
                           ? Icon(Icons.info, size: 16, color: Theme.of(context).colorScheme.primary)
                           : Icon(Icons.info_outline, size: 16, color: Theme.of(context).colorScheme.secondary),
@@ -358,6 +358,7 @@ class _LaporanRouteState extends State<LaporanRoute> {
                 alignment: Alignment.bottomLeft,
                 child: SizedBox(
                   height: laporan.isNotEmpty ? 0 : 150,
+                  width: double.infinity,
                   child: Visibility(
                     visible: laporan.isEmpty,
                     child: ListView.builder(

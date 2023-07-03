@@ -74,32 +74,26 @@ class _ItemRouteState extends State<ItemRoute> {
               ],
               flexibleSpace: FlexibleSpaceBar(
                 titlePadding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
-                title: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Image(image: AssetImage(widget.logo), height: 36, width: 200, alignment: Alignment.centerLeft),
-                      ],
-                    ),
-                  ],
-                ),
-                background: ClipRRect(
-                  borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(12), bottomRight: Radius.circular(12),),
-                  child: Container(
-                    foregroundDecoration: BoxDecoration(
-                      border: Border(bottom: BorderSide(color: widget.color, width: 3)),
-                      gradient: LinearGradient(
-                        begin: Alignment.bottomCenter,
-                        end: Alignment.topCenter,
-                        colors: [
-                          Theme.of(context).hoverColor,
-                          Theme.of(context).colorScheme.shadow,
-                        ]
-                      )
-                    ),
-                    child: Image.asset(widget.background,
-                      fit: BoxFit.cover,
+                title: Image(image: AssetImage(widget.logo), height: 36, width: 200, alignment: Alignment.centerLeft),
+                background: Hero(
+                  tag: widget.hero,
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.only(bottomLeft: Radius.circular(12), bottomRight: Radius.circular(12),),
+                    child: Container(
+                      foregroundDecoration: BoxDecoration(
+                        border: Border(bottom: BorderSide(color: widget.color, width: 3)),
+                        gradient: LinearGradient(
+                          begin: Alignment.bottomCenter,
+                          end: Alignment.topCenter,
+                          colors: [
+                            Theme.of(context).hoverColor,
+                            Theme.of(context).colorScheme.shadow,
+                          ]
+                        )
+                      ),
+                      child: Image.asset(widget.background,
+                        fit: BoxFit.cover,
+                      ),
                     ),
                   ),
                 ),

@@ -539,12 +539,15 @@ class _AddAddressDialogState extends State<AddAddressDialog> {
   late TextEditingController phonenumberController;
 
   late ValueNotifier isValidated;
+  late List _locationName;
 
   @override
   void initState() {
     nameController = TextEditingController();
     phonenumberController = TextEditingController();
     isValidated = ValueNotifier(false);
+
+    _locationName = ['Provinsi', 'Kota / Kabupaten', 'Kecamatan', 'Daerah', 'Alamat'];
     super.initState();
   }
 
@@ -588,11 +591,22 @@ class _AddAddressDialogState extends State<AddAddressDialog> {
               content: SingleChildScrollView(
                 child: ListBody(
                   children: <Widget>[
-                    const SizedBox(height: 6),
-                    Text('Tambahkan alamat ini ke lokasi pemesanan.', style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      letterSpacing: 0,
-                      color: Theme.of(context).colorScheme.secondary
-                    )),
+                    const SizedBox(height: 12),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.help_outline, color: Theme.of(context).colorScheme.secondary),
+                        const SizedBox(width: 8),
+                        Flexible(
+                          child: Text('Tambahkan alamat ini ke lokasi pemesanan.', style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            letterSpacing: 0,
+                            height: 0,
+                            color: Theme.of(context).colorScheme.secondary
+                          )),
+                        ),
+                      ],
+                    ),
                     Container(
                       margin: const EdgeInsets.symmetric(vertical: 24),
                       height: 1,
@@ -602,43 +616,31 @@ class _AddAddressDialogState extends State<AddAddressDialog> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Icon(widget.locations[4]['icon'], size: 20),
-                            const SizedBox(width: 8),
-                            Flexible(child: Text(widget.locations[4]['value'], style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              height: 0
-                            ))),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Icon(widget.locations[2]['icon'], size: 20),
-                            const SizedBox(width: 8),
-                            Flexible(child: Text(widget.locations[2]['value'], style: Theme.of(context).textTheme.bodySmall)),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Icon(widget.locations[1]['icon'], size: 20),
-                            const SizedBox(width: 8),
-                            Flexible(child: Text(widget.locations[1]['value'], style: Theme.of(context).textTheme.bodySmall)),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Icon(widget.locations[0]['icon'], size: 20),
-                            const SizedBox(width: 8),
-                            Flexible(child: Text(widget.locations[0]['value'], style: Theme.of(context).textTheme.bodySmall)),
-                          ],
-                        ),
+                        for (var i = widget.locations.length - 1; i >= 0; i--) ...[
+                          Visibility(
+                            visible: i == 3 ? false : true,
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Icon(widget.locations[i]['icon'], size: 20, color: Theme.of(context).colorScheme.primary),
+                                const SizedBox(width: 8),
+                                Flexible(child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(_locationName[i], style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: Theme.of(context).colorScheme.primary
+                                    )),
+                                    const SizedBox(height: 4),
+                                    Text(widget.locations[i]['value'], style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                      height: 0
+                                    )),
+                                  ],
+                                )),
+                              ],
+                            ),
+                          ),
+                          if(i != 3) const SizedBox(height: 16),
+                        ],
                         const SizedBox(height: 30),
                         TextField(
                           onChanged: (value) => setValidate(),

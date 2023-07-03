@@ -44,7 +44,7 @@ class _MyAppState extends State<MyApp> {
       builder: (context, theme, child) => MediaQuery(
         data: MediaQuery.of(context).copyWith(
           alwaysUse24HourFormat: true,
-          textScaleFactor: 1.0
+          textScaleFactor: 1.3
         ),
         child: GestureDetector(
           onTap: () {

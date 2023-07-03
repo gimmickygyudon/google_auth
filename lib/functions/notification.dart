@@ -31,8 +31,8 @@ class NotificationBody {
         channelDescription: 'a', //Required for Android 8.0 or after
         icon: '@mipmap/ic_notification',
         largeIcon: DrawableResourceAndroidBitmap('@mipmap/ic_launcher_monochrome'),
-        importance: Importance.high,
-        priority: Priority.high
+        importance: Importance.max,
+        priority: Priority.max
     );
 
   static NotificationDetails platformChannelSpecifics = NotificationDetails(android: androidPlatformChannelSpecifics);

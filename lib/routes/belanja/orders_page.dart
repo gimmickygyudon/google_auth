@@ -19,9 +19,9 @@ import 'package:google_auth/widgets/profile.dart';
 import '../../functions/conversion.dart';
 
 class OrdersPageRoute extends StatefulWidget {
-  const OrdersPageRoute({super.key, required this.hero});
+  const OrdersPageRoute({super.key, this.page});
 
-  final String hero;
+  final int? page;
 
   @override
   State<OrdersPageRoute> createState() => _OrdersPageRouteState();
@@ -47,7 +47,7 @@ class _OrdersPageRouteState extends State<OrdersPageRoute> with SingleTickerProv
   @override
   void initState() {
     _scrollController = ScrollController();
-    _tabController = TabController(length: pages.length, vsync: this);
+    _tabController = TabController(length: pages.length, vsync: this, initialIndex: widget.page ?? 0);
     super.initState();
   }
 
@@ -102,7 +102,7 @@ class OrderPage extends StatefulWidget {
 }
 
 class _OrderPageState extends State<OrderPage> {
-  final ValueNotifier<bool> orderOpen = ValueNotifier(false);
+  final ValueNotifier<bool> orderOpen = ValueNotifier(true);
   List<bool> checkedItems = List.empty(growable: true);
   bool firstInit = false;
 
@@ -1054,108 +1054,123 @@ class CurrentAddressCard extends StatelessWidget {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              Text('Alamat Pengiriman', style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                                color: Theme.of(context).colorScheme.surface,
-                                              )),
-                                            ],
-                                          ),
-                                          Row(
-                                            children: [
-                                              Text(snapshot?['name'], style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                                color: Theme.of(context).colorScheme.inversePrimary,
-                                                fontWeight: FontWeight.w500,
-                                                letterSpacing: 0,
-                                              )),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                      ElevatedButton(
-                                        onPressed: () => pushAddress(context: context, hero: snapshot?['name']),
-                                        style: Styles.buttonInverseFlatSmall(context: context),
-                                        child: const Text('Ubah'),
-                                      )
-                                    ],
-                                  ),
-                                  const SizedBox(height: 24),
-                                  Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      CircleAvatar(
-                                        radius: 18,
-                                        child: Icon(Icons.location_on, color: Theme.of(context).colorScheme.primary)
-                                      ),
-                                      const SizedBox(width: 12),
-                                      Expanded(
+                                      Padding(
+                                        padding: const EdgeInsets.all(8),
                                         child: Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
-                                            Text(snapshot?['district'],
-                                              textAlign: TextAlign.justify,
-                                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                                color: Theme.of(context).colorScheme.inversePrimary,
-                                                fontWeight: FontWeight.w500,
-                                              ),
+                                            Row(
+                                              children: [
+                                                Text('Alamat Pengiriman', style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                                  color: Theme.of(context).colorScheme.inversePrimary,
+                                                )),
+                                              ],
                                             ),
-                                            Text('+62 ${snapshot?['phone_number']}',
-                                              textAlign: TextAlign.justify,
-                                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                                color: Theme.of(context).colorScheme.surface,
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            ),
-                                            const SizedBox(height: 12),
-                                            Text('${snapshot?['street']}, ${snapshot?['subdistrict']}, ${snapshot?['district']}, ${snapshot?['province']}',
-                                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                                color: Theme.of(context).colorScheme.surfaceVariant,
-                                                fontWeight: FontWeight.w500,
-                                                letterSpacing: 0,
-                                                wordSpacing: 2,
-                                                height: 1.4
-                                              ),
+                                            Row(
+                                              children: [
+                                                Text(snapshot?['name'], style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                                  color: Theme.of(context).colorScheme.surface,
+                                                  fontWeight: FontWeight.w500,
+                                                )),
+                                              ],
                                             ),
                                           ],
                                         ),
                                       ),
+                                      Padding(
+                                        padding: const EdgeInsets.all(8.0),
+                                        child: OutlinedButton(
+                                          onPressed: () => pushAddress(context: context, hero: snapshot?['name']),
+                                          style: ButtonStyle(
+                                            backgroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.inversePrimary.withOpacity(0.1)),
+                                            foregroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.inversePrimary),
+                                            side: MaterialStatePropertyAll(BorderSide(color: Theme.of(context).colorScheme.inversePrimary)),
+                                          ),
+                                          child: const Text('Ubah'),
+                                        ),
+                                      )
                                     ],
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                    child: Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        CircleAvatar(
+                                          radius: 18,
+                                          child: Icon(Icons.location_on, color: Theme.of(context).colorScheme.primary)
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(snapshot?['district'],
+                                                textAlign: TextAlign.justify,
+                                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                                  color: Theme.of(context).colorScheme.inversePrimary,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                              Text('+62 ${snapshot?['phone_number']}',
+                                                textAlign: TextAlign.justify,
+                                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                                  color: Theme.of(context).colorScheme.surface,
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                              const SizedBox(height: 12),
+                                              Text('${snapshot?['street']}, ${snapshot?['subdistrict']}, ${snapshot?['district']}, ${snapshot?['province']}',
+                                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                                  color: Theme.of(context).colorScheme.surfaceVariant,
+                                                  fontWeight: FontWeight.w500,
+                                                  letterSpacing: 0,
+                                                  wordSpacing: 2,
+                                                  height: 1.4
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                   const SizedBox(height: 20),
-                                  Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      CircleAvatar(
-                                        radius: 18,
-                                        child: Icon(Icons.local_shipping, color: Theme.of(context).colorScheme.primary)
-                                      ),
-                                      const SizedBox(width: 12),
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text('Tipe Pengiriman', style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                            fontWeight: FontWeight.w500,
-                                            color: Theme.of(context).colorScheme.inversePrimary,
-                                          )),
-                                          const SizedBox(height: 4),
-                                          Text(deliveryType ?? 'Memuat Data...',
-                                            textAlign: TextAlign.justify,
-                                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                              color: Theme.of(context).colorScheme.surface,
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                    child: Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        CircleAvatar(
+                                          radius: 18,
+                                          child: Icon(Icons.local_shipping, color: Theme.of(context).colorScheme.primary)
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text('Tipe Pengiriman', style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                               fontWeight: FontWeight.w500,
+                                              color: Theme.of(context).colorScheme.inversePrimary,
+                                            )),
+                                            const SizedBox(height: 4),
+                                            Text(deliveryType ?? 'Memuat Data...',
+                                              textAlign: TextAlign.justify,
+                                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                                color: Theme.of(context).colorScheme.surface,
+                                                fontWeight: FontWeight.w500,
+                                              ),
                                             ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
+                                          ],
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                  if (checkedItems == null) const SizedBox(height: 8),
+                                  if (checkedItems == null) const SizedBox(height: 12),
                                   if (checkedItems != null) Padding(
-                                    padding: const EdgeInsets.only(top: 16),
+                                    padding: const EdgeInsets.only(top: 24),
                                     child: Align(
                                       alignment: Alignment.bottomRight,
                                       child: Row(
@@ -1174,8 +1189,8 @@ class CurrentAddressCard extends StatelessWidget {
                                             style: Styles.buttonFlat(
                                               context: context,
                                               borderRadius: BorderRadius.circular(12),
-                                              backgroundColor: Theme.of(context).colorScheme.inverseSurface,
-                                              foregroundColor: Theme.of(context).colorScheme.inversePrimary
+                                              backgroundColor: Theme.of(context).colorScheme.surface,
+                                              foregroundColor: Theme.of(context).colorScheme.primary
                                             ),
                                             icon: const Icon(Icons.arrow_forward, size: 22),
                                             label: const Text('Checkout'),

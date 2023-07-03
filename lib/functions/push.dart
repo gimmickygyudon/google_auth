@@ -147,12 +147,11 @@ void pushItemPage({
     required String brand, hero, background, logo,
     required Color color,
   }) {
-  Navigator.push(context, transitionShared(
-    duration: const Duration(milliseconds: 400),
-    reverseDuration: const Duration(milliseconds: 400),
-    transitionType: SharedAxisTransitionType.vertical,
-    page: ItemRoute(items: items, hero: hero, background: background, color: color, logo: logo, brand: brand)
-  ));
+  Navigator.push(context, MaterialPageRoute(
+    builder: (context) {
+      return ItemRoute(items: items, hero: hero, background: background, color: color, logo: logo, brand: brand);
+    })
+  );
 }
 
 void pushItemDetailPage({
@@ -190,10 +189,10 @@ Future<void> launchURL({required String url}) async {
   }
 }
 
-void pushOrdersPage({required BuildContext context, required String hero}) {
+void pushOrdersPage({required BuildContext context, int? page}) {
   Navigator.push(context, MaterialPageRoute(
     builder: (context) {
-      return OrdersPageRoute(hero: hero);
+      return OrdersPageRoute(page: page);
     })
   );
 }

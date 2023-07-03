@@ -708,7 +708,24 @@ class _DeliveryWidgetState extends State<DeliveryWidget> {
       return Future.error(error.toString());
     });
 
-    insertLocal() {
+    void notif(Map value) {
+      Cart.remove(index: itemindex);
+      pushDashboard(context);
+      showSnackBar(context, snackBarComplete(
+        context: context,
+        content: 'Barang Berhasil di Pesan',
+        duration: const Duration(seconds: 2)
+      ));
+
+      int id() => (value['id_ousr'] is String) ? int.parse(value['id_ousr']) : value['id_ousr'];
+      NotificationBody.showNotification(
+        id: id(),
+        title: '${value['delivery_name']}  -  $deliveryType',
+        body: 'Barang Berhasil di Pesan.\nLihat Riwayat Pesanan Untuk Lebih Lengkapnya',
+      );
+    }
+
+    void insertLocal() {
       Payment.insertPaymentLocal(
         Payment(
           id_opor: null,
@@ -730,15 +747,7 @@ class _DeliveryWidgetState extends State<DeliveryWidget> {
           POR1s: jsonEncode(itemList),
           isSent: 0
         )
-      ).then((value) {
-        Cart.remove(index: itemindex);
-        pushDashboard(context);
-        showSnackBar(context, snackBarComplete(
-          context: context,
-          content: 'Barang Berhasil di Pesan',
-          duration: const Duration(seconds: 2)
-        ));
-      });
+      ).then((value) => notif(value.toMap()));
     }
 
     List<int> locationIds = await LocationManager.getLocationsId().then((locationIds) async {
@@ -772,21 +781,7 @@ class _DeliveryWidgetState extends State<DeliveryWidget> {
       insertLocal();
       return Future.error(error.toString());
     })
-    .then((value) {
-      Cart.remove(index: itemindex);
-      pushDashboard(context);
-      showSnackBar(context, snackBarComplete(
-        context: context,
-        content: 'Barang Berhasil di Pesan',
-        duration: const Duration(seconds: 2)
-      ));
-
-      NotificationBody.showNotification(
-        id: value['id_ousr'],
-        title: '${value['delivery_name']}  -  $deliveryType',
-        body: 'Barang Berhasil di Pesan.\nLihat Riwayat Pesanan Untuk Lebih Lengkapnya',
-      );
-    });
+    .then((value) => notif(value));
   }
 
   @override
@@ -1027,7 +1022,7 @@ class _DeliveryWidgetState extends State<DeliveryWidget> {
                                   backgroundColor: Theme.of(context).colorScheme.primary.withBlue(100)
                                 ),
                                 label: const Text('Pembayaran'),
-                                icon: const Icon(Icons.arrow_drop_down)
+                                icon: const Icon(Icons.arrow_drop_down, size: 26)
                               ),
                               Row(
                                 children: [
@@ -1101,11 +1096,14 @@ class _DeliveryWidgetState extends State<DeliveryWidget> {
                                 isLoading: isLoading
                               ),
                               icon: isLoading
-                              ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(strokeWidth: 2)
-                                )
+                              ? const Padding(
+                                padding: EdgeInsets.only(right: 8),
+                                child: SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(strokeWidth: 2)
+                                  ),
+                              )
                               : const Icon(Icons.local_shipping),
                               label: isLoading
                               ? const Text('Memproses...')

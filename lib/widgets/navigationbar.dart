@@ -75,12 +75,13 @@ class _BottomNavigationState extends State<BottomNavigation> {
         ]
       ),
       child: BottomNavigationBar(
+        backgroundColor: widget.currentPage == 3 ? Colors.transparent : null,
         currentIndex: widget.currentPage,
         type: BottomNavigationBarType.fixed,
         showSelectedLabels: true,
         showUnselectedLabels: true,
-        selectedItemColor: Theme.of(context).colorScheme.primary,
-        unselectedItemColor: Theme.of(context).colorScheme.secondary,
+        selectedItemColor: widget.currentPage == 3 ? Colors.white : Theme.of(context).colorScheme.primary,
+        unselectedItemColor: widget.currentPage == 3 ? Colors.white70 : Theme.of(context).colorScheme.secondary,
         selectedLabelStyle: Theme.of(context).textTheme.bodySmall,
         unselectedLabelStyle: Theme.of(context).textTheme.bodySmall,
         onTap: (value) {

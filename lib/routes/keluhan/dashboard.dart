@@ -115,36 +115,27 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
           pinned: true,
           floating: true,
           automaticallyImplyLeading: false,
-          toolbarHeight: kToolbarHeight + 40,
+          toolbarHeight: kToolbarHeight + 50,
           forceElevated: true,
           surfaceTintColor: Theme.of(context).colorScheme.inversePrimary,
           actions: const [ SizedBox() ],
           title: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 12),
-                    Row(
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        Text('Kritik & Saran',
-                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            letterSpacing: -0.5,
-                            color: Theme.of(context).colorScheme.inverseSurface
-                          )
-                        ),
-                      ],
-                    ),
-                    Text('Pendapat Anda Sangatlah Diperlukan.',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(context).colorScheme.secondary,
-                        letterSpacing: 0
-                      )
-                    ),
-                  ],
+                Text('Kritik & Saran',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    letterSpacing: -0.5,
+                    color: Theme.of(context).colorScheme.inverseSurface
+                  )
+                ),
+                const SizedBox(height: 2),
+                Text('Kami Sangat Menghargai Pendapat Anda.',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.secondary,
+                    letterSpacing: 0
+                  )
                 ),
               ],
             ),
@@ -171,7 +162,7 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.location_history),
+                        Icon(Icons.chat),
                         SizedBox(width: 8),
                         Text('Pendapat Anda')
                       ],

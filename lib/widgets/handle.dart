@@ -4,11 +4,11 @@ import 'package:google_auth/styles/theme.dart';
 
 class HandleNoInternet extends StatelessWidget {
   const HandleNoInternet({
-    super.key, required this.message, this.color, this.onPressed, this.buttonText
+    super.key, required this.message, this.color, this.onPressed, this.buttonText, this.textColor
   });
 
   final String message;
-  final Color? color;
+  final Color? color, textColor;
   final Function? onPressed;
   final String? buttonText;
 
@@ -25,7 +25,7 @@ class HandleNoInternet extends StatelessWidget {
         const SizedBox(height: 24),
         Text(message, style: Theme.of(context).textTheme.bodyLarge?.copyWith(
           fontWeight: FontWeight.w500,
-          color: Theme.of(context).colorScheme.secondary,
+          color: textColor ?? Theme.of(context).colorScheme.secondary,
           letterSpacing: 0
         )),
         const SizedBox(height: 48),
@@ -42,9 +42,10 @@ class HandleNoInternet extends StatelessWidget {
 }
 
 class HandleLoading extends StatelessWidget {
-  const HandleLoading({super.key, this.strokeWidth});
+  const HandleLoading({super.key, this.strokeWidth, this.color});
 
   final double? strokeWidth;
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +57,7 @@ class HandleLoading extends StatelessWidget {
           width: 54,
           child: CircularProgressIndicator(
             strokeWidth: strokeWidth ?? 2,
-            color: Theme.of(context).colorScheme.primary,
+            color: color ?? Theme.of(context).colorScheme.primary,
           ),
         ),
       ],
@@ -74,7 +75,7 @@ class HandleEmptyCart extends StatelessWidget {
       child: Center(
         child: Column(
           children: [
-            Image.asset('assets/delivery01.png'),
+            Image.asset('assets/delivery01.png', height: 150),
             const SizedBox(height: 32),
             Row(
               mainAxisSize: MainAxisSize.min,
@@ -90,10 +91,10 @@ class HandleEmptyCart extends StatelessWidget {
             ),
             const SizedBox(height: 30),
             ElevatedButton.icon(
-              onPressed: () => pushDashboard(context, currentPage: 2),
+              onPressed: () => pushOrdersPage(context: context, page: 1),
               style: Styles.buttonLight(context: context),
-              icon: Image.asset('assets/logo IBM p C.png', height: 16),
-              label: const Text('Pesan Sekarang')
+              icon: const Icon(Icons.history),
+              label: const Text('Riwayat Pesanan')
             )
           ],
         ),
