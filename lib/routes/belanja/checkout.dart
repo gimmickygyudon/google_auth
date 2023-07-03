@@ -30,6 +30,7 @@ import 'package:sliding_up_panel/sliding_up_panel.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../functions/location.dart';
+import '../../functions/permission.dart';
 import '../../widgets/marker.dart';
 
 class CheckoutRoute extends StatefulWidget {
@@ -49,6 +50,8 @@ class _CheckoutRouteState extends State<CheckoutRoute>  with SingleTickerProvide
   void initState() {
     _tabController = TabController(length: 3, vsync: this);
     _scrollController = ScrollController();
+
+    PermissionService.requestNotification();
     super.initState();
   }
 
@@ -1028,9 +1031,8 @@ class _DeliveryWidgetState extends State<DeliveryWidget> {
                                 children: [
                                   Icon(Payment.payments[paymentType]['icon'], color: Theme.of(context).colorScheme.primary.withBlue(100)),
                                   const SizedBox(width: 8),
-                                  Text(Payment.payments[paymentType]['name'], style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                  Text(Payment.payments[paymentType]['name'], style: Theme.of(context).textTheme.labelSmall?.copyWith(
                                     letterSpacing: 0,
-                                    fontSize: 15,
                                     fontWeight: FontWeight.w500,
                                     color: Theme.of(context).colorScheme.primary.withBlue(100),
                                   )),

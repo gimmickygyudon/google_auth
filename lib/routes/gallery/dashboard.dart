@@ -88,27 +88,59 @@ class _GalleryRouteState extends State<GalleryRoute> {
                       return const Center(child: HandleLoading(strokeWidth: 4, color: Colors.white54));
                     } else if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
                       return SizedBox(
-                        height: 140,
+                        height: 250,
+                        width: double.infinity,
                         child: ListView.builder(
-                        itemCount: snapshot.data.length,
-                        padding: const EdgeInsets.fromLTRB(30, 0, 0, 24),
-                        scrollDirection: Axis.horizontal,
-                        itemBuilder: (context, index) {
-                          return ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Padding(
+                          itemCount: snapshot.data.length,
+                          padding: const EdgeInsets.fromLTRB(30, 0, 0, 24),
+                          scrollDirection: Axis.horizontal,
+                          itemBuilder: (context, index) {
+                            return Padding(
                               padding: const EdgeInsets.only(right: 12),
-                              child: InkWell(
-                                onHover: (value) {},
-                                onTap: () => launchURL(url: 'https://www.youtube.com/watch?v=${snapshot.data[index]['id']}'),
-                                child: Ink(
-                                  width: 180,
-                                  child: Image.network('https://img.youtube.com/vi/${snapshot.data[index]['id']}/0.jpg', fit: BoxFit.cover),
+                              child: Card(
+                                elevation: 12,
+                                surfaceTintColor: Colors.transparent,
+                                color: Theme.of(context).colorScheme.primary,
+                                margin: EdgeInsets.zero,
+                                clipBehavior: Clip.antiAlias,
+                                child: InkWell(
+                                  onHover: (value) {},
+                                  onTap: () => launchURL(url: 'https://www.youtube.com/watch?v=${snapshot.data[index]['id']}'),
+                                  child: SizedBox(
+                                    width: 210,
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Image.network('https://img.youtube.com/vi/${snapshot.data[index]['id']}/0.jpg', fit: BoxFit.cover),
+                                        Container(color: Theme.of(context).colorScheme.inversePrimary, width: double.infinity, height: 2),
+                                        Padding(
+                                          padding: const EdgeInsets.all(8),
+                                          child: Row(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Padding(
+                                                padding: const EdgeInsets.only(top: 1),
+                                                child: Icon(Icons.play_circle_outline, color: Theme.of(context).colorScheme.inversePrimary, size: 16),
+                                              ),
+                                              const SizedBox(width: 6),
+                                              Flexible(
+                                                child: Text('${snapshot.data[index]['name']}', style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                                  color: Theme.of(context).colorScheme.surface,
+                                                  fontSize: 10,
+                                                  letterSpacing: 0
+                                                )),
+                                              ),
+                                            ],
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
-                          );
-                        }),
+                            );
+                          }
+                        ),
                       );
                     } else {
                       return Center(

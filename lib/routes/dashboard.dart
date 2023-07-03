@@ -1,6 +1,7 @@
 import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_auth/functions/permission.dart';
 
 import 'package:google_auth/routes/belanja/dashboard.dart';
 import 'package:google_auth/routes/beranda/dashboard.dart';
@@ -9,6 +10,7 @@ import 'package:google_auth/routes/keluhan/dashboard.dart';
 import 'package:google_auth/styles/theme.dart';
 import 'package:google_auth/widgets/navigationbar.dart';
 import 'package:google_auth/widgets/cart.dart';
+import 'package:google_auth/widgets/notification.dart';
 import 'package:google_auth/widgets/profile.dart';
 import 'package:google_auth/widgets/snackbar.dart';
 import 'package:provider/provider.dart';
@@ -43,6 +45,7 @@ class _DashboardRouteState extends State<DashboardRoute> {
 
     Cart.getItems();
     logUser();
+    PermissionService.requestNotification();
     super.initState();
   }
 
@@ -170,14 +173,13 @@ class _DashboardRouteState extends State<DashboardRoute> {
               ],
             ),
             titleSpacing: 12,
-            actions: [
-              const CartWidget(color: Colors.white),
-              IconButton(onPressed: () {}, icon: const Icon(Icons.notifications_none), color: Colors.white,
-                style: const ButtonStyle(visualDensity: VisualDensity.compact)
-              ),
-              const SizedBox(width: 6),
-              const ProfileMenu(color: Colors.white),
-              const SizedBox(width: 12),
+            actions: const [
+              CartWidget(color: Colors.white),
+              SizedBox(width: 8),
+              NotificationMenu(),
+              SizedBox(width: 16),
+              ProfileMenu(color: Colors.white),
+              SizedBox(width: 12),
             ],
           ),
         ) : null,

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:google_auth/functions/permission.dart';
 import 'package:google_auth/functions/push.dart';
+import 'package:google_auth/widgets/notification.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../../strings/user.dart';
 
@@ -10,11 +13,34 @@ class BerandaRoute extends StatefulWidget {
   State<BerandaRoute> createState() => _BerandaRouteState();
 }
 
-class _BerandaRouteState extends State<BerandaRoute> {
+class _BerandaRouteState extends State<BerandaRoute> with WidgetsBindingObserver {
+
+  late Future _checkNotification;
 
   @override
   void initState() {
+    WidgetsBinding.instance.addObserver(this);
+    _checkNotification = PermissionService.checkNotification().isDenied;
     super.initState();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        if (await PermissionService.checkNotification().isDenied == false) {
+          setState(() => _checkNotification = PermissionService.checkNotification().isDenied);
+        }
+        break;
+      case AppLifecycleState.inactive:
+        break;
+      case AppLifecycleState.paused:
+        break;
+      case AppLifecycleState.detached:
+        break;
+      case AppLifecycleState.hidden:
+        break;
+    }
   }
 
   @override
@@ -30,6 +56,20 @@ class _BerandaRouteState extends State<BerandaRoute> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  FutureBuilder(
+                    future: _checkNotification,
+                    builder: (context, snapshot) {
+                      print('permission denied: ${snapshot.data}');
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const SizedBox();
+                      } else if (snapshot.connectionState == ConnectionState.done && snapshot.data == true) {
+                        return const Padding(
+                          padding: EdgeInsets.fromLTRB(4, 0, 4, 16),
+                          child: NotificationPermissionWidget(title: 'Layanan Notifikasi Ditolak'),
+                        );
+                      } else { return const SizedBox(); }
+                    }
+                  ),
                   Card(
                     color: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.35),
                     elevation: 0,

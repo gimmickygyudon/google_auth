@@ -63,6 +63,7 @@ dependencies:
   flutter_localization: ^0.1.12
   flutter_local_notifications: ^15.0.0
   firebase_messaging: ^14.6.4
+  permission_handler: ^10.4.1
 
 flutter_launcher_icons:
   android: "launcher_icon"

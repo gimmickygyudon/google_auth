@@ -102,7 +102,7 @@ class OrderPage extends StatefulWidget {
 }
 
 class _OrderPageState extends State<OrderPage> {
-  final ValueNotifier<bool> orderOpen = ValueNotifier(true);
+  final ValueNotifier<bool> orderOpen = ValueNotifier(false);
   List<bool> checkedItems = List.empty(growable: true);
   bool firstInit = false;
 
@@ -602,13 +602,13 @@ class _ListOrderHistoryState extends State<ListOrderHistory> {
               ),
               child: ExpansionTile(
                 backgroundColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.05),
-                title: Text(widget.isLocal ? '# 00${widget.index + 1}' : 'Pesanan: ${widget.item['purchase_order_code']}', style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                title: Text(widget.isLocal ? '# 00${widget.index + 1}' : 'Pesanan: ${widget.item['purchase_order_code']}', style: Theme.of(context).textTheme.labelMedium?.copyWith(
                   letterSpacing: 0
                 )),
                 subtitle: IntrinsicHeight(
                   child: Row(
                     children: [
-                      Text('Dikirim  -  ${widget.item['delivery_date']}', style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      Text('${widget.item['delivery_date']}', style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         letterSpacing: 0,
                         color: Theme.of(context).colorScheme.secondary
                       )),
@@ -705,7 +705,7 @@ class _ListOrderHistoryState extends State<ListOrderHistory> {
                                             IntrinsicHeight(
                                               child: Row(
                                                 children: [
-                                                  Text(Item.defineName(widget.isLocal ? snapshot.data['name'] :  snapshot.data['item_description']), style: Theme.of(context).textTheme.titleMedium?.copyWith()),
+                                                  Text(Item.defineName(widget.isLocal ? snapshot.data['name'] :  snapshot.data['item_description']), style: Theme.of(context).textTheme.titleSmall?.copyWith()),
                                                   const VerticalDivider(width: 30, indent: 5, endIndent: 5),
                                                   Text('x${count()}', style: Theme.of(context).textTheme.labelLarge?.copyWith())
                                                 ],
@@ -718,12 +718,12 @@ class _ListOrderHistoryState extends State<ListOrderHistory> {
                                             Row(
                                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                               children: [
-                                                Text(Item.defineDimension(widget.isLocal ? snapshot.data['dimension'] : snapshot.data['spesification'])),
+                                                Text(Item.defineDimension(widget.isLocal ? snapshot.data['dimension'] : snapshot.data['spesification']), style: Theme.of(context).textTheme.bodySmall),
                                                 const Padding(
                                                   padding: EdgeInsets.symmetric(horizontal: 10),
                                                   child: Text('-'),
                                                 ),
-                                                Text(setWeight(count: 1, weight: double.parse(Item.defineWeight(snapshot.data['weight'])))),
+                                                Text(setWeight(count: 1, weight: double.parse(Item.defineWeight(snapshot.data['weight']))), style: Theme.of(context).textTheme.bodySmall),
                                               ],
                                             )
                                           ],

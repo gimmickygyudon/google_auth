@@ -64,3 +64,61 @@ class ListTileOptions extends StatelessWidget {
     );
   }
 }
+
+class ListTileToast extends StatelessWidget {
+  const ListTileToast({
+    super.key, this.leading, this.title, this.subtitle, this.action, this.onClose
+  });
+
+  final Widget? leading;
+  final String? title, subtitle;
+  final Widget? action;
+  final Function? onClose;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      isThreeLine: true,
+      leading: leading,
+      horizontalTitleGap: 8,
+      contentPadding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4), side: BorderSide(width: 1, color: Theme.of(context).colorScheme.primary.withOpacity(0.5))),
+      tileColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.25),
+      title: title != null ? Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(title!),
+          IconButton(
+            onPressed: () => onClose!(),
+            style: const ButtonStyle(
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              visualDensity: VisualDensity(horizontal: -4, vertical: -4),
+              iconSize: MaterialStatePropertyAll(20)
+            ),
+            icon: const Icon(Icons.close)
+          )
+        ],
+      ) : null,
+      titleTextStyle: Theme.of(context).textTheme.labelSmall?.copyWith(
+        height: 2,
+        letterSpacing: 0
+      ),
+      subtitle: subtitle != null ? Padding(
+        padding: const EdgeInsets.only(right: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(subtitle!),
+            const SizedBox(height: 10),
+            action ?? const SizedBox()
+          ],
+        ),
+      ) : null,
+      subtitleTextStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
+        fontSize: 10,
+        letterSpacing: 0
+      ),
+    );
+  }
+}

@@ -122,7 +122,7 @@ Future<void> showPaymentSheet({
                                 Text('Memproses...')
                               ],
                             )
-                            : const Text('Pesan Sekarang')
+                            : const Text('Pilih')
                           ),
                         ],
                       ),

@@ -22,24 +22,19 @@ SnackBar snackBarShop({
     showCloseIcon: true,
     content: Consumer(
       builder: (context, value, child) => Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Row(
-            children: [
-              const SizedBox(width: 6),
-              Badge(
-                label: const Text('+1'),
-                child: Icon(Icons.shopping_bag, color: Theme.of(context).colorScheme.surface)
-              ),
-              const SizedBox(width: 16),
-              Text(
-                content,
-                style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                  color: Theme.of(context).colorScheme.surface,
-                  letterSpacing: 0
-                ),
-              ),
-            ],
+          const SizedBox(width: 6),
+          Badge(
+            label: const Text('+1'),
+            child: Icon(Icons.shopping_bag, color: Theme.of(context).colorScheme.surface)
+          ),
+          const SizedBox(width: 16),
+          Text(
+            content,
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+              color: Theme.of(context).colorScheme.surface,
+              letterSpacing: 0
+            ),
           ),
         ],
       ),
