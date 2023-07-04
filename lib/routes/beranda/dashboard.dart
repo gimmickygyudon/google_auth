@@ -28,9 +28,11 @@ class _BerandaRouteState extends State<BerandaRoute> with WidgetsBindingObserver
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     switch (state) {
       case AppLifecycleState.resumed:
-        if (await PermissionService.checkNotification().isDenied == false) {
-          setState(() => _checkNotification = PermissionService.checkNotification().isDenied);
-        }
+        await PermissionService.checkNotification().isDenied.then((value) {
+          if (value == false) {
+            _checkNotification = PermissionService.checkNotification().isDenied;
+          }
+        }).whenComplete(() => setState(() {}));
         break;
       case AppLifecycleState.inactive:
         break;

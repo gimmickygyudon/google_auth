@@ -14,6 +14,7 @@ import 'package:google_auth/widgets/cart.dart';
 import 'package:google_auth/widgets/dialog.dart';
 import 'package:google_auth/widgets/handle.dart';
 import 'package:google_auth/widgets/label.dart';
+import 'package:google_auth/widgets/notification.dart';
 import 'package:google_auth/widgets/profile.dart';
 
 import '../../functions/conversion.dart';
@@ -37,7 +38,7 @@ class _OrdersPageRouteState extends State<OrdersPageRoute> with SingleTickerProv
   List<Map> pages = [
     {
       'name': 'Buat Pesanan',
-      'icon': Icons.shopping_bag_outlined
+      'icon': Icons.local_shipping_outlined
     }, {
       'name': 'Riwayat',
       'icon': Icons.history
@@ -59,7 +60,7 @@ class _OrdersPageRouteState extends State<OrdersPageRoute> with SingleTickerProv
         SliverAppBar(
           floating: true,
           pinned: true,
-          title: const Text('Pesanan'),
+          title: const Text('Pesanan Anda'),
           titleTextStyle: Theme.of(context).textTheme.titleMedium,
           centerTitle: true,
           actions: [
@@ -188,53 +189,63 @@ class _OrderPageState extends State<OrderPage> {
       bottomNavigationBar: AnimatedSize(
         duration: const Duration(milliseconds: 600),
         curve: Curves.easeOut,
-        child: BottomAppBar(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          height: checkedItems.isEmpty ? 0 : 64,
-          elevation: 20,
-          shadowColor: Theme.of(context).colorScheme.shadow,
-          surfaceTintColor: Colors.transparent,
-          child: ButtonBar(
-            alignment: MainAxisAlignment.spaceBetween,
-            children: [
-              TextButton.icon(
-                onPressed: () => Navigator.of(context).pop(),
-                icon: const Icon(Icons.arrow_back),
-                label: const Text('Kembali')
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (checkedItems.isNotEmpty) const NotificationSmallWidget(
+              message: 'Pilih barang yang akan di pesan.',
+              icon: Icons.info
+            ),
+            BottomAppBar(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              height: checkedItems.isEmpty ? 0 : 82,
+              elevation: 20,
+              shadowColor: Theme.of(context).colorScheme.shadow,
+              surfaceTintColor: Colors.transparent,
+              child: ButtonBar(
+                alignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  TextButton.icon(
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: const Icon(Icons.arrow_back),
+                    label: const Text('Kembali')
+                  ),
+                  Hero(
+                    tag: 'Checkout',
+                    child: ElevatedButton.icon(
+                      onPressed: checkedItems.contains(true) ? () {
+                        pushCheckout(context: context, checkedItems: checkedItems);
+                      } : null,
+                      style: ButtonStyle(
+                        elevation: const MaterialStatePropertyAll(0),
+                        padding: const MaterialStatePropertyAll(EdgeInsets.fromLTRB(18, 4, 14, 4)),
+                        backgroundColor: MaterialStateProperty.resolveWith((states) {
+                          if (states.contains(MaterialState.disabled)) {
+                            return null;
+                          } else if (orderOpen.value) {
+                            return Theme.of(context).colorScheme.tertiary;
+                          } else {
+                            return Theme.of(context).colorScheme.primary;
+                          }
+                        }),
+                        foregroundColor: MaterialStateProperty.resolveWith((states) {
+                          if (states.contains(MaterialState.disabled)) {
+                            return null;
+                          } else {
+                            return Theme.of(context).colorScheme.surface;
+                          }
+                        }),
+                        overlayColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.inversePrimary),
+                        iconSize: MaterialStatePropertyAll(orderOpen.value ? null : 24)
+                      ),
+                      icon: Text(orderOpen.value ? 'Batal ' : 'Checkout'),
+                      label: Icon(orderOpen.value ? Icons.cancel : Icons.arrow_forward)
+                    ),
+                  )
+                ],
               ),
-              ElevatedButton.icon(
-                onPressed: checkedItems.contains(true) ? () {
-                  orderOpen.value
-                  ? setState(() => orderOpen.value = false)
-                  : setState(() => orderOpen.value = true);
-                } : null,
-                style: ButtonStyle(
-                  elevation: const MaterialStatePropertyAll(0),
-                  padding: const MaterialStatePropertyAll(EdgeInsets.fromLTRB(18, 4, 14, 4)),
-                  backgroundColor: MaterialStateProperty.resolveWith((states) {
-                    if(states.contains(MaterialState.disabled)) {
-                      return null;
-                    } else if (orderOpen.value) {
-                      return Theme.of(context).colorScheme.tertiary;
-                    } else {
-                      return Theme.of(context).colorScheme.primary;
-                    }
-                  }),
-                  foregroundColor: MaterialStateProperty.resolveWith((states) {
-                    if(states.contains(MaterialState.disabled)) {
-                      return null;
-                    } else {
-                      return Theme.of(context).colorScheme.surface;
-                    }
-                  }),
-                  overlayColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.inversePrimary),
-                  iconSize: MaterialStatePropertyAll(orderOpen.value ? null : 28)
-                ),
-                icon: Text(orderOpen.value ? 'Batal ' : 'Checkout'),
-                label: Icon(orderOpen.value ? Icons.cancel : Icons.arrow_drop_down)
-              )
-            ],
-          ),
+            ),
+          ],
         ),
       ),
       body: Container(
@@ -296,12 +307,13 @@ class _OrderPageState extends State<OrderPage> {
                   ),
                 ),
               ),
+              const SizedBox(height: 12),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    if (checkedItems.isNotEmpty) ElevatedButton.icon(
+                    if (checkedItems.isNotEmpty) TextButton.icon(
                       onPressed: () => setState(() {
                         if (checkedItems.every((element) => element == true)) {
                           checkedItems = List.filled(checkedItems.length, false);
@@ -311,10 +323,26 @@ class _OrderPageState extends State<OrderPage> {
                           checkedItems = List.filled(checkedItems.length, true);
                         }
                       }),
-                      style: Styles.buttonLight(context: context),
-                      icon: Icon(checkedItems.every((element) => element == true) ? Icons.check_box : Icons.check_box_outline_blank),
-                      label: const Text('Semua'),
+                      icon: Icon(checkedItems.every((element) => element == true) ? Icons.check_box : Icons.check_box_outline_blank, size: 22),
+                      label: const Text('Pilih Semua'),
                     ),
+                    ValueListenableBuilder(
+                      valueListenable: CartWidget.cartNotifier,
+                      builder: (context, item, child) {
+                        return Visibility(
+                          visible: item.isNotEmpty,
+                          child: Row(
+                            children: [
+                              Icon(Icons.layers_outlined, color: Theme.of(context).colorScheme.secondary),
+                              const SizedBox(width: 6),
+                              Text(item.length.toString(), style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                color: Theme.of(context).colorScheme.secondary
+                              )),
+                            ],
+                          ),
+                        );
+                      },
+                    )
                   ],
                 ),
               ),
@@ -352,14 +380,14 @@ class _OrderPageState extends State<OrderPage> {
                                 borderRadius: BorderRadius.circular(8),
                                 side: BorderSide(
                                   color: checkedItems[index] ? Theme.of(context).colorScheme.primary : Colors.transparent,
-                                  width: 2
+                                  width: 3
                                 )
                               ),
                               isThreeLine: true,
                               controlAffinity: ListTileControlAffinity.leading,
                               selected: checkedItems[index],
-                              selectedTileColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.25),
-                              tileColor: Theme.of(context).colorScheme.background,
+                              selectedTileColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.75),
+                              tileColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.1),
                               contentPadding: const EdgeInsets.symmetric(horizontal: 6),
                               checkboxShape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(4),
@@ -1028,180 +1056,178 @@ class CurrentAddressCard extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Padding(
-                      padding: padding ?? const EdgeInsets.symmetric(vertical: 12, horizontal: 18),
-                      child: Hero(
-                        tag: snapshot?['name'],
-                        child: Card(
-                          margin: EdgeInsets.zero,
-                          elevation: 0,
-                          color: Theme.of(context).colorScheme.primary,
-                          clipBehavior: Clip.antiAlias,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: borderRadius ?? BorderRadius.circular(20)
-                          ),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              border: Border(
-                                bottom: BorderSide(color: Theme.of(context).colorScheme.inversePrimary, width: 6),
-                              )
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
-                              child: Column(
+                      padding: padding ?? const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+                      child: Card(
+                        margin: EdgeInsets.zero,
+                        elevation: 0,
+                        color: Theme.of(context).colorScheme.primary,
+                        clipBehavior: Clip.antiAlias,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: borderRadius ?? BorderRadius.circular(12)
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Padding(
-                                        padding: const EdgeInsets.all(8),
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Row(
-                                              children: [
-                                                Text('Alamat Pengiriman', style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                                  color: Theme.of(context).colorScheme.inversePrimary,
-                                                )),
-                                              ],
-                                            ),
-                                            Row(
-                                              children: [
-                                                Text(snapshot?['name'], style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                                  color: Theme.of(context).colorScheme.surface,
-                                                  fontWeight: FontWeight.w500,
-                                                )),
-                                              ],
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: OutlinedButton(
-                                          onPressed: () => pushAddress(context: context, hero: snapshot?['name']),
-                                          style: ButtonStyle(
-                                            backgroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.inversePrimary.withOpacity(0.1)),
-                                            foregroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.inversePrimary),
-                                            side: MaterialStatePropertyAll(BorderSide(color: Theme.of(context).colorScheme.inversePrimary)),
-                                          ),
-                                          child: const Text('Ubah'),
-                                        ),
-                                      )
-                                    ],
-                                  ),
-                                  const SizedBox(height: 16),
                                   Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                                    child: Row(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        CircleAvatar(
-                                          radius: 18,
-                                          child: Icon(Icons.location_on, color: Theme.of(context).colorScheme.primary)
-                                        ),
-                                        const SizedBox(width: 12),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Text(snapshot?['district'],
-                                                textAlign: TextAlign.justify,
-                                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                                  color: Theme.of(context).colorScheme.inversePrimary,
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                              ),
-                                              Text('+62 ${snapshot?['phone_number']}',
-                                                textAlign: TextAlign.justify,
-                                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                                  color: Theme.of(context).colorScheme.surface,
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                              ),
-                                              const SizedBox(height: 12),
-                                              Text('${snapshot?['street']}, ${snapshot?['subdistrict']}, ${snapshot?['district']}, ${snapshot?['province']}',
-                                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                                  color: Theme.of(context).colorScheme.surfaceVariant,
-                                                  fontWeight: FontWeight.w500,
-                                                  letterSpacing: 0,
-                                                  wordSpacing: 2,
-                                                  height: 1.4
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(height: 20),
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                                    child: Row(
+                                    padding: const EdgeInsets.all(8),
+                                    child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        CircleAvatar(
-                                          radius: 18,
-                                          child: Icon(Icons.local_shipping, color: Theme.of(context).colorScheme.primary)
-                                        ),
-                                        const SizedBox(width: 12),
-                                        Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                        Row(
                                           children: [
-                                            Text('Tipe Pengiriman', style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                              fontWeight: FontWeight.w500,
+                                            Text('Lokasi Pengiriman', style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                               color: Theme.of(context).colorScheme.inversePrimary,
+                                              fontWeight: FontWeight.w500,
+                                              letterSpacing: 0.5
                                             )),
-                                            const SizedBox(height: 4),
-                                            Text(deliveryType ?? 'Memuat Data...',
-                                              textAlign: TextAlign.justify,
-                                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                                color: Theme.of(context).colorScheme.surface,
-                                                fontWeight: FontWeight.w500,
-                                              ),
-                                            ),
+                                          ],
+                                        ),
+                                        Row(
+                                          children: [
+                                            Text(snapshot?['name'], style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                              color: Theme.of(context).colorScheme.surface,
+                                              fontWeight: FontWeight.w500,
+                                            )),
                                           ],
                                         ),
                                       ],
                                     ),
                                   ),
-                                  if (checkedItems == null) const SizedBox(height: 12),
-                                  if (checkedItems != null) Padding(
-                                    padding: const EdgeInsets.only(top: 24),
-                                    child: Align(
-                                      alignment: Alignment.bottomRight,
-                                      child: Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          TextButton(
-                                            onPressed: () {
-                                              if (onCancel != null) onCancel!(false);
-                                            },
-                                            style: Styles.buttonFlat(context: context),
-                                            child: const Text('Batal')
-                                          ),
-                                          const SizedBox(width: 16),
-                                          ElevatedButton.icon(
-                                            onPressed: () => pushCheckout(context: context, checkedItems: checkedItems!),
-                                            style: Styles.buttonFlat(
-                                              context: context,
-                                              borderRadius: BorderRadius.circular(12),
-                                              backgroundColor: Theme.of(context).colorScheme.surface,
-                                              foregroundColor: Theme.of(context).colorScheme.primary
-                                            ),
-                                            icon: const Icon(Icons.arrow_forward, size: 22),
-                                            label: const Text('Checkout'),
-                                          ),
-                                        ],
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: OutlinedButton(
+                                      onPressed: () => pushAddress(context: context, hero: snapshot?['name']),
+                                      style: ButtonStyle(
+                                        backgroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.inversePrimary.withOpacity(0.1)),
+                                        foregroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.inversePrimary),
+                                        side: MaterialStatePropertyAll(BorderSide(color: Theme.of(context).colorScheme.inversePrimary)),
                                       ),
+                                      child: const Text('Ubah'),
                                     ),
                                   )
                                 ],
                               ),
-                            ),
+                              const SizedBox(height: 16),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 18,
+                                      child: Icon(Icons.location_on, color: Theme.of(context).colorScheme.primary)
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(snapshot?['district'],
+                                            textAlign: TextAlign.justify,
+                                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                              color: Theme.of(context).colorScheme.inversePrimary,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                          Text('+62 ${snapshot?['phone_number']}',
+                                            textAlign: TextAlign.justify,
+                                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                              color: Theme.of(context).colorScheme.surface,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 12),
+                                          Container(
+                                            padding: const EdgeInsets.all(16),
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(8),
+                                              color: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.25),
+                                            ),
+                                            child: Text('${snapshot?['street']}, ${snapshot?['subdistrict']}, ${snapshot?['district']}, ${snapshot?['province']}',
+                                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                                color: Theme.of(context).colorScheme.surface,
+                                                letterSpacing: 0,
+                                                wordSpacing: 2,
+                                                height: 1.4
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 18,
+                                      child: Icon(Icons.local_shipping, color: Theme.of(context).colorScheme.primary)
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text('Tipe Pengiriman', style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                          fontWeight: FontWeight.w500,
+                                          color: Theme.of(context).colorScheme.inversePrimary,
+                                        )),
+                                        const SizedBox(height: 4),
+                                        Text(deliveryType ?? 'Memuat Data...',
+                                          textAlign: TextAlign.justify,
+                                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                            color: Theme.of(context).colorScheme.surface,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              if (checkedItems == null) const SizedBox(height: 12),
+                              if (checkedItems != null) Padding(
+                                padding: const EdgeInsets.only(top: 24),
+                                child: Align(
+                                  alignment: Alignment.bottomRight,
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      TextButton(
+                                        onPressed: () {
+                                          if (onCancel != null) onCancel!(false);
+                                        },
+                                        style: Styles.buttonFlat(context: context),
+                                        child: const Text('Batal')
+                                      ),
+                                      const SizedBox(width: 16),
+                                      ElevatedButton.icon(
+                                        onPressed: () => pushCheckout(context: context, checkedItems: checkedItems!),
+                                        style: Styles.buttonFlat(
+                                          context: context,
+                                          borderRadius: BorderRadius.circular(12),
+                                          backgroundColor: Theme.of(context).colorScheme.surface,
+                                          foregroundColor: Theme.of(context).colorScheme.primary
+                                        ),
+                                        icon: const Icon(Icons.arrow_forward, size: 22),
+                                        label: const Text('Checkout'),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              )
+                            ],
                           ),
                         ),
                       ),

@@ -72,13 +72,13 @@ class Payment {
   static List<Map> payments = [
     {
       'name': 'COD',
-      'icon': Icons.payment
+      'icon': Icons.local_atm
     }, {
       'name': 'CASH',
       'icon': Icons.money
     }, {
       'name': 'BANK',
-      'icon': Icons.local_atm
+      'icon': Icons.payment
     }
   ];
 

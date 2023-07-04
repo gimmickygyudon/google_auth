@@ -4,6 +4,7 @@ import 'package:google_auth/routes/belanja/checkout.dart';
 import 'package:google_auth/routes/belanja/detail_item.dart';
 import 'package:google_auth/routes/belanja/item.dart';
 import 'package:google_auth/routes/belanja/orders_page.dart';
+import 'package:google_auth/routes/belanja/payment.dart';
 import 'package:google_auth/routes/beranda/customer.dart';
 import 'package:google_auth/routes/keluhan/report_page.dart';
 import 'package:google_auth/routes/alamat/address.dart';
@@ -248,6 +249,18 @@ void pushCheckout({
   Navigator.push(context, MaterialPageRoute(
     builder: (context) {
       return CheckoutRoute(checkedItems: checkedItems);
+    })
+  );
+}
+
+void pushPayment({
+  required BuildContext context,
+  required String? delivertype,
+  required Future Function(int indexPaymentsType) onConfirm
+}) {
+ Navigator.push(context, MaterialPageRoute(
+    builder: (context) {
+      return PaymentRoute(delivertype: delivertype, onConfirm: onConfirm);
     })
   );
 }

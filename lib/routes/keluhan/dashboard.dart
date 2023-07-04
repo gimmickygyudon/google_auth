@@ -162,7 +162,7 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.chat),
+                        Icon(Icons.chat_outlined),
                         SizedBox(width: 8),
                         Text('Pendapat Anda')
                       ],

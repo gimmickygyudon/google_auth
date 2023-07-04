@@ -25,6 +25,7 @@ SnackBar snackBarShop({
         children: [
           const SizedBox(width: 6),
           Badge(
+            largeSize: 20,
             label: const Text('+1'),
             child: Icon(Icons.shopping_bag, color: Theme.of(context).colorScheme.surface)
           ),

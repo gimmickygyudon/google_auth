@@ -495,6 +495,16 @@ class Item {
     return listItemsMemoizer[brand]!.runOnce(() {
       FutureOr<List?> list = fetchItems(brand: brand);
       return list;
+    })
+    .onError((error, stackTrace) {
+      return fetchItems(brand: brand);
+    })
+    .then((value) {
+      if (value == null) {
+        return fetchItems(brand: brand);
+      }
+
+      return value;
     });
   }
 

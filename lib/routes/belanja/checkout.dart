@@ -17,7 +17,6 @@ import 'package:google_auth/routes/belanja/orders_page.dart';
 import 'package:google_auth/strings/item.dart';
 import 'package:google_auth/strings/user.dart';
 import 'package:google_auth/styles/theme.dart';
-import 'package:google_auth/widgets/bottomsheet.dart';
 import 'package:google_auth/widgets/button.dart';
 import 'package:google_auth/widgets/cart.dart';
 import 'package:google_auth/widgets/dialog.dart';
@@ -46,9 +45,23 @@ class _CheckoutRouteState extends State<CheckoutRoute>  with SingleTickerProvide
   late TabController _tabController;
   late ScrollController _scrollController;
 
+  List<Map> tabs = [
+    {
+      'name': 'Barang',
+      'icon': Icons.layers_outlined,
+      'selectedIcon': Icons.layers
+    }, {
+      'name': 'Checkout',
+      'icon': Icons.local_shipping_outlined,
+      'selectedIcon': Icons.local_shipping
+    },
+  ];
+
   @override
   void initState() {
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 2, vsync: this)..addListener(() {
+      setState(() {});
+    });
     _scrollController = ScrollController();
 
     PermissionService.requestNotification();
@@ -75,8 +88,7 @@ class _CheckoutRouteState extends State<CheckoutRoute>  with SingleTickerProvide
             title: Text.rich(
               TextSpan(
                 children: [
-                  TextSpan(text: 'Orders: ', style: Theme.of(context).textTheme.titleMedium),
-                  TextSpan(text: '0001/VI/23', style: Theme.of(context).textTheme.bodyLarge)
+                  TextSpan(text: 'Orders', style: Theme.of(context).textTheme.titleMedium),
                 ]
               )
             ),
@@ -86,26 +98,32 @@ class _CheckoutRouteState extends State<CheckoutRoute>  with SingleTickerProvide
             ],
             bottom: TabBar(
               controller: _tabController,
-              tabs: const [
-                Tab(child: Text('Barang')),
-                Tab(child: Text('Tujuan')),
-                Tab(child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.check_circle, size: 20),
-                    SizedBox(width: 6),
-                    Text('Checkout'),
-                  ],
-                ))
-              ]
+              tabs: List.generate(tabs.length, (index) {
+                return Tab(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 2),
+                        child: Icon(_tabController.index == index ? tabs[index]['selectedIcon'] : tabs[index]['icon']),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(tabs[index]['name']),
+                    ],
+                  )
+                );
+              }).toList()
             ),
           )
         ],
         body: TabBarView(
           controller: _tabController,
           children: [
-            ItemPage(checkedItems: widget.checkedItems),
-            const LocationWidget(),
+            ItemPage(
+              tabController: _tabController,
+              checkedItems: widget.checkedItems
+            ),
+            // const LocationWidget(),
             DeliveryWidget(
               tabController: _tabController,
               scrollController: _scrollController,
@@ -119,9 +137,10 @@ class _CheckoutRouteState extends State<CheckoutRoute>  with SingleTickerProvide
 }
 
 class ItemPage extends StatefulWidget {
-  const ItemPage({super.key, required this.checkedItems});
+  const ItemPage({super.key, required this.checkedItems, required this.tabController});
 
   final List<bool> checkedItems;
+  final TabController tabController;
 
   @override
   State<ItemPage> createState() => _ItemPageState();
@@ -162,6 +181,16 @@ class _ItemPageState extends State<ItemPage> {
       valueListenable: CartWidget.cartNotifier,
       builder: (context, item, child) {
         return Scaffold(
+          floatingActionButton: FloatingActionButton.extended(
+            heroTag: 'Checkout',
+            elevation: 0,
+            onPressed: () => widget.tabController.animateTo(1),
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            foregroundColor: Theme.of(context).colorScheme.surface,
+            extendedIconLabelSpacing: 10,
+            icon: const Icon(Icons.local_shipping),
+            label: const Text('Checkout')
+          ),
           backgroundColor: Theme.of(context).colorScheme.secondary.withOpacity(0.025),
           bottomNavigationBar: Container(
             decoration: BoxDecoration(
@@ -934,9 +963,19 @@ class _DeliveryWidgetState extends State<DeliveryWidget> {
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Text('Voucher Discount', style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: Theme.of(context).colorScheme.secondary,
-                                  )),
+                                  Row(
+                                    children: [
+                                      Icon(Icons.confirmation_number_outlined,
+                                        color: Theme.of(context).colorScheme.secondary,
+                                        size: 20
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text('Voucher Discount', style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                        letterSpacing: 0,
+                                        color: Theme.of(context).colorScheme.secondary,
+                                      )),
+                                    ],
+                                  ),
                                   ElevatedButton(
                                     onPressed: () {},
                                     style: Styles.buttonFlatSmall(
@@ -998,52 +1037,7 @@ class _DeliveryWidgetState extends State<DeliveryWidget> {
                         }
                       ),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 18),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.primary.withBlue(100).withOpacity(0.1),
-                            border: Border.all(
-                              color: Theme.of(context).colorScheme.primary.withBlue(100).withOpacity(0.5)
-                            ),
-                            borderRadius: BorderRadius.circular(25.7)
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              ElevatedButton.icon(
-                                onPressed: () {
-                                  showPaymentSheet(
-                                    context: context,
-                                    selectedIndex: paymentType,
-                                    onConfirm: (indexPaymentsType) async => setPaymentType(indexPaymentsType)
-                                  );
-                                },
-                                style: Styles.buttonFlatSmall(
-                                  context: context,
-                                  borderRadius: BorderRadius.circular(25.7),
-                                  backgroundColor: Theme.of(context).colorScheme.primary.withBlue(100)
-                                ),
-                                label: const Text('Pembayaran'),
-                                icon: const Icon(Icons.arrow_drop_down, size: 26)
-                              ),
-                              Row(
-                                children: [
-                                  Icon(Payment.payments[paymentType]['icon'], color: Theme.of(context).colorScheme.primary.withBlue(100)),
-                                  const SizedBox(width: 8),
-                                  Text(Payment.payments[paymentType]['name'], style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                    letterSpacing: 0,
-                                    fontWeight: FontWeight.w500,
-                                    color: Theme.of(context).colorScheme.primary.withBlue(100),
-                                  )),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 30),
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -1051,7 +1045,7 @@ class _DeliveryWidgetState extends State<DeliveryWidget> {
                               children: [
                                 const Icon(Icons.text_snippet_outlined),
                                 Text(' Catatan', style: Theme.of(context).textTheme.titleMedium),
-                                Expanded(child: Divider(indent: 16, endIndent: 8, height: 0, color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5)))
+                                Expanded(child: Divider(indent: 16, endIndent: 8, height: 0, color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.25)))
                               ],
                             ),
                             const SizedBox(height: 20),
@@ -1064,7 +1058,7 @@ class _DeliveryWidgetState extends State<DeliveryWidget> {
                                 hintText: 'Contoh: Barang dibawah dengan alas plastik',
                                 floatingLabelBehavior: FloatingLabelBehavior.always,
                                 labelStyle: const TextStyle(fontSize: 16, letterSpacing: 0),
-                                condition: false
+                                condition: documentremarksTextController.text.isNotEmpty
                               ),
                             ),
                             const SizedBox(height: 20),
@@ -1075,42 +1069,9 @@ class _DeliveryWidgetState extends State<DeliveryWidget> {
                                 placeholder: 'Nomor Referensi',
                                 floatingLabelBehavior: FloatingLabelBehavior.always,
                                 labelStyle: const TextStyle(fontSize: 16, letterSpacing: 0),
-                                condition: false
+                                condition: referenceNumberTextController.text.isNotEmpty
                               ),
                             )
-                          ],
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            ElevatedButton.icon(
-                              onPressed: () {
-                                setState(() => isLoading = true);
-                                onConfirm(deliveryType, paymentType).whenComplete(() {
-                                  setState(() => isLoading = false);
-                                });
-                              },
-                              style: Styles.buttonForm(
-                                context: context,
-                                isLoading: isLoading
-                              ),
-                              icon: isLoading
-                              ? const Padding(
-                                padding: EdgeInsets.only(right: 8),
-                                child: SizedBox(
-                                    height: 20,
-                                    width: 20,
-                                    child: CircularProgressIndicator(strokeWidth: 2)
-                                  ),
-                              )
-                              : const Icon(Icons.local_shipping),
-                              label: isLoading
-                              ? const Text('Memproses...')
-                              : const Text('Checkout')
-                            ),
                           ],
                         ),
                       ),
@@ -1120,6 +1081,28 @@ class _DeliveryWidgetState extends State<DeliveryWidget> {
                 }
               ),
             ),
+          ),
+        ),
+        floatingActionButton: ValueListenableBuilder(
+          valueListenable: OrdersPageRoute.delivertype,
+          builder: (context, delivertype, child) => ElevatedButton.icon(
+            onPressed: () {
+              pushPayment(
+                context: context,
+                onConfirm: (indexPaymentsType) {
+                  return onConfirm(delivertype, indexPaymentsType);
+                },
+                delivertype: delivertype,
+              );
+            },
+            style: Styles.buttonForm(
+              context: context,
+            ),
+            icon: const Padding(
+              padding: EdgeInsets.fromLTRB(0, 0, 4, 2),
+              child: Icon(Icons.payment),
+            ),
+            label: const Text('Pembayaran'),
           ),
         ),
       ),

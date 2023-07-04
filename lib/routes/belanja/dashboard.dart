@@ -1,9 +1,13 @@
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:google_auth/functions/push.dart';
 import 'package:google_auth/functions/sqlite.dart';
+import 'package:google_auth/functions/string.dart';
+import 'package:google_auth/strings/item.dart';
 import 'package:google_auth/widgets/card.dart';
+import 'package:google_auth/widgets/handle.dart';
 import 'package:google_auth/widgets/label.dart';
 
 class BelanjaRoute extends StatefulWidget {
@@ -15,9 +19,39 @@ class BelanjaRoute extends StatefulWidget {
 
 List<Map> recommendItems = Item.recommenditems;
 
-class _BelanjaRouteState extends State<BelanjaRoute> {
+class _BelanjaRouteState extends State<BelanjaRoute>  with AutomaticKeepAliveClientMixin {
+  late Future _getItems;
+  bool keepAlive = true;
+  late String brand;
+
+  @override
+  void initState() {
+    brand = 'Indostar';
+    _getItems = Item.getItems(brand: brand);
+    super.initState();
+  }
+
+  List getSuggestions(List value, {required int count}) {
+    List randomChoice = List.empty(growable: true);
+    Set<int> setOfInts = {};
+
+    for (var i = 0; i < count; i++) {
+      setOfInts.add(Random().nextInt(value.length));
+    }
+
+    setOfInts.toList().forEach((index) {
+      randomChoice.add(value[index]);
+    });
+
+    return randomChoice;
+  }
+
+  @override
+  bool get wantKeepAlive => keepAlive;
+
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Container(
       color: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.1),
       child: CustomScrollView(
@@ -68,28 +102,52 @@ class _BelanjaRouteState extends State<BelanjaRoute> {
                     ),
                   ),
                   const SizedBox(height: 14),
-                  SizedBox(
-                    height: 40,
-                    child: ListView(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      scrollDirection: Axis.horizontal,
-                      children: List.generate(5, (index) {
-                        return Padding(
-                          padding: const EdgeInsets.only(right: 12),
-                          child: FilterChip(
-                            onSelected: (value) {},
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25.7)),
-                            side: BorderSide.none,
-                            backgroundColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.25),
-                            label: Text('Produk $index'),
-                            labelStyle: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: Theme.of(context).colorScheme.primary,
-                              letterSpacing: 0
-                            ),
-                          ),
+                  FutureBuilder(
+                    future: _getItems,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const HandleLoading();
+                      } else if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
+                        List itemSuggestion = getSuggestions(snapshot.data, count: 4);
+                        return SizedBox(
+                          height: 40,
+                          child: ListView.builder(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            scrollDirection: Axis.horizontal,
+                            itemCount: itemSuggestion.length,
+                            itemBuilder: (context, index) {
+                              return Padding(
+                                padding: const EdgeInsets.only(right: 12),
+                                child: FilterChip(
+                                  onSelected: (value) {
+                                    pushItemDetailPage(
+                                      context: context,
+                                      brand: brand,
+                                      hero: itemSuggestion[index]['description'],
+                                      color: Colors.blue,
+                                      item: itemSuggestion[index]
+                                    );
+                                  },
+                                  avatar: CircleAvatar(
+                                    child: Image.asset(ItemDescription.getImage(itemSuggestion[index]['description']))
+                                  ),
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25.7)),
+                                  side: BorderSide.none,
+                                  backgroundColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.25),
+                                  label: Text(itemSuggestion[index]['description'].toString().toTitleCase()),
+                                  labelStyle: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                    color: Theme.of(context).colorScheme.primary,
+                                    letterSpacing: 0
+                                  ),
+                                ),
+                              );
+                            },
+                          )
                         );
-                      }),
-                    )
+                      } else {
+                        return const HandleNoInternet(message: 'Tidak Terkoneksi ke Internet');
+                      }
+                    }
                   ),
                   Divider(color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.75), height: 36),
                   Padding(
@@ -104,15 +162,35 @@ class _BelanjaRouteState extends State<BelanjaRoute> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  SizedBox(
-                  height: 150,
-                  child: ListView.builder(
-                    itemCount: 6,
-                    padding: const EdgeInsets.symmetric(horizontal: 30),
-                    scrollDirection: Axis.horizontal,
-                    itemBuilder: (context, index) {
-                      return const CardItemSmall();
-                    }),
+                  FutureBuilder(
+                    future: _getItems,
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const HandleLoading();
+                      } else if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
+                        return SizedBox(
+                          height: 160,
+                          child: ListView.builder(
+                            itemCount: snapshot.data.length,
+                            padding: const EdgeInsets.symmetric(horizontal: 30),
+                            scrollDirection: Axis.horizontal,
+                            itemBuilder: (context, index) {
+                              return CardItemSmall(
+                                item: snapshot.data[index],
+                                hero: snapshot.data[index]['description'],
+                                brand: brand,
+                                color: Colors.blue,
+                              );
+                            }
+                          ),
+                        );
+                      } else {
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          setState(() => keepAlive = false);
+                        });
+                        return const HandleNoInternet(message: 'Tidak Tersambung ke Internet');
+                      }
+                    }
                   ),
                   const SizedBox(height: 38),
                   Padding(
@@ -162,67 +240,6 @@ class _BelanjaRouteState extends State<BelanjaRoute> {
                       }).toList(),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 30, top: 40),
-                    child: Row(
-                      children: [
-                        Icon(Icons.movie, color: Theme.of(context).colorScheme.primary),
-                        const SizedBox(width: 6),
-                        Text('Video Terbaru', style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          color: Theme.of(context).colorScheme.secondary,
-                          letterSpacing: 0
-                        )),
-                        const SizedBox(width: 16),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(30, 14, 30, 0),
-                    child: SizedBox(
-                      height: 200,
-                      child: ListView(
-                        scrollDirection: Axis.horizontal,
-                        children: [
-                          Stack(
-                            children: [
-                              Card(
-                                margin: EdgeInsets.zero,
-                                clipBehavior: Clip.antiAlias,
-                                child: Image.network('https://img.youtube.com/vi/krCJczMVbx0/0.jpg'),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(16),
-                                child: Align(
-                                  alignment: Alignment.topLeft,
-                                  child: Image.asset('assets/Logo Indostar.png', height: 16)
-                                ),
-                              ),
-                              Positioned.fill(
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.black12,
-                                    borderRadius: BorderRadius.circular(12)
-                                  ),
-                                ),
-                              ),
-                              Positioned.fill(
-                                child: Center(
-                                  child: IconButton(
-                                    onPressed: () => launchURL(url: 'https://www.youtube.com/watch?v=krCJczMVbx0'),
-                                    style: ButtonStyle(
-                                      foregroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.secondary),
-                                      backgroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.background)
-                                    ),
-                                    icon: const Icon(Icons.play_arrow)
-                                  ),
-                                ),
-                              )
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
                 ],
               ),
             ),

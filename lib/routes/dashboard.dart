@@ -185,6 +185,7 @@ class _DashboardRouteState extends State<DashboardRoute> {
         ) : null,
         body: PageView.builder(
           controller: _pageController,
+          physics: const NeverScrollableScrollPhysics(),
           onPageChanged: (value) => setState(() => changePage(value)),
           itemCount: 5,
           itemBuilder: (context, index) => routes[index]

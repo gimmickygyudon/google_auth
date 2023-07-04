@@ -1,4 +1,8 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:google_auth/strings/key.dart';
+
+import '../routes/belanja/orders_page.dart';
 
 class NotificationService {
   static final NotificationService _notificationService = NotificationService._internal();
@@ -18,7 +22,10 @@ class NotificationService {
     );
 
   await flutterLocalNotificationsPlugin.initialize(initializationSettings, onDidReceiveNotificationResponse: (details) {
-      print(details);
+    navigatorKey.currentState?.push(MaterialPageRoute(
+      builder: (context) {
+        return const OrdersPageRoute(page: 1);
+      }));
     });
   }
 
