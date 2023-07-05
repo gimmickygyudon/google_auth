@@ -17,6 +17,54 @@ import 'package:sqflite/sqflite.dart';
 import '../strings/item.dart';
 import 'sql_client.dart';
 
+class SQLite {
+  static Future<Database> initializeDatabaseLocal() async {
+    var databasesPath = await getDatabasesPath();
+    String path = join(databasesPath, 'mis.db');
+
+    //// DEMO MODE
+    // await deleteDatabase(path);
+    Database database;
+
+    // Check if the database exists
+    await databaseExists(path).then((value) async => print('databaseExists: $value'));
+
+    database = await openDatabase(
+      join(await getDatabasesPath(), 'mis.db'),
+      singleInstance: true,
+      onCreate: (db, version) {
+        db.execute(
+          'CREATE TABLE USR2(id_usr2 INTEGER PRIMARY KEY AUTOINCREMENT, id_ousr INTERGER, remarks TEXT, id_ocst TEXT, sync INTEGER DEFAULT 0)'
+        );
+        db.execute(
+          'CREATE TABLE payment(id_opor INTEGER PRIMARY KEY AUTOINCREMENT, customer_reference_number TEXT, id_ousr TEXT, id_usr1 TEXT, delivery_date TEXT, delivery_type TEXT, document_remarks TEXT, payment_type TEXT,'
+          'delivery_name TEXT, delivery_street TEXT, province TEXT, district TEXT, subdistrict TEXT, suburb TEXT, phone_number TEXT,'
+          'POR1s TEXT, isSent INTEGER)'
+        );
+      },
+      version: 1,
+    );
+
+    return database;
+  }
+
+  static Future<Map> insert({required String table, required Map<String, dynamic> item}) async {
+    await initializeDatabaseLocal().then((db) {
+      db.insert(table, item).then((value) => print('Insert Succeed: $value'));
+    });
+
+    return item;
+  }
+
+  static Future<List<Map>> retrieve({required String table, required List queries, required String where}) async {
+    return await initializeDatabaseLocal().then((db) async {
+      List<Map> data = await db.query(table, where: '$where = ? and sync = 0', whereArgs: queries);
+      return data;
+    });
+  }
+}
+
+
 class UserLog {
   final int? id_olog;
   final String date_time;

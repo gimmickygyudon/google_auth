@@ -2,7 +2,7 @@ import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import 'package:google_auth/functions/string.dart';
 import 'package:google_auth/widgets/handle.dart';
-import 'package:google_auth/widgets/notification.dart';
+import 'package:google_auth/widgets/info.dart';
 import 'package:google_auth/widgets/profile.dart';
 
 import '../../functions/payments.dart';
@@ -64,7 +64,7 @@ class _PaymentRouteState extends State<PaymentRoute> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const NotificationSmallWidget(
+          const InfoSmallWidget(
             message: 'Pilih metode pembayaran yang akan digunakan.',
           ),
           SingleChildScrollView(

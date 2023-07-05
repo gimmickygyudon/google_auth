@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:google_auth/functions/sql_client.dart';
+import 'package:google_auth/functions/sqlite.dart';
 import 'package:intl/intl.dart';
 
 class Customer {
@@ -9,12 +10,14 @@ class Customer {
   final String id_ousr;
   final String remarks;
   final String? id_ocst;
+  final int? sync;
 
   const Customer({
-    required this.id_usr2,
+    this.id_usr2,
     required this.id_ousr,
     required this.remarks,
-    required this.id_ocst
+    required this.id_ocst,
+    this.sync = 0
   });
 
   Map<String, dynamic> toMap() {
@@ -22,19 +25,30 @@ class Customer {
       'id_usr2': id_usr2,
       'id_ousr': id_ousr,
       'remarks': remarks,
-      'id_osct': id_ocst,
+      'id_ocst': id_ocst,
+      'sync': sync
     };
   }
 
   static Future<Map> insert(Customer customer) {
-    return SQL.insert(item: customer.toMap(), api: 'usr2');
+    return SQL.insert(item: customer.toMap(), api: 'usr2')
+    .onError((error, stackTrace) {
+      // SQL Local
+      return SQLite.insert(table: 'usr2', item: customer.toMap());
+    });
   }
 
-  static Future<List<Customer>> retrieve({required id_ousr}) {
-    return SQL.retrieve(api: 'usr2', query: 'id_ousr=$id_ousr').then((value) {
+  static Future<List<Customer>> retrieve({required int id_ousr}) {
+    return SQL.retrieve(api: 'usr2', query: 'id_ousr=$id_ousr')
+    .onError((error, stackTrace) {
+      // SQL Local
+      return SQLite.retrieve(table: 'usr2', queries: [id_ousr], where: id_ousr.toString());
+    })
+    .then((value) {
       List<Customer> customers = List.empty(growable: true);
 
       if (value is Map) {
+        customers = List.empty(growable: true);
         customers.add(Customer(
           id_usr2: value['id_usr2'],
           id_ousr: value['id_ousr'],
@@ -45,9 +59,9 @@ class Customer {
         for (Map customer in value) {
           customers.add(Customer(
             id_usr2: customer['id_usr2'],
-            id_ousr: customer['id_ousr'],
+            id_ousr: customer['id_ousr'].toString(),
             remarks: customer['remarks'],
-            id_ocst: customer['id_osct']
+            id_ocst: customer['id_ocst']
           ));
         }
       }

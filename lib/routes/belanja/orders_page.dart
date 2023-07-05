@@ -14,7 +14,7 @@ import 'package:google_auth/widgets/cart.dart';
 import 'package:google_auth/widgets/dialog.dart';
 import 'package:google_auth/widgets/handle.dart';
 import 'package:google_auth/widgets/label.dart';
-import 'package:google_auth/widgets/notification.dart';
+import 'package:google_auth/widgets/info.dart';
 import 'package:google_auth/widgets/profile.dart';
 
 import '../../functions/conversion.dart';
@@ -192,7 +192,7 @@ class _OrderPageState extends State<OrderPage> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (checkedItems.isNotEmpty) const NotificationSmallWidget(
+            if (checkedItems.isNotEmpty) const InfoSmallWidget(
               message: 'Pilih barang yang akan di pesan.',
               icon: Icons.info
             ),

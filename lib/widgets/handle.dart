@@ -42,10 +42,11 @@ class HandleNoInternet extends StatelessWidget {
 }
 
 class HandleLoading extends StatelessWidget {
-  const HandleLoading({super.key, this.strokeWidth, this.color});
+  const HandleLoading({super.key, this.strokeWidth, this.color, this.height, this.width, this.widget});
 
-  final double? strokeWidth;
+  final double? strokeWidth, height, width;
   final Color? color;
+  final Widget? widget;
 
   @override
   Widget build(BuildContext context) {
@@ -53,13 +54,31 @@ class HandleLoading extends StatelessWidget {
       children: [
         const SizedBox(height: 48),
         SizedBox(
-          height: 54,
-          width: 54,
+          height: height ?? 54,
+          width: width ?? 54,
           child: CircularProgressIndicator(
             strokeWidth: strokeWidth ?? 2,
             color: color ?? Theme.of(context).colorScheme.primary,
           ),
         ),
+        const SizedBox(height: 24),
+        widget ?? const SizedBox()
+      ],
+    );
+  }
+}
+
+class HandleLoadingBar extends StatelessWidget {
+  const HandleLoadingBar({super.key, this.minHeight, this.color, this.backgroundColor});
+
+  final double? minHeight;
+  final Color? color, backgroundColor;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        LinearProgressIndicator(color: color, minHeight: minHeight, backgroundColor: backgroundColor),
       ],
     );
   }
