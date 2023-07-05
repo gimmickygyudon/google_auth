@@ -113,7 +113,7 @@ class SQL {
 
       return data;
     } else if (response.statusCode == 404) {
-      return List.empty();
+      return Future.error('error: ${response.statusCode}');
     } else {
       return Future.error('error: ${response.statusCode}');
     }
@@ -158,5 +158,35 @@ class SQL {
       return Future.error('Periksa Koneksi Internet Anda');
     }
 
+  }
+
+  static Future<String> delete({required String api, required String query}) async {
+    Map<String, String> requestHeaders = {
+      'Content-Type': 'application/json',
+    };
+
+    String queryParameters = '?$query';
+    var url = Uri.parse('$server/api/$api$queryParameters');
+
+    print(url);
+
+    final response = await client.delete(url, headers: requestHeaders)
+      .timeout(const Duration(seconds: clienTimeout), onTimeout: () {
+        return Future.error('Periksa Koneksi Internet Anda');
+      })
+      .onError(((error, stacktrace) {
+        return Future.error(error.toString());
+      })
+    );
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body).toString();
+
+    } else if (response.statusCode == 404) {
+      return Future.error('error: ${response.body}');
+
+    } else {
+      return Future.error('error: ${response.body}');
+    }
   }
 }

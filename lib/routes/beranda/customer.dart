@@ -16,6 +16,7 @@ class AddCustomerRoute extends StatefulWidget {
 class _AddCustomerRouteState extends State<AddCustomerRoute> {
   late TextEditingController _addCustomerController;
   List<bool> selectedCustomer = List.empty(growable: true);
+  List<int?> selectedCustomer_id_usr2 = List.empty(growable: true);
   final GlobalKey<State<StatefulBuilder>> floatingButtonKey = GlobalKey();
 
   @override
@@ -34,7 +35,7 @@ class _AddCustomerRouteState extends State<AddCustomerRoute> {
       )
     ).whenComplete(() => setState(() { }));
     _addCustomerController.text = '';
-    Focus.of(context).unfocus();
+    FocusManager.instance.primaryFocus?.unfocus();
   }
 
   @override
@@ -137,6 +138,11 @@ class _AddCustomerRouteState extends State<AddCustomerRoute> {
                   } else if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
                     List<Customer>? customers = snapshot.data?.reversed.toList() as List<Customer>;
                     selectedCustomer = List.filled(customers.length, false);
+                    selectedCustomer_id_usr2 = List.empty(growable: true);
+
+                    for (var i = 0; i < customers.length; i++) {
+                      selectedCustomer_id_usr2.add(customers[i].id_usr2);
+                    }
 
                     return SliverPadding(
                       padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 30),
@@ -166,7 +172,7 @@ class _AddCustomerRouteState extends State<AddCustomerRoute> {
                                       side: BorderSide(
                                         width: selectedCustomer[index] == true ? 2 : 2,
                                         color: selectedCustomer[index] == true
-                                        ? Theme.of(context).colorScheme.primary.withOpacity(0.5)
+                                        ? Theme.of(context).colorScheme.inversePrimary
                                         : Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5)
                                       )
                                     ),
@@ -200,7 +206,7 @@ class _AddCustomerRouteState extends State<AddCustomerRoute> {
                                           backgroundColor: selectedCustomer[index] == true
                                           ? Theme.of(context).colorScheme.inversePrimary
                                           : Theme.of(context).colorScheme.onInverseSurface,
-                                          child: Text(customers[index].remarks.substring(0, 1))
+                                          child: Text(customers[index].remarks.substring(0, 1).toUpperCase())
                                         ),
                                       ),
                                     ),
@@ -221,17 +227,28 @@ class _AddCustomerRouteState extends State<AddCustomerRoute> {
           ),
           floatingActionButton: StatefulBuilder(
             key: floatingButtonKey,
-            builder: (context, setState) {
+            builder: (context, setStateWidget) {
               return AnimatedSlide(
                 duration: const Duration(milliseconds: 400),
                 curve: Curves.fastOutSlowIn,
                 offset: Offset(0, selectedCustomer.contains(true) ? 0 : 6),
                 child: ElevatedButton.icon(
-                  onPressed: () {},
+                  onPressed: () {
+                    setState(() {
+                      List<int?> customer = List.empty(growable: true);
+
+                      for (int i = 0; i < selectedCustomer.length - 1; i++) {
+                        if (selectedCustomer[i] == true) customer.add(selectedCustomer_id_usr2[i]);
+                      }
+
+                      Customer.remove(id_usr2: customer.join(','));
+                    });
+                  },
                   style: Styles.buttonFlat(
                     context: context,
                     borderRadius: BorderRadius.circular(8),
-                    backgroundColor: Theme.of(context).colorScheme.error
+                    backgroundColor: Theme.of(context).colorScheme.error,
+                    overlayColor: Theme.of(context).colorScheme.onErrorContainer
                   ),
                   icon: const Icon(Icons.delete),
                   label: const Text('Hapus')
