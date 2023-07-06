@@ -17,6 +17,18 @@ List<String> getMonthsInYear(DateTime userCreatedDate) {
   return dates;
 }
 
+Map<String, String> getCurrentStartEndWeek(DateTime date, {String format = 'yyyy-MM-dd'}) {
+  DateTime getDate(DateTime d) => DateTime(d.year, d.month, d.day);
+
+  final from_date = getDate(date.subtract(Duration(days: date.weekday - 1)));
+  final to_date = getDate(date.add(Duration(days: DateTime.daysPerWeek - date.weekday)));
+
+  final String from_dateSet = DateFormat(format, 'id').format(from_date);
+  final String to_dateSet = DateFormat(format, 'id').format(to_date);
+
+  return { from_dateSet: to_dateSet };
+}
+
 
 Map<String, dynamic> currentUserFormat(
   {

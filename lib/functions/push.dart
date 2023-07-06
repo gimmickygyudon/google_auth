@@ -6,6 +6,7 @@ import 'package:google_auth/routes/belanja/item.dart';
 import 'package:google_auth/routes/belanja/orders_page.dart';
 import 'package:google_auth/routes/belanja/payment.dart';
 import 'package:google_auth/routes/beranda/customer.dart';
+import 'package:google_auth/routes/beranda/detail_report.dart';
 import 'package:google_auth/routes/keluhan/report_page.dart';
 import 'package:google_auth/routes/alamat/address.dart';
 import 'package:google_auth/routes/start_page.dart';
@@ -122,6 +123,12 @@ void pushRegisterGoogle(BuildContext context, String logintype_, Map? source) {
 
 void pushDashboard(BuildContext context, {int? currentPage}) {
   Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
+    return DashboardRoute(currentPage: currentPage);
+  }));
+}
+
+void pushDashboardBack(BuildContext context, {int? currentPage}) {
+  Navigator.push(context, MaterialPageRoute(builder: (context) {
     return DashboardRoute(currentPage: currentPage);
   }));
 }
@@ -258,9 +265,17 @@ void pushPayment({
   required String? delivertype,
   required Future Function(int indexPaymentsType) onConfirm
 }) {
- Navigator.push(context, MaterialPageRoute(
+  Navigator.push(context, MaterialPageRoute(
     builder: (context) {
       return PaymentRoute(delivertype: delivertype, onConfirm: onConfirm);
     })
   );
+}
+
+Future<void> pushDetailReport({required BuildContext context, required Function onPop}) async {
+  Navigator.push(context, MaterialPageRoute(
+    builder: (context) {
+      return const DetailReportRoute();
+    })
+  ).whenComplete(() => onPop());
 }

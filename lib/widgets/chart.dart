@@ -14,7 +14,7 @@ class POChartWidget extends StatelessWidget {
       child: PieChart(
         PieChartData(
           sections: _chartSections(context, sectors),
-          centerSpaceRadius: 40.0,
+          centerSpaceRadius: 45.0,
         )
       )
     );
@@ -22,7 +22,7 @@ class POChartWidget extends StatelessWidget {
 
   List<PieChartSectionData> _chartSections(BuildContext context, DeliveryOrder sectors) {
     final List<PieChartSectionData> list = [];
-    final List sectorsList = [sectors.tonage, sectors.outstanding_tonage, sectors.target];
+    final List sectorsList = [sectors.tonage, sectors.outstanding_tonage, (sectors.target - sectors.tonage < 0.0 ? 0.0 : sectors.target - sectors.tonage)];
 
     for (var i = 0; i < sectorsList.length; i++) {
       const double radius = 30.0;

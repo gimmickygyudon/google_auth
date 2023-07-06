@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_auth/functions/customer.dart';
 import 'package:google_auth/strings/user.dart';
+import 'package:google_auth/widgets/chip.dart';
 import 'package:google_auth/widgets/handle.dart';
 import 'package:google_auth/widgets/profile.dart';
 import 'package:provider/provider.dart';
@@ -21,6 +22,8 @@ class _AddCustomerRouteState extends State<AddCustomerRoute> {
   List<bool> selectedCustomer = List.empty(growable: true);
   List<int?> selectedCustomer_id_usr2 = List.empty(growable: true);
   final GlobalKey<State<StatefulBuilder>> floatingButtonKey = GlobalKey();
+  late int defaultCustomer;
+
 
   @override
   void initState() {
@@ -51,7 +54,7 @@ class _AddCustomerRouteState extends State<AddCustomerRoute> {
       child: Consumer<ThemeNotifier>(
         builder: (context, theme, child) => Scaffold(
           body: Container(
-            color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.5),
+            color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.25),
             child: CustomScrollView(
               slivers: [
                 SliverAppBar(
@@ -159,86 +162,99 @@ class _AddCustomerRouteState extends State<AddCustomerRoute> {
                               children: [
                                 StatefulBuilder(
                                   builder: (context, setState) {
-                                    return ClipRRect(
-                                      borderRadius: BorderRadius.circular(12),
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          border: Border(top: BorderSide(
-                                            width: 4, 
-                                            color: selectedCustomer[index] == true 
-                                            ? Theme.of(context).colorScheme.primary
-                                            : Theme.of(context).colorScheme.inversePrimary
-                                            )
-                                          )
-                                        ),
-                                        child: ListTile(
-                                          onTap: () {
-                                            setState(() {
-                                              if (selectedCustomer[index] == true) {
-                                                selectedCustomer[index] = false;
-                                              } else {
-                                                selectedCustomer[index] = true;
-                                              }
-                                            });
-                                            floatingButtonKey.currentState?.setState(() {});
-                                          },
-                                          shape: const RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.only(
-                                              topLeft: Radius.circular(6), 
-                                              topRight: Radius.circular(6),
-                                              bottomLeft: Radius.circular(12), 
-                                              bottomRight: Radius.circular(12)
-                                            )
-                                          ),
-                                          tileColor: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.5),
-                                          selected: selectedCustomer[index] == true,
-                                          selectedColor: Theme.of(context).colorScheme.primary,
-                                          selectedTileColor: Theme.of(context).colorScheme.primaryContainer,
-                                          minVerticalPadding: 12,
-                                          title: Text(customers[index].remarks),
-                                          titleTextStyle: Theme.of(context).textTheme.titleSmall?.copyWith(
-                                            color: Theme.of(context).colorScheme.primary,
-                                            height: 1.8
-                                          ),
-                                          subtitle: Text('# ${customers[index].id_usr2.toString()}'),
-                                          subtitleTextStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                            color: Theme.of(context).colorScheme.secondary
-                                          ),
-                                          isThreeLine: true,
-                                          contentPadding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-                                          leading: Padding(
-                                            padding: const EdgeInsets.only(top: 6),
-                                            child: Badge(
-                                              backgroundColor: Colors.transparent,
-                                              label: selectedCustomer[index] == true
-                                              ? Container(
-                                                padding: const EdgeInsets.all(2),
-                                                decoration: BoxDecoration(
-                                                  borderRadius: BorderRadius.circular(25.7),
-                                                  color: Theme.of(context).colorScheme.primary,
+                                    return ValueListenableBuilder(
+                                      valueListenable: Customer.defaultCustomer,
+                                      builder: (context, customer, child) {
+                                        return ClipRRect(
+                                          borderRadius: BorderRadius.circular(12),
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              border: Border(top: BorderSide(
+                                                width: 4,
+                                                color: selectedCustomer[index] == true
+                                                ? Theme.of(context).colorScheme.primary
+                                                : Theme.of(context).colorScheme.inversePrimary
+                                                )
+                                              )
+                                            ),
+                                            child: ListTile(
+                                              onTap: () {
+                                                setState(() {
+                                                  if (selectedCustomer[index] == true) {
+                                                    selectedCustomer[index] = false;
+                                                  } else {
+                                                    selectedCustomer[index] = true;
+                                                  }
+                                                });
+                                                floatingButtonKey.currentState?.setState(() {});
+                                              },
+                                              shape: const RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.only(
+                                                  topLeft: Radius.circular(6),
+                                                  topRight: Radius.circular(6),
+                                                  bottomLeft: Radius.circular(12),
+                                                  bottomRight: Radius.circular(12)
+                                                )
+                                              ),
+                                              tileColor: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.5),
+                                              selected: selectedCustomer[index] == true,
+                                              selectedColor: Theme.of(context).colorScheme.primary,
+                                              selectedTileColor: Theme.of(context).colorScheme.primaryContainer,
+                                              minVerticalPadding: 12,
+                                              title: Text(customers[index].remarks),
+                                              titleTextStyle: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                                color: Theme.of(context).colorScheme.primary,
+                                                height: 1.8
+                                              ),
+                                              subtitle: Text('# ${customers[index].id_usr2.toString()}'),
+                                              subtitleTextStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                                color: Theme.of(context).colorScheme.secondary
+                                              ),
+                                              isThreeLine: true,
+                                              contentPadding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                                              leading: Padding(
+                                                padding: const EdgeInsets.only(top: 6),
+                                                child: Badge(
+                                                  backgroundColor: Colors.transparent,
+                                                  label: selectedCustomer[index] == true
+                                                  ? Container(
+                                                    padding: const EdgeInsets.all(2),
+                                                    decoration: BoxDecoration(
+                                                      borderRadius: BorderRadius.circular(25.7),
+                                                      color: Theme.of(context).colorScheme.primary,
+                                                    ),
+                                                    child: Icon(Icons.check, color: Theme.of(context).colorScheme.surface, size: 14)
+                                                  )
+                                                  : null,
+                                                  largeSize: 22,
+                                                  child: Container(
+                                                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                                                    decoration: BoxDecoration(
+                                                      border: Border.all(width: 1, color: selectedCustomer[index] == true
+                                                      ? Theme.of(context).colorScheme.inversePrimary
+                                                      : Theme.of(context).colorScheme.inversePrimary
+                                                      ),
+                                                      color: selectedCustomer[index] == true
+                                                      ? Theme.of(context).colorScheme.onInverseSurface
+                                                      : Theme.of(context).colorScheme.inversePrimary.withOpacity(0.5),
+                                                      shape: BoxShape.circle
+                                                    ),
+                                                    child: Text(customers[index].remarks.substring(0, 1).toUpperCase(), style: Theme.of(context).textTheme.bodyMedium),
+                                                  ),
                                                 ),
-                                                child: Icon(Icons.check, color: Theme.of(context).colorScheme.surface, size: 14)
+                                              ),
+                                              trailing: customers[index].id_usr2 == customer?.id_usr2
+                                              ? ChipSmall(
+                                                bgColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(selectedCustomer[index] == true ? 1.0 : 0.5),
+                                                label: 'Digunakan',
+                                                labelColor: Theme.of(context).colorScheme.primary,
+                                                trailing: Icon(Icons.query_stats, color: Theme.of(context).colorScheme.primary, size: 16),
                                               )
                                               : null,
-                                              largeSize: 22,
-                                              child: Container(
-                                                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                                                decoration: BoxDecoration(
-                                                  border: Border.all(width: 1, color: selectedCustomer[index] == true 
-                                                  ? Theme.of(context).colorScheme.inversePrimary
-                                                  : Theme.of(context).colorScheme.inversePrimary
-                                                  ),
-                                                  color: selectedCustomer[index] == true
-                                                  ? Theme.of(context).colorScheme.onInverseSurface
-                                                  : Theme.of(context).colorScheme.inversePrimary.withOpacity(0.5),
-                                                  shape: BoxShape.circle
-                                                ),
-                                                child: Text(customers[index].remarks.substring(0, 1).toUpperCase(), style: Theme.of(context).textTheme.bodyMedium),
-                                              ),
                                             ),
                                           ),
-                                        ),
-                                      ),
+                                        );
+                                      }
                                     );
                                   }
                                 )
@@ -268,7 +284,10 @@ class _AddCustomerRouteState extends State<AddCustomerRoute> {
                       List<int?> customer = List.empty(growable: true);
 
                       for (int i = 0; i < selectedCustomer.length - 1; i++) {
-                        if (selectedCustomer[i] == true) customer.add(selectedCustomer_id_usr2[i]);
+                        if (selectedCustomer[i] == true) {
+                          customer.add(selectedCustomer_id_usr2[i]);
+                          selectedCustomer[i] = false;
+                        }
                       }
 
                       Customer.remove(id_usr2: customer.join(','));

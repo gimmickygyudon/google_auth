@@ -71,7 +71,7 @@ class _BerandaRouteState extends State<BerandaRoute> with WidgetsBindingObserver
                     }
                   ),
                   const ReportDeliveryWidget(),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 20),
                   SizedBox(
                     height: 150,
                     child: ListView(
@@ -80,6 +80,7 @@ class _BerandaRouteState extends State<BerandaRoute> with WidgetsBindingObserver
                       children: [
                         Card(
                           elevation: 0,
+                          margin: EdgeInsets.zero,
                           color: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.25),
                           clipBehavior: Clip.antiAlias,
                           child: InkWell(
