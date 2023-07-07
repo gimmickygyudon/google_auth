@@ -55,19 +55,25 @@ class Customer extends Equatable {
       Map jsondata = jsonDecode(jsonData);
 
       // HACK: Validate Data Local and DB
-      final data = await Customer.retrieve(id_ousr: currentUser['id_ousr']).then((customers) {
+      final Customer? data = await Customer.retrieve(id_ousr: currentUser['id_ousr']).then((customers) {
+        if (customers.isEmpty) return null;
         return customers.singleWhere((customer) => customer.id_usr2 == jsondata['id_usr2']);
       });
 
-      Customer customer = Customer(
-        id_usr2: data.id_usr2,
-        id_ousr: data.id_ousr,
-        remarks: data.remarks,
-        id_ocst: data.id_ocst
-      );
+      if (data != null) {
+        Customer customer = Customer(
+          id_usr2: data.id_usr2,
+          id_ousr: data.id_ousr,
+          remarks: data.remarks,
+          id_ocst: data.id_ocst
+        );
 
-      defaultCustomer.value = customer;
-      return customer;
+        defaultCustomer.value = customer;
+        return customer;
+      } else {
+        return null;
+      }
+
     } else {
       return Customer.retrieve(id_ousr: currentUser['id_ousr']).then((customer) {
         defaultCustomer.value = customer.first;
@@ -75,6 +81,8 @@ class Customer extends Equatable {
       });
     }
   }
+
+  static ValueNotifier<List<Customer?>?> listCustomer = ValueNotifier(null);
 
   static Future<Map> insert(Customer customer) {
     return SQL.insert(item: customer.toMap(), api: 'usr2')
@@ -100,7 +108,7 @@ class Customer extends Equatable {
     return SQL.retrieve(api: 'usr2', query: 'id_ousr=$id_ousr')
     .onError((error, stackTrace) {
       // SQL Local
-      return SQLite.retrieve(table: 'usr2', queries: [id_ousr], where: id_ousr.toString());
+      return SQLite.retrieve(table: 'usr2', queries: [id_ousr], where: 'id_ousr');
     })
     .then((value) {
       List<Customer> customers = List.empty(growable: true);

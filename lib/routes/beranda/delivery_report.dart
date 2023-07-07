@@ -1,7 +1,5 @@
 // ignore_for_file: non_constant_identifier_names
 
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:google_auth/functions/push.dart';
 import 'package:google_auth/functions/string.dart';
@@ -386,21 +384,23 @@ class _CustomerSelectWidgetState extends State<CustomerSelectWidget> {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Container(
-            width: 160, 
+            width: 160,
             height: 40,
             margin: const EdgeInsets.fromLTRB(0, 0, 0, 6),
             clipBehavior: Clip.antiAlias,
             decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.background,
               borderRadius: BorderRadius.circular(25.7),
               border: Border.all(color: Theme.of(context).colorScheme.primary)
             ),
             child: const LinearProgressIndicator(backgroundColor: Colors.transparent)
           );
-        } else if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
+        } else if (snapshot.connectionState == ConnectionState.done && snapshot.hasData && snapshot.data!.isNotEmpty) {
           return Container(
             height: 40,
             margin: const EdgeInsets.fromLTRB(0, 0, 0, 6),
             decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primary,
               borderRadius: BorderRadius.circular(25.7),
               border: Border.all(color: Theme.of(context).colorScheme.primary)
             ),
@@ -417,11 +417,12 @@ class _CustomerSelectWidgetState extends State<CustomerSelectWidget> {
                       });
                     },
                     padding: const EdgeInsets.all(8),
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(25.7),
                     style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.primary
+                      color: Theme.of(context).colorScheme.surface
                     ),
-                    iconEnabledColor: Theme.of(context).colorScheme.primary,
+                    dropdownColor: Theme.of(context).colorScheme.primary,
+                    iconEnabledColor: Theme.of(context).colorScheme.surface,
                     items: snapshot.data?.map<DropdownMenuItem<Customer>>((Customer customer) {
                       return DropdownMenuItem<Customer>(
                         value: customer,
@@ -429,7 +430,7 @@ class _CustomerSelectWidgetState extends State<CustomerSelectWidget> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             const SizedBox(width: 4),
-                            Icon(Icons.account_circle, size: 22, color: Theme.of(context).colorScheme.primary),
+                            Icon(Icons.account_circle, size: 22, color: Theme.of(context).colorScheme.surface),
                             const SizedBox(width: 6),
                             Text(customer.remarks),
                           ],
@@ -442,7 +443,23 @@ class _CustomerSelectWidgetState extends State<CustomerSelectWidget> {
             ),
           );
         } else {
-          return const SizedBox();
+          return OutlinedButton.icon(
+            onPressed: () => pushAddCustomer(context),
+            style: ButtonStyle(
+              visualDensity: const VisualDensity(horizontal: -4, vertical: -2),
+              side: MaterialStatePropertyAll(
+                BorderSide(color: Theme.of(context).colorScheme.primary)
+              ),
+              iconSize: const MaterialStatePropertyAll(20),
+              textStyle: MaterialStatePropertyAll(
+                Theme.of(context).textTheme.labelSmall?.copyWith(
+                  letterSpacing: 0
+                )
+              )
+            ),
+            icon: const Icon(Icons.add_circle),
+            label: const Text('Tambah Pelanggan')
+          );
         }
       },
     );

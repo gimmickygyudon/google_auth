@@ -56,10 +56,15 @@ class SQLite {
     return item;
   }
 
-  static Future<List<Map>> retrieve({required String table, required List queries, required String where}) async {
+  static Future<List<Map>?> retrieve({required String table, required List queries, required String where}) async {
     return await initializeDatabaseLocal().then((db) async {
-      List<Map> data = await db.query(table, where: '$where = ? and sync = 0', whereArgs: queries);
-      return data;
+      try {
+        List<Map> data = await db.query(table, where: '$where = ? and sync = 0', whereArgs: queries)
+        .onError((error, stackTrace) async => List.empty());
+        return data;
+      } catch (e) {
+        return null;
+      }
     });
   }
 }
