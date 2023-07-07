@@ -18,7 +18,9 @@ class _DetailReportRouteState extends State<DetailReportRoute> {
         appBarTheme: Themes.appBarTheme(context)
       ),
       child: Scaffold(
+        backgroundColor: Theme.of(context).colorScheme.primaryContainer,
         appBar: AppBar(
+          backgroundColor: Theme.of(context).colorScheme.primaryContainer,
           toolbarHeight: kToolbarHeight + 10,
           title: Padding(
             padding: const EdgeInsets.only(top: 6),
@@ -42,17 +44,15 @@ class _DetailReportRouteState extends State<DetailReportRoute> {
                 letterSpacing: 0
               )),
               const SizedBox(height: 40),
-              Row(
+              const Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text('Ringkasan', style: Theme.of(context).textTheme.bodyMedium),
-                  const SizedBox(width: 12),
-                  Expanded(child: const SingleChoice())
+                  Expanded(child: SingleChoice())
                 ],
               )
             ],
           ),
-       )
+        )
       ),
     );
   }
@@ -72,46 +72,60 @@ class _SingleChoiceState extends State<SingleChoice> {
 
   @override
   Widget build(BuildContext context) {
-    return SegmentedButton<Calendar>(
-      style: ButtonStyle(
-        shape: MaterialStatePropertyAll(
-          RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(4),
-          )
-        ),
-        side: const MaterialStatePropertyAll(BorderSide.none),
-        visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
-        padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(horizontal: 2)),
-        textStyle: MaterialStatePropertyAll(Theme.of(context).textTheme.labelSmall)
+    return Container(
+      padding: const EdgeInsets.all(6),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.onInverseSurface,
+        borderRadius: BorderRadius.circular(12)
       ),
-      showSelectedIcon: false,
-      segments: const <ButtonSegment<Calendar>>[
-        ButtonSegment<Calendar>(
-            value: Calendar.day,
-            label: Text('Day'),
+      child: SegmentedButton<Calendar>(
+        style: ButtonStyle(
+          shape: MaterialStatePropertyAll(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            )
           ),
-        ButtonSegment<Calendar>(
-            value: Calendar.week,
-            label: Text('Week'),
-          ),
-        ButtonSegment<Calendar>(
-            value: Calendar.month,
-            label: Text('Month'),
-          ),
-        ButtonSegment<Calendar>(
-            value: Calendar.year,
-            label: Text('Year'),
-          ),
-      ],
-      selected: <Calendar>{calendarView},
-      onSelectionChanged: (Set<Calendar> newSelection) {
-        setState(() {
-          // By default there is only a single segment that can be
-          // selected at one time, so its value is always the first
-          // item in the selected set.
-          calendarView = newSelection.first;
-        });
-      },
+          backgroundColor: MaterialStateProperty.resolveWith((states) {
+            if (states.contains(MaterialState.selected)) {
+              return Theme.of(context).colorScheme.inversePrimary;
+            } else {
+              return null;
+            }
+          }),
+          side: const MaterialStatePropertyAll(BorderSide.none),
+          visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+          padding: const MaterialStatePropertyAll(EdgeInsets.symmetric(horizontal: 2)),
+          textStyle: MaterialStatePropertyAll(Theme.of(context).textTheme.labelSmall)
+        ),
+        showSelectedIcon: false,
+        segments: const <ButtonSegment<Calendar>>[
+          ButtonSegment<Calendar>(
+              value: Calendar.day,
+              label: Text('Hari'),
+            ),
+          ButtonSegment<Calendar>(
+              value: Calendar.week,
+              label: Text('Minggu'),
+            ),
+          ButtonSegment<Calendar>(
+              value: Calendar.month,
+              label: Text('Bulan'),
+            ),
+          ButtonSegment<Calendar>(
+              value: Calendar.year,
+              label: Text('Tahun'),
+            ),
+        ],
+        selected: <Calendar>{calendarView},
+        onSelectionChanged: (Set<Calendar> newSelection) {
+          setState(() {
+            // By default there is only a single segment that can be
+            // selected at one time, so its value is always the first
+            // item in the selected set.
+            calendarView = newSelection.first;
+          });
+        },
+      ),
     );
   }
 }

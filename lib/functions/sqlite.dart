@@ -27,7 +27,7 @@ class SQLite {
     Database database;
 
     // Check if the database exists
-    await databaseExists(path).then((value) async => print('databaseExists: $value'));
+    await databaseExists(path).then((value) async {});
 
     database = await openDatabase(
       join(await getDatabasesPath(), 'mis.db'),
