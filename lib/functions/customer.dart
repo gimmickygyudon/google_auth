@@ -208,3 +208,30 @@ class DeliveryOrder {
     return double.parse(calculate);
   }
 }
+
+class CreditDueReport {
+  final int? id_ocst;
+  final String total_balance, total_balance_due;
+  final int? count;
+
+  CreditDueReport({
+    this.id_ocst,
+    required this.total_balance,
+    required this.total_balance_due,
+    this.count
+  });
+
+  static Future<CreditDueReport> retrieve({required String id_ocst}) async {
+    return await SQL.retrieve(api: 'sim_report/arr', query: 'id_osct=$id_ocst').then((value) {
+      String total_balance, total_balance_due;
+
+      total_balance = NumberFormat.compactSimpleCurrency(locale: 'id-ID', decimalDigits: 2).format(value['total_balance']);
+      total_balance_due = NumberFormat.compactSimpleCurrency(locale: 'id-ID', decimalDigits: 2).format(value['total_balance_due']);
+
+      return CreditDueReport(
+        total_balance: total_balance,
+        total_balance_due: total_balance_due
+      );
+    });
+  }
+}

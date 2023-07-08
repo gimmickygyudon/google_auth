@@ -217,12 +217,12 @@ class _ReportDeliveryWidgetState extends State<ReportDeliveryWidget> {
                                           children: [
                                             Center(
                                               child: Padding(
-                                                padding: const EdgeInsets.only(top: 20),
+                                                padding: const EdgeInsets.only(top: 30),
                                                 child: POChartWidget(
                                                   DeliveryOrder(
-                                                    tonage: snapshot.data!.tonage,
-                                                    outstanding_tonage: snapshot.data!.outstanding_tonage,
-                                                    target: snapshot.data!.target
+                                                    tonage: total[0],
+                                                    outstanding_tonage: total[1],
+                                                    target: total[2]
                                                   )
                                                 )
                                               ),
@@ -323,7 +323,7 @@ class _ReportDeliveryWidgetState extends State<ReportDeliveryWidget> {
                                           style: ButtonStyle(
                                             visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
                                             padding: const MaterialStatePropertyAll(EdgeInsets.only(left: 6)),
-                                            textStyle: MaterialStatePropertyAll(Theme.of(context).textTheme.labelSmall?.copyWith(letterSpacing: 0.25)),
+                                            textStyle: MaterialStatePropertyAll(Theme.of(context).textTheme.labelSmall?.copyWith(letterSpacing: 0)),
                                             iconSize: const MaterialStatePropertyAll(16)
                                           ),
                                           onPressed: () => pushDetailReport(context: context, onPop: () {
@@ -354,65 +354,72 @@ class _ReportDeliveryWidgetState extends State<ReportDeliveryWidget> {
                 ),
               ),
             ),
-            if (isOffline) ... [
-              const HandleNoData(),
-              Align(
-                alignment: Alignment.bottomLeft,
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 6),
-                  child: CustomerSelectWidget(onChanged: () {
-                    setReportDelivery();
-                  }),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 6),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            AnimatedSwitcher(
+              switchInCurve: Curves.fastOutSlowIn,
+              switchOutCurve: Curves.fastOutSlowIn,
+              duration: const Duration(milliseconds: 400),
+              child: isOffline ? Stack(
+                children: [
+                  const HandleNoData(),
+                  Align(
+                    alignment: Alignment.bottomLeft,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 6),
+                      child: CustomerSelectWidget(onChanged: () {
+                        setReportDelivery();
+                      }),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 6),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text('Perolehan Kamu', style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                              letterSpacing: 0
-                            )),
+                            Row(
+                              children: [
+                                Text('Perolehan Kamu', style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                                  letterSpacing: 0
+                                )),
+                              ],
+                            ),
+                            DropdownButtonHideUnderline(
+                              child: DropdownButton(
+                                value: dateRange,
+                                onChanged: (value) => setState(() {
+                                  dateRange = value.toString();
+                                  setReportDelivery();
+                                }),
+                                padding: const EdgeInsets.only(left: 6),
+                                isDense: true,
+                                elevation: 0,
+                                borderRadius: BorderRadius.circular(8),
+                                style: Theme.of(context).textTheme.labelMedium?.copyWith(letterSpacing: 0),
+                                items: datesRange.map((date) {
+                                  return DropdownMenuItem(
+                                    value: date,
+                                    child: Text(date)
+                                  );
+                                }).toList()
+                              ),
+                            )
                           ],
                         ),
-                        DropdownButtonHideUnderline(
-                          child: DropdownButton(
-                            value: dateRange,
-                            onChanged: (value) => setState(() {
-                              dateRange = value.toString();
-                              setReportDelivery();
-                            }),
-                            padding: const EdgeInsets.only(left: 6),
-                            isDense: true,
-                            elevation: 0,
-                            borderRadius: BorderRadius.circular(8),
-                            style: Theme.of(context).textTheme.labelMedium?.copyWith(letterSpacing: 0),
-                            items: datesRange.map((date) {
-                              return DropdownMenuItem(
-                                value: date,
-                                child: Text(date)
-                              );
-                            }).toList()
-                          ),
-                        )
+                        Text(date,
+                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                            color: Theme.of(context).colorScheme.secondary,
+                            fontSize: 10,
+                            letterSpacing: 0,
+                          )
+                        ),
                       ],
                     ),
-                    Text(date,
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: Theme.of(context).colorScheme.secondary,
-                        fontSize: 10,
-                        letterSpacing: 0,
-                      )
-                    ),
-                  ],
-                ),
-              ),
-            ],
+                  ),
+                ],
+              ) : null,
+            ),
           ],
         ),
       ),

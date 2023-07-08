@@ -2,6 +2,91 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:google_auth/functions/customer.dart';
 
+class PieChartSample3 extends StatefulWidget {
+  const PieChartSample3({super.key, this.radius, this.selectedRadius});
+
+  final double? radius, selectedRadius;
+
+  @override
+  State<StatefulWidget> createState() => PieChartSample3State();
+}
+
+class PieChartSample3State extends State<PieChartSample3> {
+  int touchedIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 240,
+      width: 190,
+      child: PieChart(
+        PieChartData(
+          pieTouchData: PieTouchData(
+            touchCallback: (FlTouchEvent event, pieTouchResponse) {
+              setState(() {
+                if (!event.isInterestedForInteractions ||
+                    pieTouchResponse == null ||
+                    pieTouchResponse.touchedSection == null) {
+                  touchedIndex = -1;
+                  return;
+                }
+                touchedIndex =
+                    pieTouchResponse.touchedSection!.touchedSectionIndex;
+              });
+            },
+          ),
+          borderData: FlBorderData(
+            show: false,
+          ),
+          sectionsSpace: 2,
+          centerSpaceRadius: 0,
+          sections: showingSections(
+            radius: widget.radius,
+            selectedRadius: widget.selectedRadius
+          ),
+        ),
+      ),
+    );
+  }
+
+  List<PieChartSectionData> showingSections({
+    double? radius, double? selectedRadius
+  }) {
+    return List.generate(2, (i) {
+      final isTouched = i == touchedIndex;
+      final fontSize = isTouched ? 20.0 : 16.0;
+
+      switch (i) {
+        case 0:
+          return PieChartSectionData(
+            color: Theme.of(context).colorScheme.error.withOpacity(0.7),
+            value: 40,
+            title: '40%',
+            radius: isTouched ? selectedRadius : radius,
+            titleStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              fontSize: fontSize,
+              color: Theme.of(context).colorScheme.surface
+            ),
+          );
+        case 1:
+          return PieChartSectionData(
+            color: Theme.of(context).colorScheme.errorContainer,
+            value: 60,
+            title: '60%',
+            radius: isTouched ? selectedRadius : radius,
+            titleStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              fontSize: fontSize,
+              color: Theme.of(context).colorScheme.inverseSurface
+            ),
+          );
+        default:
+          throw Exception('Oh no');
+      }
+    });
+  }
+}
+
+
 class POChartWidget extends StatelessWidget {
   final DeliveryOrder sectors;
 
@@ -12,6 +97,8 @@ class POChartWidget extends StatelessWidget {
     return AspectRatio(
       aspectRatio: 1.0,
       child: PieChart(
+        swapAnimationCurve: Curves.easeOutQuart,
+        swapAnimationDuration: const Duration(milliseconds: 600),
         PieChartData(
           sections: _chartSections(context, sectors),
           centerSpaceRadius: 45.0,
@@ -128,6 +215,8 @@ class POBarChartState extends State<POBarChart> {
                 final barsSpace = 8.0 * constraints.maxWidth / 100;
                 final barsWidth = 16.0 * constraints.maxWidth / 100;
                 return BarChart(
+                  swapAnimationCurve: Curves.easeOutQuart,
+                  swapAnimationDuration: const Duration(milliseconds: 600),
                   BarChartData(
                     alignment: BarChartAlignment.center,
                     barTouchData: BarTouchData(

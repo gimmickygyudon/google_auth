@@ -17,9 +17,9 @@ class ChipSmall extends StatelessWidget {
       backgroundColor: bgColor,
       label: Row(
         mainAxisSize: MainAxisSize.min,
-        children: [
+        children: <Widget>[
           Text(label),
-          const SizedBox(width: 4),
+          SizedBox(width: trailing != null ? 4 : 0),
           trailing ?? const SizedBox()
         ],
       ),

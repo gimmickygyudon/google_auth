@@ -40,12 +40,12 @@ class _DetailReportRouteState extends State<DetailReportRoute> {
     String? id_ocst = await Customer.getDefaultCustomer().then((customer) => customer?.id_ocst);
 
     int month = months.indexOf(selectedMonth!);
-    return _deliveryOrder = DeliveryOrder.retrieveMonth(id_ocst: id_ocst!, date: DateTime(int.parse(selectedYears!), month + 1)).then((value) {
-      return defineValueTonase(value: value);
-    });
+    return await DeliveryOrder.retrieveMonth(id_ocst: id_ocst!, date: DateTime(int.parse(selectedYears!), month + 1)).then((value) async {
+      return await defineValueTonase(value: value);
+    }).whenComplete(() => setState(() {}));
   }
 
-  DeliveryOrder defineValueTonase({required Map value}) {
+  Future<DeliveryOrder> defineValueTonase({required Map value}) async {
     realisasi = double.parse(value['realisasi']);
     outstanding = double.parse(value['outstanding']);
     count.value = [value['realisasi_count'], value['outstanding_count']];
@@ -78,9 +78,7 @@ class _DetailReportRouteState extends State<DetailReportRoute> {
           title: Padding(
             padding: const EdgeInsets.only(top: 6),
             child: CustomerSelectWidget(onChanged: () {
-              setState(() {
-                _deliveryOrder = setDeliveryOrder();
-              });
+              setDeliveryOrder();
             }),
           ),
           actions: [
@@ -159,10 +157,8 @@ class _DetailReportRouteState extends State<DetailReportRoute> {
                           value: selectedMonth,
                           borderRadius: BorderRadius.circular(8),
                           onChanged: (month) {
-                            setState(() {
-                              _deliveryOrder = setDeliveryOrder();
-                              selectedMonth = month;
-                            });
+                            setDeliveryOrder();
+                            selectedMonth = month;
                           },
                           elevation: 0,
                           dropdownColor: lighten(Theme.of(context).colorScheme.primaryContainer, 0.05),
@@ -192,10 +188,8 @@ class _DetailReportRouteState extends State<DetailReportRoute> {
                           value: selectedYears,
                           borderRadius: BorderRadius.circular(8),
                           onChanged: (year) {
-                            setState(() {
-                              _deliveryOrder = setDeliveryOrder();
-                              selectedYears = year;
-                            });
+                            setDeliveryOrder();
+                            selectedYears = year;
                           },
                           elevation: 0,
                           dropdownColor: lighten(Theme.of(context).colorScheme.primaryContainer, 0.05),
