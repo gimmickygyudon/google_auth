@@ -26,9 +26,12 @@ class _CreditDueWidgetState extends State<CreditDueWidget> {
     String? id_ocst = await Customer.getDefaultCustomer().then((customer) => customer?.id_ocst);
 
     if (id_ocst != null) {
-      return CreditDueReport.retrieve(id_ocst: id_ocst);
+      return CreditDueReport.retrieve(id_ocst: id_ocst).then((value) {
+        return value;
+      });
     } else {
-      return Future.error('error credit due report'.toUpperCase());
+      return CreditDueReport(total_balance: 'Rp60.0 Jt', total_balance_due: 'Rp20.0 Jt', percent_balance: 67, percent_balance_due: 33);
+      // return Future.error('error credit due report'.toUpperCase());
     }
   }
 
@@ -78,24 +81,25 @@ class _CreditDueWidgetState extends State<CreditDueWidget> {
                           ],
                         ),
                         ChipSmall(
-                          bgColor: Theme.of(context).colorScheme.errorContainer,
-                          label: '40%',
-                          labelColor: Theme.of(context).colorScheme.error
+                          leading: Icon(Icons.trending_down, size: 18, color: Theme.of(context).colorScheme.surface),
+                          bgColor: CreditDueReport.description(context)[0]['color'],
+                          label: '${snapshot.data?.percent_balance_due}%',
+                          labelColor: Theme.of(context).colorScheme.surface
                         )
                       ],
                     ),
                     Row(
                       children: [
-                        const PieChartSample3(
+                        CreditDueChart(
                           radius: 90,
                           selectedRadius: 100,
+                          creditDueReport: snapshot.data,
                         ),
                         const SizedBox(width: 32),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text('Total Piutang', style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              fontSize: 10,
                               letterSpacing: 0,
                               color: Theme.of(context).colorScheme.secondary
                             )),
@@ -106,8 +110,8 @@ class _CreditDueWidgetState extends State<CreditDueWidget> {
                               children: [
                                 CircleAvatar(
                                   radius: 8,
-                                  backgroundColor: Theme.of(context).colorScheme.errorContainer,
-                                  child: Icon(Icons.arrow_downward, size: 12, color: Theme.of(context).colorScheme.error, weight: 700, grade: 200)
+                                  backgroundColor: CreditDueReport.description(context)[0]['color'],
+                                  child: Icon(Icons.arrow_downward, size: 12, color: Theme.of(context).colorScheme.surface, weight: 700, grade: 200)
                                 ),
                                 const SizedBox(width: 8),
                                 Text('${snapshot.data?.total_balance_due}', style: Theme.of(context).textTheme.labelSmall?.copyWith(
@@ -121,34 +125,34 @@ class _CreditDueWidgetState extends State<CreditDueWidget> {
                             Row(
                               children: [
                                 Container(
-                                  height: 12,
-                                  width: 12,
+                                  height: 10,
+                                  width: 10,
                                   decoration: BoxDecoration(
-                                    color: Theme.of(context).colorScheme.error.withOpacity(0.7),
-                                    borderRadius: BorderRadius.circular(1)
+                                    color: CreditDueReport.description(context)[1]['color'],
+                                    borderRadius: BorderRadius.circular(2)
                                   ),
                                 ),
                                 const SizedBox(width: 8),
-                                Text('Jatuh Tempo', style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                Text('Total Piutang', style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                   color: Theme.of(context).colorScheme.secondary,
                                   fontSize: 10,
                                   letterSpacing: 0
                                 )),
                               ],
                             ),
-                            const SizedBox(height: 12),
+                            const SizedBox(height: 6),
                             Row(
                               children: [
                                 Container(
-                                  height: 12,
-                                  width: 12,
+                                  height: 10,
+                                  width: 10,
                                   decoration: BoxDecoration(
-                                    color: Theme.of(context).colorScheme.errorContainer,
-                                    borderRadius: BorderRadius.circular(1)
+                                    color: CreditDueReport.description(context)[0]['color'],
+                                    borderRadius: BorderRadius.circular(2)
                                   ),
                                 ),
                                 const SizedBox(width: 8),
-                                Text('Total Piutang', style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                Text('Jatuh Tempo', style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                   color: Theme.of(context).colorScheme.secondary,
                                   fontSize: 10,
                                   letterSpacing: 0
@@ -163,7 +167,7 @@ class _CreditDueWidgetState extends State<CreditDueWidget> {
                 ),
               );
             } else {
-              return const HandleNoInternet(message: 'Tidak Terkoneksi ke Internet');
+              return const HandleNoData();
             }
           }
         )

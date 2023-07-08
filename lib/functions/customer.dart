@@ -57,7 +57,10 @@ class Customer extends Equatable {
       // HACK: Validate Data Local and DB
       final Customer? data = await Customer.retrieve(id_ousr: currentUser['id_ousr']).then((customers) {
         if (customers.isEmpty) return null;
-        return customers.singleWhere((customer) => customer.id_usr2 == jsondata['id_usr2']);
+
+        List<Customer?> customer = customers.where((customer) => customer.id_usr2 == jsondata['id_usr2']).toList();
+        if (customer.isEmpty) return null;
+        return customer.first;
       });
 
       if (data != null) {
@@ -76,6 +79,7 @@ class Customer extends Equatable {
 
     } else {
       return Customer.retrieve(id_ousr: currentUser['id_ousr']).then((customer) {
+        if (customer.isEmpty) return null;
         defaultCustomer.value = customer.first;
         return customer.first;
       });
@@ -212,25 +216,44 @@ class DeliveryOrder {
 class CreditDueReport {
   final int? id_ocst;
   final String total_balance, total_balance_due;
+  final double percent_balance, percent_balance_due;
   final int? count;
 
   CreditDueReport({
     this.id_ocst,
     required this.total_balance,
     required this.total_balance_due,
+    required this.percent_balance,
+    required this.percent_balance_due,
     this.count
   });
+
+  static List<Map> description(BuildContext context) => [
+    {
+      'name': 'Jatuh Tempo',
+      'color': Theme.of(context).colorScheme.error.withOpacity(0.7)
+    }, {
+      'name': 'Total Piutang',
+      'color': Theme.of(context).colorScheme.error.withOpacity(0.1)
+    }
+  ];
 
   static Future<CreditDueReport> retrieve({required String id_ocst}) async {
     return await SQL.retrieve(api: 'sim_report/arr', query: 'id_osct=$id_ocst').then((value) {
       String total_balance, total_balance_due;
+      double percent_balance, percent_balance_due;
+
+      percent_balance_due = value['total_balance_due'] / value['total_balance'] * 100;
+      percent_balance = 100 - percent_balance_due;
 
       total_balance = NumberFormat.compactSimpleCurrency(locale: 'id-ID', decimalDigits: 2).format(value['total_balance']);
       total_balance_due = NumberFormat.compactSimpleCurrency(locale: 'id-ID', decimalDigits: 2).format(value['total_balance_due']);
 
       return CreditDueReport(
         total_balance: total_balance,
-        total_balance_due: total_balance_due
+        total_balance_due: total_balance_due,
+        percent_balance: percent_balance,
+        percent_balance_due: percent_balance_due
       );
     });
   }

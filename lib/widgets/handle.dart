@@ -277,3 +277,35 @@ class HandleNoData extends StatelessWidget {
     );
   }
 }
+
+class DisableWidget extends StatelessWidget {
+  const DisableWidget({super.key, required this.disable, required this.child});
+
+  final bool disable;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return AbsorbPointer(
+      absorbing: disable,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        foregroundDecoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          border: disable ? Border.all(
+            color: Theme.of(context).colorScheme.outlineVariant
+          ) : null,
+          color: Theme.of(context).colorScheme.background.withOpacity(disable ? 0.9 : 0)
+        ),
+        child: ColorFiltered(
+          colorFilter: ColorFilter.mode(disable ? Theme.of(context).colorScheme.background : Colors.transparent, BlendMode.saturation),
+          child: child
+        )
+      )
+    );
+  }
+}

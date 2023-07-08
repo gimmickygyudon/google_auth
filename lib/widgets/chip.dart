@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 
 class ChipSmall extends StatelessWidget {
-  const ChipSmall({super.key, required this.bgColor, required this.label, required this.labelColor, this.trailing});
+  const ChipSmall({
+    super.key, required this.bgColor, required this.label, required this.labelColor, this.trailing, this.borderRadius, this.leading, this.textStyle
+  });
 
   final Color bgColor, labelColor;
   final String label;
-  final Widget? trailing;
+  final Widget? trailing, leading;
+  final BorderRadius? borderRadius;
+  final TextStyle? textStyle;
 
   @override
   Widget build(BuildContext context) {
@@ -13,17 +17,19 @@ class ChipSmall extends StatelessWidget {
       visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
       padding: const EdgeInsets.fromLTRB(0, 1, 0, 0),
       side: BorderSide.none,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+      shape: RoundedRectangleBorder(borderRadius: borderRadius ?? BorderRadius.circular(4)),
       backgroundColor: bgColor,
       label: Row(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
+          leading ?? const SizedBox(),
+          SizedBox(width: leading != null ? 4 : 0),
           Text(label),
           SizedBox(width: trailing != null ? 4 : 0),
           trailing ?? const SizedBox()
         ],
       ),
-      labelStyle: Theme.of(context).textTheme.labelSmall?.copyWith(
+      labelStyle: textStyle ?? Theme.of(context).textTheme.labelSmall?.copyWith(
         color: labelColor
       ),
     );

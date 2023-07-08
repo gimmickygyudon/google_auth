@@ -1,17 +1,19 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:google_auth/functions/customer.dart';
+import 'package:google_auth/widgets/chip.dart';
 
-class PieChartSample3 extends StatefulWidget {
-  const PieChartSample3({super.key, this.radius, this.selectedRadius});
+class CreditDueChart extends StatefulWidget {
+  const CreditDueChart({super.key, this.radius, this.selectedRadius, required this.creditDueReport});
 
   final double? radius, selectedRadius;
+  final CreditDueReport? creditDueReport;
 
   @override
-  State<StatefulWidget> createState() => PieChartSample3State();
+  State<StatefulWidget> createState() => CreditDueChartState();
 }
 
-class PieChartSample3State extends State<PieChartSample3> {
+class CreditDueChartState extends State<CreditDueChart> {
   int touchedIndex = 0;
 
   @override
@@ -38,9 +40,10 @@ class PieChartSample3State extends State<PieChartSample3> {
           borderData: FlBorderData(
             show: false,
           ),
-          sectionsSpace: 2,
+          sectionsSpace: 0,
           centerSpaceRadius: 0,
           sections: showingSections(
+            creditDueReport: widget.creditDueReport,
             radius: widget.radius,
             selectedRadius: widget.selectedRadius
           ),
@@ -50,39 +53,77 @@ class PieChartSample3State extends State<PieChartSample3> {
   }
 
   List<PieChartSectionData> showingSections({
-    double? radius, double? selectedRadius
+    double? radius, double? selectedRadius,
+    required CreditDueReport? creditDueReport
   }) {
     return List.generate(2, (i) {
       final isTouched = i == touchedIndex;
-      final fontSize = isTouched ? 20.0 : 16.0;
+      final fontSize = isTouched ? 18.0 : 14.0;
 
       switch (i) {
         case 0:
           return PieChartSectionData(
-            color: Theme.of(context).colorScheme.error.withOpacity(0.7),
-            value: 40,
-            title: '40%',
+            color: CreditDueReport.description(context)[0]['color'],
+            value: creditDueReport?.percent_balance_due,
+            title: '${creditDueReport?.percent_balance_due}%',
             radius: isTouched ? selectedRadius : radius,
             titleStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
               fontSize: fontSize,
               color: Theme.of(context).colorScheme.surface
             ),
+            badgeWidget: _badge(
+              label: widget.creditDueReport!.total_balance_due,
+              iconColor: CreditDueReport.description(context)[0]['color']
+            ),
+            badgePositionPercentageOffset: .98,
           );
         case 1:
           return PieChartSectionData(
-            color: Theme.of(context).colorScheme.errorContainer,
-            value: 60,
-            title: '60%',
+            color: CreditDueReport.description(context)[1]['color'],
+            value: creditDueReport?.percent_balance,
+            title: '${creditDueReport?.percent_balance}%',
             radius: isTouched ? selectedRadius : radius,
             titleStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
               fontSize: fontSize,
               color: Theme.of(context).colorScheme.inverseSurface
             ),
+            badgeWidget: _badge(
+              label: widget.creditDueReport!.total_balance,
+              iconColor: CreditDueReport.description(context)[1]['color']
+            ),
+            badgePositionPercentageOffset: .98,
           );
         default:
           throw Exception('Oh no');
       }
     });
+  }
+
+  Widget _badge({required String label, required Color iconColor}) {
+    return PhysicalModel(
+      color: Colors.transparent,
+      shadowColor: Theme.of(context).colorScheme.shadow.withOpacity(0.25),
+      elevation: 6,
+      borderRadius: BorderRadius.circular(4),
+      child: ChipSmall(
+        leading: Container(
+          height: 10,
+          width: 10,
+          margin: const EdgeInsets.only(right: 6),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(2),
+            color: iconColor,
+          ),
+        ),
+        label: label,
+        textStyle: Theme.of(context).textTheme.labelSmall?.copyWith(
+          fontSize: 10
+        ),
+        borderRadius: BorderRadius.circular(4),
+        bgColor: Theme.of(context).colorScheme.background,
+        labelColor: Theme.of(context).colorScheme.inverseSurface
+      ),
+    );
   }
 }
 
