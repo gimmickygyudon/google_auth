@@ -9,6 +9,9 @@ import 'package:google_auth/widgets/chart.dart';
 import 'package:google_auth/widgets/handle.dart';
 import 'package:google_auth/widgets/profile.dart';
 
+import '../../functions/color.dart';
+import '../../widgets/text.dart';
+
 class DetailReportRoute extends StatefulWidget {
   const DetailReportRoute({super.key});
 
@@ -63,15 +66,6 @@ class _DetailReportRouteState extends State<DetailReportRoute> {
     selectedYears = years.last;
   }
 
-  Color lighten(Color color, [double amount = 0.49]) {
-    assert(amount >= 0 && amount <= 1);
-
-    final hsl = HSLColor.fromColor(color);
-    final hslLight = hsl.withLightness((hsl.lightness + amount).clamp(0.0, 1.0));
-
-    return hslLight.toColor();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Theme(
@@ -99,18 +93,9 @@ class _DetailReportRouteState extends State<DetailReportRoute> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  CircleAvatar(
-                    radius: 12,
-                    backgroundColor: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.5),
-                    child: Icon(Icons.show_chart, size: 18, color: Theme.of(context).colorScheme.primary)
-                  ),
-                  const SizedBox(width: 10),
-                  Text('Analisa Pencapaian', style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    letterSpacing: 0
-                  )),
-                ],
+              const TextIcon(
+                label: 'Analisa Pencapaian',
+                icon: Icons.show_chart
               ),
               Text('Rincian detail delivery order anda selama ini.', style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(context).colorScheme.secondary,

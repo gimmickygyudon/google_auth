@@ -258,3 +258,22 @@ class HandleLocationPermission extends StatelessWidget {
   }
 }
 
+class HandleNoData extends StatelessWidget {
+  const HandleNoData({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 20),
+            child: Icon(Icons.bar_chart_outlined, size: 40, color: Theme.of(context).colorScheme.secondary),
+          ),
+          Text('Tidak ada data yang ditemukan', style: Theme.of(context).textTheme.titleSmall)
+        ],
+      )
+    );
+  }
+}

@@ -329,20 +329,26 @@ class _LaporanRouteState extends State<LaporanRoute> {
                       itemBuilder: (context, index) {
                         return Container(
                           margin: const EdgeInsets.only(right: 10),
-                          width: 160,
-                          child: Chip(
-                            onDeleted: () => setState(() {
-                              fileList.removeWhere((element) => element.name == fileList[index].name);
-                            }),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                            side: BorderSide.none,
-                            backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
-                            deleteIconColor: Theme.of(context).colorScheme.inverseSurface,
-                            avatar: Icon(Icons.upload_file, color: Theme.of(context).colorScheme.inverseSurface),
-                            label: Text(fileList[index].name),
-                            labelStyle: Theme.of(context).textTheme.labelMedium?.copyWith(
-                              color: Theme.of(context).colorScheme.inverseSurface,
-                              letterSpacing: 0
+                          alignment: Alignment.centerLeft,
+                          child: ConstrainedBox(
+                            constraints: const BoxConstraints(
+                              minWidth: 60,
+                              maxWidth: 160,
+                            ),
+                            child: Chip(
+                              onDeleted: () => setState(() {
+                                fileList.removeWhere((element) => element.name == fileList[index].name);
+                              }),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              side: BorderSide.none,
+                              backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+                              deleteIconColor: Theme.of(context).colorScheme.inverseSurface,
+                              avatar: Icon(Icons.upload_file, color: Theme.of(context).colorScheme.inverseSurface),
+                              label: Text(fileList[index].name),
+                              labelStyle: Theme.of(context).textTheme.labelMedium?.copyWith(
+                                color: Theme.of(context).colorScheme.inverseSurface,
+                                letterSpacing: 0
+                              ),
                             ),
                           ),
                         );

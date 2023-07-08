@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_auth/functions/sqlite.dart';
 import 'package:google_auth/widgets/handle.dart';
+import 'package:google_auth/widgets/text.dart';
 import 'package:intl/intl.dart';
 
 import '../../functions/push.dart';
@@ -124,18 +125,18 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Kritik & Saran',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    letterSpacing: -0.5,
-                    color: Theme.of(context).colorScheme.inverseSurface
-                  )
-                ),
-                const SizedBox(height: 2),
-                Text('Kami Sangat Menghargai Pendapat Anda.',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.secondary,
-                    letterSpacing: 0
-                  )
+                const TextIcon(label: 'Keluhan', icon: Icons.help, iconSize: 22),
+                const SizedBox(height: 4),
+                Row(
+                  children: [
+                    Text('Kami Sangat Menghargai Pendapat Anda.',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.secondary,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Icon(Icons.sentiment_satisfied_alt, size: 18, color: Theme.of(context).colorScheme.secondary),
+                  ],
                 ),
               ],
             ),
@@ -149,9 +150,7 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.flag),
-                    SizedBox(width: 8),
-                    Text('Buat Keluhan')
+                    Text('Lapor Keluhan')
                   ],
                 )
               ),
@@ -162,8 +161,6 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.chat_outlined),
-                        SizedBox(width: 8),
                         Text('Pendapat Anda')
                       ],
                     )
@@ -383,14 +380,15 @@ class BuatLaporanWidget extends StatelessWidget {
                   physics: const NeverScrollableScrollPhysics(),
                   gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                     maxCrossAxisExtent: 260,
-                    mainAxisSpacing: (MediaQuery.of(context).size.height > 750) ? 20 : 40,
-                    crossAxisSpacing: (MediaQuery.of(context).size.height > 750) ? 20 : 40
+                    mainAxisExtent: 130,
+                    mainAxisSpacing: (MediaQuery.of(context).size.height > 750) ? 30 : 40,
+                    crossAxisSpacing: (MediaQuery.of(context).size.height > 750) ? 30 : 40
                   ),
                   children: laporanList.map((item) {
                     return Hero(
                       tag: item['name'],
                       child: LaporanCard(
-                        iconSize: 26,
+                        iconSize: 32,
                         bgRadius: 20,
                         laporanList: laporanList,
                         pushReportPage: pushReportPage,

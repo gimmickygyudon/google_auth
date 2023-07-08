@@ -19,7 +19,7 @@ class ReportDeliveryWidget extends StatefulWidget {
 }
 
 class _ReportDeliveryWidgetState extends State<ReportDeliveryWidget> {
-  bool isOffline = false, isLoading = false;
+  bool isOffline = false;
 
   late List<String> datesRange;
   late String dateRange;
@@ -39,7 +39,6 @@ class _ReportDeliveryWidgetState extends State<ReportDeliveryWidget> {
   }
 
   Future<DeliveryOrder> setReportDelivery() async {
-    setState(() => isLoading = true);
     String? id_ocst = await Customer.getDefaultCustomer().then((customer) => customer?.id_ocst);
 
     if (id_ocst != null) {
@@ -47,56 +46,49 @@ class _ReportDeliveryWidgetState extends State<ReportDeliveryWidget> {
         case 'MINGGU INI':
           DateFormat('EEEE, dd MMMM ''yyyy', 'id').format(DateTime(DateTime.now().year, 05));
           date = '${getCurrentStartEndWeek(DateTime(DateTime.now().year, 05), format: 'dd MMMM').keys.first}  -  ${getCurrentStartEndWeek(DateTime(DateTime.now().year, 05), format: 'dd MMMM').values.first}';
-          return _reportDelivery = DeliveryOrder.retrieveWeek(id_ocst: id_ocst, date: DateTime(DateTime.now().year, 05)).then((value) {
+          return DeliveryOrder.retrieveWeek(id_ocst: id_ocst, date: DateTime(DateTime.now().year, 05)).then((value) {
 
-            setState(() => isLoading = false);
             return defineValueTonase(value: value);
           }).onError((error, stackTrace) => defineError());
 
         case 'BULAN INI':
           date = DateFormat('MMMM ''yyyy', 'id').format(DateTime(DateTime.now().year, 05));
-          return _reportDelivery = DeliveryOrder.retrieveMonth(
+          return DeliveryOrder.retrieveMonth(
             id_ocst: id_ocst,
             date: DateTime(DateTime.now().year, 05))
           .then((value) {
 
-              setState(() => isLoading = false);
               return defineValueTonase(value: value);
             }).onError((error, stackTrace) => defineError());
 
         case '3 BULAN':
           date = '${DateFormat('MMMM ''yyyy', 'id').format(DateTime(DateTime.now().year, 05 - 02, 01))}  -  ${DateFormat('MMMM ''yyyy', 'id').format(DateTime(DateTime.now().year, 05, DateTime.now().lastDayOfMonth))}';
-          return _reportDelivery = DeliveryOrder.retrieveLastMonths(
+          return DeliveryOrder.retrieveLastMonths(
             id_ocst: id_ocst,
             from: DateTime(DateTime.now().year, 05 - 02, 01),
             to: DateTime(DateTime.now().year, 05, DateTime.now().lastDayOfMonth))
           .then((value) {
 
-            setState(() => isLoading = false);
             return defineValueTonase(value: value);
           }).onError((error, stackTrace) => defineError());
 
         case '6 BULAN':
           date = '${DateFormat('MMMM ''yyyy', 'id').format(DateTime(DateTime.now().year, 05 - 06, 01))}  -  ${DateFormat('MMMM ''yyyy', 'id').format(DateTime(DateTime.now().year, 05, DateTime.now().lastDayOfMonth))}';
-          return _reportDelivery = DeliveryOrder.retrieveLastMonths(
+          return DeliveryOrder.retrieveLastMonths(
             id_ocst: id_ocst,
             from: DateTime(DateTime.now().year, 05 - 06, 01),
             to: DateTime(DateTime.now().year, 05, DateTime.now().lastDayOfMonth))
           .then((value) {
 
-            setState(() => isLoading = false);
             return defineValueTonase(value: value);
           }).onError((error, stackTrace) => defineError());
 
         default:
           date = DateFormat('EEEE, dd MMMM ''yyyy', 'id').format(DateTime(DateTime.now().year, 05));
-
-          setState(() => isLoading = false);
           return _reportDelivery = defineError();
       }
     } else {
       date = DateFormat('EEEE, dd MMMM ''yyyy', 'id').format(DateTime.now());
-      setState(() => isLoading = false);
       return _reportDelivery = defineError();
     }
   }
@@ -117,242 +109,311 @@ class _ReportDeliveryWidgetState extends State<ReportDeliveryWidget> {
   }
 
   Future<DeliveryOrder> defineError() async {
-    Future.delayed(const Duration(milliseconds: 600), () {
-      setState(() => isOffline = true);
-    });
+    setState(() => isOffline = true);
     return const DeliveryOrder(tonage: 99.9, outstanding_tonage: 99.9, target: 99.9);
   }
 
   @override
   Widget build(BuildContext context) {
-    return AbsorbPointer(
-      absorbing: isLoading ? true : false,
-      child: SizedBox(
-        height: 350,
-        width: null,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          foregroundDecoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.background.withOpacity(isLoading ? 0.5 : 0)
-          ),
-          child: FutureBuilder(
-            future: _reportDelivery,
-            builder: (context, snapshot) {
-              return AnimatedSwitcher(
-                switchInCurve: Curves.fastOutSlowIn,
-                switchOutCurve: Curves.fastOutSlowIn,
-                duration: const Duration(milliseconds: 800),
-                child: snapshot.connectionState == ConnectionState.waiting
-                ? SizedBox(
-                  child: Container(
-                    clipBehavior: Clip.antiAlias,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.25),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const HandleLoadingBar()
-                  ),
-                )
-                : Container(
-                  clipBehavior: Clip.antiAlias,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Theme.of(context).colorScheme.primaryContainer.withOpacity(0.25),
-                        Theme.of(context).colorScheme.primaryContainer
-                      ]
-                    )
-                  ),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 800),
-                    decoration: BoxDecoration(
-                      border: isOffline ? Border(top: BorderSide(width: 2, color: Theme.of(context).colorScheme.error)) : Border.all(width: 0, color: Colors.transparent)
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 6),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  Text('Perolehan Kamu', style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                                    letterSpacing: 0
-                                  )),
-                                  const SizedBox(width: 10),
-                                  if (isOffline) const ChipOffline()
-                                ],
-                              ),
-                              DropdownButtonHideUnderline(
-                                child: DropdownButton(
-                                  value: dateRange,
-                                  onChanged: (value) => setState(() {
-                                    dateRange = value.toString();
-                                    setReportDelivery();
-                                  }),
-                                  padding: const EdgeInsets.only(left: 6),
-                                  isDense: true,
-                                  borderRadius: BorderRadius.circular(8),
-                                  style: Theme.of(context).textTheme.labelMedium?.copyWith(letterSpacing: 0),
-                                  items: datesRange.map((date) {
-                                    return DropdownMenuItem(
-                                      value: date,
-                                      child: Text(date)
-                                    );
-                                  }).toList()
-                                ),
-                              )
-                            ],
+    return SizedBox(
+      height: 360,
+      width: null,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        clipBehavior: Clip.antiAliasWithSaveLayer,
+        child: Stack(
+          children: [
+            AbsorbPointer(
+              absorbing: isOffline ? true : false,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                clipBehavior: Clip.antiAlias,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                foregroundDecoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  border: isOffline ? Border.all(
+                    color: Theme.of(context).colorScheme.outlineVariant
+                  ) : null,
+                  color: Theme.of(context).colorScheme.background.withOpacity(isOffline ? 0.9 : 0)
+                ),
+                child: ColorFiltered(
+                  colorFilter: ColorFilter.mode(isOffline ? Theme.of(context).colorScheme.background : Colors.transparent, BlendMode.saturation),
+                  child: FutureBuilder(
+                    future: _reportDelivery,
+                    builder: (context, snapshot) {
+                      return AnimatedSwitcher(
+                        switchInCurve: Curves.fastOutSlowIn,
+                        switchOutCurve: Curves.fastOutSlowIn,
+                        duration: const Duration(milliseconds: 800),
+                        child: snapshot.connectionState == ConnectionState.waiting
+                        ? SizedBox(
+                          child: Container(
+                            clipBehavior: Clip.antiAlias,
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.25),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const HandleLoadingBar()
                           ),
-                          Flexible(
+                        )
+                        : Container(
+                          clipBehavior: Clip.antiAlias,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Theme.of(context).colorScheme.primaryContainer.withOpacity(0.25),
+                                Theme.of(context).colorScheme.primaryContainer
+                              ]
+                            )
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 12, 16, 6),
                             child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
                               children: [
-                                Expanded(
-                                  child: Stack(
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Text('Perolehan Kamu', style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                                          letterSpacing: 0
+                                        )),
+                                      ],
+                                    ),
+                                    DropdownButtonHideUnderline(
+                                      child: DropdownButton(
+                                        value: dateRange,
+                                        onChanged: (value) => setState(() {
+                                          dateRange = value.toString();
+                                          setReportDelivery();
+                                        }),
+                                        padding: const EdgeInsets.only(left: 6),
+                                        isDense: true,
+                                        elevation: 0,
+                                        borderRadius: BorderRadius.circular(8),
+                                        style: Theme.of(context).textTheme.labelMedium?.copyWith(letterSpacing: 0),
+                                        items: datesRange.map((date) {
+                                          return DropdownMenuItem(
+                                            value: date,
+                                            child: Text(date)
+                                          );
+                                        }).toList()
+                                      ),
+                                    )
+                                  ],
+                                ),
+                                Flexible(
+                                  child: Column(
                                     children: [
-                                      Center(
-                                        child: Padding(
-                                          padding: const EdgeInsets.only(top: 20),
-                                          child: POChartWidget(
-                                            DeliveryOrder(
-                                              tonage: snapshot.data!.tonage,
-                                              outstanding_tonage: snapshot.data!.outstanding_tonage,
-                                              target: snapshot.data!.target
-                                            )
-                                          )
-                                        ),
-                                      ),
-                                      Align(
-                                        alignment: Alignment.topLeft,
-                                        child: Text(date,
-                                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                            color: Theme.of(context).colorScheme.secondary,
-                                            fontSize: 10,
-                                            letterSpacing: 0,
-                                          )
-                                        ),
-                                      ),
-                                      Align(
-                                        alignment: Alignment.topRight,
-                                        child: Padding(
-                                          padding: const EdgeInsets.only(top: 8),
-                                          child: Column(
-                                            mainAxisAlignment: MainAxisAlignment.start,
-                                            crossAxisAlignment: CrossAxisAlignment.end,
-                                            children: [
-                                              ChipSmall(
-                                                bgColor: DeliveryOrder.description(context: context)[0]['color'],
-                                                label: '${percent[0]} %',
-                                                labelColor: Theme.of(context).colorScheme.surface
+                                      Expanded(
+                                        child: Stack(
+                                          children: [
+                                            Center(
+                                              child: Padding(
+                                                padding: const EdgeInsets.only(top: 20),
+                                                child: POChartWidget(
+                                                  DeliveryOrder(
+                                                    tonage: snapshot.data!.tonage,
+                                                    outstanding_tonage: snapshot.data!.outstanding_tonage,
+                                                    target: snapshot.data!.target
+                                                  )
+                                                )
                                               ),
-                                              ChipSmall(
-                                                bgColor: DeliveryOrder.description(context: context)[1]['color'],
-                                                label: '${percent[1]} %',
-                                                labelColor: Theme.of(context).colorScheme.inverseSurface
+                                            ),
+                                            Align(
+                                              alignment: Alignment.topLeft,
+                                              child: Text(date,
+                                                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                                  color: Theme.of(context).colorScheme.secondary,
+                                                  fontSize: 10,
+                                                  letterSpacing: 0,
+                                                )
+                                              ),
+                                            ),
+                                            Align(
+                                              alignment: Alignment.topRight,
+                                              child: Padding(
+                                                padding: const EdgeInsets.only(top: 8),
+                                                child: Column(
+                                                  mainAxisAlignment: MainAxisAlignment.start,
+                                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                                  children: [
+                                                    ChipSmall(
+                                                      bgColor: DeliveryOrder.description(context: context)[0]['color'],
+                                                      label: '${percent[0]} %',
+                                                      labelColor: Theme.of(context).colorScheme.surface
+                                                    ),
+                                                    ChipSmall(
+                                                      bgColor: DeliveryOrder.description(context: context)[1]['color'],
+                                                      label: '${percent[1]} %',
+                                                      labelColor: Theme.of(context).colorScheme.inverseSurface
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: <Widget>[
+                                          for (var i = 0; i < total.length; i++)
+                                          Column(
+                                            children: [
+                                              Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                children: [
+                                                  Expanded(
+                                                    flex: 3,
+                                                    child: Row(
+                                                      children: [
+                                                        Container(
+                                                          height: 14,
+                                                          width: 14,
+                                                          decoration: BoxDecoration(
+                                                            color: DeliveryOrder.description(context: context)[i]['color'],
+                                                            borderRadius: BorderRadius.circular(4)
+                                                          ),
+                                                        ),
+                                                        const SizedBox(width: 8),
+                                                        Text(DeliveryOrder.description(context: context)[i]['name'], style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                                          letterSpacing: 0
+                                                        )),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  Padding(
+                                                    padding: const EdgeInsets.only(right: 8),
+                                                    child: Text('${total[i]} Ton', style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                                      letterSpacing: 0
+                                                    )),
+                                                  ),
+                                                  Icon(Icons.bar_chart, size: 16, color: DeliveryOrder.description(context: context)[i]['color'])
+                                                ],
                                               ),
                                             ],
-                                          ),
-                                        ),
+                                          )
+                                        ]
                                       )
                                     ],
                                   ),
                                 ),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: <Widget>[
-                                    for (var i = 0; i < total.length; i++)
-                                    Column(
-                                      children: [
-                                        Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Expanded(
-                                              flex: 3,
-                                              child: Row(
-                                                children: [
-                                                  Container(
-                                                    height: 14,
-                                                    width: 14,
-                                                    decoration: BoxDecoration(
-                                                      color: DeliveryOrder.description(context: context)[i]['color'],
-                                                      borderRadius: BorderRadius.circular(4)
-                                                    ),
-                                                  ),
-                                                  const SizedBox(width: 8),
-                                                  Text(DeliveryOrder.description(context: context)[i]['name'], style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                                    letterSpacing: 0
-                                                  )),
-                                                ],
-                                              ),
-                                            ),
-                                            Padding(
-                                              padding: const EdgeInsets.only(right: 8),
-                                              child: Text('${total[i]} Ton', style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                                letterSpacing: 0
-                                              )),
-                                            ),
-                                            Icon(Icons.bar_chart, size: 16, color: DeliveryOrder.description(context: context)[i]['color'])
-                                          ],
+                                const SizedBox(height: 16),
+                                MediaQuery.removePadding(
+                                  context: context,
+                                  removeLeft: true,
+                                  child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      CustomerSelectWidget(onChanged: () {
+                                        setReportDelivery();
+                                      }),
+                                      Align(
+                                        alignment: Alignment.centerRight,
+                                        child: TextButton(
+                                          style: ButtonStyle(
+                                            visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+                                            padding: const MaterialStatePropertyAll(EdgeInsets.only(left: 6)),
+                                            textStyle: MaterialStatePropertyAll(Theme.of(context).textTheme.labelSmall?.copyWith(letterSpacing: 0.25)),
+                                            iconSize: const MaterialStatePropertyAll(16)
+                                          ),
+                                          onPressed: () => pushDetailReport(context: context, onPop: () {
+                                            setState(() {
+                                              setReportDelivery();
+                                            });
+                                          }),
+                                          child: const Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Text('Rincian Pencapaian'),
+                                              SizedBox(width: 4),
+                                              Icon(Icons.arrow_forward)
+                                            ],
+                                          ),
                                         ),
-                                      ],
-                                    )
-                                  ]
+                                      ),
+                                    ],
+                                  ),
                                 )
                               ],
                             ),
                           ),
-                          const SizedBox(height: 10),
-                          MediaQuery.removePadding(
-                            context: context,
-                            removeLeft: true,
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                CustomerSelectWidget(onChanged: () {
-                                  setReportDelivery();
-                                }),
-                                Align(
-                                  alignment: Alignment.centerRight,
-                                  child: TextButton(
-                                    style: ButtonStyle(
-                                      visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
-                                      padding: const MaterialStatePropertyAll(EdgeInsets.only(left: 6)),
-                                      textStyle: MaterialStatePropertyAll(Theme.of(context).textTheme.labelSmall?.copyWith(letterSpacing: 0.25)),
-                                      iconSize: const MaterialStatePropertyAll(16)
-                                    ),
-                                    onPressed: () => pushDetailReport(context: context, onPop: () {
-                                      setState(() {
-                                        setReportDelivery();
-                                      });
-                                    }),
-                                    child: const Row(
-                                      mainAxisSize: MainAxisSize.min,
-                                      children: [
-                                        Text('Rincian Pencapaian'),
-                                        SizedBox(width: 4),
-                                        Icon(Icons.arrow_forward)
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
+                        ),
+                      );
+                    }
                   ),
                 ),
-              );
-            }
-          ),
+              ),
+            ),
+            if (isOffline) ... [
+              const HandleNoData(),
+              Align(
+                alignment: Alignment.bottomLeft,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 6),
+                  child: CustomerSelectWidget(onChanged: () {
+                    setReportDelivery();
+                  }),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 6),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          children: [
+                            Text('Perolehan Kamu', style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                              letterSpacing: 0
+                            )),
+                          ],
+                        ),
+                        DropdownButtonHideUnderline(
+                          child: DropdownButton(
+                            value: dateRange,
+                            onChanged: (value) => setState(() {
+                              dateRange = value.toString();
+                              setReportDelivery();
+                            }),
+                            padding: const EdgeInsets.only(left: 6),
+                            isDense: true,
+                            elevation: 0,
+                            borderRadius: BorderRadius.circular(8),
+                            style: Theme.of(context).textTheme.labelMedium?.copyWith(letterSpacing: 0),
+                            items: datesRange.map((date) {
+                              return DropdownMenuItem(
+                                value: date,
+                                child: Text(date)
+                              );
+                            }).toList()
+                          ),
+                        )
+                      ],
+                    ),
+                    Text(date,
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: Theme.of(context).colorScheme.secondary,
+                        fontSize: 10,
+                        letterSpacing: 0,
+                      )
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ],
         ),
       ),
     );
@@ -430,8 +491,14 @@ class _CustomerSelectWidgetState extends State<CustomerSelectWidget> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             const SizedBox(width: 4),
-                            Icon(Icons.account_circle, size: 22, color: Theme.of(context).colorScheme.surface),
-                            const SizedBox(width: 6),
+                            CircleAvatar(
+                              radius: 11,
+                              backgroundColor: Theme.of(context).colorScheme.background,
+                              child: Text(customer.remarks.substring(0, 1).toUpperCase(), style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                fontWeight: FontWeight.w600
+                              ))
+                            ),
+                            const SizedBox(width: 8),
                             Text(customer.remarks),
                           ],
                         )
