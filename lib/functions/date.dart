@@ -11,8 +11,8 @@ class Date {
       firstDate: DateTime(now.year, now.month, now.day),
       lastDate: DateTime(2030, 12, 31),
       currentDate: DateTime.now(),
-      confirmText: 'Selesai',
-      cancelText: 'Batal'
+      confirmText: 'Pilih',
+      cancelText: 'Kembali'
     );
 
     return result;
@@ -25,7 +25,8 @@ class Date {
       firstDate: date ?? DateTime(now.year, now.month, now.day),
       lastDate: DateTime(2030, 12, 31),
       currentDate: DateTime.now(),
-      saveText: 'Selesai',
+      saveText: 'Pilih',
+      cancelText: 'Kembali'
     );
 
     return result;
@@ -40,7 +41,7 @@ class Date {
       hourLabelText: 'Jam',
       minuteLabelText: 'Menit',
       confirmText: 'Selesai',
-      cancelText: 'Batal'
+      cancelText: 'Kembali'
     );
 
     return result;

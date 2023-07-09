@@ -581,6 +581,7 @@ class _AddAddressDialogState extends State<AddAddressDialog> {
             // TODO: Add Upload Photo Image
             // FIXME: Janky Double Context
             child: AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               titleTextStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.w500
               ),
@@ -593,10 +594,9 @@ class _AddAddressDialogState extends State<AddAddressDialog> {
                   children: <Widget>[
                     const SizedBox(height: 12),
                     Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.help_outline, color: Theme.of(context).colorScheme.secondary),
+                        Icon(Icons.help_outline, size: 20, color: Theme.of(context).colorScheme.secondary),
                         const SizedBox(width: 8),
                         Flexible(
                           child: Text('Tambahkan alamat ini ke lokasi pemesanan.', style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -622,7 +622,10 @@ class _AddAddressDialogState extends State<AddAddressDialog> {
                             child: Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Icon(widget.locations[i]['icon'], size: 20, color: Theme.of(context).colorScheme.primary),
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 2),
+                                  child: Icon(widget.locations[i]['icon'], size: 18, color: Theme.of(context).colorScheme.primary),
+                                ),
                                 const SizedBox(width: 8),
                                 Flexible(child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,

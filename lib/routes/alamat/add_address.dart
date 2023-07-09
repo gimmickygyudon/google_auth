@@ -6,6 +6,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:google_auth/functions/string.dart';
 import 'package:google_auth/widgets/dialog.dart';
 import 'package:google_auth/widgets/handle.dart';
+import 'package:google_auth/widgets/info.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../../functions/location.dart';
@@ -259,238 +260,231 @@ class _AddressAddRouteState extends State<AddressAddRoute> with WidgetsBindingOb
           centerTitle: true,
         ),
         body: SingleChildScrollView(
-          controller: _scrollController,
-          padding: const EdgeInsets.all(20),
           child: Column(
             children: [
-              AnimatedSize(
-                duration: const Duration(milliseconds: 700),
-                curve: Curves.fastOutSlowIn,
-                alignment: Alignment.topRight,
-                child: SizedBox(
-                  height: currentLocation.isNotEmpty ? null : 0,
-                  width: null,
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 20),
-                    child: Hero(
-                      tag: 'Location',
-                      child: ButtonListTile(
-                        onTap: () => useCurrentLocation(),
-                        icon: const Icon(Icons.near_me),
-                        title: const Text('Gunakan Lokasi Saat Ini'),
-                        subtitle: currentLocation['suburb'] != null
-                        ? Text(currentLocation['street'].toString().substring(0, currentLocation['street'].toString().indexOf(',')), style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.secondary
-                        ))
-                        : Text('Memuat Lokasi...', style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.secondary
-                        ))
-                      ),
-                    ),
-                  ),
-                ),
+              const InfoSmallWidget(
+                message: 'Gunakan Lokasi Saat ini atau Masukan Secara Manual Alamat Anda.',
               ),
-              Padding(
-                padding: const EdgeInsets.only(left: 10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Lokasi Saya', style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      color: Theme.of(context).colorScheme.secondary,
-                      letterSpacing: 0
-                    )),
-                    PopupMenuButton(
-                      icon: const Icon(Icons.more_horiz),
-                      itemBuilder: (context) {
-                        return [ const PopupMenuItem(child: Text('Reset Lokasi')) ];
-                      },
-                    )
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: ValueListenableBuilder(
-                  valueListenable: appState,
-                  builder: (context, appState, child) {
-                    if (appState == AppLifecycleState.inactive) {
-                      return Container(
-                        padding: const EdgeInsets.only(top: 24),
-                        height: 200,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.surfaceVariant,
-                          borderRadius: BorderRadius.circular(12)
-                        ),
-                        child: const Center(child: HandleLoading(strokeWidth: 3)),
-                      );
-                    } else {
-                      return FutureBuilder(
-                      future: defineLocation,
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.waiting) {
-                          return Container(
-                            padding: const EdgeInsets.only(top: 24),
-                            height: 200,
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.surfaceVariant,
-                              borderRadius: BorderRadius.circular(12)
-                            ),
-                            child: const Center(child: HandleLoading(strokeWidth: 3)),
-                          );
-                        } else if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
-                          return ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: ConstrainedBox(
-                              constraints: const BoxConstraints(maxHeight: 200),
-                              child: FlutterMap(
-                                options: MapOptions(
-                                  onTap: (tapPosition, point) => useCurrentLocation(),
-                                  enableScrollWheel: true,
-                                  center: LatLng(latlang.latitude, latlang.longitude),
-                                  zoom: 12,
-                                ),
-                                nonRotatedChildren: const [
-                                  RichAttributionWidget(
-                                    attributions: [
-                                      TextSourceAttribution(
-                                        'OpenStreetMap contributors',
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                                children: [
-                                  TileLayer(
-                                    urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                                    userAgentPackageName: 'com.example.app',
-                                  ),
-                                  MarkerLabel(
-                                    latlang: latlang,
-                                    currentLocation: currentLocation,
-                                  )
-                                ],
-                              ),
-                            ),
-                          );
-                        } else {
-                          return HandleLocationDisabled(
-                            buttonPressed: () {
-                              getCurrentLocation().whenComplete(() => Navigator.pop(context));
-                            }
-                          );
-                        }
-                      },
-                    );
-                    }
-                  }
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 18),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.only(top: 3),
-                      child: Icon(Icons.info_outline, size: 16),
-                    ),
-                    const SizedBox(width: 6),
-                    Flexible(
-                      child: Text('Gunakan Lokasi Saat Ini atau Masukan Alamat Anda.',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          letterSpacing: 0
-                        )
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const Divider(),
-              Padding(
-                padding: const EdgeInsets.only(left: 10, bottom: 12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Masukan Alamat', style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      color: Theme.of(context).colorScheme.secondary,
-                      letterSpacing: 0
-                    )),
-                    PopupMenuButton(
-                      icon: const Icon(Icons.more_horiz),
-                      itemBuilder: (context) {
-                        return [ const PopupMenuItem(child: Text('Alamat Sekarang')) ];
-                      },
-                    )
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
+              SingleChildScrollView(
+                controller: _scrollController,
+                padding: const EdgeInsets.all(20),
                 child: Column(
-                  children: List.generate(locations.length, (index) {
-                    Widget widget = Padding(
-                      padding: const EdgeInsets.only(bottom: 20),
-                      child: FutureBuilder(
-                        future: locations[index]['options'](),
-                        builder: (context, snapshot) {
-                          return AutoCompleteLocationTextfield(
-                            onTap: () {
-                              return Timer(const Duration(milliseconds: 400), () {
-                                _scrollController.animateTo(range(index + 1),
-                                  duration: const Duration(milliseconds: 200), curve: Curves.ease
-                                );
-                              });
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Lokasi Saya', style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                            color: Theme.of(context).colorScheme.secondary,
+                            letterSpacing: 0
+                          )),
+                          PopupMenuButton(
+                            icon: const Icon(Icons.more_horiz),
+                            itemBuilder: (context) {
+                              return [ const PopupMenuItem(child: Text('Reset Lokasi')) ];
                             },
-                            onDoneEditing: (value) {
-                              setLocationValue(value: value, index: index);
-                            },
-                            isLoading: snapshot.connectionState == ConnectionState.waiting || snapshot.hasError,
-                            element: locations[index],
-                            options: snapshot.data as List<String>?,
-                          );
-                        }
+                          )
+                        ],
                       ),
-                    );
-                    return widget;
-                  }).toList()
-                ),
-              ),
-              const SizedBox(height: 30),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  TextButton.icon(
-                    onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.arrow_back),
-                    label: const Text('Kembali')
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.only(right: 10),
-                    child: Hero(
-                      tag: 'Simpan',
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
                       child: ValueListenableBuilder(
-                        valueListenable: AddressAddRoute.isValidated,
-                        builder: (context, value, child) {
-                          return ElevatedButton(
-                            onPressed: value ? () => showAddressDialog(
-                              context: context,
-                              hero: 'Simpan',
-                              locations: locations
-                            ).then((value) {
-                              if (value == true) Navigator.pop(context);
-                            }) : null,
-                            style: Styles.buttonForm(context: context),
-                            child: const Text('Simpan')
+                        valueListenable: appState,
+                        builder: (context, appState, child) {
+                          if (appState == AppLifecycleState.inactive) {
+                            return Container(
+                              padding: const EdgeInsets.only(top: 24),
+                              height: 200,
+                              width: double.infinity,
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.surfaceVariant,
+                                borderRadius: BorderRadius.circular(12)
+                              ),
+                              child: const Center(child: HandleLoading(strokeWidth: 3)),
+                            );
+                          } else {
+                            return FutureBuilder(
+                            future: defineLocation,
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState == ConnectionState.waiting) {
+                                return Container(
+                                  padding: const EdgeInsets.only(top: 24),
+                                  height: 200,
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    color: Theme.of(context).colorScheme.surfaceVariant,
+                                    borderRadius: BorderRadius.circular(12)
+                                  ),
+                                  child: const Center(child: HandleLoading(strokeWidth: 3)),
+                                );
+                              } else if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
+                                return ClipRRect(
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: ConstrainedBox(
+                                    constraints: const BoxConstraints(maxHeight: 200),
+                                    child: FlutterMap(
+                                      options: MapOptions(
+                                        onTap: (tapPosition, point) => useCurrentLocation(),
+                                        enableScrollWheel: true,
+                                        center: LatLng(latlang.latitude, latlang.longitude),
+                                        zoom: 12,
+                                      ),
+                                      nonRotatedChildren: const [
+                                        RichAttributionWidget(
+                                          attributions: [
+                                            TextSourceAttribution(
+                                              'OpenStreetMap contributors',
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                      children: [
+                                        TileLayer(
+                                          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                                          userAgentPackageName: 'com.example.app',
+                                        ),
+                                        MarkerLabel(
+                                          latlang: latlang,
+                                          currentLocation: currentLocation,
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              } else {
+                                return HandleLocationDisabled(
+                                  buttonPressed: () {
+                                    getCurrentLocation().whenComplete(() => Navigator.pop(context));
+                                  }
+                                );
+                              }
+                            },
                           );
+                          }
                         }
                       ),
                     ),
-                  )
-                ],
-              )
+                    AnimatedSize(
+                      duration: const Duration(milliseconds: 700),
+                      curve: Curves.fastOutSlowIn,
+                      alignment: Alignment.topRight,
+                      child: SizedBox(
+                        height: currentLocation.isNotEmpty ? null : 0,
+                        width: null,
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 20, left: 8, right: 8),
+                          child: Hero(
+                            tag: 'Location',
+                            child: ButtonListTile(
+                              onTap: () => useCurrentLocation(),
+                              dense: true,
+                              title: const Text('Gunakan Lokasi Saat Ini'),
+                              icon: const Icon(Icons.near_me),
+                              bgRadius: 20,
+                              borderRadius: BorderRadius.circular(12),
+                              subtitle: currentLocation['suburb'] != null
+                              ? Text(currentLocation['street'].toString().substring(0, currentLocation['street'].toString().indexOf(',')), style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Theme.of(context).colorScheme.secondary
+                              ))
+                              : Text('Memuat Lokasi...', style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Theme.of(context).colorScheme.secondary
+                              ))
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    const Divider(height: 40, indent: 10, endIndent: 10, thickness: 0.5),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 10, bottom: 12),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('Masukan Alamat', style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                            color: Theme.of(context).colorScheme.secondary,
+                            letterSpacing: 0
+                          )),
+                          PopupMenuButton(
+                            icon: const Icon(Icons.more_horiz),
+                            itemBuilder: (context) {
+                              return [ const PopupMenuItem(child: Text('Alamat Sekarang')) ];
+                            },
+                          )
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Column(
+                        children: List.generate(locations.length, (index) {
+                          Widget widget = Padding(
+                            padding: const EdgeInsets.only(bottom: 20),
+                            child: FutureBuilder(
+                              future: locations[index]['options'](),
+                              builder: (context, snapshot) {
+                                return AutoCompleteLocationTextfield(
+                                  onTap: () {
+                                    return Timer(const Duration(milliseconds: 400), () {
+                                      _scrollController.animateTo(range(index + 1),
+                                        duration: const Duration(milliseconds: 200), curve: Curves.ease
+                                      );
+                                    });
+                                  },
+                                  onDoneEditing: (value) {
+                                    setLocationValue(value: value, index: index);
+                                  },
+                                  isLoading: snapshot.connectionState == ConnectionState.waiting || snapshot.hasError,
+                                  element: locations[index],
+                                  options: snapshot.data as List<String>?,
+                                );
+                              }
+                            ),
+                          );
+                          return widget;
+                        }).toList()
+                      ),
+                    ),
+                    const SizedBox(height: 30),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        TextButton.icon(
+                          onPressed: () => Navigator.pop(context),
+                          icon: const Icon(Icons.arrow_back),
+                          label: const Text('Kembali')
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(right: 10),
+                          child: Hero(
+                            tag: 'Simpan',
+                            child: ValueListenableBuilder(
+                              valueListenable: AddressAddRoute.isValidated,
+                              builder: (context, value, child) {
+                                return ElevatedButton(
+                                  onPressed: value ? () => showAddressDialog(
+                                    context: context,
+                                    hero: 'Simpan',
+                                    locations: locations
+                                  ).then((value) {
+                                    if (value == true) Navigator.pop(context);
+                                  }) : null,
+                                  style: Styles.buttonForm(context: context),
+                                  child: const Text('Simpan')
+                                );
+                              }
+                            ),
+                          ),
+                        )
+                      ],
+                    )
+                  ],
+                )
+              ),
             ],
-          )
+          ),
         )
       ),
     );

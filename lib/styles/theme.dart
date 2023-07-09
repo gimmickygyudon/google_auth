@@ -107,15 +107,15 @@ class Themes {
       isDense: true,
       contentPadding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8),
         borderSide: BorderSide.none
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: Theme.of(context).colorScheme.outline, width: 1)
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(color: Theme.of(context).colorScheme.outlineVariant, width: 1)
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8),
         borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2)
       ),
       labelStyle: TextStyle(
@@ -256,15 +256,15 @@ class Styles {
 
   static ButtonStyle buttonFlat({
     required BuildContext context,
-    Color? backgroundColor,
-    Color? foregroundColor,
-    Color? overlayColor,
+    Color? backgroundColor, foregroundColor, overlayColor,
     bool? isLoading,
+    Size? minimumSize,
     BorderRadiusGeometry? borderRadius,
   }) {
     return ButtonStyle(
       elevation: const MaterialStatePropertyAll(0),
       shape: borderRadius != null ? MaterialStatePropertyAll(RoundedRectangleBorder(borderRadius: borderRadius)) : null,
+      minimumSize: MaterialStatePropertyAll(minimumSize),
       backgroundColor: MaterialStateProperty.resolveWith((states) {
         if (isLoading == true) {
           return Theme.of(context).colorScheme.inversePrimary.withOpacity(0.5);
@@ -377,7 +377,7 @@ class Styles {
       hintText: hintText,
       labelStyle: labelStyle,
       hintStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
-        color: Theme.of(context).colorScheme.inverseSurface.withOpacity(0.2),
+        color: Theme.of(context).colorScheme.inverseSurface.withOpacity(0.5),
         letterSpacing: 0,
       ),
       prefixIcon: isPhone == true ? Row(
@@ -398,7 +398,7 @@ class Styles {
       suffixIcon: suffixIcon,
       errorMaxLines: 3,
       filled: true,
-      fillColor: condition ? Theme.of(context).colorScheme.inversePrimary.withOpacity(0.25) : Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.45),
+      fillColor: condition ? Theme.of(context).colorScheme.inversePrimary.withOpacity(0.25) : Colors.transparent,
       errorStyle: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.error, fontSize: 11),
       errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: Theme.of(context).colorScheme.error, width: 2)

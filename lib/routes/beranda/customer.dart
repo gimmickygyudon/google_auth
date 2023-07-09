@@ -57,6 +57,8 @@ class _AddCustomerRouteState extends State<AddCustomerRoute> {
           body: CustomScrollView(
             slivers: [
               SliverAppBar(
+                title: const Text('Tambah Pelanggan'),
+                centerTitle: true,
                 systemOverlayStyle: theme.darkMode ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
                 toolbarHeight: kToolbarHeight,
                 collapsedHeight: kToolbarHeight,
@@ -78,9 +80,9 @@ class _AddCustomerRouteState extends State<AddCustomerRoute> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const TextIcon(label: 'Pelanggan', icon: Icons.group, iconSize: 24),
+                              const TextIcon(label: 'Pelanggan', icon: Icons.factory, iconSize: 24),
                               const SizedBox(height: 2),
-                              Text('Daftar pelanggan yang ditambahkan akan tampil disini.',
+                              Text('Daftar pelanggan yang telah ditambahkan akan tampil disini.',
                                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                   letterSpacing: 0,
                                   color: Theme.of(context).colorScheme.secondary,
@@ -101,10 +103,6 @@ class _AddCustomerRouteState extends State<AddCustomerRoute> {
                                 : null,
                                 decoration: Styles.inputDecorationForm(
                                   context: context,
-                                  icon: Padding(
-                                    padding: const EdgeInsets.only(left: 4),
-                                    child: Icon(Icons.account_circle_outlined, size: 24, color: Theme.of(context).colorScheme.secondary),
-                                  ),
                                   placeholder: 'Nama Pelanggan',
                                   condition: _addCustomerController.text.trim().isNotEmpty,
                                   suffixIcon: Padding(

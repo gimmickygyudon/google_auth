@@ -15,13 +15,15 @@ class InfoSmallWidget extends StatelessWidget {
       color: color?.withOpacity(0.5) ?? Theme.of(context).colorScheme.inversePrimary.withOpacity(0.5),
       child: Row(
         children: [
-          Icon(icon ?? Icons.info, size: 16, color: color ?? Theme.of(context).colorScheme.primary),
-          const SizedBox(width: 6),
-          Text(message, style: Theme.of(context).textTheme.bodySmall?.copyWith(
-            color: color ?? Theme.of(context).colorScheme.primary,
-            height: 0,
-            letterSpacing: 0
-          )),
+          const SizedBox(width: 4),
+          Icon(icon ?? Icons.info_outline, size: 16, color: color ?? Theme.of(context).colorScheme.primary),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(message, style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: color ?? Theme.of(context).colorScheme.primary,
+              letterSpacing: 0
+            )),
+          ),
         ],
       ),
     );

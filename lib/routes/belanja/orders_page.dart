@@ -68,6 +68,12 @@ class _OrdersPageRouteState extends State<OrdersPageRoute> with SingleTickerProv
             const SizedBox(width: 12)
           ],
           bottom: TabBar(
+            indicatorPadding: const EdgeInsets.only(bottom: 6, left: 30),
+            indicatorWeight: 8,
+            indicator: UnderlineTabIndicator(
+              borderSide: BorderSide(width: 4, color: Theme.of(context).colorScheme.primary),
+              borderRadius: BorderRadius.circular(25.7)
+            ),
             controller: _tabController,
             tabs: pages.map((page) {
               return Tab(
@@ -103,7 +109,6 @@ class OrderPage extends StatefulWidget {
 }
 
 class _OrderPageState extends State<OrderPage> {
-  final ValueNotifier<bool> orderOpen = ValueNotifier(false);
   List<bool> checkedItems = List.empty(growable: true);
   bool firstInit = false;
 
@@ -123,19 +128,14 @@ class _OrderPageState extends State<OrderPage> {
     });
   }
 
-  _getDatalocation() {
-    LocationManager.getLocalDataLocation().then((value) {
+  _getDatalocation() async {
+    await LocationManager.getLocalDataLocation().then((value) {
       setState(() {
         AddressRoute.locations.value['locations'] = value;
       });
 
+      print(value);
       return value;
-    });
-  }
-
-  setOrderOpen(bool value) {
-    setState(() {
-      orderOpen.value = value;
     });
   }
 
@@ -158,7 +158,6 @@ class _OrderPageState extends State<OrderPage> {
               checkedItems.add(false);
             }
           }
-          if (checkedItems.contains(true) == false) orderOpen.value = false;
         });
       });
     });
@@ -222,8 +221,6 @@ class _OrderPageState extends State<OrderPage> {
                         backgroundColor: MaterialStateProperty.resolveWith((states) {
                           if (states.contains(MaterialState.disabled)) {
                             return null;
-                          } else if (orderOpen.value) {
-                            return Theme.of(context).colorScheme.tertiary;
                           } else {
                             return Theme.of(context).colorScheme.primary;
                           }
@@ -236,10 +233,10 @@ class _OrderPageState extends State<OrderPage> {
                           }
                         }),
                         overlayColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.inversePrimary),
-                        iconSize: MaterialStatePropertyAll(orderOpen.value ? null : 24)
+                        iconSize: const MaterialStatePropertyAll(24)
                       ),
-                      icon: Text(orderOpen.value ? 'Batal ' : 'Checkout'),
-                      label: Icon(orderOpen.value ? Icons.cancel : Icons.arrow_forward)
+                      icon: const Text('Checkout'),
+                      label: const Icon(Icons.arrow_forward)
                     ),
                   )
                 ],
@@ -256,29 +253,13 @@ class _OrderPageState extends State<OrderPage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ValueListenableBuilder(
-                valueListenable: OrdersPageRoute.delivertype,
-                builder: (context, deliveryType, child) {
-                  return CurrentAddressCard(
-                    onCancel: setOrderOpen,
-                    orderOpen: orderOpen,
-                    deliveryType: deliveryType,
-                    checkedItems: checkedItems,
-                  );
-                }
-              ),
-              if (orderOpen.value) Divider(
-                indent: 16,
-                endIndent: 16,
-                height: 72, color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5)
-              ),
               ListTile(
                 contentPadding: const EdgeInsets.only(left: 16),
-                titleTextStyle: Theme.of(context).textTheme.titleLarge?.copyWith(
+                titleTextStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
                   color: Theme.of(context).colorScheme.secondary
                 ),
                 title: const Text('Pesanan Anda,'),
-                subtitleTextStyle: Theme.of(context).textTheme.displaySmall?.copyWith(
+                subtitleTextStyle: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.w500
                 ),
                 textColor: checkedItems.contains(true) ? Theme.of(context).colorScheme.primary : null,
@@ -289,7 +270,7 @@ class _OrderPageState extends State<OrderPage> {
                       Text(checkedItems.where((element) => element == true).length.toString()),
                       const SizedBox(width: 12),
                     ],
-                    Text(checkedItems.isNotEmpty ? 'Dipilih' : 'Kosong', style: Theme.of(context).textTheme.displaySmall),
+                    Text(checkedItems.isNotEmpty ? 'Dipilih' : 'Kosong', style: Theme.of(context).textTheme.headlineSmall),
                   ],
                 ),
                 trailing: Padding(
@@ -317,8 +298,6 @@ class _OrderPageState extends State<OrderPage> {
                       onPressed: () => setState(() {
                         if (checkedItems.every((element) => element == true)) {
                           checkedItems = List.filled(checkedItems.length, false);
-
-                          orderOpen.value = false;
                         } else {
                           checkedItems = List.filled(checkedItems.length, true);
                         }
@@ -373,7 +352,6 @@ class _OrderPageState extends State<OrderPage> {
                               onChanged: (value) {
                                 setState(() {
                                   checkedItems[index] = value!;
-                                  if (checkedItems.contains(true) == false) orderOpen.value = false;
                                 });
                               },
                               shape: RoundedRectangleBorder(
@@ -534,30 +512,32 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> with AutomaticKeepA
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    return Container(
-      color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.5),
-      child: FutureBuilder(
-        future: _purchaseOrder,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            setKeepAlive(false);
-            return const HandleLoading();
-          } else if (snapshot.data == null || snapshot.data.isEmpty) {
-            setKeepAlive(false);
-            return const HandleEmptyOrder();
-          } else if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
-            isLocal == true ? setKeepAlive(false) : setKeepAlive(true);
-            return ListView.builder(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-              itemCount: snapshot.data.length,
-              itemBuilder: (context, index) {
-                return ListOrderHistory(index: index, item: snapshot.data[index], isLocal: isLocal);
-              }
-            );
-          } else {
-            return const HandleNoInternet(message: 'Periksa Koneksi Internet Anda');
+    return Scaffold(
+      body: Container(
+        color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.5),
+        child: FutureBuilder(
+          future: _purchaseOrder,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              setKeepAlive(false);
+              return const HandleLoading();
+            } else if (snapshot.data == null || snapshot.data.isEmpty) {
+              setKeepAlive(false);
+              return const HandleEmptyOrder();
+            } else if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
+              isLocal == true ? setKeepAlive(false) : setKeepAlive(true);
+              return ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                itemCount: snapshot.data.length,
+                itemBuilder: (context, index) {
+                  return ListOrderHistory(index: index, item: snapshot.data[index], isLocal: isLocal);
+                }
+              );
+            } else {
+              return const HandleNoInternet(message: 'Periksa Koneksi Internet Anda');
+            }
           }
-        }
+        ),
       ),
     );
   }
@@ -1021,14 +1001,12 @@ class _AddressCardState extends State<AddressCard> {
 class CurrentAddressCard extends StatelessWidget {
   const CurrentAddressCard({
     super.key,
-    required this.orderOpen,
     required this.deliveryType,
     this.checkedItems,
     this.padding, this.borderRadius,
     this.onCancel
   });
 
-  final ValueNotifier orderOpen;
   final String? deliveryType;
   final List<bool>? checkedItems;
   final EdgeInsetsGeometry? padding;
@@ -1047,200 +1025,238 @@ class CurrentAddressCard extends StatelessWidget {
           if (locations['locations'].isNotEmpty) snapshot = locations?['locations'][locations?['locationindex']];
 
           if (snapshot != null) {
-            return ValueListenableBuilder(
-            valueListenable: orderOpen,
-            builder: (context, orderOpen, child) {
-              return SizedBox(
-                height: orderOpen ? null : 0,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Padding(
-                      padding: padding ?? const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
-                      child: Card(
-                        margin: EdgeInsets.zero,
-                        elevation: 0,
-                        color: Theme.of(context).colorScheme.primary,
-                        clipBehavior: Clip.antiAlias,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: borderRadius ?? BorderRadius.circular(12)
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 20),
-                          child: Column(
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: padding ?? const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+                  child: Card(
+                    margin: EdgeInsets.zero,
+                    elevation: 0,
+                    color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.35),
+                    clipBehavior: Clip.antiAlias,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: borderRadius ?? BorderRadius.circular(12),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.all(8),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Text('Lokasi Pengiriman', style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                              color: Theme.of(context).colorScheme.inversePrimary,
-                                              fontWeight: FontWeight.w500,
-                                              letterSpacing: 0.5
-                                            )),
-                                          ],
-                                        ),
-                                        Row(
-                                          children: [
-                                            Text(snapshot?['name'], style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                              color: Theme.of(context).colorScheme.surface,
-                                              fontWeight: FontWeight.w500,
-                                            )),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Padding(
-                                    padding: const EdgeInsets.all(8.0),
-                                    child: OutlinedButton(
-                                      onPressed: () => pushAddress(context: context, hero: snapshot?['name']),
-                                      style: ButtonStyle(
-                                        backgroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.inversePrimary.withOpacity(0.1)),
-                                        foregroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.inversePrimary),
-                                        side: MaterialStatePropertyAll(BorderSide(color: Theme.of(context).colorScheme.inversePrimary)),
-                                      ),
-                                      child: const Text('Ubah'),
-                                    ),
-                                  )
-                                ],
-                              ),
-                              const SizedBox(height: 16),
                               Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    CircleAvatar(
-                                      radius: 18,
-                                      child: Icon(Icons.location_on, color: Theme.of(context).colorScheme.primary)
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(snapshot?['district'],
-                                            textAlign: TextAlign.justify,
-                                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                              color: Theme.of(context).colorScheme.inversePrimary,
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
-                                          Text('+62 ${snapshot?['phone_number']}',
-                                            textAlign: TextAlign.justify,
-                                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                              color: Theme.of(context).colorScheme.surface,
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 12),
-                                          Container(
-                                            padding: const EdgeInsets.all(16),
-                                            decoration: BoxDecoration(
-                                              borderRadius: BorderRadius.circular(8),
-                                              color: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.25),
-                                            ),
-                                            child: Text('${snapshot?['street']}, ${snapshot?['subdistrict']}, ${snapshot?['district']}, ${snapshot?['province']}',
-                                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                                color: Theme.of(context).colorScheme.surface,
-                                                letterSpacing: 0,
-                                                wordSpacing: 2,
-                                                height: 1.4
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(height: 20),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                                child: Row(
+                                padding: const EdgeInsets.all(8),
+                                child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    CircleAvatar(
-                                      radius: 18,
-                                      child: Icon(Icons.local_shipping, color: Theme.of(context).colorScheme.primary)
-                                    ),
-                                    const SizedBox(width: 12),
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                    Row(
                                       children: [
-                                        Text('Tipe Pengiriman', style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                        Text('Lokasi Pengiriman', style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                          color: Theme.of(context).colorScheme.primary,
                                           fontWeight: FontWeight.w500,
-                                          color: Theme.of(context).colorScheme.inversePrimary,
+                                          letterSpacing: 0
                                         )),
-                                        const SizedBox(height: 4),
-                                        Text(deliveryType ?? 'Memuat Data...',
-                                          textAlign: TextAlign.justify,
-                                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                            color: Theme.of(context).colorScheme.surface,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        Text(snapshot['name'], style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                          color: Theme.of(context).colorScheme.inverseSurface,
+                                          fontWeight: FontWeight.w500,
+                                        )),
                                       ],
                                     ),
                                   ],
                                 ),
                               ),
-                              if (checkedItems == null) const SizedBox(height: 12),
-                              if (checkedItems != null) Padding(
-                                padding: const EdgeInsets.only(top: 24),
-                                child: Align(
-                                  alignment: Alignment.bottomRight,
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      TextButton(
-                                        onPressed: () {
-                                          if (onCancel != null) onCancel!(false);
-                                        },
-                                        style: Styles.buttonFlat(context: context),
-                                        child: const Text('Batal')
-                                      ),
-                                      const SizedBox(width: 16),
-                                      ElevatedButton.icon(
-                                        onPressed: () => pushCheckout(context: context, checkedItems: checkedItems!),
-                                        style: Styles.buttonFlat(
-                                          context: context,
-                                          borderRadius: BorderRadius.circular(12),
-                                          backgroundColor: Theme.of(context).colorScheme.surface,
-                                          foregroundColor: Theme.of(context).colorScheme.primary
-                                        ),
-                                        icon: const Icon(Icons.arrow_forward, size: 22),
-                                        label: const Text('Checkout'),
-                                      ),
-                                    ],
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: OutlinedButton(
+                                  onPressed: () => pushAddress(context: context, hero: snapshot?['name']),
+                                  style: ButtonStyle(
+                                    backgroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.inversePrimary.withOpacity(0.35)),
+                                    foregroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.primary),
+                                    side: const MaterialStatePropertyAll(BorderSide.none),
                                   ),
+                                  child: const Text('Ubah'),
                                 ),
                               )
                             ],
                           ),
-                        ),
+                          const SizedBox(height: 16),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                CircleAvatar(
+                                  radius: 18,
+                                  backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.15),
+                                  child: Icon(Icons.where_to_vote, color: Theme.of(context).colorScheme.inverseSurface)
+                                ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(snapshot['district'],
+                                        textAlign: TextAlign.justify,
+                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                          color: Theme.of(context).colorScheme.primary,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text('+62 ${snapshot['phone_number']}',
+                                        textAlign: TextAlign.justify,
+                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                          color: Theme.of(context).colorScheme.inverseSurface,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 12),
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Container(
+                                            padding: const EdgeInsets.all(12),
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(6),
+                                              color: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.5),
+                                            ),
+                                            child: Column(
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    const Icon(Icons.signpost, size: 18),
+                                                    const SizedBox(width: 4),
+                                                    Text('Alamat', style: Theme.of(context).textTheme.labelMedium),
+                                                  ],
+                                                ),
+                                                const SizedBox(height: 4),
+                                                Text('${snapshot['street']}',
+                                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                                    color: Theme.of(context).colorScheme.inverseSurface,
+                                                    letterSpacing: 0,
+                                                    wordSpacing: 2,
+                                                    height: 1.4
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          const SizedBox(height: 16),
+                                          Container(
+                                            padding: const EdgeInsets.all(12),
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(6),
+                                              color: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.5),
+                                            ),
+                                            child: Column(
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    const Icon(Icons.landscape, size: 20),
+                                                    const SizedBox(width: 4),
+                                                    Text('Wilayah', style: Theme.of(context).textTheme.labelMedium),
+                                                  ],
+                                                ),
+                                                const SizedBox(height: 4),
+                                                Text('${snapshot['subdistrict']}, ${snapshot['district']}, ${snapshot['province']}',
+                                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                                    color: Theme.of(context).colorScheme.inverseSurface,
+                                                    letterSpacing: 0,
+                                                    wordSpacing: 2,
+                                                    height: 1.4
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                CircleAvatar(
+                                  radius: 18,
+                                  backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.15),
+                                  child: Icon(Icons.local_shipping, color: Theme.of(context).colorScheme.inverseSurface)
+                                ),
+                                const SizedBox(width: 12),
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Tipe Pengiriman', style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      fontWeight: FontWeight.w500,
+                                      color: Theme.of(context).colorScheme.primary,
+                                    )),
+                                    const SizedBox(height: 4),
+                                    Text(deliveryType ?? 'Memuat Data...',
+                                      textAlign: TextAlign.justify,
+                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                        color: Theme.of(context).colorScheme.inverseSurface,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          if (checkedItems == null) const SizedBox(height: 12),
+                          if (checkedItems != null) Padding(
+                            padding: const EdgeInsets.only(top: 24),
+                            child: Align(
+                              alignment: Alignment.bottomRight,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  TextButton(
+                                    onPressed: () {
+                                      if (onCancel != null) onCancel!(false);
+                                    },
+                                    style: Styles.buttonFlat(context: context),
+                                    child: const Text('Batal')
+                                  ),
+                                  const SizedBox(width: 16),
+                                  ElevatedButton.icon(
+                                    onPressed: () => pushCheckout(context: context, checkedItems: checkedItems!),
+                                    style: Styles.buttonFlat(
+                                      context: context,
+                                      borderRadius: BorderRadius.circular(12),
+                                      backgroundColor: Theme.of(context).colorScheme.surface,
+                                      foregroundColor: Theme.of(context).colorScheme.primary
+                                    ),
+                                    icon: const Icon(Icons.arrow_forward, size: 22),
+                                    label: const Text('Checkout'),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                        ],
                       ),
                     ),
-                  ],
+                  ),
                 ),
-              );
-            }
-          );
-          } else if (orderOpen.value == true) {
-            return const HandleEmptyAddress();
+              ],
+            );
           } else {
-            return const SizedBox();
+            return const HandleEmptyAddress();
           }
         }
       ),

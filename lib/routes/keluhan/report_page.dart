@@ -278,7 +278,9 @@ class _LaporanRouteState extends State<LaporanRoute> {
                                 }
                               });
                             },
-                            style: Theme.of(context).textTheme.bodyMedium,
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              height: 1.7
+                            ),
                             decoration: Styles.inputDecorationForm(
                               context: context,
                               alignLabelWithHint: true,
@@ -363,7 +365,7 @@ class _LaporanRouteState extends State<LaporanRoute> {
                 curve: Curves.ease,
                 alignment: Alignment.bottomLeft,
                 child: SizedBox(
-                  height: laporan.isNotEmpty ? 0 : 150,
+                  height: laporan.isNotEmpty ? 0 : 160,
                   width: double.infinity,
                   child: Visibility(
                     visible: laporan.isEmpty,
@@ -377,31 +379,25 @@ class _LaporanRouteState extends State<LaporanRoute> {
                         return SizedBox(
                           width: 170,
                           child: Padding(
-                            padding: const EdgeInsets.only(right: 10),
-                            child: InkWell(
-                              onTap: () {
-                                setState(() {
-                                  if (laporan == laporanList[index]['name']) {
-                                    laporan = '';
-                                  } else {
-                                    laporan = laporanList[index]['name'];
-                                  }
-                                });
-                              },
-                              borderRadius: BorderRadius.circular(20),
-                              splashColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.5),
-                              highlightColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.5),
-                              child: HeroMode(
-                                enabled: laporanList[index]['name'] == laporan,
-                                child: Hero(
-                                  tag: laporanList[index]['name'],
-                                  child: LaporanCard(
-                                    key: laporanList[index]['name'] == laporan ? selectedKey : null,
-                                    item: laporanList[index],
-                                    isSelected: laporanList[index]['name'] == laporan,
-                                    pushReportPage: null,
-                                    laporanList: laporanList,
-                                  ),
+                            padding: const EdgeInsets.only(right: 10, bottom: 10),
+                            child: HeroMode(
+                              enabled: laporanList[index]['name'] == laporan,
+                              child: Hero(
+                                tag: laporanList[index]['name'],
+                                child: LaporanCard(
+                                  key: laporanList[index]['name'] == laporan ? selectedKey : null,
+                                  item: laporanList[index],
+                                  isSelected: laporanList[index]['name'] == laporan,
+                                  onTap: () {
+                                    setState(() {
+                                      if (laporan == laporanList[index]['name']) {
+                                        laporan = '';
+                                      } else {
+                                        laporan = laporanList[index]['name'];
+                                      }
+                                    });
+                                  },
+                                  laporanList: laporanList,
                                 ),
                               ),
                             ),

@@ -21,12 +21,13 @@ class _PaymentRouteState extends State<PaymentRoute> {
 
   AsyncMemoizer<List<String>> paymentsMemoizer = AsyncMemoizer();
   late Future _getPayment;
-  late bool isLoading;
+  late bool isLoading, noInternet;
   int selectedIndex = 0;
 
   @override
   void initState() {
     isLoading = false;
+    noInternet = true;
     _getPayment = getPayments();
     super.initState();
   }
@@ -38,7 +39,11 @@ class _PaymentRouteState extends State<PaymentRoute> {
           Payment.payments[i]['name'] = value[i].toTitleCase();
         }
 
+        setState(() => noInternet = false);
         return value;
+      }).onError((error, stackTrace) {
+        setState(() => noInternet = true);
+        return Future.error(error.toString());
       });
     });
   }
@@ -95,36 +100,41 @@ class _PaymentRouteState extends State<PaymentRoute> {
                     }
                   );
                 } else {
-                  return const HandleNoInternet(message: 'Tidak terkoneksi ke Internet');
+                  return const Center(
+                    child: HandleNoInternet(message: 'Tidak tersambung ke Internet')
+                  );
                 }
               },
             ),
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          setState(() => isLoading = true);
-          widget.onConfirm(selectedIndex).whenComplete(() => setState(() => isLoading = false));
-        },
-        elevation: isLoading ? 0 : null,
-        backgroundColor: isLoading ? Theme.of(context).colorScheme.inversePrimary.withOpacity(0.5) : Theme.of(context).colorScheme.primary,
-        foregroundColor: isLoading ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surface,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        extendedPadding: const EdgeInsets.all(24),
-        icon: isLoading
-        ? const Padding(
-          padding: EdgeInsets.only(right: 8),
-          child: SizedBox(
-              height: 20,
-              width: 20,
-              child: CircularProgressIndicator(strokeWidth: 2)
-            ),
-        )
-        : const Icon(Icons.local_shipping),
-        label: isLoading
-        ? const Text('Memproses...')
-        : const Text('Checkout')
+      floatingActionButton: Visibility(
+        visible: noInternet ? false : true,
+        child: FloatingActionButton.extended(
+          onPressed: () {
+            setState(() => isLoading = true);
+            widget.onConfirm(selectedIndex).whenComplete(() => setState(() => isLoading = false));
+          },
+          elevation: isLoading ? 0 : null,
+          backgroundColor: isLoading ? Theme.of(context).colorScheme.inversePrimary.withOpacity(0.5) : Theme.of(context).colorScheme.primary,
+          foregroundColor: isLoading ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surface,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          extendedPadding: const EdgeInsets.all(24),
+          icon: isLoading
+          ? const Padding(
+            padding: EdgeInsets.only(right: 8),
+            child: SizedBox(
+                height: 20,
+                width: 20,
+                child: CircularProgressIndicator(strokeWidth: 2)
+              ),
+          )
+          : const Icon(Icons.local_shipping),
+          label: isLoading
+          ? const Text('Memproses Pesanan...')
+          : const Text('Checkout')
+        ),
       ),
     );
   }

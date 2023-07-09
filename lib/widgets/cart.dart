@@ -58,12 +58,9 @@ class _CartWidgetState extends State<CartWidget> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          const Row(
-                            children: [
-                              Icon(Icons.shopping_bag_outlined),
-                              SizedBox(width: 6),
-                              Text('Belanja')
-                            ],
+                          const Padding(
+                            padding: EdgeInsets.only(left: 1),
+                            child: Text('Daftar Belanja'),
                           ),
                           ElevatedButton.icon(
                             onPressed: () => pushAddress(context: context, hero: 'Pengiriman'),
@@ -84,16 +81,9 @@ class _CartWidgetState extends State<CartWidget> {
                     ],
                   )
                 ),
-                PopupMenuItem(
-                  height: 0,
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 10, bottom: 6),
-                    child: Divider(color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5)),
-                  )
-                ),
               ] + [
                 PopupMenuItem(
-                  onTap: () => pushOrdersPage(context: context),
+                  onTap: () => pushCheckout(context: context, checkedItems: []),
                   child: ValueListenableBuilder(
                     valueListenable: CartWidget.cartNotifier,
                     builder: (context, items, child) {
@@ -123,22 +113,6 @@ class _CartWidgetState extends State<CartWidget> {
                           ),
                         ) : const HandleEmptyCart(),
                       );
-                    }
-                  )
-                ),
-                PopupMenuItem(
-                  height: 0,
-                  child: ValueListenableBuilder(
-                    valueListenable: CartWidget.cartNotifier,
-                    builder: (context, item, child) {
-                    if (item.isEmpty) {
-                      return const SizedBox();
-                    } else {
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 10),
-                          child: Divider(color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5)),
-                        );
-                      }
                     }
                   )
                 ),

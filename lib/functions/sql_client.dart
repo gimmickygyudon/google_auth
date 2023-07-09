@@ -113,7 +113,7 @@ class SQL {
 
       return data;
     } else if (response.statusCode == 404) {
-      return Future.error('error: ${response.statusCode}');
+      return List.empty();
     } else {
       return Future.error('error: ${response.statusCode}');
     }

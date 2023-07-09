@@ -88,7 +88,6 @@ class _AddressRouteState extends State<AddressRoute> {
           title: const Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Kembali'),
             ],
           ),
           titleTextStyle: Theme.of(context).textTheme.titleMedium,
@@ -100,26 +99,10 @@ class _AddressRouteState extends State<AddressRoute> {
           ],
         ),
         body: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+          padding: const EdgeInsets.symmetric(horizontal: 32),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // TextField(
-              //   controller: searchController,
-              //   onChanged: (value) {
-              //     setState(() {});
-              //   },
-              //   decoration: Styles.inputDecorationForm(
-              //     suffixIcon: const Padding(
-              //       padding: EdgeInsets.only(left: 4),
-              //       child: LabelSearch(),
-              //     ),
-              //     icon: const Icon(Icons.location_on),
-              //     context: context,
-              //     placeholder: 'Cari Alamat',
-              //     condition: searchController.text.trim().isNotEmpty
-              //   ),
-              // ),
               Center(
                 child: Text('Opsi Pengiriman', style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   letterSpacing: 0,
@@ -196,7 +179,14 @@ class _AddressRouteState extends State<AddressRoute> {
               )
             ],
           ),
-        )
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: () => Navigator.pop(context),
+          elevation: 0,
+          icon: const Icon(Icons.arrow_back),
+          label: const Text('Kembali')
+        ),
       ),
     );
   }
@@ -393,18 +383,6 @@ class _CardAddressState extends State<CardAddress> {
                 padding: EdgeInsets.zero,
                 itemBuilder: (context) {
                   return [
-                    PopupMenuItem(
-                      height: 45,
-                      onTap: () => pushAddressAdd(context: context, hero: 'Tambah Alamat'),
-                      child: const Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.edit_location_alt_outlined),
-                          SizedBox(width: 8),
-                          Text('Ubah Alamat'),
-                        ],
-                      )
-                    ),
                     PopupMenuItem(
                       onTap: () {
                         LocationManager.delete(widget.index);

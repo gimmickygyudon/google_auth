@@ -116,7 +116,7 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
           pinned: true,
           floating: true,
           automaticallyImplyLeading: false,
-          toolbarHeight: kToolbarHeight + 50,
+          toolbarHeight: kToolbarHeight + 40,
           forceElevated: true,
           surfaceTintColor: Theme.of(context).colorScheme.inversePrimary,
           actions: const [ SizedBox() ],
@@ -129,19 +129,23 @@ class _KeluhanRouteState extends State<KeluhanRoute> with SingleTickerProviderSt
                 const SizedBox(height: 4),
                 Row(
                   children: [
-                    Text('Kami Sangat Menghargai Pendapat Anda.',
+                    Text('Pilih Keluhan yang ingin anda laporkan.',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Theme.of(context).colorScheme.secondary,
                       ),
                     ),
-                    const SizedBox(width: 6),
-                    Icon(Icons.sentiment_satisfied_alt, size: 18, color: Theme.of(context).colorScheme.secondary),
                   ],
                 ),
               ],
             ),
           ),
           bottom: TabBar(
+            indicatorPadding: const EdgeInsets.fromLTRB(6, 0, 6, 6),
+            indicatorWeight: 8,
+            indicator: UnderlineTabIndicator(
+              borderSide: BorderSide(width: 4, color: Theme.of(context).colorScheme.primary),
+              borderRadius: BorderRadius.circular(25.7)
+            ),
             controller: _tabController,
             labelStyle: Theme.of(context).textTheme.labelLarge?.copyWith(),
             unselectedLabelColor: Theme.of(context).colorScheme.secondary,
@@ -380,7 +384,7 @@ class BuatLaporanWidget extends StatelessWidget {
                   physics: const NeverScrollableScrollPhysics(),
                   gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                     maxCrossAxisExtent: 260,
-                    mainAxisExtent: 130,
+                    mainAxisExtent: 150,
                     mainAxisSpacing: (MediaQuery.of(context).size.height > 750) ? 30 : 40,
                     crossAxisSpacing: (MediaQuery.of(context).size.height > 750) ? 30 : 40
                   ),
@@ -410,17 +414,17 @@ class LaporanCard extends StatelessWidget {
   const LaporanCard({
     super.key,
     required this.laporanList,
-    required this.pushReportPage,
+    this.pushReportPage,
     required this.item,
     this.iconSize,
     this.bgRadius,
     this.isSelected,
     this.color,
-    this.bgColor
+    this.bgColor, this.onTap
   });
 
   final List<Map> laporanList;
-  final Function? pushReportPage;
+  final Function? pushReportPage, onTap;
   final bool? isSelected;
   final Map item;
   final double? iconSize, bgRadius;
@@ -428,27 +432,36 @@ class LaporanCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    void callback() {
+      if (pushReportPage != null) {
+        pushReportPage!(context: context, laporan: item, laporanList: laporanList);
+      } else if (onTap != null) {
+        onTap!();
+      } else {
+        null;
+      }
+    }
+
     return Card(
-      elevation: 0,
+      elevation: 4,
       margin: EdgeInsets.zero,
       clipBehavior: Clip.antiAlias,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      color: Theme.of(context).colorScheme.inversePrimary.withOpacity(isSelected == true ? 0.25 : 0.05),
+      surfaceTintColor: Theme.of(context).colorScheme.inversePrimary,
+      shadowColor: Theme.of(context).colorScheme.shadow.withOpacity(0.35),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         child: InkWell(
-          onTap: pushReportPage != null ? () {
-             pushReportPage!(context: context, laporan: item, laporanList: laporanList);
-          } : null,
+          onTap: () => callback(),
           splashColor: isSelected == true
             ? Theme.of(context).colorScheme.inversePrimary.withOpacity(0.05)
             : Theme.of(context).colorScheme.inversePrimary.withOpacity(0.5),
           highlightColor: isSelected == true
             ? Theme.of(context).colorScheme.inversePrimary.withOpacity(0.05)
             : Theme.of(context).colorScheme.inversePrimary.withOpacity(0.5),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(12),
           child: Container(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 16),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(12),
             border: Border.all(
               width: isSelected == true ? 2 : 1,
               color: isSelected == true

@@ -90,11 +90,10 @@ class HandleEmptyCart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 32),
+      padding: const EdgeInsets.symmetric(vertical: 44),
       child: Center(
         child: Column(
           children: [
-            Image.asset('assets/delivery01.png', height: 150),
             const SizedBox(height: 32),
             Row(
               mainAxisSize: MainAxisSize.min,
@@ -111,7 +110,7 @@ class HandleEmptyCart extends StatelessWidget {
             const SizedBox(height: 30),
             ElevatedButton.icon(
               onPressed: () => pushOrdersPage(context: context, page: 1),
-              style: Styles.buttonLight(context: context),
+              style: Styles.buttonFlat(context: context),
               icon: const Icon(Icons.history),
               label: const Text('Riwayat Pesanan')
             )
@@ -144,9 +143,13 @@ class HandleEmptyOrder extends StatelessWidget {
           const SizedBox(height: 48),
           ElevatedButton.icon(
             onPressed: () => pushDashboard(context, currentPage: 2),
-            style: Styles.buttonLight(context: context),
+            style: Styles.buttonFlat(context: context),
             label: const Text('Pesan Sekarang'),
-            icon: Image.asset('assets/logo IBM p C.png', height: 18)
+            icon: CircleAvatar(
+              radius: 13,
+              backgroundColor: Colors.white,
+              child: Image.asset('assets/logo IBM p C.png', height: 18)
+            )
           ),
           const SizedBox(height: 92),
         ],

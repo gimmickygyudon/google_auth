@@ -23,6 +23,7 @@ import 'package:google_auth/widgets/dialog.dart';
 import 'package:google_auth/widgets/handle.dart';
 import 'package:google_auth/widgets/profile.dart';
 import 'package:google_auth/widgets/snackbar.dart';
+import 'package:google_auth/widgets/text.dart';
 import 'package:intl/intl.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
@@ -48,12 +49,12 @@ class _CheckoutRouteState extends State<CheckoutRoute>  with SingleTickerProvide
   List<Map> tabs = [
     {
       'name': 'Barang',
-      'icon': Icons.layers_outlined,
-      'selectedIcon': Icons.layers
+      'icon': Icons.looks_one_outlined,
+      'selectedIcon': Icons.looks_one
     }, {
       'name': 'Checkout',
-      'icon': Icons.local_shipping_outlined,
-      'selectedIcon': Icons.local_shipping
+      'icon': Icons.looks_two_outlined,
+      'selectedIcon': Icons.looks_two
     },
   ];
 
@@ -76,62 +77,78 @@ class _CheckoutRouteState extends State<CheckoutRoute>  with SingleTickerProvide
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: NestedScrollView(
-        controller: _scrollController,
-        headerSliverBuilder: (context, innerBoxIsScrolled) => [
-          SliverAppBar(
-            pinned: true,
-            floating: true,
-            snap: true,
-            toolbarHeight: kToolbarHeight + 10,
-            title: Text.rich(
-              TextSpan(
+    return WillPopScope(
+      onWillPop: () async {
+        if (_tabController.index == 1) {
+          _tabController.animateTo(0);
+          return false;
+        }
+        return true;
+      },
+      child: Scaffold(
+        body: NestedScrollView(
+          controller: _scrollController,
+          headerSliverBuilder: (context, innerBoxIsScrolled) => [
+            SliverAppBar(
+              pinned: true,
+              floating: true,
+              snap: true,
+              toolbarHeight: kToolbarHeight + 10,
+              title: Row(
                 children: [
-                  TextSpan(text: 'Orders', style: Theme.of(context).textTheme.titleMedium),
+                  Image.asset('assets/logo IBM p C.png', height: 18),
+                  const SizedBox(width: 8),
+                  Text('Orders', style: Theme.of(context).textTheme.titleMedium),
                 ]
-              )
-            ),
-            actions: [
-              ProfileMenu(color: Theme.of(context).colorScheme.inverseSurface),
-              const SizedBox(width: 12)
-            ],
-            bottom: TabBar(
-              controller: _tabController,
-              tabs: List.generate(tabs.length, (index) {
-                return Tab(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 2),
-                        child: Icon(_tabController.index == index ? tabs[index]['selectedIcon'] : tabs[index]['icon']),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(tabs[index]['name']),
-                    ],
-                  )
-                );
-              }).toList()
-            ),
-          )
-        ],
-        body: TabBarView(
-          controller: _tabController,
-          children: [
-            ItemPage(
-              tabController: _tabController,
-              checkedItems: widget.checkedItems
-            ),
-            // const LocationWidget(),
-            DeliveryWidget(
-              tabController: _tabController,
-              scrollController: _scrollController,
-              checkedItems: widget.checkedItems,
+              ),
+              actions: [
+                ProfileMenu(color: Theme.of(context).colorScheme.inverseSurface),
+                const SizedBox(width: 12)
+              ],
+              bottom: TabBar(
+                indicatorPadding: const EdgeInsets.only(bottom: 6),
+                indicatorWeight: 8,
+                indicator: UnderlineTabIndicator(
+                  borderSide: BorderSide(width: 4, color: Theme.of(context).colorScheme.primary),
+                  borderRadius: BorderRadius.circular(25.7)
+                ),
+                controller: _tabController,
+                unselectedLabelColor: Theme.of(context).colorScheme.secondary,
+                tabs: List.generate(tabs.length, (index) {
+                  return Tab(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 2),
+                          child: Icon(_tabController.index == index ? tabs[index]['selectedIcon'] : tabs[index]['icon'], size: 20),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(tabs[index]['name']),
+                      ],
+                    )
+                  );
+                }).toList()
+              ),
             )
-          ]
+          ],
+          body: TabBarView(
+            controller: _tabController,
+            children: [
+              ItemPage(
+                tabController: _tabController,
+                checkedItems: widget.checkedItems
+              ),
+              // const LocationWidget(),
+              DeliveryWidget(
+                tabController: _tabController,
+                scrollController: _scrollController,
+                checkedItems: widget.checkedItems,
+              )
+            ]
+          )
         )
-      )
+      ),
     );
   }
 }
@@ -188,11 +205,13 @@ class _ItemPageState extends State<ItemPage> {
             backgroundColor: Theme.of(context).colorScheme.primary,
             foregroundColor: Theme.of(context).colorScheme.surface,
             extendedIconLabelSpacing: 10,
-            icon: const Icon(Icons.local_shipping),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            icon: const Icon(Icons.check),
             label: const Text('Checkout')
           ),
           backgroundColor: Theme.of(context).colorScheme.secondary.withOpacity(0.025),
           bottomNavigationBar: Container(
+            padding: const EdgeInsets.symmetric(vertical: 16),
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.background,
               border: Border(top: BorderSide(color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5), width: 0.5))
@@ -200,29 +219,42 @@ class _ItemPageState extends State<ItemPage> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                  padding: const EdgeInsets.all(20),
+                IntrinsicHeight(
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Jumlah Barang', style: Theme.of(context).textTheme.labelLarge),
-                      Text(totalCount().toString(), style: Theme.of(context).textTheme.labelLarge)
-                    ],
-                  ),
-                ),
-                Divider(height: 0, color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5)),
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  color: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.25),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Tonase', style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                        color: Theme.of(context).colorScheme.primary
-                      )),
-                      Text(totalWeight(), style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                        color: Theme.of(context).colorScheme.primary
-                      ))
+                      Expanded(
+                        child: ListTile(
+                          minVerticalPadding: 0,
+                          leading: CircleAvatar(
+                            backgroundColor: Theme.of(context).colorScheme.onInverseSurface,
+                            child: const Icon(Icons.layers, size: 30)
+                          ),
+                          title: Text(totalCount().toString(), style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            height: 1.5
+                          )),
+                          subtitle: Text('Jumlah Barang', style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            letterSpacing: 0,
+                            color: Theme.of(context).colorScheme.secondary
+                          )),
+                        ),
+                      ),
+                      const VerticalDivider(),
+                      Expanded(
+                        child: ListTile(
+                          minVerticalPadding: 0,
+                          leading: CircleAvatar(
+                            backgroundColor: Theme.of(context).colorScheme.onInverseSurface,
+                            child: const Icon(Icons.scale, size: 30)
+                          ),
+                          title: Text(totalWeight(), style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            height: 1.5,
+                          )),
+                          subtitle: Text('Tonase', style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            letterSpacing: 0,
+                            color: Theme.of(context).colorScheme.secondary
+                          )),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -666,7 +698,7 @@ class _DeliveryWidgetState extends State<DeliveryWidget> {
   TimeOfDay? time;
   String? payments;
   int paymentType = 0;
-  bool isLoading = false;
+  bool isLoading = false, noteOpen = false;
 
   late TextEditingController referenceNumberTextController;
   late TextEditingController documentremarksTextController;
@@ -828,7 +860,6 @@ class _DeliveryWidgetState extends State<DeliveryWidget> {
           context: context,
           removeTop: true,
           child: CupertinoScrollbar(
-            thumbVisibility: true,
             controller: widget.scrollController,
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(12),
@@ -841,26 +872,21 @@ class _DeliveryWidgetState extends State<DeliveryWidget> {
                       Padding(
                         padding: const EdgeInsets.all(16),
                         child: CurrentAddressCard(
-                          orderOpen: ValueNotifier(true),
                           deliveryType: deliveryType,
                           padding: EdgeInsets.zero,
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                         child: Card(
                           margin: EdgeInsets.zero,
                           shadowColor: Colors.transparent,
+                          surfaceTintColor: Colors.transparent,
                           color: Theme.of(context).colorScheme.primary.withOpacity(0.05).withBlue(50),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                           clipBehavior: Clip.antiAlias,
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
-                            decoration: BoxDecoration(
-                              border: Border(
-                                top: BorderSide(color: Theme.of(context).colorScheme.primary.withBlue(50).withOpacity(0.4), width: 6),
-                              )
-                            ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisSize: MainAxisSize.min,
@@ -869,76 +895,50 @@ class _DeliveryWidgetState extends State<DeliveryWidget> {
                                 const SizedBox(height: 2),
                                 Text('Tanggal Dokumen: ${DateNow()}', style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                   fontWeight: FontWeight.w500,
-                                  color: Theme.of(context).colorScheme.primary.withBlue(50).withOpacity(0.85),
+                                  color: Theme.of(context).colorScheme.secondary.withOpacity(0.85),
                                   letterSpacing: 0
                                 )),
                                 const SizedBox(height: 20),
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      border: Border(
-                                        bottom: BorderSide(color: Theme.of(context).colorScheme.primary.withBlue(50).withOpacity(0.4), width: 6),
-                                      )
-                                    ),
-                                    child: ButtonListTile(
-                                      dense: true,
-                                      icon: const Icon(Icons.date_range),
-                                      title: Text(selectedDate != null ? 'Tanggal Pengiriman' : 'Pilih Tanggal', style: Theme.of(context).textTheme.bodySmall?.copyWith()),
-                                      subtitle: Text(selectedDate ?? DateNow(), style: Theme.of(context).textTheme.titleSmall?.copyWith()),
-                                      color: Theme.of(context).colorScheme.primary.withOpacity(0.1).withBlue(0),
-                                      bgRadius: 18,
-                                      borderRadius: const BorderRadius.only(
-                                        topLeft: Radius.circular(12),
-                                        topRight: Radius.circular(12)
-                                      ),
-                                      trailing: const Icon(Icons.expand_more),
-                                      onTap: () => Date.showDate(context, date).then((value) {
-                                        if (value == null) {
-                                          return false;
-                                        }
-                                        setState(() {
-                                          date = value;
-                                          String string = DateFormat('EEEE, dd MMMM, ''yyyy', 'id').format(value);
-                                          selectedDate = string;
-                                        });
-                                      }),
-                                    ),
-                                  ),
+                                ButtonListTile(
+                                  dense: true,
+                                  icon: const Icon(Icons.date_range),
+                                  title: Text(selectedDate != null ? 'Tanggal Pengiriman' : 'Pilih Tanggal', style: Theme.of(context).textTheme.bodySmall?.copyWith()),
+                                  subtitle: Text(selectedDate ?? DateNow(), style: Theme.of(context).textTheme.titleSmall?.copyWith()),
+                                  color: Theme.of(context).colorScheme.primary.withOpacity(0.1).withBlue(0),
+                                  bgRadius: 18,
+                                  borderRadius: BorderRadius.circular(12),
+                                  trailing: const Icon(Icons.arrow_drop_down, size: 30),
+                                  onTap: () => Date.showDate(context, date).then((value) {
+                                    if (value == null) {
+                                      return false;
+                                    }
+                                    setState(() {
+                                      date = value;
+                                      String string = DateFormat('EEEE, dd MMMM, ''yyyy', 'id').format(value);
+                                      selectedDate = string;
+                                    });
+                                  }),
                                 ),
                                 const SizedBox(height: 20),
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      border: Border(
-                                        bottom: BorderSide(color: Theme.of(context).colorScheme.primary.withBlue(50).withOpacity(0.4), width: 6),
-                                      )
-                                    ),
-                                    child: ButtonListTile(
-                                      dense: true,
-                                      visualDensity: VisualDensity.compact,
-                                      icon: const Icon(Icons.schedule),
-                                      title: Text(selectedTime != null ? 'Waktu Pengiriman' : 'Pilih Waktu', style: Theme.of(context).textTheme.bodySmall?.copyWith()),
-                                      subtitle: Text(selectedTime ?? TimeNow(), style: Theme.of(context).textTheme.titleSmall?.copyWith()),
-                                      color: Theme.of(context).colorScheme.primary.withOpacity(0.1).withBlue(0),
-                                      bgRadius: 18,
-                                      borderRadius: const BorderRadius.only(
-                                        topLeft: Radius.circular(12),
-                                        topRight: Radius.circular(12)
-                                      ),
-                                      trailing: const Icon(Icons.expand_more),
-                                      onTap: () => Date.showTime(context, time).then((value) {
-                                        if (value == null) {
-                                          return false;
-                                        }
-                                        setState(() {
-                                          time = value;
-                                          selectedTime = value.format(context);
-                                        });
-                                      }),
-                                    ),
-                                  ),
+                                ButtonListTile(
+                                  dense: true,
+                                  visualDensity: VisualDensity.compact,
+                                  icon: const Icon(Icons.schedule),
+                                  title: Text(selectedTime != null ? 'Waktu Pengiriman' : 'Pilih Waktu', style: Theme.of(context).textTheme.bodySmall?.copyWith()),
+                                  subtitle: Text(selectedTime ?? TimeNow(), style: Theme.of(context).textTheme.titleSmall?.copyWith()),
+                                  color: Theme.of(context).colorScheme.primary.withOpacity(0.1).withBlue(0),
+                                  bgRadius: 18,
+                                  borderRadius: BorderRadius.circular(12),
+                                  trailing: const Icon(Icons.arrow_drop_down, size: 30),
+                                  onTap: () => Date.showTime(context, time).then((value) {
+                                    if (value == null) {
+                                      return false;
+                                    }
+                                    setState(() {
+                                      time = value;
+                                      selectedTime = value.format(context);
+                                    });
+                                  }),
                                 ),
                                 const SizedBox(height: 20),
                               ],
@@ -946,17 +946,14 @@ class _DeliveryWidgetState extends State<DeliveryWidget> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 18),
+                      const SizedBox(height: 10),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
                           decoration: BoxDecoration(
                             color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.5),
-                            border: Border.all(
-                              color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5)
-                            ),
-                            borderRadius: BorderRadius.circular(12)
+                            borderRadius: BorderRadius.circular(25.7)
                          ),
                           child: Column(
                             children: [
@@ -967,10 +964,10 @@ class _DeliveryWidgetState extends State<DeliveryWidget> {
                                     children: [
                                       Icon(Icons.confirmation_number_outlined,
                                         color: Theme.of(context).colorScheme.secondary,
-                                        size: 20
+                                        size: 22
                                       ),
-                                      const SizedBox(width: 8),
-                                      Text('Voucher Discount', style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      const SizedBox(width: 10),
+                                      Text('Voucher Discount', style: Theme.of(context).textTheme.labelSmall?.copyWith(
                                         letterSpacing: 0,
                                         color: Theme.of(context).colorScheme.secondary,
                                       )),
@@ -980,7 +977,7 @@ class _DeliveryWidgetState extends State<DeliveryWidget> {
                                     onPressed: () {},
                                     style: Styles.buttonFlatSmall(
                                       context: context,
-                                      borderRadius: BorderRadius.circular(8),
+                                      borderRadius: BorderRadius.circular(25.7),
                                       backgroundColor: Theme.of(context).colorScheme.secondary,
                                     ),
                                     child: const Text('Lihat')
@@ -994,115 +991,172 @@ class _DeliveryWidgetState extends State<DeliveryWidget> {
                       ValueListenableBuilder(
                         valueListenable: CartWidget.cartNotifier,
                         builder: (context, value, child) {
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                InkWell(
-                                  onTap: () {
-                                    widget.scrollController.animateTo(0, duration: const Duration(milliseconds: 800), curve: Curves.ease);
-                                    widget.tabController.animateTo(0);
-                                  },
-                                  child: Ink(
-                                    padding: const EdgeInsets.all(20),
+                          return InkWell(
+                            onTap: () => widget.tabController.animateTo(0),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 10),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IntrinsicHeight(
                                     child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                       children: [
-                                        Text('Jumlah Barang', style: Theme.of(context).textTheme.labelLarge),
-                                        Text(totalCount().toString(), style: Theme.of(context).textTheme.labelLarge)
+                                        Expanded(
+                                          child: ListTile(
+                                            minVerticalPadding: 0,
+                                            leading: CircleAvatar(
+                                              backgroundColor: Theme.of(context).colorScheme.onInverseSurface,
+                                              child: Icon(Icons.layers, size: 30, color: Theme.of(context).colorScheme.secondary)
+                                            ),
+                                            title: Text(totalCount().toString(), style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                              height: 1.5
+                                            )),
+                                            subtitle: Text('Jumlah Barang', style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                              fontSize: 10,
+                                              letterSpacing: 0,
+                                              color: Theme.of(context).colorScheme.secondary
+                                            )),
+                                          ),
+                                        ),
+                                        const VerticalDivider(),
+                                        Expanded(
+                                          child: ListTile(
+                                            minVerticalPadding: 0,
+                                            leading: CircleAvatar(
+                                              backgroundColor: Theme.of(context).colorScheme.onInverseSurface,
+                                              child: Icon(Icons.scale, size: 30, color: Theme.of(context).colorScheme.secondary)
+                                            ),
+                                            title: Text(totalWeight(), style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                              height: 1.5,
+                                            )),
+                                            subtitle: Text('Tonase', style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                              fontSize: 10,
+                                              letterSpacing: 0,
+                                              color: Theme.of(context).colorScheme.secondary
+                                            )),
+                                          ),
+                                        ),
                                       ],
                                     ),
                                   ),
-                                ),
-                                Divider(height: 0, color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5)),
-                                Container(
-                                  padding: const EdgeInsets.all(20),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text('Tonase', style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                                        color: Theme.of(context).colorScheme.primary
-                                      )),
-                                      Text(totalWeight(), style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                                        color: Theme.of(context).colorScheme.primary
-                                      ))
-                                    ],
-                                  ),
-                                ),
-                                Divider(height: 0, color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5)),
-                              ],
+                                ],
+                              ),
                             ),
                           );
                         }
                       ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
+                      const SizedBox(height: 12),
+                      Theme(
+                        data: Theme.of(context).copyWith(dividerColor: Theme.of(context).colorScheme.outlineVariant),
+                        child: StatefulBuilder(
+                          builder: (context, setState) {
+                            return ExpansionTile(
+                              onExpansionChanged: (value) {
+                                setState(() {
+                                  noteOpen = value;
+                                });
+                              },
+                              title: Row(
+                                children: [
+                                  TextIcon(
+                                    disable: noteOpen ? false : true,
+                                    label: 'Catatan',
+                                    icon: Icons.note_alt_outlined,
+                                    iconSize: 22,
+                                    bgRadius: 18,
+                                  ),
+                                  Expanded(child: Divider(indent: 16, endIndent: 8, height: 0, color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.25)))
+                                ],
+                              ),
+                              tilePadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                              childrenPadding: const EdgeInsets.symmetric(horizontal: 24),
                               children: [
-                                const Icon(Icons.text_snippet_outlined),
-                                Text(' Catatan', style: Theme.of(context).textTheme.titleMedium),
-                                Expanded(child: Divider(indent: 16, endIndent: 8, height: 0, color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.25)))
+                                Padding(
+                                  padding: const EdgeInsets.all(6),
+                                  child: Column(
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 2),
+                                        child: Text('Catatan pengiriman barang dan rincian informasi barang.',
+                                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                            letterSpacing: 0,
+                                            color: Theme.of(context).colorScheme.secondary
+                                          )
+                                        ),
+                                      ),
+                                      const SizedBox(height: 30),
+                                      Column(
+                                        children: [
+                                          TextField(
+                                            maxLines: 3,
+                                            controller: documentremarksTextController,
+                                            decoration: Styles.inputDecorationForm(
+                                              context: context,
+                                              placeholder: 'Spesial Instruksi',
+                                              hintText: 'Contoh: Barang dibawah dengan alas plastik ...',
+                                              floatingLabelBehavior: FloatingLabelBehavior.always,
+                                              labelStyle: const TextStyle(fontSize: 16, letterSpacing: 0),
+                                              condition: documentremarksTextController.text.isNotEmpty
+                                            ),
+                                          ),
+                                          const SizedBox(height: 20),
+                                          TextField(
+                                            controller: referenceNumberTextController,
+                                            decoration: Styles.inputDecorationForm(
+                                              context: context,
+                                              placeholder: 'Nomor Referensi',
+                                              floatingLabelBehavior: FloatingLabelBehavior.always,
+                                              labelStyle: const TextStyle(fontSize: 16, letterSpacing: 0),
+                                              condition: referenceNumberTextController.text.isNotEmpty
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 28)
+                                    ],
+                                  ),
+                                )
                               ],
-                            ),
-                            const SizedBox(height: 20),
-                            TextField(
-                              maxLines: 3,
-                              controller: documentremarksTextController,
-                              decoration: Styles.inputDecorationForm(
-                                context: context,
-                                placeholder: 'Spesial Instruksi',
-                                hintText: 'Contoh: Barang dibawah dengan alas plastik',
-                                floatingLabelBehavior: FloatingLabelBehavior.always,
-                                labelStyle: const TextStyle(fontSize: 16, letterSpacing: 0),
-                                condition: documentremarksTextController.text.isNotEmpty
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            TextField(
-                              controller: referenceNumberTextController,
-                              decoration: Styles.inputDecorationForm(
-                                context: context,
-                                placeholder: 'Nomor Referensi',
-                                floatingLabelBehavior: FloatingLabelBehavior.always,
-                                labelStyle: const TextStyle(fontSize: 16, letterSpacing: 0),
-                                condition: referenceNumberTextController.text.isNotEmpty
-                              ),
-                            )
-                          ],
+                            );
+                          }
                         ),
                       ),
-                      const SizedBox(height: 12)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            ValueListenableBuilder(
+                              valueListenable: OrdersPageRoute.delivertype,
+                              builder: (context, deliverytype, child) {
+                                return ElevatedButton.icon(
+                                  onPressed: () {
+                                    pushPayment(
+                                      context: context,
+                                      onConfirm: (indexPaymentsType) {
+                                        return onConfirm(deliverytype, indexPaymentsType);
+                                      },
+                                      delivertype: deliverytype,
+                                    );
+                                  },
+                                  style: Styles.buttonFlat(
+                                    context: context,
+                                    minimumSize: const Size(170, 54),
+                                    borderRadius: BorderRadius.circular(10)
+                                  ),
+                                  icon: const Icon(Icons.payment),
+                                  label: const Text('Pembayaran')
+                                );
+                              }
+                            ),
+                          ],
+                        ),
+                      )
                     ],
                   );
                 }
               ),
             ),
-          ),
-        ),
-        floatingActionButton: ValueListenableBuilder(
-          valueListenable: OrdersPageRoute.delivertype,
-          builder: (context, delivertype, child) => ElevatedButton.icon(
-            onPressed: () {
-              pushPayment(
-                context: context,
-                onConfirm: (indexPaymentsType) {
-                  return onConfirm(delivertype, indexPaymentsType);
-                },
-                delivertype: delivertype,
-              );
-            },
-            style: Styles.buttonForm(
-              context: context,
-            ),
-            icon: const Padding(
-              padding: EdgeInsets.fromLTRB(0, 0, 4, 2),
-              child: Icon(Icons.payment),
-            ),
-            label: const Text('Pembayaran'),
           ),
         ),
       ),

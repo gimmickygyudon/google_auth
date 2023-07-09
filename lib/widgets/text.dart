@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
 class TextIcon extends StatelessWidget {
-  const TextIcon({super.key, required this.label, required this.icon, this.bgRadius, this.iconSize});
+  const TextIcon({super.key, required this.label, required this.icon, this.bgRadius, this.iconSize, this.disable});
 
   final String label;
   final IconData icon;
   final double? bgRadius, iconSize;
+  final bool? disable;
 
   @override
   Widget build(BuildContext context) {
@@ -13,8 +14,10 @@ class TextIcon extends StatelessWidget {
       children: [
         CircleAvatar(
           radius: bgRadius ?? 12,
-          backgroundColor: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.5),
-          child: Icon(icon, size: iconSize ?? 18, color: Theme.of(context).colorScheme.primary)
+          backgroundColor: disable == true
+          ? Theme.of(context).colorScheme.onInverseSurface
+          : Theme.of(context).colorScheme.primaryContainer.withOpacity(0.5),
+          child: Icon(icon, size: iconSize ?? 18, color: disable == true ? Theme.of(context).colorScheme.inverseSurface : Theme.of(context).colorScheme.primary)
         ),
         const SizedBox(width: 10),
         Text(label, style: Theme.of(context).textTheme.titleMedium?.copyWith(

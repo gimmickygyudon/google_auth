@@ -76,6 +76,7 @@ class _BerandaRouteState extends State<BerandaRoute> with WidgetsBindingObserver
                     padding: EdgeInsets.symmetric(vertical: 20),
                     child: CreditDueWidget(),
                   ),
+                  const SizedBox(height: 10),
                   SizedBox(
                     height: 150,
                     child: ListView(
