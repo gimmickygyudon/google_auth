@@ -234,7 +234,7 @@ class CreditDueReport {
       'color': Theme.of(context).colorScheme.error.withOpacity(0.7)
     }, {
       'name': 'Total Piutang',
-      'color': Theme.of(context).colorScheme.error.withOpacity(0.1)
+      'color': Theme.of(context).colorScheme.secondary
     }
   ];
 

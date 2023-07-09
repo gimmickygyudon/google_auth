@@ -85,7 +85,7 @@ class CreditDueChartState extends State<CreditDueChart> {
             radius: isTouched ? selectedRadius : radius,
             titleStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
               fontSize: fontSize,
-              color: Theme.of(context).colorScheme.inverseSurface
+              color: Theme.of(context).colorScheme.surface
             ),
             badgeWidget: _badge(
               label: widget.creditDueReport!.total_balance,

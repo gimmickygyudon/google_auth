@@ -282,9 +282,10 @@ class HandleNoData extends StatelessWidget {
 }
 
 class DisableWidget extends StatelessWidget {
-  const DisableWidget({super.key, required this.disable, required this.child});
+  const DisableWidget({super.key, required this.disable, required this.child, this.withBorder});
 
   final bool disable;
+  final bool? withBorder;
   final Widget child;
 
   @override
@@ -300,7 +301,7 @@ class DisableWidget extends StatelessWidget {
         foregroundDecoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           border: disable ? Border.all(
-            color: Theme.of(context).colorScheme.outlineVariant
+            color: withBorder == false ? Colors.transparent : Theme.of(context).colorScheme.outlineVariant
           ) : null,
           color: Theme.of(context).colorScheme.background.withOpacity(disable ? 0.9 : 0)
         ),

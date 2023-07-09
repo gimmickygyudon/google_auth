@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:google_auth/functions/customer.dart';
+import 'package:google_auth/functions/push.dart';
 import 'package:google_auth/widgets/chart.dart';
 import 'package:google_auth/widgets/chip.dart';
 import 'package:google_auth/widgets/handle.dart';
@@ -52,7 +53,7 @@ class _CreditDueWidgetState extends State<CreditDueWidget> {
           future: _creditDueReport,
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const HandleLoadingBar();
+              return const SizedBox();
             } else if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
               return Padding(
                 padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
@@ -162,6 +163,29 @@ class _CreditDueWidgetState extends State<CreditDueWidget> {
                           ],
                         ),
                       ],
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Align(
+                        alignment: Alignment.bottomRight,
+                        child: TextButton(
+                          style: ButtonStyle(
+                            visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+                            padding: const MaterialStatePropertyAll(EdgeInsets.only(left: 6)),
+                            textStyle: MaterialStatePropertyAll(Theme.of(context).textTheme.labelSmall?.copyWith(letterSpacing: 0)),
+                            iconSize: const MaterialStatePropertyAll(16)
+                          ),
+                          onPressed: () => pushCreditDetailReport(context: context, onPop: () => setState(() {})),
+                          child: const Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text('Rincian Piutang'),
+                              SizedBox(width: 4),
+                              Icon(Icons.arrow_forward)
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
                   ],
                 ),

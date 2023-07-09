@@ -29,6 +29,8 @@ class _DetailReportRouteState extends State<DetailReportRoute> {
   ValueNotifier<List<int>> count = ValueNotifier([0, 0]);
   late Future<DeliveryOrder> _deliveryOrder;
 
+  bool noData = false;
+
   @override
   void initState() {
     setRange();
@@ -40,9 +42,20 @@ class _DetailReportRouteState extends State<DetailReportRoute> {
     String? id_ocst = await Customer.getDefaultCustomer().then((customer) => customer?.id_ocst);
 
     int month = months.indexOf(selectedMonth!);
-    return await DeliveryOrder.retrieveMonth(id_ocst: id_ocst!, date: DateTime(int.parse(selectedYears!), month + 1)).then((value) async {
-      return await defineValueTonase(value: value);
-    }).whenComplete(() => setState(() {}));
+    if (id_ocst != null) {
+      return await DeliveryOrder.retrieveMonth(id_ocst: id_ocst, date: DateTime(int.parse(selectedYears!), month + 1)).then((value) async {
+        return await defineValueTonase(value: value);
+      })
+      .onError((error, stackTrace) => defineError())
+      .whenComplete(() => setState(() => noData = false));
+    } else {
+      return await defineError();
+    }
+  }
+
+  Future<DeliveryOrder> defineError() async {
+    return await defineValueTonase(value: { 'realisasi': '0.0', 'outstanding': '0.0', 'realisasi_count': 0, 'outstanding_count': 0})
+    .whenComplete(() => setState(() => noData = true));
   }
 
   Future<DeliveryOrder> defineValueTonase({required Map value}) async {
@@ -210,29 +223,49 @@ class _DetailReportRouteState extends State<DetailReportRoute> {
                   )
                 ],
               ),
+              const SizedBox(height: 12),
               FutureBuilder(
                 future: _deliveryOrder,
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const HandleLoading();
+                    return const Center(child: HandleLoading());
                   } else if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
-                    return POBarChart(
-                      sectors: DeliveryOrder(
-                        tonage: realisasi,
-                        outstanding_tonage: outstanding,
-                        target: total
-                      ),
+                    return Stack(
+                      children: [
+                        DisableWidget(
+                          disable: noData,
+                          withBorder: false,
+                          child: POBarChart(
+                            sectors: DeliveryOrder(
+                              tonage: realisasi,
+                              outstanding_tonage: outstanding,
+                              target: total
+                            ),
 
-                      titlebottom: DeliveryOrder.description(context: context).map((element) => element['name']).toList(),
-                      colors: DeliveryOrder.description(context: context).map<Color>((element) => element['color']).toList(),
-                      borderRadius: BorderRadius.circular(2),
+                            titlebottom: DeliveryOrder.description(context: context).map((element) => element['name']).toList(),
+                            colors: DeliveryOrder.description(context: context).map<Color>((element) => element['color']).toList(),
+                            borderRadius: BorderRadius.circular(2),
 
-                      dark: DeliveryOrder.description(context: context)[0]['color'],
-                      normal: DeliveryOrder.description(context: context)[1]['color'],
-                      light: DeliveryOrder.description(context: context)[2]['color']
+                            dark: DeliveryOrder.description(context: context)[0]['color'],
+                            normal: DeliveryOrder.description(context: context)[1]['color'],
+                            light: DeliveryOrder.description(context: context)[2]['color']
+                          ),
+                        ),
+                        AnimatedOpacity(
+                          curve: Curves.fastOutSlowIn,
+                          duration: const Duration(milliseconds: 300),
+                          opacity: noData ? 1 : 0,
+                          child: const AspectRatio(
+                            aspectRatio: 1.40,
+                            child: HandleNoData()
+                          ),
+                        )
+                      ],
                     );
                   } else {
-                    return const HandleNoInternet(message: 'Gagal Tersambung ke Server',);
+                    return const Center(
+                      child: HandleNoInternet(message: 'Gagal Tersambung ke Server',)
+                    );
                   }
                 }
               )

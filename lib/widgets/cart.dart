@@ -83,7 +83,7 @@ class _CartWidgetState extends State<CartWidget> {
                 ),
               ] + [
                 PopupMenuItem(
-                  onTap: () => pushCheckout(context: context, checkedItems: []),
+                  onTap: () => pushOrdersPage(context: context),
                   child: ValueListenableBuilder(
                     valueListenable: CartWidget.cartNotifier,
                     builder: (context, items, child) {
