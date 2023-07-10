@@ -242,10 +242,6 @@ class _ItemPageState extends State<ItemPage> {
                       Expanded(
                         child: ListTile(
                           minVerticalPadding: 0,
-                          leading: CircleAvatar(
-                            backgroundColor: Theme.of(context).colorScheme.onInverseSurface,
-                            child: const Icon(Icons.scale, size: 30)
-                          ),
                           title: Text(totalWeight(), style: Theme.of(context).textTheme.titleLarge?.copyWith(
                             height: 1.5,
                           )),
@@ -1022,10 +1018,6 @@ class _DeliveryWidgetState extends State<DeliveryWidget> {
                                         Expanded(
                                           child: ListTile(
                                             minVerticalPadding: 0,
-                                            leading: CircleAvatar(
-                                              backgroundColor: Theme.of(context).colorScheme.onInverseSurface,
-                                              child: Icon(Icons.scale, size: 30, color: Theme.of(context).colorScheme.secondary)
-                                            ),
                                             title: Text(totalWeight(), style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                               height: 1.5,
                                             )),

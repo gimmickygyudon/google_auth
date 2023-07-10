@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_auth/functions/permission.dart';
 import 'package:google_auth/functions/push.dart';
-import 'package:google_auth/routes/beranda/credit_due_report.dart';
 import 'package:google_auth/routes/beranda/delivery_report.dart';
+import 'package:google_auth/widgets/card.dart';
 import 'package:google_auth/widgets/notification.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -72,10 +72,7 @@ class _BerandaRouteState extends State<BerandaRoute> with WidgetsBindingObserver
                     }
                   ),
                   const ReportDeliveryWidget(),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 20),
-                    child: CreditDueWidget(),
-                  ),
+                  const CardInvoice(),
                   const SizedBox(height: 10),
                   SizedBox(
                     height: 150,

@@ -6,10 +6,10 @@ import 'package:google_auth/routes/beranda/delivery_report.dart';
 import 'package:google_auth/strings/user.dart';
 import 'package:google_auth/styles/theme.dart';
 import 'package:google_auth/widgets/chart.dart';
+import 'package:google_auth/widgets/dropdown.dart';
 import 'package:google_auth/widgets/handle.dart';
 import 'package:google_auth/widgets/profile.dart';
 
-import '../../functions/color.dart';
 import '../../widgets/text.dart';
 
 class DetailReportRoute extends StatefulWidget {
@@ -75,7 +75,7 @@ class _DetailReportRouteState extends State<DetailReportRoute> {
     months = generateListofMonths(DateTime.now());
     selectedMonth = months[DateTime.now().month - 1];
 
-    years = generateListoYears(DateTime.now());
+    years = generateListofYears(DateTime.now());
     selectedYears = years.last;
   }
 
@@ -158,66 +158,22 @@ class _DetailReportRouteState extends State<DetailReportRoute> {
                   ),
                   Row(
                     children: [
-                      Container(
-                        padding: const EdgeInsets.fromLTRB(10, 2, 4, 2),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.5),
-                          borderRadius: BorderRadius.circular(6)
-                        ),
-                        child: DropdownButton(
-                          isDense: true,
-                          underline: const SizedBox(),
-                          value: selectedMonth,
-                          borderRadius: BorderRadius.circular(8),
-                          onChanged: (month) {
-                            setDeliveryOrder();
-                            selectedMonth = month;
-                          },
-                          elevation: 0,
-                          dropdownColor: lighten(Theme.of(context).colorScheme.primaryContainer, 0.05),
-                          style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.primary,
-                            letterSpacing: 0
-                          ),
-                          iconEnabledColor: Theme.of(context).colorScheme.primary,
-                          items: months.map((month) {
-                            return DropdownMenuItem(
-                              value: month,
-                              child: Text(month)
-                            );
-                          }).toList()
-                        ),
+                      DropdownLight(
+                        value: selectedMonth,
+                        values: months,
+                        onChanged: (value) {
+                          setDeliveryOrder();
+                          selectedMonth = value;
+                        },
                       ),
                       const SizedBox(width: 12),
-                      Container(
-                        padding: const EdgeInsets.fromLTRB(10, 2, 4, 2),
-                        decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.5),
-                          borderRadius: BorderRadius.circular(6)
-                        ),
-                        child: DropdownButton(
-                          isDense: true,
-                          underline: const SizedBox(),
-                          value: selectedYears,
-                          borderRadius: BorderRadius.circular(8),
-                          onChanged: (year) {
-                            setDeliveryOrder();
-                            selectedYears = year;
-                          },
-                          elevation: 0,
-                          dropdownColor: lighten(Theme.of(context).colorScheme.primaryContainer, 0.05),
-                          style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.primary,
-                            letterSpacing: 0
-                          ),
-                          iconEnabledColor: Theme.of(context).colorScheme.primary,
-                          items: years.map((year) {
-                            return DropdownMenuItem(
-                              value: year,
-                              child: Text(year)
-                            );
-                          }).toList()
-                        ),
+                      DropdownLight(
+                        value: selectedYears,
+                        values: years,
+                        onChanged: (value) {
+                          setDeliveryOrder();
+                          selectedYears = value;
+                        },
                       ),
                     ],
                   )

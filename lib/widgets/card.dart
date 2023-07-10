@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_auth/functions/push.dart';
 import 'package:google_auth/functions/sqlite.dart';
 import 'package:google_auth/functions/string.dart';
+import 'package:google_auth/routes/beranda/payment_due_report.dart';
 import 'package:google_auth/strings/item.dart';
+
+import '../routes/beranda/credit_due_report.dart';
 
 class CardItemSmall extends StatelessWidget {
   const CardItemSmall({super.key, required this.item, required this.brand, required this.color, required this.hero});
@@ -108,6 +111,81 @@ class CardItemSmall extends StatelessWidget {
                 ),
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class CardInvoice extends StatefulWidget {
+  const CardInvoice({super.key});
+
+  @override
+  State<CardInvoice> createState() => _CardInvoiceState();
+}
+
+class _CardInvoiceState extends State<CardInvoice> with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  List<double> size = [395, 435];
+
+  @override
+  void initState() {
+    _tabController = TabController(length: 2, vsync: this);
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 20),
+      child: Card(
+        color: Theme.of(context).colorScheme.background,
+        surfaceTintColor: Colors.transparent,
+        shadowColor: Theme.of(context).colorScheme.shadow.withOpacity(0.25),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+          side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5))
+        ),
+        elevation: 4,
+        margin: EdgeInsets.zero,
+        child: AnimatedSize(
+          duration: const Duration(milliseconds: 400),
+          alignment: Alignment.topCenter,
+          curve: Curves.fastOutSlowIn,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: 0,
+              maxHeight: size[_tabController.index]
+            ),
+            child: Scaffold(
+              extendBody: true,
+              backgroundColor: Colors.transparent,
+              appBar: AppBar(
+                toolbarHeight: 0,
+                bottom: TabBar(
+                  controller: _tabController,
+                  onTap: (value) => setState(() { }),
+                  tabs: const [
+                    Tab(text: 'Piutang'),
+                    Tab(text: 'Payment')
+                  ]
+                ),
+              ),
+              body: TabBarView(
+                controller: _tabController,
+                children: const [
+                  CreditDueWidget(),
+                  PaymentDueWidget()
+                ],
+              ),
+            ),
           ),
         ),
       ),

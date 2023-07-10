@@ -217,6 +217,7 @@ class CreditDueReport {
   final int? id_ocst;
   final String total_balance, total_balance_due;
   final double percent_balance, percent_balance_due;
+  final List<CreditDueData>? data;
   final int? count;
 
   CreditDueReport({
@@ -225,7 +226,8 @@ class CreditDueReport {
     required this.total_balance_due,
     required this.percent_balance,
     required this.percent_balance_due,
-    this.count
+    this.count,
+    this.data,
   });
 
   static List<Map> description(BuildContext context) => [
@@ -239,22 +241,50 @@ class CreditDueReport {
   ];
 
   static Future<CreditDueReport> retrieve({required String id_ocst}) async {
-    return await SQL.retrieve(api: 'sim_report/arr', query: 'id_osct=$id_ocst').then((value) {
+    return await SQL.retrieve(api: 'sim_report/arr', query: 'id_ocst=$id_ocst').then((value) {
       String total_balance, total_balance_due;
       double percent_balance, percent_balance_due;
 
       percent_balance_due = value['total_balance_due'] / value['total_balance'] * 100;
       percent_balance = 100 - percent_balance_due;
 
+      percent_balance_due = double.parse(percent_balance_due.toStringAsFixed(1));
+      percent_balance = double.parse(percent_balance.toStringAsFixed(1));
+
       total_balance = NumberFormat.compactSimpleCurrency(locale: 'id-ID', decimalDigits: 2).format(value['total_balance']);
       total_balance_due = NumberFormat.compactSimpleCurrency(locale: 'id-ID', decimalDigits: 2).format(value['total_balance_due']);
+
+
+      List<CreditDueData> data = value['data'].map<CreditDueData>((e) {
+        return CreditDueData(
+          invoice_code: e['invoice_code'],
+          due_date: e['due_date'],
+          balance_due: e['balance_due'],
+          umur_piutang: e['umur_piutang']
+        );
+      }).toList();
 
       return CreditDueReport(
         total_balance: total_balance,
         total_balance_due: total_balance_due,
         percent_balance: percent_balance,
-        percent_balance_due: percent_balance_due
+        percent_balance_due: percent_balance_due,
+        data: data
       );
     });
   }
+}
+
+class CreditDueData {
+  final String invoice_code;
+  final String due_date;
+  final String balance_due;
+  final String umur_piutang;
+
+  const CreditDueData({
+    required this.invoice_code,
+    required this.due_date,
+    required this.balance_due,
+    required this.umur_piutang,
+  });
 }

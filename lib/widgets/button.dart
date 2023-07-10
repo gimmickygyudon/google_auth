@@ -210,3 +210,31 @@ class ButtonListTile extends StatelessWidget {
     );
   }
 }
+
+class TextButtonOpen extends StatelessWidget {
+  const TextButtonOpen({super.key, required this.onPressed, required this.label});
+
+  final String label;
+  final Function onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      style: ButtonStyle(
+        visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+        padding: const MaterialStatePropertyAll(EdgeInsets.only(left: 6)),
+        textStyle: MaterialStatePropertyAll(Theme.of(context).textTheme.labelSmall?.copyWith(letterSpacing: 0)),
+        iconSize: const MaterialStatePropertyAll(16)
+      ),
+      onPressed: () => onPressed(),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(label),
+          const SizedBox(width: 4),
+          const Icon(Icons.arrow_forward)
+        ],
+      ),
+    );
+  }
+}

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_auth/functions/push.dart';
 import 'package:google_auth/functions/string.dart';
 import 'package:google_auth/strings/user.dart';
+import 'package:google_auth/widgets/button.dart';
 import 'package:google_auth/widgets/chip.dart';
 import 'package:google_auth/widgets/handle.dart';
 import 'package:intl/intl.dart';
@@ -203,7 +204,7 @@ class _ReportDeliveryWidgetState extends State<ReportDeliveryWidget> {
                                         Center(
                                           child: Padding(
                                             padding: const EdgeInsets.only(top: 30),
-                                            child: POChartWidget(
+                                            child: DeliveryChartWidget(
                                               DeliveryOrder(
                                                 tonage: total[0],
                                                 outstanding_tonage: total[1],
@@ -304,26 +305,11 @@ class _ReportDeliveryWidgetState extends State<ReportDeliveryWidget> {
                                   }),
                                   Align(
                                     alignment: Alignment.centerRight,
-                                    child: TextButton(
-                                      style: ButtonStyle(
-                                        visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
-                                        padding: const MaterialStatePropertyAll(EdgeInsets.only(left: 6)),
-                                        textStyle: MaterialStatePropertyAll(Theme.of(context).textTheme.labelSmall?.copyWith(letterSpacing: 0)),
-                                        iconSize: const MaterialStatePropertyAll(16)
-                                      ),
-                                      onPressed: () => pushDetailReport(context: context, onPop: () {
-                                        setState(() {
-                                          setReportDelivery();
-                                        });
-                                      }),
-                                      child: const Row(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Text('Rincian Pencapaian'),
-                                          SizedBox(width: 4),
-                                          Icon(Icons.arrow_forward)
-                                        ],
-                                      ),
+                                    child: TextButtonOpen(
+                                      label: 'Rincian Pencapaian',
+                                      onPressed: () {
+                                        pushDetailReport(context: context, onPop: () => setState(() => setReportDelivery()));
+                                      },
                                     ),
                                   ),
                                 ],
@@ -446,7 +432,7 @@ class _CustomerSelectWidgetState extends State<CustomerSelectWidget> {
             ),
             child: const LinearProgressIndicator(backgroundColor: Colors.transparent)
           );
-        } else if (snapshot.connectionState == ConnectionState.done && snapshot.hasData && snapshot.data != null) {
+        } else if (snapshot.connectionState == ConnectionState.done && snapshot.hasData && snapshot.data!.isNotEmpty) {
           return Container(
             height: 40,
             margin: const EdgeInsets.fromLTRB(0, 0, 0, 6),

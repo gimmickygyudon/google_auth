@@ -13,7 +13,7 @@ List<String> generateListofMonths(DateTime time) {
   return months;
 }
 
-List<String> generateListoYears(DateTime time) {
+List<String> generateListofYears(DateTime time) {
   List<String> years = List.empty(growable: true);
 
   for (int i = time.year; i > time.year - 5; i--) {

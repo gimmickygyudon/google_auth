@@ -1,5 +1,6 @@
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
+import 'package:google_auth/functions/customer.dart';
 import 'package:google_auth/routes/belanja/checkout.dart';
 import 'package:google_auth/routes/belanja/detail_item.dart';
 import 'package:google_auth/routes/belanja/item.dart';
@@ -281,10 +282,14 @@ Future<void> pushDetailReport({required BuildContext context, required Function 
   ).whenComplete(() => onPop());
 }
 
-Future<void> pushCreditDetailReport({required BuildContext context, required Function onPop}) async {
+Future<void> pushCreditDetailReport({
+  required BuildContext context,
+  required Function onPop,
+  required Future<CreditDueReport> Function() setCreditDueReport
+}) async {
   Navigator.push(context, MaterialPageRoute(
     builder: (context) {
-      return const CreditDueDetailReport();
+      return CreditDueDetailReport(setCreditDueReport: setCreditDueReport);
     })
   ).whenComplete(() => onPop());
 }
