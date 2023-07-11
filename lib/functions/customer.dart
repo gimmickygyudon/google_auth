@@ -288,3 +288,57 @@ class CreditDueData {
     required this.umur_piutang,
   });
 }
+
+
+class PaymentDueReport {
+  final int? id_ocst;
+  final String? parent_code;
+  final String total;
+  final int count;
+  final List<PaymentDueData> data;
+
+  const PaymentDueReport({
+    this.id_ocst,
+    this.parent_code,
+    required this.total,
+    required this.count,
+    required this.data
+  });
+
+  static Future<PaymentDueReport> retrieveTotal({required String id_osct}) async {
+    return await SQL.retrieve(api: 'sim_report/prs', query: 'id_ocst=$id_osct').then((value) {
+      var data = value['data'].map<PaymentDueData>((e) {
+          return PaymentDueData(
+            invoice_code: e['invoice_code'],
+            payment_date: e['payment_date'],
+            total_payment: e['total_payment']
+          );
+        }).toList();
+
+      return PaymentDueReport(
+        total: NumberFormat.compactSimpleCurrency(locale: 'id-ID', decimalDigits: 2).format(value['total']),
+        count: value['count'],
+        data: data,
+      );
+    });
+  }
+
+  static Future<Map> retrieveLastMonths({required String id_ocst, required DateTime from, required DateTime to}) async {
+    String from_month = DateFormat('y-MM-dd').format(from);
+    String to_month = DateFormat('y-MM-dd').format(to);
+
+    return await SQL.retrieve(api: 'sim_report/prs', query: 'id_ocst=$id_ocst&from_date=$from_month&to_date=$to_month');
+  }
+}
+
+class PaymentDueData {
+  final String invoice_code;
+  final String payment_date;
+  final String total_payment;
+
+  const PaymentDueData({
+    required this.invoice_code,
+    required this.payment_date,
+    required this.total_payment
+  });
+}

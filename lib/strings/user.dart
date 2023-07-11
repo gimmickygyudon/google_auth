@@ -1,4 +1,5 @@
 // ignore_for_file: non_constant_identifier_names
+import 'package:google_auth/functions/string.dart';
 import 'package:intl/intl.dart';
 String DateNow() => DateFormat('EEEE, dd MMMM ''yyyy', 'id').format(DateTime.now());
 String DateNowSQL() => DateFormat('y-MM-d H:m:ss').format(DateTime.now());
@@ -35,6 +36,19 @@ Map<String, String> getCurrentStartEndWeek(DateTime date, {String format = 'yyyy
   return { from_dateSet: to_dateSet };
 }
 
+class LastDateFrom {
+  final DateTime from;
+  final DateTime to;
+
+  const LastDateFrom({required this.from, required this.to});
+
+  static LastDateFrom months({required int interval}) {
+    var from = DateTime(DateTime.now().year, 5 - 05, 01);
+    var to = DateTime(DateTime.now().year, 5, DateTime.now().lastDayOfMonth);
+
+    return LastDateFrom(from: from, to: to);
+  }
+}
 
 Map<String, dynamic> currentUserFormat(
   {

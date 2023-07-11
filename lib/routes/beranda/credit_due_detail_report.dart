@@ -329,13 +329,13 @@ class MyData extends DataTableSource {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(NumberFormat.simpleCurrency(locale: 'id-ID', decimalDigits: 2).format(double.parse(data![index].balance_due)), style: TextStyle(
+              Text(NumberFormat.simpleCurrency(locale: 'id-ID', decimalDigits: 0).format(double.parse(data![index].balance_due)), style: TextStyle(
                 color: due ? error : null,
                 fontWeight: FontWeight.w500,
                 fontSize: 10,
               )),
               const SizedBox(height: 2),
-              Text(NumberFormat.compactSimpleCurrency(locale: 'id-ID', decimalDigits: 2, name: '').format(double.parse(data![index].balance_due)), style: TextStyle(
+              Text(NumberFormat.compactSimpleCurrency(locale: 'id-ID', decimalDigits: 0, name: '').format(double.parse(data![index].balance_due)), style: TextStyle(
                 color: due ? error.withOpacity(0.75) : Theme.of(context).colorScheme.secondary,
                 fontSize: 8,
               )),

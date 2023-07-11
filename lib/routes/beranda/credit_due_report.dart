@@ -3,10 +3,12 @@
 import 'package:flutter/material.dart';
 import 'package:google_auth/functions/customer.dart';
 import 'package:google_auth/functions/push.dart';
+import 'package:google_auth/strings/user.dart';
 import 'package:google_auth/widgets/button.dart';
 import 'package:google_auth/widgets/chart.dart';
 import 'package:google_auth/widgets/chip.dart';
 import 'package:google_auth/widgets/handle.dart';
+import 'package:intl/intl.dart';
 
 class CreditDueWidget extends StatefulWidget {
   const CreditDueWidget({super.key});
@@ -22,11 +24,13 @@ class _CreditDueWidgetState extends State<CreditDueWidget> {
   late String total_balance, total_balance_due;
   late double percent_balance, percent_balance_due;
 
+  late CreditDueData? creditDueLastData;
+
   @override
   void initState() {
     _creditDueReport = setCreditDueReport();
 
-    defaultCustomerListener();
+    _defaultCustomerListener();
     super.initState();
   }
 
@@ -40,23 +44,31 @@ class _CreditDueWidgetState extends State<CreditDueWidget> {
       });
     } else {
       noData = true;
+      creditDueLastData = CreditDueData(invoice_code: '', due_date: DateNowSQL(), balance_due: DateNowSQL(), umur_piutang: '0');
       return defineCreditDue(CreditDueReport(total_balance: 'Rp0.0', total_balance_due: 'Rp0.0', percent_balance: 69, percent_balance_due: 31));
     }
   }
 
   CreditDueReport defineCreditDue(CreditDueReport creditDueReport) {
+    var dueData = creditDueReport.data?.map((e) {
+      if (double.parse(e.umur_piutang) <= 0) return e;
+    }).nonNulls.toList();
+
     setState(() {
       total_balance = creditDueReport.total_balance;
       total_balance_due = creditDueReport.total_balance_due;
       percent_balance = creditDueReport.percent_balance;
       percent_balance_due = creditDueReport.percent_balance_due;
+
+      creditDueLastData = dueData?.first;
     });
+
     return creditDueReport;
   }
 
-  defaultCustomerListener() {
+  _defaultCustomerListener() {
     Customer.defaultCustomer.addListener(() {
-      setCreditDueReport();
+      if (mounted) setCreditDueReport();
     });
   }
 
@@ -192,16 +204,53 @@ class _CreditDueWidgetState extends State<CreditDueWidget> {
                   ),
                   Padding(
                     padding: const EdgeInsets.only(bottom: 8),
-                    child: Align(
-                      alignment: Alignment.bottomRight,
-                      child: TextButtonOpen(
-                        label: 'Rincian Piutang',
-                        onPressed: () => pushCreditDetailReport(
-                          context: context,
-                          onPop: () => setState(() {}),
-                          setCreditDueReport: setCreditDueReport
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Card(
+                          margin: EdgeInsets.zero,
+                          elevation: 0,
+                          child: Row(
+                            children: [
+                              Icon(Icons.circle, size: 10, color: CreditDueReport.description(context)[0]['color']),
+                              const SizedBox(width: 6),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Badge(
+                                    offset: const Offset(24, 1),
+                                    backgroundColor: CreditDueReport.description(context)[1]['color'].withOpacity(0.1),
+                                    label: Text(' ${double.parse(creditDueLastData!.umur_piutang).toStringAsFixed(0)} Hari ',
+                                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                        color: CreditDueReport.description(context)[1]['color'],
+                                        fontSize: 8,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      NumberFormat.compactSimpleCurrency(locale: 'id-ID', decimalDigits: 2).format(double.parse(creditDueLastData!.balance_due)),
+                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 9
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
-                      )
+                        Align(
+                          alignment: Alignment.bottomRight,
+                          child: TextButtonOpen(
+                            label: 'Rincian Piutang',
+                            onPressed: () => pushCreditDetailReport(
+                              context: context,
+                              onPop: () => setState(() {}),
+                              setCreditDueReport: setCreditDueReport
+                            ),
+                          )
+                        ),
+                      ],
                     ),
                   ),
                 ],

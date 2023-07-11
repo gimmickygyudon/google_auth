@@ -127,11 +127,13 @@ class CardInvoice extends StatefulWidget {
 
 class _CardInvoiceState extends State<CardInvoice> with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  List<double> size = [390, 435];
+  List<double> size = [390, 430];
 
   @override
   void initState() {
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 2, vsync: this)..addListener(() {
+      setState(() { });
+    });
     super.initState();
   }
 
@@ -171,7 +173,6 @@ class _CardInvoiceState extends State<CardInvoice> with SingleTickerProviderStat
                 toolbarHeight: 0,
                 bottom: TabBar(
                   controller: _tabController,
-                  onTap: (value) => setState(() { }),
                   indicatorPadding: const EdgeInsets.fromLTRB(2, 0, 2, 0),
                   indicatorWeight: 0,
                   indicator: UnderlineTabIndicator(

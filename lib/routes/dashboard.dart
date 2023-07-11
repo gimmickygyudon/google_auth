@@ -66,6 +66,26 @@ class _DashboardRouteState extends State<DashboardRoute> {
     ];
   }
 
+  Widget setTitle() {
+    switch (currentPage) {
+      default:
+        return Row(
+          children: [
+            IconButton(
+              style: const ButtonStyle(visualDensity: VisualDensity.compact),
+              onPressed: () {}, icon: const Icon(Icons.search), color: Colors.white
+            ),
+            const SizedBox(width: 4),
+            Text('Hi, ${currentUser['user_name']}',
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                color: Colors.white
+              )
+            ),
+          ],
+        );
+    }
+  }
+
   void changePage(int page) {
     setState(() {
       if (page == 3) {
@@ -104,7 +124,10 @@ class _DashboardRouteState extends State<DashboardRoute> {
   bool showtoolbar = true;
   double borderCircular = 12;
   BorderRadius borderRadiusAppBar() {
-    return BorderRadius.only(bottomLeft: Radius.circular(borderCircular), bottomRight: Radius.circular(borderCircular));
+    return BorderRadius.only(
+      bottomLeft: Radius.circular(borderCircular),
+      bottomRight: Radius.circular(borderCircular)
+    );
   }
 
   @override
@@ -158,20 +181,7 @@ class _DashboardRouteState extends State<DashboardRoute> {
                 )
               )
             ),
-            title: Row(
-              children: [
-                IconButton(
-                  style: const ButtonStyle(visualDensity: VisualDensity.compact),
-                  onPressed: () {}, icon: const Icon(Icons.search), color: Colors.white
-                ),
-                const SizedBox(width: 4),
-                Text('Hi, ${currentUser['user_name']}',
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    color: Colors.white
-                  )
-                ),
-              ],
-            ),
+            title: setTitle(),
             titleSpacing: 12,
             actions: const [
               CartWidget(color: Colors.white),
@@ -186,7 +196,9 @@ class _DashboardRouteState extends State<DashboardRoute> {
         body: PageView.builder(
           controller: _pageController,
           physics: const NeverScrollableScrollPhysics(),
-          onPageChanged: (value) => setState(() => changePage(value)),
+          onPageChanged: (value) => setState(() {
+            changePage(value);
+          }),
           itemCount: 5,
           itemBuilder: (context, index) => routes[index]
         ),

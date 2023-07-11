@@ -36,7 +36,20 @@ class _ReportDeliveryWidgetState extends State<ReportDeliveryWidget> {
     dateRange = datesRange[1];
 
     _reportDelivery = setReportDelivery();
+    _defaultCustomerListener();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    Customer.defaultCustomer.removeListener(() { });
+    super.dispose();
+  }
+
+  _defaultCustomerListener() {
+    Customer.defaultCustomer.addListener(() {
+      if (mounted) setReportDelivery();
+    });
   }
 
   Future<DeliveryOrder> setReportDelivery() async {
@@ -63,22 +76,22 @@ class _ReportDeliveryWidgetState extends State<ReportDeliveryWidget> {
             }).onError((error, stackTrace) => defineError());
 
         case '3 BULAN':
-          date = '${DateFormat('MMMM ''yyyy', 'id').format(DateTime(DateTime.now().year, 05 - 02, 01))}  -  ${DateFormat('MMMM ''yyyy', 'id').format(DateTime(DateTime.now().year, 05, DateTime.now().lastDayOfMonth))}';
+          date = '${DateFormat('MMMM ''yyyy', 'id').format(DateTime(DateTime.now().year, 5 - 2, 01))}  -  ${DateFormat('MMMM ''yyyy', 'id').format(DateTime(DateTime.now().year, 05, DateTime.now().lastDayOfMonth))}';
           return DeliveryOrder.retrieveLastMonths(
             id_ocst: id_ocst,
-            from: DateTime(DateTime.now().year, 05 - 02, 01),
-            to: DateTime(DateTime.now().year, 05, DateTime.now().lastDayOfMonth))
+            from: DateTime(DateTime.now().year, DateTime.now().month - 2, 01),
+            to: DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().lastDayOfMonth))
           .then((value) {
 
             return defineValueTonase(value: value);
           }).onError((error, stackTrace) => defineError());
 
         case '6 BULAN':
-          date = '${DateFormat('MMMM ''yyyy', 'id').format(DateTime(DateTime.now().year, 05 - 06, 01))}  -  ${DateFormat('MMMM ''yyyy', 'id').format(DateTime(DateTime.now().year, 05, DateTime.now().lastDayOfMonth))}';
+          date = '${DateFormat('MMMM ''yyyy', 'id').format(DateTime(DateTime.now().year, 5 - 5, 01))}  -  ${DateFormat('MMMM ''yyyy', 'id').format(DateTime(DateTime.now().year, 05, DateTime.now().lastDayOfMonth))}';
           return DeliveryOrder.retrieveLastMonths(
             id_ocst: id_ocst,
-            from: DateTime(DateTime.now().year, 05 - 06, 01),
-            to: DateTime(DateTime.now().year, 05, DateTime.now().lastDayOfMonth))
+            from: DateTime(DateTime.now().year, DateTime.now().month - 5, 01),
+            to: DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().lastDayOfMonth))
           .then((value) {
 
             return defineValueTonase(value: value);
@@ -374,7 +387,9 @@ class _ReportDeliveryWidgetState extends State<ReportDeliveryWidget> {
                                 child: TextButtonOpen(
                                   label: 'Rincian Pencapaian',
                                   onPressed: () {
-                                    pushDetailReport(context: context, onPop: () => setState(() => setReportDelivery()));
+                                    pushDetailReport(context: context, onPop: () {
+                                      setState(() { });
+                                    });
                                   },
                                 ),
                               ),
@@ -395,9 +410,9 @@ class _ReportDeliveryWidgetState extends State<ReportDeliveryWidget> {
 }
 
 class CustomerSelectWidget extends StatefulWidget {
-  const CustomerSelectWidget({super.key, required this.onChanged});
+  const CustomerSelectWidget({super.key, this.onChanged});
 
-  final Function onChanged;
+  final Function? onChanged;
 
   @override
   State<CustomerSelectWidget> createState() => _CustomerSelectWidgetState();
@@ -448,7 +463,7 @@ class _CustomerSelectWidgetState extends State<CustomerSelectWidget> {
                     onChanged: (Customer? value) {
                       setState(() {
                         Customer.setDefaultCustomer(value);
-                        widget.onChanged();
+                        if (widget.onChanged != null) widget.onChanged!();
                       });
                     },
                     padding: const EdgeInsets.all(8),

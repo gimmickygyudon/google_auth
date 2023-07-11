@@ -2,16 +2,19 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:google_auth/functions/customer.dart';
 import 'package:google_auth/widgets/chip.dart';
+import 'package:intl/intl.dart';
 
 class LineChartSample2 extends StatefulWidget {
-  const LineChartSample2({super.key});
+  const LineChartSample2({super.key, required this.data});
+
+  final List<PaymentDueData> data;
 
   @override
   State<LineChartSample2> createState() => _LineChartSample2State();
 }
 
 class _LineChartSample2State extends State<LineChartSample2> {
-  late List<Color> gradientColors;
+  late List<Color> gradientColors, gradientColorsBelow;
 
   @override
   initState() {
@@ -21,6 +24,13 @@ class _LineChartSample2State extends State<LineChartSample2> {
   setGradientColors(BuildContext context) {
     gradientColors = [
       Theme.of(context).colorScheme.primaryContainer,
+      Theme.of(context).colorScheme.primary,
+    ];
+
+    gradientColorsBelow = [
+      Theme.of(context).colorScheme.background,
+      Theme.of(context).colorScheme.primaryContainer,
+      Theme.of(context).colorScheme.primary.withOpacity(0.5),
       Theme.of(context).colorScheme.primary,
     ];
   }
@@ -35,23 +45,28 @@ class _LineChartSample2State extends State<LineChartSample2> {
         AspectRatio(
           aspectRatio: 1.70,
           child: LineChart(
+            curve: Curves.easeOutQuart,
+            duration: const Duration(milliseconds: 400),
             showAvg ? avgData() : mainData(),
           ),
         ),
-        SizedBox(
-          width: 60,
-          height: 34,
-          child: TextButton(
-            onPressed: () {
-              setState(() {
-                showAvg = !showAvg;
-              });
-            },
-            child: Text(
-              'avg',
-              style: TextStyle(
-                fontSize: 12,
-                color: showAvg ? Colors.white.withOpacity(0.5) : Colors.white,
+        Visibility(
+          visible: false,
+          child: SizedBox(
+            width: 60,
+            height: 34,
+            child: TextButton(
+              onPressed: () {
+                setState(() {
+                  showAvg = !showAvg;
+                });
+              },
+              child: Text(
+                'avg',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: showAvg ? Colors.white.withOpacity(0.5) : Colors.white,
+                ),
               ),
             ),
           ),
@@ -91,39 +106,33 @@ class _LineChartSample2State extends State<LineChartSample2> {
       fontSize: 10,
     );
     String text;
-    switch (value.toInt()) {
-      case 1:
-        text = '10K';
-        break;
-      case 3:
-        text = '30k';
-        break;
-      case 5:
-        text = '50k';
-        break;
-      default:
-        return Container();
+
+    if (widget.data.isNotEmpty && widget.data.length > value.toInt()) {
+      text = (double.parse(widget.data[value.toInt()].total_payment) / 1000000).toStringAsFixed(0);
+    } else {
+      return Container();
     }
 
-    return Text(text, style: style, textAlign: TextAlign.left);
+    return Text('$text Jt', style: style, textAlign: TextAlign.left);
   }
 
   LineChartData mainData() {
     return LineChartData(
       gridData: FlGridData(
         show: true,
-        drawVerticalLine: true,
+        drawVerticalLine: false,
+        drawHorizontalLine: false,
         horizontalInterval: 1.5,
         verticalInterval: 1.5,
         getDrawingHorizontalLine: (value) {
           return FlLine(
-            color: Theme.of(context).colorScheme.outline.withOpacity(0.15),
+            color: Theme.of(context).colorScheme.outline.withOpacity(0.1),
             strokeWidth: 1,
           );
         },
         getDrawingVerticalLine: (value) {
           return FlLine(
-            color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.15),
+            color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.1),
             strokeWidth: 1,
           );
         },
@@ -138,7 +147,7 @@ class _LineChartSample2State extends State<LineChartSample2> {
         ),
         bottomTitles: AxisTitles(
           sideTitles: SideTitles(
-            showTitles: true,
+            showTitles: false,
             reservedSize: 30,
             interval: 1,
             getTitlesWidget: bottomTitleWidgets,
@@ -146,54 +155,74 @@ class _LineChartSample2State extends State<LineChartSample2> {
         ),
         leftTitles: AxisTitles(
           sideTitles: SideTitles(
-            showTitles: true,
-            interval: 1,
+            showTitles: false,
+            interval: 1.5,
             getTitlesWidget: leftTitleWidgets,
-            reservedSize: 30,
+            reservedSize: 50,
           ),
         ),
       ),
       borderData: FlBorderData(
-        show: true,
-        border: Border.all(color: Theme.of(context).colorScheme.outline.withOpacity(0.15)),
+        show: false,
+        border: Border.all(color: Theme.of(context).colorScheme.outline.withOpacity(0.1)),
       ),
       minX: 0,
-      maxX: 11,
       minY: 0,
-      maxY: 6,
-      lineBarsData: [
-        LineChartBarData(
-          spots: const [
-            FlSpot(0, 3),
-            FlSpot(2.6, 2),
-            FlSpot(4.9, 5),
-            FlSpot(6.8, 3.1),
-            FlSpot(8, 4),
-            FlSpot(9.5, 3),
-            FlSpot(11, 4),
-          ],
-          isCurved: true,
-          gradient: LinearGradient(
-            colors: gradientColors,
-          ),
-          barWidth: 2,
-          isStrokeCapRound: true,
-          dotData: const FlDotData(
-            show: false,
-          ),
-          belowBarData: BarAreaData(
-            show: true,
-            gradient: LinearGradient(
-              begin: Alignment.bottomCenter,
-              end: Alignment.topCenter,
-              colors: gradientColors
-                  .map((color) => color.withOpacity(0.2))
-                  .toList(),
-            ),
-          ),
-        ),
-      ],
+      lineTouchData: LineTouchData(
+        enabled: true,
+        handleBuiltInTouches: true,
+        touchTooltipData: LineTouchTooltipData(
+          tooltipBgColor: Theme.of(context).colorScheme.primary,
+          tooltipRoundedRadius: 8,
+          getTooltipItems: (List<LineBarSpot> lineBarsSpot) {
+            return lineBarsSpot.map((lineBarSpot) {
+              return LineTooltipItem(
+                NumberFormat.simpleCurrency(locale: 'id-ID', decimalDigits: 0).format(lineBarSpot.y * 1000000),
+                const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              );
+            }).toList();
+          },
+        )
+      ),
+      lineBarsData: [mainDataBar()],
     );
+  }
+
+  LineChartBarData mainDataBar() {
+    return LineChartBarData(
+      spots: mainDataFlSpot(),
+      isCurved: true,
+      gradient: LinearGradient(
+        colors: gradientColors,
+      ),
+      barWidth: 2,
+      isStrokeCapRound: true,
+      dotData: const FlDotData(
+        show: true,
+      ),
+      belowBarData: BarAreaData(
+        show: true,
+        gradient: LinearGradient(
+          begin: Alignment.bottomCenter,
+          end: Alignment.topCenter,
+          colors: gradientColorsBelow
+              .map((color) => color.withOpacity(0.2))
+              .toList(),
+        ),
+      ),
+    );
+  }
+
+  List<FlSpot> mainDataFlSpot() {
+    List<FlSpot> list = List.empty(growable: true);
+    for (int i = 0; i < widget.data.length; i++) {
+      list.add(FlSpot(i.toDouble(), double.parse(widget.data[i].total_payment) / 10000000));
+    }
+
+    return list;
   }
 
   LineChartData avgData() {
@@ -205,14 +234,14 @@ class _LineChartSample2State extends State<LineChartSample2> {
         verticalInterval: 1,
         horizontalInterval: 1,
         getDrawingVerticalLine: (value) {
-          return const FlLine(
-            color: Color(0xff37434d),
+          return FlLine(
+            color: Theme.of(context).colorScheme.outline.withOpacity(0.1),
             strokeWidth: 1,
           );
         },
         getDrawingHorizontalLine: (value) {
-          return const FlLine(
-            color: Color(0xff37434d),
+          return FlLine(
+            color: Theme.of(context).colorScheme.outline.withOpacity(0.1),
             strokeWidth: 1,
           );
         },
@@ -244,22 +273,16 @@ class _LineChartSample2State extends State<LineChartSample2> {
       ),
       borderData: FlBorderData(
         show: true,
-        border: Border.all(color: const Color(0xff37434d)),
+        border: Border.all(color: Theme.of(context).colorScheme.outline.withOpacity(0.1)),
       ),
       minX: 0,
-      maxX: 11,
       minY: 0,
-      maxY: 6,
       lineBarsData: [
         LineChartBarData(
-          spots: const [
-            FlSpot(0, 3.44),
-            FlSpot(2.6, 3.44),
-            FlSpot(4.9, 3.44),
-            FlSpot(6.8, 3.44),
-            FlSpot(8, 3.44),
-            FlSpot(9.5, 3.44),
-            FlSpot(11, 3.44),
+          spots: [
+            for (int i = 0; i < widget.data.length; i++) ...[
+              FlSpot(i.toDouble(), double.parse(widget.data[i].total_payment) / 10000000)
+            ]
           ],
           isCurved: true,
           gradient: LinearGradient(
