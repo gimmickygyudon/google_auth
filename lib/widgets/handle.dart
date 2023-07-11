@@ -282,34 +282,48 @@ class HandleNoData extends StatelessWidget {
 }
 
 class DisableWidget extends StatelessWidget {
-  const DisableWidget({super.key, required this.disable, required this.child, this.withBorder});
+  const DisableWidget({super.key, required this.disable, required this.child, this.border, required this.overlay});
 
   final bool disable;
-  final bool? withBorder;
+  final bool? border;
   final Widget child;
+  final Widget Function(BuildContext context) overlay;
 
   @override
   Widget build(BuildContext context) {
-    return AbsorbPointer(
-      absorbing: disable,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        clipBehavior: Clip.antiAlias,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
+    return Stack(
+      children: [
+        AbsorbPointer(
+          absorbing: disable,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            clipBehavior: Clip.antiAlias,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            foregroundDecoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              border: disable ? Border.all(
+                color: border == false ? Colors.transparent : Theme.of(context).colorScheme.outlineVariant
+              ) : null,
+              color: Theme.of(context).colorScheme.background.withOpacity(disable ? 0.9 : 0)
+            ),
+            child: ColorFiltered(
+              colorFilter: ColorFilter.mode(disable ? Theme.of(context).colorScheme.background : Colors.transparent, BlendMode.saturation),
+              child: child
+            )
+          )
         ),
-        foregroundDecoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          border: disable ? Border.all(
-            color: withBorder == false ? Colors.transparent : Theme.of(context).colorScheme.outlineVariant
-          ) : null,
-          color: Theme.of(context).colorScheme.background.withOpacity(disable ? 0.9 : 0)
-        ),
-        child: ColorFiltered(
-          colorFilter: ColorFilter.mode(disable ? Theme.of(context).colorScheme.background : Colors.transparent, BlendMode.saturation),
-          child: child
+        Builder(
+          builder: (context) {
+            if (disable) {
+              return overlay(context);
+            } else {
+              return const SizedBox();
+            }
+          }
         )
-      )
+      ],
     );
   }
 }

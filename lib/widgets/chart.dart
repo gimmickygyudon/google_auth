@@ -312,7 +312,7 @@ class CreditDueChartState extends State<CreditDueChart> {
   Widget build(BuildContext context) {
     return SizedBox(
       height: 240,
-      width: 190,
+      width: 180,
       child: PieChart(
         swapAnimationCurve: Curves.easeOutQuart,
         swapAnimationDuration: const Duration(milliseconds: 600),
@@ -357,12 +357,13 @@ class CreditDueChartState extends State<CreditDueChart> {
       switch (i) {
         case 0:
           return PieChartSectionData(
-            color: CreditDueReport.description(context)[0]['color'],
+            color: CreditDueReport.description(context)[0]['color'].withOpacity(0.7),
             value: creditDueReport?.percent_balance_due,
             title: '${creditDueReport?.percent_balance_due}%',
             radius: isTouched ? selectedRadius : radius,
             titleStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
               fontSize: fontSize,
+              fontWeight: FontWeight.w500,
               color: Theme.of(context).colorScheme.surface
             ),
             badgeWidget: _badge(
@@ -373,12 +374,13 @@ class CreditDueChartState extends State<CreditDueChart> {
           );
         case 1:
           return PieChartSectionData(
-            color: CreditDueReport.description(context)[1]['color'],
+            color: CreditDueReport.description(context)[1]['color'].withOpacity(0.7),
             value: creditDueReport?.percent_balance,
             title: '${creditDueReport?.percent_balance}%',
             radius: isTouched ? selectedRadius : radius,
             titleStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
               fontSize: fontSize,
+              fontWeight: FontWeight.w500,
               color: Theme.of(context).colorScheme.surface
             ),
             badgeWidget: _badge(

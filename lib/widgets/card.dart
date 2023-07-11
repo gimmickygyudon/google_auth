@@ -127,7 +127,7 @@ class CardInvoice extends StatefulWidget {
 
 class _CardInvoiceState extends State<CardInvoice> with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  List<double> size = [395, 435];
+  List<double> size = [390, 435];
 
   @override
   void initState() {
@@ -172,6 +172,14 @@ class _CardInvoiceState extends State<CardInvoice> with SingleTickerProviderStat
                 bottom: TabBar(
                   controller: _tabController,
                   onTap: (value) => setState(() { }),
+                  indicatorPadding: const EdgeInsets.fromLTRB(2, 0, 2, 0),
+                  indicatorWeight: 0,
+                  indicator: UnderlineTabIndicator(
+                    borderSide: BorderSide(width: 1, color: Theme.of(context).colorScheme.primary),
+                  ),
+                  dividerColor: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5),
+                  labelStyle: Theme.of(context).textTheme.labelLarge?.copyWith(),
+                  unselectedLabelColor: Theme.of(context).colorScheme.secondary.withOpacity(0.75),
                   tabs: const [
                     Tab(text: 'Piutang'),
                     Tab(text: 'Payment')

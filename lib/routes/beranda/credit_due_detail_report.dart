@@ -20,6 +20,8 @@ class CreditDueDetailReport extends StatefulWidget {
 }
 
 class _CreditDueDetailReportState extends State<CreditDueDetailReport> {
+  bool noData = false;
+
   late Future<CreditDueReport> _creditDueReport;
   late String total_balance, total_balance_due;
   late double percent_balance, percent_balance_due;
@@ -40,6 +42,12 @@ class _CreditDueDetailReportState extends State<CreditDueDetailReport> {
     creditDueReport.data?.forEach((element) {
       if (double.parse(element.umur_piutang) >= 0) dues++;
     });
+
+    if (creditDueReport.data == null) {
+      noData = true;
+    } else {
+      noData = false;
+    }
 
     setState(() {
       total_balance = creditDueReport.total_balance;
@@ -91,58 +99,29 @@ class _CreditDueDetailReportState extends State<CreditDueDetailReport> {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: HandleLoading());
                   } else if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
-                    return HeaderInvoiceWidget(
-                      creditDueReport: _creditDueReport,
-                      total_balance: total_balance,
-                      total_balance_due: total_balance_due,
-                      percent_balance: percent_balance,
-                      percent_balance_due: percent_balance_due
+                    return DisableWidget(
+                      disable: noData,
+                      border: false,
+                      overlay: (context) {
+                        return const HandleNoData();
+                      },
+                      child: Column(
+                        children: [
+                          HeaderInvoiceWidget(
+                            creditDueReport: _creditDueReport,
+                            total_balance: total_balance,
+                            total_balance_due: total_balance_due,
+                            percent_balance: percent_balance,
+                            percent_balance_due: percent_balance_due
+                          ),
+                          DataTableBalanceDue(data: _creditDueData, dues: dues)
+                        ],
+                      ),
                     );
                   } else {
                     return const SizedBox();
                   }
                 }
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 20),
-                child: Theme(
-                   data: Theme.of(context).copyWith(
-                     cardTheme: const CardTheme(elevation: 0, margin: EdgeInsets.zero),
-                     dividerTheme: DividerThemeData(color: Theme.of(context).colorScheme.onInverseSurface),
-                   ),
-                  child: PaginatedDataTable(
-                    source: MyData(context: context, data: _creditDueData),
-                    columns: [
-                      DataColumn(
-                        label: Row(
-                          children: [
-                            const Text('JATUH TEMPO', style: TextStyle(
-                              fontSize: 12,
-                            )),
-                            const SizedBox(width: 8),
-                            ChipSmall(
-                              bgColor: CreditDueReport.description(context)[0]['color'].withOpacity(0.1),
-                              label: dues.toString(),
-                              labelColor: Theme.of(context).colorScheme.error
-                            )
-                          ],
-                        )
-                      ),
-                      const DataColumn(
-                        label: Text('NOMINAL PIUTANG', style: TextStyle(
-                          fontSize: 12,
-                        ))
-                      ),
-                    ],
-                    columnSpacing: 80,
-                    horizontalMargin: 0,
-                    headingRowHeight: 60,
-                    dataRowMinHeight: 30,
-                    dataRowMaxHeight: 55,
-                    rowsPerPage: 10,
-                    showCheckboxColumn: true,
-                   ),
-                 ),
               ),
             ],
           ),
@@ -151,6 +130,7 @@ class _CreditDueDetailReportState extends State<CreditDueDetailReport> {
     );
   }
 }
+
 
 class HeaderInvoiceWidget extends StatelessWidget {
   const HeaderInvoiceWidget({super.key, required this.creditDueReport, required this.total_balance, required this.total_balance_due, required this.percent_balance, required this.percent_balance_due});
@@ -233,6 +213,62 @@ class HeaderInvoiceWidget extends StatelessWidget {
           ),
         ],
       )
+    );
+  }
+}
+
+
+class DataTableBalanceDue extends StatelessWidget {
+  const DataTableBalanceDue({super.key, required this.data, required this.dues});
+
+  final List<CreditDueData>? data;
+  final int dues;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 20),
+      child: Theme(
+         data: Theme.of(context).copyWith(
+           cardTheme: const CardTheme(elevation: 0, margin: EdgeInsets.zero),
+           dividerTheme: DividerThemeData(color: Theme.of(context).colorScheme.onInverseSurface),
+         ),
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 400),
+          child: data == null ? null : PaginatedDataTable(
+            source: MyData(context: context, data: data),
+            columns: [
+              DataColumn(
+                label: Row(
+                  children: [
+                    const Text('JATUH TEMPO', style: TextStyle(
+                      fontSize: 12,
+                    )),
+                    const SizedBox(width: 8),
+                    ChipSmall(
+                      bgColor: CreditDueReport.description(context)[0]['color'].withOpacity(0.1),
+                      label: dues.toString(),
+                      labelColor: Theme.of(context).colorScheme.error
+                    )
+                  ],
+                )
+              ),
+              const DataColumn(
+                label: Text('NOMINAL PIUTANG', style: TextStyle(
+                  fontSize: 12,
+                ))
+              ),
+            ],
+            columnSpacing: 80,
+            horizontalMargin: 0,
+            headingRowHeight: 60,
+            dataRowMinHeight: 30,
+            dataRowMaxHeight: 55,
+            rowsPerPage: 10,
+            showCheckboxColumn: true,
+           ),
+        ),
+       ),
     );
   }
 }

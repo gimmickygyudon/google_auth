@@ -186,28 +186,11 @@ class _DetailReportRouteState extends State<DetailReportRoute> {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const Center(child: HandleLoading());
                   } else if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
-                    return Stack(
-                      children: [
-                        DisableWidget(
-                          disable: noData,
-                          withBorder: false,
-                          child: POBarChart(
-                            sectors: DeliveryOrder(
-                              tonage: realisasi,
-                              outstanding_tonage: outstanding,
-                              target: total
-                            ),
-
-                            titlebottom: DeliveryOrder.description(context: context).map((element) => element['name']).toList(),
-                            colors: DeliveryOrder.description(context: context).map<Color>((element) => element['color']).toList(),
-                            borderRadius: BorderRadius.circular(2),
-
-                            dark: DeliveryOrder.description(context: context)[0]['color'],
-                            normal: DeliveryOrder.description(context: context)[1]['color'],
-                            light: DeliveryOrder.description(context: context)[2]['color']
-                          ),
-                        ),
-                        AnimatedOpacity(
+                    return DisableWidget(
+                      disable: noData,
+                      border: false,
+                      overlay: (context) {
+                        return AnimatedOpacity(
                           curve: Curves.fastOutSlowIn,
                           duration: const Duration(milliseconds: 300),
                           opacity: noData ? 1 : 0,
@@ -215,8 +198,23 @@ class _DetailReportRouteState extends State<DetailReportRoute> {
                             aspectRatio: 1.40,
                             child: HandleNoData()
                           ),
-                        )
-                      ],
+                        );
+                      },
+                      child: POBarChart(
+                        sectors: DeliveryOrder(
+                          tonage: realisasi,
+                          outstanding_tonage: outstanding,
+                          target: total
+                        ),
+
+                        titlebottom: DeliveryOrder.description(context: context).map((element) => element['name']).toList(),
+                        colors: DeliveryOrder.description(context: context).map<Color>((element) => element['color']).toList(),
+                        borderRadius: BorderRadius.circular(2),
+
+                        dark: DeliveryOrder.description(context: context)[0]['color'],
+                        normal: DeliveryOrder.description(context: context)[1]['color'],
+                        light: DeliveryOrder.description(context: context)[2]['color']
+                      ),
                     );
                   } else {
                     return const Center(
