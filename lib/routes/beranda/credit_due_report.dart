@@ -44,8 +44,8 @@ class _CreditDueWidgetState extends State<CreditDueWidget> {
       });
     } else {
       noData = true;
-      creditDueLastData = CreditDueData(invoice_code: '', due_date: DateNowSQL(), balance_due: DateNowSQL(), umur_piutang: '0');
-      return defineCreditDue(CreditDueReport(total_balance: 'Rp0.0', total_balance_due: 'Rp0.0', percent_balance: 69, percent_balance_due: 31));
+      creditDueLastData = CreditDueData(invoice_code: '', due_date: DateNowSQL(), balance_due: '0.0', umur_piutang: '0');
+      return defineCreditDue(CreditDueReport(total_balance: 'Rp0.0', total_balance_due: 'Rp0.0', percent_balance: 69, percent_balance_due: 31, data: [creditDueLastData!]));
     }
   }
 
