@@ -8,7 +8,7 @@ String TimeNow() => DateFormat('HH:mm').format(DateTime.now());
 List<String> generateListofMonths(DateTime time) {
   List<String> months = List.empty(growable: true);
   for (int i = 1; i < 13; i++) {
-    months.add(DateFormat('MMMM').format(DateTime(time.year, i, time.day)));
+    months.add(DateFormat('MMMM', 'id').format(DateTime(time.year, i, time.day)));
   }
 
   return months;
@@ -43,8 +43,11 @@ class LastDateFrom {
   const LastDateFrom({required this.from, required this.to});
 
   static LastDateFrom months({required int interval}) {
-    var from = DateTime(DateTime.now().year, 5 - 05, 01);
-    var to = DateTime(DateTime.now().year, 5, DateTime.now().lastDayOfMonth);
+    int minus = 1;
+    if (interval == 0) minus = 0;
+
+    var from = DateTime(DateTime.now().year, DateTime.now().month - (interval - minus), 01);
+    var to = DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().lastDayOfMonth);
 
     return LastDateFrom(from: from, to: to);
   }

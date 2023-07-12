@@ -127,7 +127,7 @@ class CardInvoice extends StatefulWidget {
 
 class _CardInvoiceState extends State<CardInvoice> with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  List<double> size = [390, 430];
+  List<double> size = [390, 440];
 
   @override
   void initState() {
@@ -172,6 +172,7 @@ class _CardInvoiceState extends State<CardInvoice> with SingleTickerProviderStat
               appBar: AppBar(
                 toolbarHeight: 0,
                 bottom: TabBar(
+                  physics: const NeverScrollableScrollPhysics(),
                   controller: _tabController,
                   indicatorPadding: const EdgeInsets.fromLTRB(2, 0, 2, 0),
                   indicatorWeight: 0,
@@ -189,6 +190,7 @@ class _CardInvoiceState extends State<CardInvoice> with SingleTickerProviderStat
               ),
               body: TabBarView(
                 controller: _tabController,
+                physics: const NeverScrollableScrollPhysics(),
                 children: const [
                   CreditDueWidget(),
                   PaymentDueWidget()

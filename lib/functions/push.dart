@@ -9,6 +9,7 @@ import 'package:google_auth/routes/belanja/payment.dart';
 import 'package:google_auth/routes/beranda/credit_due_detail_report.dart';
 import 'package:google_auth/routes/beranda/customer.dart';
 import 'package:google_auth/routes/beranda/delivery_detail_report.dart';
+import 'package:google_auth/routes/beranda/payment_due_detail_report.dart';
 import 'package:google_auth/routes/keluhan/report_page.dart';
 import 'package:google_auth/routes/alamat/address.dart';
 import 'package:google_auth/routes/start_page.dart';
@@ -290,6 +291,18 @@ Future<void> pushCreditDetailReport({
   Navigator.push(context, MaterialPageRoute(
     builder: (context) {
       return CreditDueDetailReport(setCreditDueReport: setCreditDueReport);
+    })
+  ).whenComplete(() => onPop());
+}
+
+pushPaymentDetailReport({
+  required BuildContext context,
+  required Function onPop,
+  required Future<PaymentDueReport> Function() setPaymentDueReport
+}) {
+  Navigator.push(context, MaterialPageRoute(
+    builder: (context) {
+      return const PaymentDueDetailReport();
     })
   ).whenComplete(() => onPop());
 }

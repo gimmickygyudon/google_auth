@@ -297,7 +297,6 @@ class DisableWidget extends StatelessWidget {
           absorbing: disable,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
-            clipBehavior: Clip.antiAlias,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
             ),

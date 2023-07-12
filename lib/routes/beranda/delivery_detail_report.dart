@@ -3,13 +3,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_auth/functions/customer.dart';
 import 'package:google_auth/routes/beranda/delivery_report.dart';
-import 'package:google_auth/strings/user.dart';
 import 'package:google_auth/styles/theme.dart';
 import 'package:google_auth/widgets/chart.dart';
 import 'package:google_auth/widgets/dropdown.dart';
 import 'package:google_auth/widgets/handle.dart';
 import 'package:google_auth/widgets/profile.dart';
 
+import '../../functions/date.dart';
 import '../../widgets/text.dart';
 
 class DetailReportRoute extends StatefulWidget {
@@ -20,11 +20,6 @@ class DetailReportRoute extends StatefulWidget {
 }
 
 class _DetailReportRouteState extends State<DetailReportRoute> {
-  late List<String> months;
-  late String? selectedMonth;
-  late List<String> years;
-  late String? selectedYears;
-
   late double realisasi, outstanding, total;
   ValueNotifier<List<int>> count = ValueNotifier([0, 0]);
   late Future<DeliveryOrder> _deliveryOrder;
@@ -33,7 +28,6 @@ class _DetailReportRouteState extends State<DetailReportRoute> {
 
   @override
   void initState() {
-    setRange();
     _deliveryOrder = setDeliveryOrder();
     super.initState();
   }
@@ -41,9 +35,9 @@ class _DetailReportRouteState extends State<DetailReportRoute> {
   Future<DeliveryOrder> setDeliveryOrder() async {
     String? id_ocst = await Customer.getDefaultCustomer().then((customer) => customer?.id_ocst);
 
-    int month = months.indexOf(selectedMonth!);
+    int month = Date.months.indexOf(Date.selectedMonth);
     if (id_ocst != null) {
-      return await DeliveryOrder.retrieveMonth(id_ocst: id_ocst, date: DateTime(int.parse(selectedYears!), month + 1)).then((value) async {
+      return await DeliveryOrder.retrieveMonth(id_ocst: id_ocst, date: DateTime(int.parse(Date.selectedYears), month + 1)).then((value) async {
         return await defineValueTonase(value: value);
       })
       .onError((error, stackTrace) => defineError())
@@ -69,14 +63,6 @@ class _DetailReportRouteState extends State<DetailReportRoute> {
       outstanding_tonage: outstanding,
       target: total
     );
-  }
-
-  setRange() {
-    months = generateListofMonths(DateTime.now());
-    selectedMonth = months[DateTime.now().month - 1];
-
-    years = generateListofYears(DateTime.now());
-    selectedYears = years.last;
   }
 
   @override
@@ -120,7 +106,7 @@ class _DetailReportRouteState extends State<DetailReportRoute> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Ringkasan', style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      Text('Total Order', style: Theme.of(context).textTheme.labelMedium?.copyWith(
                         letterSpacing: 0
                       )),
                       const SizedBox(height: 4),
@@ -159,20 +145,20 @@ class _DetailReportRouteState extends State<DetailReportRoute> {
                   Row(
                     children: [
                       DropdownLight(
-                        value: selectedMonth,
-                        values: months,
+                        value: Date.selectedMonth,
+                        values: Date.months,
                         onChanged: (value) {
                           setDeliveryOrder();
-                          selectedMonth = value;
+                          Date.selectedMonth = value;
                         },
                       ),
                       const SizedBox(width: 12),
                       DropdownLight(
-                        value: selectedYears,
-                        values: years,
+                        value: Date.selectedYears,
+                        values: Date.years,
                         onChanged: (value) {
                           setDeliveryOrder();
-                          selectedYears = value;
+                          Date.selectedYears = value;
                         },
                       ),
                     ],

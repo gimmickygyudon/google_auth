@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:google_auth/functions/push.dart';
-import 'package:google_auth/functions/string.dart';
 import 'package:google_auth/strings/user.dart';
 import 'package:google_auth/widgets/button.dart';
 import 'package:google_auth/widgets/chip.dart';
@@ -56,51 +55,45 @@ class _ReportDeliveryWidgetState extends State<ReportDeliveryWidget> {
     String? id_ocst = await Customer.getDefaultCustomer().then((customer) => customer?.id_ocst);
 
     if (id_ocst != null) {
+      Future<Map> deliveryOrder;
+
       switch (dateRange.toUpperCase()) {
         case 'MINGGU INI':
-          DateFormat('EEEE, dd MMMM ''yyyy', 'id').format(DateTime(DateTime.now().year, 05));
-          date = '${getCurrentStartEndWeek(DateTime(DateTime.now().year, 05), format: 'dd MMMM').keys.first}  -  ${getCurrentStartEndWeek(DateTime(DateTime.now().year, 05), format: 'dd MMMM').values.first}';
-          return DeliveryOrder.retrieveWeek(id_ocst: id_ocst, date: DateTime(DateTime.now().year, 05)).then((value) {
-
-            return defineValueTonase(value: value);
-          }).onError((error, stackTrace) => defineError());
+          date = '${getCurrentStartEndWeek(DateTime.now(), format: 'dd MMMM').keys.first}  -  ${getCurrentStartEndWeek(DateTime.now(), format: 'dd MMMM').values.first}';
+          deliveryOrder = DeliveryOrder.retrieveWeek(id_ocst: id_ocst, date: DateTime.now());
+        break;
 
         case 'BULAN INI':
-          date = DateFormat('MMMM ''yyyy', 'id').format(DateTime(DateTime.now().year, 05));
-          return DeliveryOrder.retrieveMonth(
-            id_ocst: id_ocst,
-            date: DateTime(DateTime.now().year, 05))
-          .then((value) {
+          LastDateFrom lastDate = LastDateFrom.months(interval: 0);
 
-              return defineValueTonase(value: value);
-            }).onError((error, stackTrace) => defineError());
+          date = DateFormat('MMMM ''yyyy', 'id').format(lastDate.to);
+          deliveryOrder = DeliveryOrder.retrieveLastMonth(id_ocst: id_ocst, from: lastDate.from, to: lastDate.to);
+        break;
 
         case '3 BULAN':
-          date = '${DateFormat('MMMM ''yyyy', 'id').format(DateTime(DateTime.now().year, 5 - 2, 01))}  -  ${DateFormat('MMMM ''yyyy', 'id').format(DateTime(DateTime.now().year, 05, DateTime.now().lastDayOfMonth))}';
-          return DeliveryOrder.retrieveLastMonths(
-            id_ocst: id_ocst,
-            from: DateTime(DateTime.now().year, DateTime.now().month - 2, 01),
-            to: DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().lastDayOfMonth))
-          .then((value) {
+          LastDateFrom lastDate = LastDateFrom.months(interval: 3);
 
-            return defineValueTonase(value: value);
-          }).onError((error, stackTrace) => defineError());
+          date = '${DateFormat('MMMM ''yyyy', 'id').format(lastDate.from)}  -  ${DateFormat('MMMM ''yyyy', 'id').format(lastDate.to)}';
+          deliveryOrder = DeliveryOrder.retrieveLastMonth(id_ocst: id_ocst, from: lastDate.from, to: lastDate.to);
+        break;
 
         case '6 BULAN':
-          date = '${DateFormat('MMMM ''yyyy', 'id').format(DateTime(DateTime.now().year, 5 - 5, 01))}  -  ${DateFormat('MMMM ''yyyy', 'id').format(DateTime(DateTime.now().year, 05, DateTime.now().lastDayOfMonth))}';
-          return DeliveryOrder.retrieveLastMonths(
-            id_ocst: id_ocst,
-            from: DateTime(DateTime.now().year, DateTime.now().month - 5, 01),
-            to: DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().lastDayOfMonth))
-          .then((value) {
+          LastDateFrom lastDate = LastDateFrom.months(interval: 6);
 
-            return defineValueTonase(value: value);
-          }).onError((error, stackTrace) => defineError());
+          date = '${DateFormat('MMMM ''yyyy', 'id').format(lastDate.from)}  -  ${DateFormat('MMMM ''yyyy', 'id').format(lastDate.to)}';
+          deliveryOrder = DeliveryOrder.retrieveLastMonth(id_ocst: id_ocst, from: lastDate.from, to: lastDate.to);
+        break;
 
         default:
-          date = DateFormat('EEEE, dd MMMM ''yyyy', 'id').format(DateTime(DateTime.now().year, 05));
-          return _reportDelivery = defineError();
+          LastDateFrom lastDate = LastDateFrom.months(interval: 0);
+          date = DateFormat('EEEE, dd MMMM ''yyyy', 'id').format(lastDate.to);
+        return _reportDelivery = defineError();
       }
+
+      return await deliveryOrder.then((value) {
+
+        return defineValueTonase(value: value);
+      }).onError((error, stackTrace) => defineError());
     } else {
       date = DateFormat('EEEE, dd MMMM ''yyyy', 'id').format(DateTime.now());
       return _reportDelivery = defineError();

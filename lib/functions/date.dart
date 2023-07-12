@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../strings/user.dart';
+
 class Date {
   static DateTime now = DateTime.now();
 
@@ -47,4 +49,8 @@ class Date {
     return result;
   }
 
+  static List<String> months = generateListofMonths(DateTime.now());
+  static String selectedMonth = months[DateTime.now().month - 1];
+  static List<String> years = generateListofYears(DateTime.now());
+  static String selectedYears = years.last;
 }

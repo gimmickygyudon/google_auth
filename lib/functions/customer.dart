@@ -182,22 +182,21 @@ class DeliveryOrder {
     }
   ];
 
-  // 3 BULAN
-  static Future<Map> retrieveLastMonths({required String id_ocst, required DateTime from, required DateTime to}) async {
+  // BULAN
+  static Future<Map> retrieveLastMonth({required String id_ocst, required DateTime from, required DateTime to}) async {
     String from_month = DateFormat('y-MM-dd').format(from);
     String to_month = DateFormat('y-MM-dd').format(to);
 
     return await SQL.retrieve(api: 'sim2/do', query: 'id_ocst=$id_ocst&from_date=$from_month&to_date=$to_month');
   }
 
-  // BULAN INI
   static Future<Map> retrieveMonth({required String id_ocst, required DateTime date}) async {
     String month = DateFormat('y-MM').format(date);
 
     return await SQL.retrieve(api: 'sim2/do', query: 'id_ocst=$id_ocst&surat_jalan_date=$month');
   }
 
-  // MINGGU INI
+  // MINGGU
   static Future<Map> retrieveWeek({required String id_ocst, required DateTime date}) async {
     String from_date = getCurrentStartEndWeek(date).keys.first;
     String to_date = getCurrentStartEndWeek(date).values.first;
@@ -305,29 +304,27 @@ class PaymentDueReport {
     required this.data
   });
 
-  static Future<PaymentDueReport> retrieveTotal({required String id_osct}) async {
+  static Future<Map> retrieveTotal({required String id_osct}) async {
     return await SQL.retrieve(api: 'sim_report/prs', query: 'id_ocst=$id_osct').then((value) {
-      var data = value['data'].map<PaymentDueData>((e) {
-          return PaymentDueData(
-            invoice_code: e['invoice_code'],
-            payment_date: e['payment_date'],
-            total_payment: e['total_payment']
-          );
-        }).toList();
-
-      return PaymentDueReport(
-        total: NumberFormat.compactSimpleCurrency(locale: 'id-ID', decimalDigits: 2).format(value['total']),
-        count: value['count'],
-        data: data,
-      );
+      return value;
     });
   }
 
-  static Future<Map> retrieveLastMonths({required String id_ocst, required DateTime from, required DateTime to}) async {
+  static Future<Map> retrieveLastMonth({required String id_ocst, required DateTime from, required DateTime to}) async {
     String from_month = DateFormat('y-MM-dd').format(from);
     String to_month = DateFormat('y-MM-dd').format(to);
 
-    return await SQL.retrieve(api: 'sim_report/prs', query: 'id_ocst=$id_ocst&from_date=$from_month&to_date=$to_month');
+    return await SQL.retrieve(api: 'sim_report/prs', query: 'id_ocst=$id_ocst&from_date=$from_month&to_date=$to_month').then((value) {
+      if (value.isEmpty) return {};
+      return value;
+    });
+  }
+
+  static Future<Map> retrieveWeek({required String id_ocst, required DateTime date}) async {
+    String from_date = getCurrentStartEndWeek(date).keys.first;
+    String to_date = getCurrentStartEndWeek(date).values.first;
+
+    return await SQL.retrieve(api: 'sim_report/prs', query: 'id_ocst=$id_ocst&from_date=$from_date&to_date=$to_date');
   }
 }
 

@@ -229,14 +229,14 @@ class DataTableBalanceDue extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 20),
       child: Theme(
-         data: Theme.of(context).copyWith(
-           cardTheme: const CardTheme(elevation: 0, margin: EdgeInsets.zero),
-           dividerTheme: DividerThemeData(color: Theme.of(context).colorScheme.onInverseSurface),
-         ),
+        data: Theme.of(context).copyWith(
+          cardTheme: const CardTheme(elevation: 0, margin: EdgeInsets.zero),
+          dividerTheme: DividerThemeData(color: Theme.of(context).colorScheme.onInverseSurface),
+        ),
         child: AnimatedSwitcher(
           duration: const Duration(milliseconds: 400),
           child: data == null ? null : PaginatedDataTable(
-            source: MyData(context: context, data: data),
+            source: CreditDueTable(context: context, data: data),
             columns: [
               DataColumn(
                 label: Row(
@@ -266,18 +266,18 @@ class DataTableBalanceDue extends StatelessWidget {
             dataRowMaxHeight: 55,
             rowsPerPage: 10,
             showCheckboxColumn: true,
-           ),
+          ),
         ),
-       ),
+      ),
     );
   }
 }
 
-class MyData extends DataTableSource {
+class CreditDueTable extends DataTableSource {
   final List<CreditDueData>? data;
   final BuildContext context;
 
-  MyData({required this.context, required this.data});
+  CreditDueTable({required this.context, required this.data});
 
   Color get error => Theme.of(context).colorScheme.error;
 

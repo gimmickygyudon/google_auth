@@ -43,7 +43,7 @@ class _LineChartSample2State extends State<LineChartSample2> {
     return Stack(
       children: <Widget>[
         AspectRatio(
-          aspectRatio: 1.70,
+          aspectRatio: 1.925,
           child: LineChart(
             curve: Curves.easeOutQuart,
             duration: const Duration(milliseconds: 400),
@@ -174,12 +174,25 @@ class _LineChartSample2State extends State<LineChartSample2> {
         touchTooltipData: LineTouchTooltipData(
           tooltipBgColor: Theme.of(context).colorScheme.primary,
           tooltipRoundedRadius: 8,
+          fitInsideHorizontally: true,
           getTooltipItems: (List<LineBarSpot> lineBarsSpot) {
             return lineBarsSpot.map((lineBarSpot) {
               return LineTooltipItem(
-                NumberFormat.simpleCurrency(locale: 'id-ID', decimalDigits: 0).format(lineBarSpot.y * 1000000),
-                const TextStyle(
-                  color: Colors.white,
+                NumberFormat.simpleCurrency(locale: 'id-ID', decimalDigits: 0).format(lineBarSpot.y * 10000000),
+                children: [
+                  const TextSpan(text: '\n'),
+                  TextSpan(
+                    text: DateFormat('dd MMMM ''yyyy', 'id').format(DateTime.parse(widget.data[lineBarSpot.x.toInt()].payment_date)),
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      fontSize: 10,
+                      letterSpacing: 0,
+                      color: Theme.of(context).colorScheme.surface
+                    )
+                  )
+                ],
+                TextStyle(
+                  color: Theme.of(context).colorScheme.surface,
+                  fontSize: 12,
                   fontWeight: FontWeight.bold,
                 ),
               );
@@ -200,8 +213,16 @@ class _LineChartSample2State extends State<LineChartSample2> {
       ),
       barWidth: 2,
       isStrokeCapRound: true,
-      dotData: const FlDotData(
+      dotData: FlDotData(
         show: true,
+        getDotPainter: (p0, p1, p2, p3) {
+          return FlDotCirclePainter(
+            radius: 4,
+            color: Theme.of(context).colorScheme.primary,
+            strokeColor: Theme.of(context).colorScheme.primaryContainer,
+            strokeWidth: 4
+          );
+        },
       ),
       belowBarData: BarAreaData(
         show: true,
