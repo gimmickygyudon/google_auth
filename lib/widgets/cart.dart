@@ -94,21 +94,27 @@ class _CartWidgetState extends State<CartWidget> {
                           alignment: Alignment.topCenter,
                           duration: const Duration(milliseconds: 400),
                           curve: Curves.easeOut,
-                          child: ConstrainedBox(
-                            constraints: const BoxConstraints(maxHeight: 400, minHeight: 0),
-                            child: ListView.builder(
-                              shrinkWrap: true,
-                              itemCount: items.length,
-                              itemBuilder: (context, index) {
-                                return Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 4),
-                                  child: CartListWidget(
+                          child: Container(
+                            padding: const EdgeInsets.fromLTRB(6, 6, 6, 0),
+                            margin: const EdgeInsets.symmetric(vertical: 12),
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).colorScheme.primaryContainer,
+                              borderRadius: BorderRadius.circular(12)
+                            ),
+                            child: ConstrainedBox(
+                              constraints: const BoxConstraints(maxHeight: 400, minHeight: 0),
+                              child: ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: items.length,
+                                padding: EdgeInsets.zero,
+                                itemBuilder: (context, index) {
+                                  return CartListWidget(
                                     index: index,
                                     onDelete: removeItem,
                                     item: items[index],
-                                  ),
-                                );
-                              },
+                                  );
+                                },
+                              ),
                             ),
                           ),
                         ) : const HandleEmptyCart(),
@@ -158,7 +164,7 @@ class _CartWidgetState extends State<CartWidget> {
                                   overlayColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.inversePrimary)
                                 ),
                                 icon: const Icon(Icons.local_shipping, size: 26),
-                                label: const Text('Pengiriman')
+                                label: const Text('Pemesanan')
                               ),
                             ),
                           ],
@@ -183,7 +189,7 @@ class _CartWidgetState extends State<CartWidget> {
             ),
             if(items.isNotEmpty) Badge.count(
               count: items.length,
-              largeSize: 18,
+              largeSize: 19,
               padding: const EdgeInsets.symmetric(horizontal: 4),
             )
           ],
@@ -216,54 +222,54 @@ class CartListWidget extends StatelessWidget {
     });
     String spesification = spesifications[selectedIndex];
 
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 2),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            children: [
-              SizedBox(
-                width: 90,
-                child: Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: Stack(
-                    children: [
-                      Container(
-                        width: 90,
-                        height: 60,
-                        padding: const EdgeInsets.all(8),
-                        margin: const EdgeInsets.only(bottom: 8),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          color: Theme.of(context).primaryColorLight.withOpacity(0.5)
-                        ),
-                        child: Image.asset(ItemDescription.getImage(item?['name']), fit: BoxFit.contain)
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Row(
+          children: [
+            SizedBox(
+              width: 100,
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: Stack(
+                  children: [
+                    Container(
+                      width: 100,
+                      height: 70,
+                      padding: const EdgeInsets.all(8),
+                      margin: const EdgeInsets.only(bottom: 8),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        color: Theme.of(context).colorScheme.inversePrimary
                       ),
-                      Align(
-                        alignment: Alignment.topLeft,
-                        child: Padding(
-                          padding: const EdgeInsets.all(4),
-                          child: Image.asset(ItemDescription.getLogo(item?['name']), height: 30, alignment: Alignment.topLeft, fit: BoxFit.scaleDown),
-                        ),
+                      child: Image.asset(ItemDescription.getImage(item?['name']), fit: BoxFit.contain)
+                    ),
+                    Align(
+                      alignment: Alignment.topLeft,
+                      child: Padding(
+                        padding: const EdgeInsets.all(4),
+                        child: Image.asset(ItemDescription.getLogo(item?['name']), height: 30, alignment: Alignment.topLeft, fit: BoxFit.scaleDown),
                       ),
-                      Positioned.fill(
-                        bottom: 6,
-                        child: Align(
-                          alignment: Alignment.bottomRight,
-                          child: Badge.count(
-                            count: int.parse(item?['count']),
-                            largeSize: 18,
-                            padding: const EdgeInsets.symmetric(horizontal: 6),
-                          )
-                        ),
-                      )
-                    ],
-                  ),
+                    ),
+                    Positioned.fill(
+                      bottom: 6,
+                      child: Align(
+                        alignment: Alignment.bottomRight,
+                        child: Badge.count(
+                          count: int.parse(item?['count']),
+                          largeSize: 18,
+                          padding: const EdgeInsets.symmetric(horizontal: 6),
+                        )
+                      ),
+                    )
+                  ],
                 ),
               ),
-              Column(
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 4),
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -272,17 +278,9 @@ class CartListWidget extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            Text('${item?['name'].toString().toTitleCase()}', style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                              height: 0
-                            )),
-                            Text(' #00${index + 1}', style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              fontSize: 10,
-                              color: Theme.of(context).colorScheme.secondary
-                            ))
-                          ],
-                        ),
+                        Text('${item?['name'].toString().toTitleCase()}', style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          height: 0
+                        )),
                         Text(item?['brand'], style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Theme.of(context).colorScheme.primary,
                         )),
@@ -309,6 +307,7 @@ class CartListWidget extends StatelessWidget {
                           },
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: Theme.of(context).colorScheme.secondary,
+                            letterSpacing: 0,
                             height: 0
                           ),
                           items: spesifications.map<DropdownMenuItem<String>>((element) {
@@ -323,25 +322,25 @@ class CartListWidget extends StatelessWidget {
                   )
                 ],
               ),
-            ],
-          ),
-          Column(
-            children: [
-              IconButton(
-                onPressed: () => onDelete([index]),
-                style: ButtonStyle(
-                  visualDensity: const VisualDensity(vertical: -4, horizontal: -4),
-                  textStyle: MaterialStatePropertyAll(
-                    Theme.of(context).textTheme.labelSmall
-                  ),
-                  foregroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.secondary)
+            ),
+          ],
+        ),
+        Column(
+          children: [
+            IconButton(
+              onPressed: () => onDelete([index]),
+              style: ButtonStyle(
+                visualDensity: const VisualDensity(vertical: -4, horizontal: -4),
+                textStyle: MaterialStatePropertyAll(
+                  Theme.of(context).textTheme.labelSmall
                 ),
-                icon: const Icon(Icons.cancel)
+                foregroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.secondary)
               ),
-            ],
-          )
-        ]
-      ),
+              icon: const Icon(Icons.cancel, size: 22)
+            ),
+          ],
+        )
+      ]
     );
   }
 }

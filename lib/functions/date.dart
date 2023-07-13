@@ -42,7 +42,7 @@ class Date {
       initialTime: time ?? TimeOfDay.now(),
       hourLabelText: 'Jam',
       minuteLabelText: 'Menit',
-      confirmText: 'Selesai',
+      confirmText: 'Pilih',
       cancelText: 'Kembali'
     );
 

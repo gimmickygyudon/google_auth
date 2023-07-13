@@ -32,7 +32,9 @@ class _BerandaRouteState extends State<BerandaRoute> with WidgetsBindingObserver
           if (value == false) {
             _checkNotification = PermissionService.checkNotification().isDenied;
           }
-        }).whenComplete(() => setState(() {}));
+        }).whenComplete(() {
+          if (mounted) setState(() {});
+        });
         break;
       case AppLifecycleState.inactive:
         break;

@@ -319,7 +319,7 @@ class _OrderDialogState extends State<OrderDialog> {
         toolbarHeight: kToolbarHeight,
         title: Padding(
           padding: const EdgeInsets.only(top: 10),
-          child: Image.asset(ItemDescription.getLogo(widget.name), height: 40),
+          child: Image.asset(ItemDescription.getLogo(widget.name), height: 30),
         ),
         actions: [
           IconButton(
@@ -450,7 +450,17 @@ class _OrderDialogState extends State<OrderDialog> {
                             ElevatedButton.icon(
                               onPressed: jumlahController.text.trim().isNotEmpty
                                 ? () => widget.onPressed(count: jumlahController.text, index: index).whenComplete(() {
-                                  showSnackBar(context, snackBarShop(duration: const Duration(seconds: 6), context: context, content: 'Pesanan Anda Masuk di Keranjang Belanja.'));
+                                  showSnackBar(context, snackBarShop(
+                                    context: context,
+                                    count: jumlahController.text,
+                                    duration: const Duration(seconds: 6),
+                                    image: Image.asset(
+                                      ItemDescription.getImage(widget.name),
+                                      alignment: Alignment.center,
+                                      width: 60,
+                                    ),
+                                    content: 'Pesanan anda sudah masuk di Keranjang Belanja.')
+                                  );
                                   Navigator.pop(context);
                                 })
                                 : null,

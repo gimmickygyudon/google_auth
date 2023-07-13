@@ -164,9 +164,15 @@ class ItemPage extends StatefulWidget {
 }
 
 class _ItemPageState extends State<ItemPage> {
+  bool isLoading = true;
 
   @override
   void initState() {
+    Future.delayed(const Duration(seconds: 2), () {
+      if (mounted) {
+        setState(() => isLoading = false);
+      }
+    });
     super.initState();
   }
 
@@ -198,16 +204,24 @@ class _ItemPageState extends State<ItemPage> {
       valueListenable: CartWidget.cartNotifier,
       builder: (context, item, child) {
         return Scaffold(
-          floatingActionButton: FloatingActionButton.extended(
-            heroTag: 'Checkout',
-            elevation: 0,
-            onPressed: () => widget.tabController.animateTo(1),
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            foregroundColor: Theme.of(context).colorScheme.surface,
-            extendedIconLabelSpacing: 10,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            icon: const Icon(Icons.check),
-            label: const Text('Checkout')
+          floatingActionButton: AnimatedSlide(
+            curve: Curves.ease,
+            duration: const Duration(milliseconds: 600),
+            offset: Offset(isLoading ? 2 : 0, 0),
+            child: Visibility(
+              visible: isLoading ? false : true,
+              child: FloatingActionButton.extended(
+                heroTag: isLoading ? null : 'Checkout',
+                elevation: 4,
+                onPressed: () => widget.tabController.animateTo(1),
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                foregroundColor: Theme.of(context).colorScheme.surface,
+                extendedIconLabelSpacing: 10,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                icon: const Icon(Icons.check),
+                label: const Text('Checkout')
+              ),
+            ),
           ),
           backgroundColor: Theme.of(context).colorScheme.secondary.withOpacity(0.025),
           bottomNavigationBar: Container(
@@ -266,9 +280,15 @@ class _ItemPageState extends State<ItemPage> {
                   itemBuilder: (context, index) {
                     return Visibility(
                       visible: widget.checkedItems[index],
-                      child: ListTileTheme(
-                        minVerticalPadding: 14,
-                        child: OrderListItemWidget(item: item, index: index)
+                      child: Hero(
+                        tag: index,
+                        child: Material(
+                          type: MaterialType.transparency,
+                          child: ListTileTheme(
+                            minVerticalPadding: 14,
+                            child: OrderListItemWidget(item: item, index: index)
+                          ),
+                        ),
                       ),
                     );
                   }
@@ -313,10 +333,11 @@ class _OrderListItemWidgetState extends State<OrderListItemWidget> {
   @override
   Widget build(BuildContext context) {
     return Stack(
-      alignment: Alignment.centerRight,
+      alignment: Alignment.topRight,
       children: [
         ListTile(
-          visualDensity: const VisualDensity(vertical: 2),
+          isThreeLine: true,
+          visualDensity: const VisualDensity(vertical: 3),
           leading: AspectRatio(
             aspectRatio: 4/3,
             child: Stack(
@@ -343,6 +364,7 @@ class _OrderListItemWidgetState extends State<OrderListItemWidget> {
                   child: Padding(
                     padding: const EdgeInsets.all(4),
                     child: Badge.count(
+                      largeSize: 20,
                       count: int.parse(widget.item[widget.index]['count']),
                       padding: const EdgeInsets.symmetric(horizontal: 5),
                     ),
@@ -351,9 +373,11 @@ class _OrderListItemWidgetState extends State<OrderListItemWidget> {
               ],
             ),
           ),
-          isThreeLine: true,
-          title: Text(widget.item[widget.index]['name'].toString().toTitleCase(), style: Theme.of(context).textTheme.labelLarge?.copyWith(
-          )),
+          title: Text(widget.item[widget.index]['name'].toString().toTitleCase(),
+            style: Theme.of(context).textTheme.labelLarge?.copyWith(
+              height: 0
+            )
+          ),
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.start,
@@ -380,6 +404,7 @@ class _OrderListItemWidgetState extends State<OrderListItemWidget> {
                   },
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: Theme.of(context).colorScheme.secondary,
+                    letterSpacing: 0,
                     height: 0
                   ),
                   items: spesifications(widget.item[widget.index]).map<DropdownMenuItem<String>>((element) {
@@ -394,7 +419,7 @@ class _OrderListItemWidgetState extends State<OrderListItemWidget> {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.only(right: 8),
+          padding: const EdgeInsets.only(right: 8, top: 14),
           child: TextFormField(
             controller: _textEditingController,
             inputFormatters: [
@@ -418,11 +443,18 @@ class _OrderListItemWidgetState extends State<OrderListItemWidget> {
               contentPadding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
               labelText: 'Jumlah',
               floatingLabelBehavior: FloatingLabelBehavior.always,
-              floatingLabelStyle: const TextStyle(fontWeight: FontWeight.w500, letterSpacing: 0),
-              border: const OutlineInputBorder(),
+              floatingLabelStyle: const TextStyle(letterSpacing: 0, fontSize: 14),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: Theme.of(context).colorScheme.secondary.withOpacity(0.5)
+                )
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Theme.of(context).colorScheme.primary, width: 2)
+              ),
               constraints: const BoxConstraints(
-                maxHeight: 40,
-                maxWidth: 80
+                maxHeight: 60,
+                maxWidth: 90
               )
             )
           ),

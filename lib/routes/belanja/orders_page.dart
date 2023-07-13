@@ -15,6 +15,7 @@ import 'package:google_auth/widgets/dialog.dart';
 import 'package:google_auth/widgets/handle.dart';
 import 'package:google_auth/widgets/label.dart';
 import 'package:google_auth/widgets/info.dart';
+import 'package:google_auth/widgets/listtile.dart';
 import 'package:google_auth/widgets/profile.dart';
 
 import '../../functions/conversion.dart';
@@ -58,8 +59,9 @@ class _OrdersPageRouteState extends State<OrdersPageRoute> with SingleTickerProv
       controller: _scrollController,
       headerSliverBuilder: (context, innerBoxIsScrolled) => [
         SliverAppBar(
-          floating: true,
           pinned: true,
+          floating: true,
+          snap: true,
           title: const Text('Pesanan Anda'),
           titleTextStyle: Theme.of(context).textTheme.titleMedium,
           centerTitle: true,
@@ -185,278 +187,262 @@ class _OrderPageState extends State<OrderPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomNavigationBar: AnimatedSize(
-        duration: const Duration(milliseconds: 600),
-        curve: Curves.easeOut,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (checkedItems.isNotEmpty) const InfoSmallWidget(
-              message: 'Pilih barang yang akan di pesan.',
-              icon: Icons.info
-            ),
-            BottomAppBar(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              height: checkedItems.isEmpty ? 0 : 82,
-              elevation: 20,
-              shadowColor: Theme.of(context).colorScheme.shadow,
-              surfaceTintColor: Colors.transparent,
-              child: ButtonBar(
-                alignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  TextButton.icon(
-                    onPressed: () => Navigator.of(context).pop(),
-                    icon: const Icon(Icons.arrow_back),
-                    label: const Text('Kembali')
-                  ),
-                  Hero(
-                    tag: 'Checkout',
-                    child: ElevatedButton.icon(
-                      onPressed: checkedItems.contains(true) ? () {
-                        pushCheckout(context: context, checkedItems: checkedItems);
-                      } : null,
-                      style: ButtonStyle(
-                        elevation: const MaterialStatePropertyAll(0),
-                        padding: const MaterialStatePropertyAll(EdgeInsets.fromLTRB(18, 4, 14, 4)),
-                        backgroundColor: MaterialStateProperty.resolveWith((states) {
-                          if (states.contains(MaterialState.disabled)) {
-                            return null;
-                          } else {
-                            return Theme.of(context).colorScheme.primary;
-                          }
-                        }),
-                        foregroundColor: MaterialStateProperty.resolveWith((states) {
-                          if (states.contains(MaterialState.disabled)) {
-                            return null;
-                          } else {
-                            return Theme.of(context).colorScheme.surface;
-                          }
-                        }),
-                        overlayColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.inversePrimary),
-                        iconSize: const MaterialStatePropertyAll(24)
-                      ),
-                      icon: const Text('Checkout'),
-                      label: const Icon(Icons.arrow_forward)
-                    ),
-                  )
-                ],
-              ),
-            ),
-          ],
+      floatingActionButton: AnimatedSlide(
+        curve: Curves.ease,
+        duration: const Duration(milliseconds: 400),
+        offset: Offset(0, checkedItems.contains(true) ? 0 : 2),
+        child: FloatingActionButton.extended(
+          onPressed: checkedItems.contains(true) ? () {
+            pushCheckout(context: context, checkedItems: checkedItems);
+          } : null,
+          heroTag: 'Checkout',
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          foregroundColor: Theme.of(context).colorScheme.surface,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          icon: const Padding(
+            padding: EdgeInsets.only(bottom: 2),
+            child: Icon(Icons.arrow_forward),
+          ),
+          label: const Text('Checkout')
         ),
       ),
       body: Container(
         height: double.infinity,
         color: Theme.of(context).colorScheme.secondary.withOpacity(0.05),
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                contentPadding: const EdgeInsets.only(left: 16),
-                titleTextStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.secondary
-                ),
-                title: const Text('Pesanan Anda,'),
-                subtitleTextStyle: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w500
-                ),
-                textColor: checkedItems.contains(true) ? Theme.of(context).colorScheme.primary : null,
-                subtitle: Row(
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Container(
+              color: Theme.of(context).colorScheme.secondary.withOpacity(0.05),
+              child: InfoSmallWidget(
+                hide: checkedItems.contains(true),
+                message: 'Pilih barang yang akan di pesan sebelum melakukan Checkout.',
+                icon: Icons.info
+              ),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (checkedItems.isNotEmpty) ...[
-                      Text(checkedItems.where((element) => element == true).length.toString()),
-                      const SizedBox(width: 12),
-                    ],
-                    Text(checkedItems.isNotEmpty ? 'Dipilih' : 'Kosong', style: Theme.of(context).textTheme.headlineSmall),
-                  ],
-                ),
-                trailing: Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton.filled(
-                        onPressed: checkedItems.contains(true) ? () => showDeleteDialog(context: context, onConfirm: _removeItems) : null,
-                        style: Styles.buttonDanger(context: context),
-                        icon: const Icon(Icons.delete)
+                    ListTile(
+                      contentPadding: const EdgeInsets.only(left: 16),
+                      titleTextStyle: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.secondary
                       ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    if (checkedItems.isNotEmpty) TextButton.icon(
-                      onPressed: () => setState(() {
-                        if (checkedItems.every((element) => element == true)) {
-                          checkedItems = List.filled(checkedItems.length, false);
-                        } else {
-                          checkedItems = List.filled(checkedItems.length, true);
-                        }
-                      }),
-                      icon: Icon(checkedItems.every((element) => element == true) ? Icons.check_box : Icons.check_box_outline_blank, size: 22),
-                      label: const Text('Pilih Semua'),
+                      title: const Text('Pesanan Anda,'),
+                      subtitleTextStyle: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.w500
+                      ),
+                      textColor: checkedItems.contains(true) ? Theme.of(context).colorScheme.primary : null,
+                      subtitle: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (checkedItems.isNotEmpty) ...[
+                            Text(checkedItems.where((element) => element == true).length.toString()),
+                            const SizedBox(width: 12),
+                          ],
+                          Text(checkedItems.isNotEmpty ? 'Dipilih' : 'Kosong', style: Theme.of(context).textTheme.headlineSmall),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Visibility(
+                      visible: checkedItems.isNotEmpty,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            ListTileCheckBox(
+                              title: 'Pilih Semua',
+                              selected: checkedItems.every((element) => element == true),
+                              onChanged: (value) {
+                                setState(() {
+                                  if (checkedItems.every((element) => element == true)) {
+                                    checkedItems = List.filled(checkedItems.length, false);
+                                  } else {
+                                    checkedItems = List.filled(checkedItems.length, true);
+                                  }
+                                });
+                              },
+                            ),
+                            Row(
+                              children: [
+                                ValueListenableBuilder(
+                                  valueListenable: CartWidget.cartNotifier,
+                                  builder: (context, item, child) {
+                                    return Visibility(
+                                      visible: item.isNotEmpty,
+                                      child: Row(
+                                        children: [
+                                          Icon(Icons.layers_outlined, color: Theme.of(context).colorScheme.secondary),
+                                          const SizedBox(width: 6),
+                                          Text(item.length.toString(), style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                            color: Theme.of(context).colorScheme.secondary
+                                          )),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                ),
+                                const SizedBox(width: 12),
+                                IconButton.filled(
+                                  onPressed: checkedItems.contains(true) ? () => showDeleteDialog(context: context, onConfirm: _removeItems) : null,
+                                  style: Styles.buttonDanger(context: context),
+                                  icon: const Icon(Icons.delete)
+                                ),
+                              ],
+                            )
+                          ],
+                        ),
+                      ),
                     ),
                     ValueListenableBuilder(
                       valueListenable: CartWidget.cartNotifier,
                       builder: (context, item, child) {
-                        return Visibility(
-                          visible: item.isNotEmpty,
-                          child: Row(
-                            children: [
-                              Icon(Icons.layers_outlined, color: Theme.of(context).colorScheme.secondary),
-                              const SizedBox(width: 6),
-                              Text(item.length.toString(), style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                                color: Theme.of(context).colorScheme.secondary
-                              )),
-                            ],
-                          ),
-                        );
-                      },
-                    )
+                        // TODO: Dirty Fix
+                        if (item.isNotEmpty) {
+                          if (firstInit == false) {
+                            for (int i = 0; i < item.length; i++) {
+                              checkedItems.add(false);
+                            }
+                            firstInit = true;
+                            WidgetsBinding.instance.addPostFrameCallback((_) { setState(() {});});
+                          }
+                          return ListView.builder(
+                            shrinkWrap: true,
+                            padding: const EdgeInsets.fromLTRB(12, 4, 8, 12),
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: item.length,
+                            itemBuilder: (context, index) {
+                              return Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 8),
+                                child: Hero(
+                                  tag: index,
+                                  child: Material(
+                                    type: MaterialType.transparency,
+                                    child: ListTileTheme(
+                                      horizontalTitleGap: 8,
+                                      child: CheckboxListTile(
+                                        value: checkedItems[index],
+                                        onChanged: (value) {
+                                          setState(() {
+                                            checkedItems[index] = value!;
+                                          });
+                                        },
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(8),
+                                          side: const BorderSide(color: Colors.transparent)
+                                        ),
+                                        isThreeLine: true,
+                                        controlAffinity: ListTileControlAffinity.leading,
+                                        selected: checkedItems[index],
+                                        selectedTileColor: Theme.of(context).colorScheme.primaryContainer,
+                                        tileColor: Theme.of(context).colorScheme.onInverseSurface,
+                                        contentPadding: const EdgeInsets.symmetric(horizontal: 6),
+                                        checkboxShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                                        title: Text(
+                                          item[index]['name'].toString().toTitleCase(),
+                                          style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                                            letterSpacing: 0,
+                                            height: 0
+                                          )
+                                        ),
+                                        subtitle: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          mainAxisAlignment: MainAxisAlignment.start,
+                                          children: [
+                                            Text(item[index]['brand'].toString().toTitleCase(),
+                                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                                color: Theme.of(context).colorScheme.primary,
+                                              ),
+                                            ),
+                                            const SizedBox(height: 6),
+                                            DropdownButtonHideUnderline(
+                                              child: DropdownButton<String>(
+                                                padding: EdgeInsets.zero,
+                                                isDense: true,
+                                                borderRadius: BorderRadius.circular(10),
+                                                value: spesification(item[index]),
+                                                onChanged: (value) {
+                                                  String dimension = value!.substring(0, value.indexOf('•')).trim();
+                                                  setState(() {
+                                                    Cart.update(
+                                                      index: index,
+                                                      element: ['dimension', 'weight'],
+                                                      selectedIndex: item[index]['dimensions'].indexOf(dimension)
+                                                    );
+                                                  });
+                                                },
+                                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                                  color: Theme.of(context).colorScheme.secondary,
+                                                  letterSpacing: 0,
+                                                  height: 0
+                                                ),
+                                                items: spesifications(item[index]).map<DropdownMenuItem<String>>((element) {
+                                                  return DropdownMenuItem<String>(
+                                                    value: element,
+                                                    child: Text(element)
+                                                  );
+                                                }).toList()
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        secondary: AspectRatio(
+                                          aspectRatio: 1.25 / 1,
+                                          child: Stack(
+                                            fit: StackFit.expand,
+                                            children: [
+                                              AnimatedContainer(
+                                                duration: const Duration(milliseconds: 200),
+                                                padding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
+                                                decoration: BoxDecoration(
+                                                  color: checkedItems[index] ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.surfaceVariant,
+                                                  borderRadius: BorderRadius.circular(8)
+                                                ),
+                                                child: Image.asset(ItemDescription.getImage(item[index]['name']))
+                                              ),
+                                              Align(
+                                                alignment: Alignment.topLeft,
+                                                child: Padding(
+                                                  padding: const EdgeInsets.all(4),
+                                                  child: Image.asset(ItemDescription.getLogo(item[index]['name']), height: 25, alignment: Alignment.topLeft, fit: BoxFit.scaleDown),
+                                                ),
+                                              ),
+                                              Align(
+                                                alignment: Alignment.bottomRight,
+                                                child: Padding(
+                                                  padding: const EdgeInsets.all(4),
+                                                  child: Badge.count(
+                                                    count: int.parse(item[index]['count']),
+                                                    largeSize: 20,
+                                                    padding: const EdgeInsets.symmetric(horizontal: 6),
+                                                  ),
+                                                ),
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }
+                          );
+                        } else {
+                          return const HandleEmptyOrder();
+                        }
+                      }
+                    ),
                   ],
                 ),
               ),
-              ValueListenableBuilder(
-                valueListenable: CartWidget.cartNotifier,
-                builder: (context, item, child) {
-                  // TODO: Dirty Fix
-                  if (item.isNotEmpty) {
-                    if (firstInit == false) {
-                      for (int i = 0; i < item.length; i++) {
-                        checkedItems.add(false);
-                      }
-                      firstInit = true;
-                      WidgetsBinding.instance.addPostFrameCallback((_) { setState(() {});});
-                    }
-                    return ListView.builder(
-                      shrinkWrap: true,
-                      padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: item.length,
-                      itemBuilder: (context, index) {
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          child: Material(
-                            type: MaterialType.transparency,
-                            child: CheckboxListTile(
-                              value: checkedItems[index],
-                              onChanged: (value) {
-                                setState(() {
-                                  checkedItems[index] = value!;
-                                });
-                              },
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                                side: BorderSide(
-                                  color: checkedItems[index] ? Theme.of(context).colorScheme.primary : Colors.transparent,
-                                  width: 3
-                                )
-                              ),
-                              isThreeLine: true,
-                              controlAffinity: ListTileControlAffinity.leading,
-                              selected: checkedItems[index],
-                              selectedTileColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.75),
-                              tileColor: Theme.of(context).colorScheme.inversePrimary.withOpacity(0.1),
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 6),
-                              checkboxShape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              title: Text(item[index]['name'].toString().toTitleCase(), style: Theme.of(context).textTheme.titleMedium),
-                              subtitle: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Text(item[index]['brand'].toString().toTitleCase(),
-                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: Theme.of(context).colorScheme.primary
-                                    ),
-                                  ),
-                                  const SizedBox(height: 6),
-                                  DropdownButtonHideUnderline(
-                                    child: DropdownButton<String>(
-                                      padding: EdgeInsets.zero,
-                                      isDense: true,
-                                      borderRadius: BorderRadius.circular(10),
-                                      value: spesification(item[index]),
-                                      onChanged: (value) {
-                                        String dimension = value!.substring(0, value.indexOf('•')).trim();
-                                        setState(() {
-                                          Cart.update(
-                                            index: index,
-                                            element: ['dimension', 'weight'],
-                                            selectedIndex: item[index]['dimensions'].indexOf(dimension)
-                                          );
-                                        });
-                                      },
-                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                        color: Theme.of(context).colorScheme.secondary,
-                                        height: 0
-                                      ),
-                                      items: spesifications(item[index]).map<DropdownMenuItem<String>>((element) {
-                                        return DropdownMenuItem<String>(
-                                          value: element,
-                                          child: Text(element)
-                                        );
-                                      }).toList()
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              secondary: AspectRatio(
-                                aspectRatio: 1.25 / 1,
-                                child: Stack(
-                                  fit: StackFit.expand,
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.fromLTRB(4, 4, 4, 4),
-                                      decoration: BoxDecoration(
-                                        color: Theme.of(context).colorScheme.surfaceVariant,
-                                        borderRadius: BorderRadius.circular(8)
-                                      ),
-                                      child: Image.asset(ItemDescription.getImage(item[index]['name']))
-                                    ),
-                                    Align(
-                                      alignment: Alignment.topLeft,
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(4),
-                                        child: Image.asset(ItemDescription.getLogo(item[index]['name']), height: 25, alignment: Alignment.topLeft, fit: BoxFit.scaleDown),
-                                      ),
-                                    ),
-                                    Align(
-                                      alignment: Alignment.bottomRight,
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(4),
-                                        child: Badge.count(
-                                          count: int.parse(item[index]['count']),
-                                          largeSize: 20,
-                                          padding: const EdgeInsets.symmetric(horizontal: 6),
-                                        ),
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      }
-                    );
-                  } else {
-                    return const HandleEmptyOrder();
-                  }
-                }
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       )
     );

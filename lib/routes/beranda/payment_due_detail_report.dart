@@ -5,6 +5,7 @@ import 'package:google_auth/functions/customer.dart';
 import 'package:google_auth/functions/string.dart';
 import 'package:google_auth/strings/user.dart';
 import 'package:google_auth/widgets/handle.dart';
+import 'package:google_auth/widgets/listtile.dart';
 import 'package:google_auth/widgets/profile.dart';
 import 'package:intl/intl.dart';
 
@@ -146,28 +147,13 @@ class _PaymentDueDetailReportState extends State<PaymentDueDetailReport> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Expanded(
-                    child: ListTileTheme(
-                      horizontalTitleGap: 12,
-                      child: CheckboxListTile(
-                        title: Text('Lihat Semua', style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                          letterSpacing: 0,
-                          color: showAll ? Theme.of(context).colorScheme.primary : null
-                        )),
-                        dense: true,
-                        selected: showAll,
-                        visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
-                        contentPadding: EdgeInsets.zero,
-                        checkboxShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-                        controlAffinity: ListTileControlAffinity.leading,
-                        value: showAll,
-                        onChanged: (value) {
-                          showAll = value!;
-                          setPaymentDueReport();
-                        },
-                      ),
-                    ),
+                  ListTileCheckBox(
+                    title: 'Lihat Semua',
+                    selected: showAll,
+                    onChanged: (value) {
+                      showAll = value;
+                      setPaymentDueReport();
+                    },
                   ),
                   const SizedBox(width: 30),
                   DisableWidget(

@@ -122,3 +122,37 @@ class ListTileToast extends StatelessWidget {
     );
   }
 }
+
+class ListTileCheckBox extends StatelessWidget {
+  const ListTileCheckBox({super.key, required this.selected, required this.onChanged, required this.title});
+
+  final String title;
+  final bool selected;
+  final Function(bool value) onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Flexible(
+      child: ListTileTheme(
+        horizontalTitleGap: 12,
+        child: CheckboxListTile(
+          title: Text(title, style: Theme.of(context).textTheme.labelMedium?.copyWith(
+            letterSpacing: 0,
+            color: selected ? Theme.of(context).colorScheme.primary : null
+          )),
+          dense: true,
+          selected: selected,
+          visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+          contentPadding: EdgeInsets.zero,
+          checkboxShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+          controlAffinity: ListTileControlAffinity.leading,
+          value: selected,
+          onChanged: (value) {
+            onChanged(value!);
+          },
+        ),
+      ),
+    );
+  }
+}

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:google_auth/functions/push.dart';
+import 'package:google_auth/styles/theme.dart';
 import 'package:provider/provider.dart';
 
 void showSnackBar(BuildContext context, SnackBar snackBar) {
@@ -12,31 +14,55 @@ void hideSnackBar(BuildContext context) {
 SnackBar snackBarShop({
   required BuildContext context,
   required String content,
+  required Image image,
+  required String count,
   Duration duration = const Duration(seconds: 4),
   Color? color,
 }) {
   return SnackBar(
-    padding: const EdgeInsets.fromLTRB(6, 0, 0, 0),
+    elevation: 0,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(8)
+    ),
     duration: duration,
-    backgroundColor: Theme.of(context).colorScheme.primary.withBlue(100),
-    showCloseIcon: true,
+    behavior: SnackBarBehavior.floating,
+    backgroundColor: Theme.of(context).colorScheme.primaryContainer,
     content: Consumer(
       builder: (context, value, child) => Row(
         children: [
-          const SizedBox(width: 6),
           Badge(
-            largeSize: 20,
-            label: const Text('+1'),
-            child: Icon(Icons.shopping_bag, color: Theme.of(context).colorScheme.surface)
-          ),
-          const SizedBox(width: 16),
-          Text(
-            content,
-            style: Theme.of(context).textTheme.labelMedium?.copyWith(
-              color: Theme.of(context).colorScheme.surface,
-              letterSpacing: 0
+            label: Text('+$count'),
+            offset: Offset(count.length * -6.0, -4),
+            largeSize: 19,
+            child: Container(
+              height: 46,
+              padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.background,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: image
             ),
           ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Text(
+              content,
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                color: Theme.of(context).colorScheme.inverseSurface,
+                letterSpacing: 0,
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
+          ElevatedButton(
+            onPressed: () {
+              hideSnackBar(context);
+              pushOrdersPage(context: context, page: 0);
+            },
+            style: Styles.buttonInverseFlatSmall(context: context),
+            child: const Text('Buka')
+          )
         ],
       ),
     ),
