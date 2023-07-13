@@ -128,11 +128,13 @@ class _PaymentDueWidgetState extends State<PaymentDueWidget> {
   }
 
   setInitialPaymentReport() {
-    setState(() {
-      noData = true;
-      date = DateFormat('EEEE, dd MMMM ''yyyy', 'id').format(DateTime.now());
-      paymentDueReport = const PaymentDueReport(total: 'Rp0.0', count: 0, data: []);
-    });
+    if (mounted) {
+      setState(() {
+        noData = true;
+        date = DateFormat('EEEE, dd MMMM ''yyyy', 'id').format(DateTime.now());
+        paymentDueReport = const PaymentDueReport(total: 'Rp0.0', count: 0, data: []);
+      });
+    }
     return paymentDueReport;
   }
 

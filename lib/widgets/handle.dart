@@ -282,30 +282,34 @@ class HandleNoData extends StatelessWidget {
 }
 
 class DisableWidget extends StatelessWidget {
-  const DisableWidget({super.key, required this.disable, required this.child, this.border, required this.overlay});
+  const DisableWidget({super.key, required this.disable, required this.child, this.border, required this.overlay, this.borderRadius, this.opacity, this.overlayAligment});
 
   final bool disable;
   final bool? border;
+  final BorderRadius? borderRadius;
+  final double? opacity;
   final Widget child;
   final Widget Function(BuildContext context) overlay;
+  final Alignment? overlayAligment;
 
   @override
   Widget build(BuildContext context) {
     return Stack(
+      alignment: overlayAligment ?? Alignment.centerRight,
       children: [
         AbsorbPointer(
           absorbing: disable,
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: borderRadius ?? BorderRadius.circular(12),
             ),
             foregroundDecoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: borderRadius ?? BorderRadius.circular(12),
               border: disable ? Border.all(
                 color: border == false ? Colors.transparent : Theme.of(context).colorScheme.outlineVariant
               ) : null,
-              color: Theme.of(context).colorScheme.background.withOpacity(disable ? 0.9 : 0)
+              color: Theme.of(context).colorScheme.background.withOpacity(disable ? opacity ?? 0.9 : 0)
             ),
             child: ColorFiltered(
               colorFilter: ColorFilter.mode(disable ? Theme.of(context).colorScheme.background : Colors.transparent, BlendMode.saturation),

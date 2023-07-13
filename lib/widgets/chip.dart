@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 
 class ChipSmall extends StatelessWidget {
   const ChipSmall({
-    super.key, required this.bgColor, required this.label, required this.labelColor, this.trailing, this.borderRadius, this.leading, this.textStyle
+    super.key, this.bgColor, required this.label, this.labelColor, this.trailing, this.borderRadius, this.leading, this.textStyle
   });
 
-  final Color bgColor, labelColor;
+  final Color? bgColor, labelColor;
   final String label;
   final Widget? trailing, leading;
   final BorderRadius? borderRadius;
@@ -18,7 +18,7 @@ class ChipSmall extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(0, 1, 0, 0),
       side: BorderSide.none,
       shape: RoundedRectangleBorder(borderRadius: borderRadius ?? BorderRadius.circular(4)),
-      backgroundColor: bgColor,
+      backgroundColor: bgColor ?? Theme.of(context).colorScheme.primaryContainer.withOpacity(0.5),
       label: Row(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
@@ -30,7 +30,7 @@ class ChipSmall extends StatelessWidget {
         ],
       ),
       labelStyle: textStyle ?? Theme.of(context).textTheme.labelSmall?.copyWith(
-        color: labelColor
+        color: labelColor ?? Theme.of(context).colorScheme.primary
       ),
     );
   }

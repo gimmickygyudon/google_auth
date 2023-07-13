@@ -2,12 +2,16 @@
 
 import 'package:flutter/material.dart';
 import 'package:google_auth/functions/customer.dart';
+import 'package:google_auth/functions/string.dart';
+import 'package:google_auth/strings/user.dart';
 import 'package:google_auth/widgets/handle.dart';
 import 'package:google_auth/widgets/profile.dart';
 import 'package:intl/intl.dart';
 
 import '../../functions/date.dart';
 import '../../widgets/chip.dart';
+import '../../widgets/dropdown.dart';
+import '../../widgets/text.dart';
 import 'delivery_report.dart';
 
 class PaymentDueDetailReport extends StatefulWidget {
@@ -21,7 +25,8 @@ class _PaymentDueDetailReportState extends State<PaymentDueDetailReport> {
   late Future<PaymentDueReport> _paymentDueReport;
   late PaymentDueReport paymentDueReport;
 
-  bool showAll = true;
+  bool showAll = true, noData = false;
+  String paymentTotal = '0.0', date = DateNow();
 
   @override
   initState() {
@@ -34,12 +39,21 @@ class _PaymentDueDetailReportState extends State<PaymentDueDetailReport> {
     if (id_ocst != null) {
       if (showAll) {
         return PaymentDueReport.retrieveTotal(id_osct: id_ocst).then((value) async {
+          String firstDate = value['data'].first['payment_date'];
+          String lastDate = value['data'].last['payment_date'];
+          date = '${DateFormat('MMMM ''yyyy', 'id').format(DateTime.parse(firstDate))}  -  ${DateFormat('MMMM ''yyyy', 'id').format(DateTime.parse(lastDate))}';
+
           paymentDueReport = definePaymentDue(value);
+          paymentTotal = paymentDueReport.total;
           return paymentDueReport;
         });
       } else {
         int month = Date.months.indexOf(Date.selectedMonth);
-        return PaymentDueReport.retrieveLastMonth(id_ocst: id_ocst, from: DateTime(int.parse(Date.selectedYears), month + 1), to: DateTime(int.parse(Date.selectedYears), month + 1))
+        int lastDayOfMonth = DateTime(int.parse(Date.selectedYears), (month + 1)).lastDayOfMonth;
+        return PaymentDueReport.retrieveLastMonth(id_ocst: id_ocst,
+          from: DateTime(int.parse(Date.selectedYears), (month + 1)),
+          to: DateTime(int.parse(Date.selectedYears), (month + 1), lastDayOfMonth)
+        )
         .then((value) {
           if (value.isEmpty) return defineError();
           return definePaymentDue(value);
@@ -60,6 +74,7 @@ class _PaymentDueDetailReportState extends State<PaymentDueDetailReport> {
     }).toList();
 
     setState(() {
+      noData = false;
       paymentDueReport = PaymentDueReport(total: value['total'].toString(), count: value['count'], data: data);
     });
 
@@ -67,7 +82,12 @@ class _PaymentDueDetailReportState extends State<PaymentDueDetailReport> {
   }
 
   defineError() {
-    return PaymentDueReport(total: '0', count: 0, data: [PaymentDueData(invoice_code: '', payment_date: DateFormat('MMMM ''yyyy', 'id').format(DateTime.now()), total_payment: '0')]);
+    setState(() {
+      noData = true;
+      paymentDueReport = PaymentDueReport(total: '0', count: 0, data: [PaymentDueData(invoice_code: '', payment_date: DateFormat('y-MM-d').format(DateTime.now()), total_payment: '0')]);
+    });
+
+    return paymentDueReport;
   }
 
   @override
@@ -77,6 +97,7 @@ class _PaymentDueDetailReportState extends State<PaymentDueDetailReport> {
         title: Padding(
           padding: const EdgeInsets.only(top: 6, right: 12),
           child: CustomerSelectWidget(onChanged: () {
+            showAll = true;
             setPaymentDueReport();
           }),
         ),
@@ -86,66 +107,178 @@ class _PaymentDueDetailReportState extends State<PaymentDueDetailReport> {
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 30),
-        child: FutureBuilder(
-          future: _paymentDueReport,
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const HandleLoading();
-            } else if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
-              return Theme(
-                data: Theme.of(context).copyWith(
-                  cardTheme: const CardTheme(elevation: 0, margin: EdgeInsets.zero),
-                  dividerTheme: DividerThemeData(color: Theme.of(context).colorScheme.onInverseSurface),
-                ),
-                child: PaginatedDataTable(
-                  source: PaymentDueTable(context: context, data: paymentDueReport.data),
-                  columns: [
-                    DataColumn(
-                      label: Row(
-                        children: [
-                          const Text('INVOCE CODE', style: TextStyle(
-                            fontSize: 12,
-                          )),
-                          const SizedBox(width: 8),
-                          ChipSmall(
-                            bgColor: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.5),
-                            label: paymentDueReport.count.toString(),
-                            labelColor: Theme.of(context).colorScheme.primary
-                          )
-                        ],
-                      )
+        padding: const EdgeInsets.symmetric(vertical: 20),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 30),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const TextIcon(
+                    label: 'Akumulasi Pembayaran',
+                    icon: Icons.wallet
+                  ),
+                  Text('Rincian detail pembayaran anda selama ini.', style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.secondary,
+                    letterSpacing: 0
+                  )),
+                ],
+              ),
+            ),
+            Divider(indent: 30, endIndent: 30, height: 50, color: Theme.of(context).colorScheme.outlineVariant.withOpacity(0.5)),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: Column(
+                children: [
+                  Text('Total Pembayaran', style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: Theme.of(context).colorScheme.secondary,
+                    letterSpacing: 0
+                  )),
+                  Text(NumberFormat.simpleCurrency(locale: 'id-ID', decimalDigits: 0).format(double.parse(paymentTotal)),
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(12, 30, 30, 0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: ListTileTheme(
+                      horizontalTitleGap: 12,
+                      child: CheckboxListTile(
+                        title: Text('Lihat Semua', style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                          letterSpacing: 0,
+                          color: showAll ? Theme.of(context).colorScheme.primary : null
+                        )),
+                        dense: true,
+                        selected: showAll,
+                        visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+                        contentPadding: EdgeInsets.zero,
+                        checkboxShape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                        controlAffinity: ListTileControlAffinity.leading,
+                        value: showAll,
+                        onChanged: (value) {
+                          showAll = value!;
+                          setPaymentDueReport();
+                        },
+                      ),
                     ),
-                    DataColumn(
-                      label: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const Text('NOMINAL PAYMENT', style: TextStyle(
-                            fontSize: 12,
-                          )),
-                          ChipSmall(
-                            bgColor: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.5),
-                            label: NumberFormat.simpleCurrency(locale: 'id-ID', decimalDigits: 0).format(double.parse(paymentDueReport.total.toString())),
-                            labelColor: Theme.of(context).colorScheme.primary
-                          )
-                        ],
-                      )
+                  ),
+                  const SizedBox(width: 30),
+                  DisableWidget(
+                    disable: showAll,
+                    border: false,
+                    borderRadius: BorderRadius.zero,
+                    opacity: 1,
+                    overlay: (context) {
+                      return ChipSmall(label: date);
+                    },
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        DropdownLight(
+                          value: Date.selectedMonth,
+                          values: Date.months,
+                          onChanged: (value) {
+                            Date.selectedMonth = value;
+                            setPaymentDueReport();
+                          },
+                        ),
+                        const SizedBox(width: 12),
+                        DropdownLight(
+                          value: Date.selectedYears,
+                          values: Date.years,
+                          onChanged: (value) {
+                            Date.selectedYears = value;
+                            setPaymentDueReport();
+                          },
+                        ),
+                      ],
                     ),
-                  ],
-                  columnSpacing: 80,
-                  horizontalMargin: 0,
-                  headingRowHeight: 60,
-                  dataRowMinHeight: 30,
-                  dataRowMaxHeight: 55,
-                  rowsPerPage: 10,
-                  showCheckboxColumn: true,
-                ),
-              );
-            } else {
-              return const HandleNoData();
-            }
-          }
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 30),
+              child: FutureBuilder(
+                future: _paymentDueReport,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const HandleLoading();
+                  } else if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
+                    return DisableWidget(
+                      disable: noData,
+                      overlayAligment: Alignment.topCenter,
+                      overlay: (context) {
+                        return const HandleNoData();
+                      },
+                      border: false,
+                      child: Theme(
+                        data: Theme.of(context).copyWith(
+                          cardTheme: const CardTheme(elevation: 0, margin: EdgeInsets.zero),
+                          dividerTheme: DividerThemeData(color: Theme.of(context).colorScheme.onInverseSurface),
+                        ),
+                        child: PaginatedDataTable(
+                          source: PaymentDueTable(
+                            context: context,
+                            data: showAll ? paymentDueReport.data.reversed.toList() : paymentDueReport.data
+                          ),
+                          columns: [
+                            DataColumn(
+                              label: Row(
+                                children: [
+                                  const Text('INVOCE CODE', style: TextStyle(
+                                    fontSize: 12,
+                                  )),
+                                  const SizedBox(width: 8),
+                                  ChipSmall(
+                                    bgColor: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.5),
+                                    label: paymentDueReport.count.toString(),
+                                    labelColor: Theme.of(context).colorScheme.primary
+                                  )
+                                ],
+                              )
+                            ),
+                            DataColumn(
+                              label: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Text('NOMINAL PAYMENT', style: TextStyle(
+                                    fontSize: 12,
+                                  )),
+                                  ChipSmall(
+                                    bgColor: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.5),
+                                    label: NumberFormat.simpleCurrency(locale: 'id-ID', decimalDigits: 0).format(double.parse(paymentDueReport.total.toString())),
+                                    labelColor: Theme.of(context).colorScheme.primary
+                                  )
+                                ],
+                              )
+                            ),
+                          ],
+                          columnSpacing: 80,
+                          horizontalMargin: 0,
+                          headingRowHeight: 60,
+                          dataRowMinHeight: 30,
+                          dataRowMaxHeight: 55,
+                          rowsPerPage: 9,
+                        ),
+                      ),
+                    );
+                  } else {
+                    return const HandleNoData();
+                  }
+                }
+              ),
+            ),
+          ],
         ),
       ),
     );
