@@ -13,7 +13,6 @@ import '../../functions/date.dart';
 import '../../widgets/chip.dart';
 import '../../widgets/dropdown.dart';
 import '../../widgets/text.dart';
-import 'delivery_report.dart';
 
 class PaymentDueDetailReport extends StatefulWidget {
   const PaymentDueDetailReport({super.key});
@@ -97,7 +96,7 @@ class _PaymentDueDetailReportState extends State<PaymentDueDetailReport> {
       appBar: AppBar(
         title: Padding(
           padding: const EdgeInsets.only(top: 6, right: 12),
-          child: CustomerSelectWidget(onChanged: () {
+          child: DropdownCustomerSelect(onChanged: () {
             showAll = true;
             setPaymentDueReport();
           }),

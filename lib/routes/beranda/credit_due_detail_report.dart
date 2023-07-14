@@ -2,12 +2,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:google_auth/functions/customer.dart';
-import 'package:google_auth/routes/beranda/delivery_report.dart';
 import 'package:google_auth/styles/theme.dart';
 import 'package:google_auth/widgets/chip.dart';
 import 'package:google_auth/widgets/handle.dart';
 import 'package:intl/intl.dart';
 
+import '../../widgets/dropdown.dart';
 import '../../widgets/text.dart';
 
 class CreditDueDetailReport extends StatefulWidget {
@@ -71,7 +71,7 @@ class _CreditDueDetailReportState extends State<CreditDueDetailReport> {
           actions: [
             Padding(
               padding: const EdgeInsets.only(top: 6, right: 12),
-              child: CustomerSelectWidget(onChanged: () {
+              child: DropdownCustomerSelect(onChanged: () {
                 widget.setCreditDueReport().then((value) {
                   return defineCreditDue(value);
                 });

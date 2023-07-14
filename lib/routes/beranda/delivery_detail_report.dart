@@ -2,7 +2,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:google_auth/functions/customer.dart';
-import 'package:google_auth/routes/beranda/delivery_report.dart';
 import 'package:google_auth/styles/theme.dart';
 import 'package:google_auth/widgets/chart.dart';
 import 'package:google_auth/widgets/dropdown.dart';
@@ -76,7 +75,7 @@ class _DetailReportRouteState extends State<DetailReportRoute> {
           toolbarHeight: kToolbarHeight + 10,
           title: Padding(
             padding: const EdgeInsets.only(top: 6),
-            child: CustomerSelectWidget(onChanged: () {
+            child: DropdownCustomerSelect(onChanged: () {
               setDeliveryOrder();
             }),
           ),

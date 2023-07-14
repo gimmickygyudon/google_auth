@@ -10,6 +10,7 @@ import 'package:intl/intl.dart';
 
 import '../../functions/customer.dart';
 import '../../widgets/chart.dart';
+import '../../widgets/dropdown.dart';
 
 class ReportDeliveryWidget extends StatefulWidget {
   const ReportDeliveryWidget({super.key});
@@ -142,7 +143,7 @@ class _ReportDeliveryWidgetState extends State<ReportDeliveryWidget> {
                     alignment: Alignment.bottomLeft,
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(16, 12, 16, 6),
-                      child: CustomerSelectWidget(onChanged: () {
+                      child: DropdownCustomerSelect(onChanged: () {
                         setReportDelivery();
                       }),
                     ),
@@ -372,7 +373,7 @@ class _ReportDeliveryWidgetState extends State<ReportDeliveryWidget> {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              CustomerSelectWidget(onChanged: () {
+                              DropdownCustomerSelect(onChanged: () {
                                 setReportDelivery();
                               }),
                               Align(
@@ -398,119 +399,6 @@ class _ReportDeliveryWidgetState extends State<ReportDeliveryWidget> {
           ),
         ),
       ),
-    );
-  }
-}
-
-class CustomerSelectWidget extends StatefulWidget {
-  const CustomerSelectWidget({super.key, this.onChanged});
-
-  final Function? onChanged;
-
-  @override
-  State<CustomerSelectWidget> createState() => _CustomerSelectWidgetState();
-}
-
-class _CustomerSelectWidgetState extends State<CustomerSelectWidget> {
-  late Future<List<Customer?>> _getCustomer;
-
-  @override
-  void initState() {
-    _getCustomer = Customer.retrieve(id_ousr: currentUser['id_ousr']);
-    super.initState();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: _getCustomer,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Container(
-            width: 160,
-            height: 40,
-            margin: const EdgeInsets.fromLTRB(0, 0, 0, 6),
-            clipBehavior: Clip.antiAlias,
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.background,
-              borderRadius: BorderRadius.circular(25.7),
-              border: Border.all(color: Theme.of(context).colorScheme.primary)
-            ),
-            child: const LinearProgressIndicator(backgroundColor: Colors.transparent)
-          );
-        } else if (snapshot.connectionState == ConnectionState.done && snapshot.hasData && snapshot.data!.isNotEmpty) {
-          return Container(
-            height: 40,
-            margin: const EdgeInsets.fromLTRB(0, 0, 0, 6),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary,
-              borderRadius: BorderRadius.circular(25.7),
-              border: Border.all(color: Theme.of(context).colorScheme.primary)
-            ),
-            child: ValueListenableBuilder(
-              valueListenable: Customer.defaultCustomer,
-              builder: (context, customer, child) {
-                return DropdownButtonHideUnderline(
-                  child: DropdownButton<Customer?>(
-                    value: customer,
-                    onChanged: (Customer? value) {
-                      setState(() {
-                        Customer.setDefaultCustomer(value);
-                        if (widget.onChanged != null) widget.onChanged!();
-                      });
-                    },
-                    padding: const EdgeInsets.all(8),
-                    borderRadius: BorderRadius.circular(25.7),
-                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                      color: Theme.of(context).colorScheme.surface
-                    ),
-                    dropdownColor: Theme.of(context).colorScheme.primary,
-                    iconEnabledColor: Theme.of(context).colorScheme.surface,
-                    items: snapshot.data?.map<DropdownMenuItem<Customer>>((Customer? customer) {
-                      return DropdownMenuItem<Customer>(
-                        value: customer,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const SizedBox(width: 4),
-                            CircleAvatar(
-                              radius: 11,
-                              backgroundColor: Theme.of(context).colorScheme.background,
-                              child: Text(customer!.remarks.substring(0, 1).toUpperCase(), style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                                fontWeight: FontWeight.w600
-                              ))
-                            ),
-                            const SizedBox(width: 8),
-                            Text(customer.remarks),
-                          ],
-                        )
-                      );
-                    }).toList(),
-                  ),
-                );
-              }
-            ),
-          );
-        } else {
-          return OutlinedButton.icon(
-            onPressed: () => pushAddCustomer(context),
-            style: ButtonStyle(
-              visualDensity: const VisualDensity(horizontal: -4, vertical: -2),
-              side: MaterialStatePropertyAll(
-                BorderSide(color: Theme.of(context).colorScheme.primary)
-              ),
-              iconSize: const MaterialStatePropertyAll(20),
-              textStyle: MaterialStatePropertyAll(
-                Theme.of(context).textTheme.labelSmall?.copyWith(
-                  letterSpacing: 0
-                )
-              )
-            ),
-            icon: const Icon(Icons.add_circle),
-            label: const Text('Tambah Pelanggan')
-          );
-        }
-      },
     );
   }
 }
