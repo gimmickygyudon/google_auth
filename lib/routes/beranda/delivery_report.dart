@@ -27,7 +27,7 @@ class _ReportDeliveryWidgetState extends State<ReportDeliveryWidget> {
   late String date;
   late Future<DeliveryOrder> _reportDelivery;
 
-  List<double> total = List.generate(3, (index) => 0.0);
+  late DeliveryOrder deliveryOrder;
   List<String> percent = List.generate(2, (index) => '0.0');
 
   @override
@@ -106,23 +106,18 @@ class _ReportDeliveryWidgetState extends State<ReportDeliveryWidget> {
   }
 
   DeliveryOrder defineValueTonase({required Map value}) {
-    total[0] = double.parse(value['realisasi']);
-    total[1] = double.parse(value['outstanding']);
-    total[2] = 500.0;
+    deliveryOrder = DeliveryOrder.toObject(value);
 
-    percent[0] = (double.parse(value['realisasi']) / total[2] * 100).toStringAsFixed(2);
-    percent[1] = (double.parse(value['outstanding']) / total[2] * 100).toStringAsFixed(2);
+    // FIXME: DeliveryOrder Percentage not Using Class Object
+    percent[0] = (double.parse(value['realisasi']) / deliveryOrder.target * 100).toStringAsFixed(2);
+    percent[1] = (double.parse(value['outstanding']) / deliveryOrder.target * 100).toStringAsFixed(2);
     setState(() => isOffline = false);
-    return DeliveryOrder(
-      tonage: total[0],
-      outstanding_tonage: total[1],
-      target: total[2]
-    );
+    return deliveryOrder;
   }
 
   Future<DeliveryOrder> defineError() async {
     setState(() => isOffline = true);
-    return const DeliveryOrder(tonage: 99.9, outstanding_tonage: 99.9, target: 99.9);
+    return DeliveryOrder(tonage: Tonage(weight: 99.9), outstanding_tonage: Outstanding(weight: 99.9), target: 99.9);
   }
 
   @override
@@ -283,11 +278,7 @@ class _ReportDeliveryWidgetState extends State<ReportDeliveryWidget> {
                                         padding: const EdgeInsets.only(top: 20),
                                         child: DeliveryChartWidget(
                                           showOutstanding: showOutstanding,
-                                          DeliveryOrder(
-                                            tonage: total[0],
-                                            outstanding_tonage: total[1],
-                                            target: total[2]
-                                          )
+                                          deliveryOrder: deliveryOrder
                                         )
                                       ),
                                     ),
@@ -310,14 +301,14 @@ class _ReportDeliveryWidgetState extends State<ReportDeliveryWidget> {
                                           crossAxisAlignment: CrossAxisAlignment.end,
                                           children: [
                                             ChipSmall(
-                                              bgColor: DeliveryOrder.description(context: context)[0]['color'],
+                                              bgColor: Theme.of(context).colorScheme.primary,
                                               label: '${percent[0]} %',
                                               labelColor: Theme.of(context).colorScheme.surface
                                             ),
                                             Visibility(
                                               visible: showOutstanding,
                                               child: ChipSmall(
-                                                bgColor: DeliveryOrder.description(context: context)[1]['color'],
+                                                bgColor: Theme.of(context).colorScheme.inversePrimary,
                                                 label: '${percent[1]} %',
                                                 labelColor: Theme.of(context).colorScheme.inverseSurface
                                               ),
@@ -332,49 +323,25 @@ class _ReportDeliveryWidgetState extends State<ReportDeliveryWidget> {
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: <Widget>[
-                                  for (var i = 0; i < total.length; i++)
-                                  AnimatedSize(
-                                    curve: Curves.ease,
-                                    duration: const Duration(milliseconds: 200),
-                                    child: SizedBox(
-                                      height: (i != 1 || showOutstanding) ? null : 0,
-                                      child: Column(
-                                        children: [
-                                          Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Expanded(
-                                                flex: 3,
-                                                child: Row(
-                                                  children: [
-                                                    Container(
-                                                      height: 14,
-                                                      width: 14,
-                                                      decoration: BoxDecoration(
-                                                        color: DeliveryOrder.description(context: context)[i]['color'],
-                                                        borderRadius: BorderRadius.circular(4)
-                                                      ),
-                                                    ),
-                                                    const SizedBox(width: 8),
-                                                    Text(DeliveryOrder.description(context: context)[i]['name'], style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                                      letterSpacing: 0
-                                                    )),
-                                                  ],
-                                                ),
-                                              ),
-                                              Padding(
-                                                padding: const EdgeInsets.only(right: 8),
-                                                child: Text('${total[i]} Ton', style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                                  letterSpacing: 0
-                                                )),
-                                              ),
-                                              Icon(Icons.bar_chart, size: 16, color: DeliveryOrder.description(context: context)[i]['color'])
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  )
+                                  ListDeliveryOrder(
+                                    deliveryOrder: deliveryOrder,
+                                    color: Theme.of(context).colorScheme.primary,
+                                    name: deliveryOrder.tonage.name,
+                                    weight: deliveryOrder.tonage.weight,
+                                  ),
+                                  ListDeliveryOrder(
+                                    deliveryOrder: deliveryOrder,
+                                    color: Theme.of(context).colorScheme.inversePrimary,
+                                    name: deliveryOrder.outstanding_tonage.name,
+                                    weight: deliveryOrder.outstanding_tonage.weight,
+                                    visible: showOutstanding
+                                  ),
+                                  ListDeliveryOrder(
+                                    deliveryOrder: deliveryOrder,
+                                    color: Theme.of(context).colorScheme.outlineVariant,
+                                    name: 'Target',
+                                    weight: deliveryOrder.target,
+                                  ),
                                 ]
                               )
                             ],
@@ -409,6 +376,62 @@ class _ReportDeliveryWidgetState extends State<ReportDeliveryWidget> {
               );
             }
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class ListDeliveryOrder extends StatelessWidget {
+  const ListDeliveryOrder({super.key, required this.deliveryOrder, required this.color, required this.name, required this.weight, this.visible});
+
+  final DeliveryOrder deliveryOrder;
+  final Color color;
+  final String name;
+  final double weight;
+  final bool? visible;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedSize(
+      curve: Curves.ease,
+      duration: const Duration(milliseconds: 200),
+      child: SizedBox(
+        height: visible == false ? 0 : null,
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: Row(
+                    children: [
+                      Container(
+                        height: 14,
+                        width: 14,
+                        decoration: BoxDecoration(
+                          color: color,
+                          borderRadius: BorderRadius.circular(4)
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(name, style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        letterSpacing: 0
+                      )),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: Text('$weight Ton', style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    letterSpacing: 0
+                  )),
+                ),
+                Icon(Icons.bar_chart, size: 16, color: color)
+              ],
+            ),
+          ],
         ),
       ),
     );

@@ -53,7 +53,7 @@ class _DetailReportRouteState extends State<DetailReportRoute> {
   }
 
   Future<DeliveryOrder> defineError() async {
-    return await defineValueTonase(value: { 'realisasi': '0.0', 'outstanding': '0.0', 'realisasi_count': 0, 'outstanding_count': 0})
+    return await defineValueTonase(value: {'realisasi': '0.0', 'outstanding': '0.0', 'realisasi_count': 0, 'outstanding_count': 0})
     .whenComplete(() => setState(() => noData = true));
   }
 
@@ -64,8 +64,8 @@ class _DetailReportRouteState extends State<DetailReportRoute> {
     total = 500.0;
 
     return DeliveryOrder(
-      tonage: realisasi,
-      outstanding_tonage: outstanding,
+      tonage: Tonage(weight: realisasi),
+      outstanding_tonage: Outstanding(weight: outstanding),
       target: total
     );
   }
@@ -199,9 +199,9 @@ class _DetailReportRouteState extends State<DetailReportRoute> {
                         );
                       },
                       child: POBarChart(
-                        sectors: DeliveryOrder(
-                          tonage: realisasi,
-                          outstanding_tonage: outstanding,
+                        deliveryReport: DeliveryOrder(
+                          tonage: Tonage(weight: realisasi),
+                          outstanding_tonage: Outstanding(weight: outstanding),
                           target: total
                         ),
 

@@ -469,10 +469,10 @@ class CreditDueChartState extends State<CreditDueChart> {
 
 
 class DeliveryChartWidget extends StatelessWidget {
-  final DeliveryOrder sectors;
+  final DeliveryOrder deliveryOrder;
   final bool showOutstanding;
 
-  const DeliveryChartWidget(this.sectors, {Key? key, required this.showOutstanding}) : super(key: key);
+  const DeliveryChartWidget({Key? key, required this.showOutstanding, required this.deliveryOrder}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -482,7 +482,7 @@ class DeliveryChartWidget extends StatelessWidget {
         swapAnimationCurve: Curves.easeOutQuart,
         swapAnimationDuration: const Duration(milliseconds: 800),
         PieChartData(
-          sections: _chartSections(context, sectors),
+          sections: _chartSections(context, deliveryOrder),
           centerSpaceRadius: 45.0,
         )
       )
@@ -491,7 +491,7 @@ class DeliveryChartWidget extends StatelessWidget {
 
   List<PieChartSectionData> _chartSections(BuildContext context, DeliveryOrder sectors) {
     final List<PieChartSectionData> list = [];
-    final List sectorsList = [sectors.tonage, sectors.outstanding_tonage, (sectors.target - sectors.tonage < 0.0 ? 0.0 : sectors.target - sectors.tonage)];
+    final List sectorsList = [sectors.tonage.weight, sectors.outstanding_tonage.weight, (sectors.target - sectors.tonage.weight < 0.0 ? 0.0 : sectors.target - sectors.tonage.weight)];
 
     for (var i = 0; i < sectorsList.length; i++) {
       const double radius = 35.0;
@@ -515,11 +515,11 @@ class POBarChart extends StatefulWidget {
     required this.dark, required this.normal, required this.light,
     required this.titlebottom,
     required this.colors, required this.borderRadius,
-    required this.sectors,
+    required this.deliveryReport,
     required this.showOutstanding
   });
 
-  final DeliveryOrder sectors;
+  final DeliveryOrder deliveryReport;
 
   final Color dark;
   final Color normal;
@@ -647,7 +647,7 @@ class POBarChartState extends State<POBarChart> {
                     ),
                     groupsSpace: barsSpace,
                     barGroups: getData(
-                      sectors: widget.sectors,
+                      sectors: widget.deliveryReport,
                       barsWidth: barsWidth,
                       barsSpace: barsSpace,
                       light: widget.light,
@@ -680,7 +680,7 @@ class POBarChartState extends State<POBarChart> {
                         )),
                       ],
                     ),
-                    Text('${widget.sectors.tonage}', style: Theme.of(context).textTheme.labelLarge)
+                    Text('${widget.deliveryReport.tonage}', style: Theme.of(context).textTheme.labelLarge)
                   ],
                 ),
               ),
@@ -704,7 +704,7 @@ class POBarChartState extends State<POBarChart> {
                                   height: 2,
                                   letterSpacing: 0
                                 )),
-                                Text('${widget.sectors.outstanding_tonage}', style: Theme.of(context).textTheme.labelLarge)
+                                Text('${widget.deliveryReport.outstanding_tonage}', style: Theme.of(context).textTheme.labelLarge)
                               ],
                             ),
                           ),
@@ -728,7 +728,7 @@ class POBarChartState extends State<POBarChart> {
                           height: 2,
                           letterSpacing: 0
                         )),
-                        Text('${widget.sectors.target}', style: Theme.of(context).textTheme.labelLarge)
+                        Text('${widget.deliveryReport.target}', style: Theme.of(context).textTheme.labelLarge)
                       ],
                     ),
                   ),
@@ -758,9 +758,9 @@ class POBarChartState extends State<POBarChart> {
           BarChartRodData(
             color: Colors.transparent,
             borderSide: BorderSide(color: widget.dark),
-            toY: sectors.tonage,
+            toY: sectors.tonage.weight,
             rodStackItems: [
-              BarChartRodStackItem(0, sectors.tonage, widget.dark),
+              BarChartRodStackItem(0, sectors.tonage.weight, widget.dark),
             ],
             borderRadius: borderRadius,
             width: barsWidth,
@@ -774,9 +774,9 @@ class POBarChartState extends State<POBarChart> {
           BarChartRodData(
             color: Colors.transparent,
             borderSide: BorderSide(color: widget.normal),
-            toY: showOutstanding ? sectors.outstanding_tonage : 0,
+            toY: showOutstanding ? sectors.outstanding_tonage.weight : 0,
             rodStackItems: [
-              BarChartRodStackItem(0, sectors.outstanding_tonage, widget.normal),
+              BarChartRodStackItem(0, sectors.outstanding_tonage.weight, widget.normal),
             ],
             borderRadius: borderRadius,
             width: showOutstanding ? barsWidth : 0,

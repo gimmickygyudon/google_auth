@@ -157,9 +157,25 @@ class Customer extends Equatable {
   }
 }
 
+class Tonage {
+  final double weight;
+  final String name = 'Realisasi';
+
+  Tonage({required this.weight});
+}
+
+class Outstanding {
+  final double weight;
+  final String name = 'Outstanding';
+
+  Outstanding({required this.weight});
+}
+
 class DeliveryOrder {
   final int? id_ocst;
-  final double tonage, outstanding_tonage, target;
+  final Tonage tonage;
+  final Outstanding outstanding_tonage;
+  final double target;
 
   const DeliveryOrder({
     this.id_ocst,
@@ -167,6 +183,14 @@ class DeliveryOrder {
     required this.outstanding_tonage,
     required this.target,
   });
+
+  static DeliveryOrder toObject(Map value) {
+    return DeliveryOrder(
+      tonage: Tonage(weight: double.parse(value['realisasi'])),
+      outstanding_tonage: Outstanding(weight: double.parse(value['outstanding'])),
+      target: 1000.0 // FIXME: Target Value on Database Aware
+    );
+  }
 
   static List<Map> description({required BuildContext context}) => [
     {
@@ -210,6 +234,7 @@ class DeliveryOrder {
     return double.parse(calculate);
   }
 }
+
 
 class CreditDueReport {
   final int? id_ocst;
