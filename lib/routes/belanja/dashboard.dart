@@ -26,7 +26,7 @@ class _BelanjaRouteState extends State<BelanjaRoute>  with AutomaticKeepAliveCli
 
   @override
   void initState() {
-    brand = 'Indostar';
+    brand = 'BINTANG';
     _getItems = Item.getItems(brand: brand);
     super.initState();
   }

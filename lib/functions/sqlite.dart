@@ -512,17 +512,35 @@ class Cart {
   }
 }
 
+class ItemGroup {
+  final String brn_group;
+  final int id_brn1;
+  final String description;
+
+  const ItemGroup({required this.id_brn1, required this.description, required this.brn_group});
+
+  ItemGroup toObject(Map value) {
+    return ItemGroup(
+      id_brn1: value['id_brn1'],
+      description: value['description'],
+      brn_group: value['brn_group']
+    );
+  }
+}
+
 class Item {
   final String id_oitm;
   final String item_description;
   final String spesification;
   final String weight;
+  final ItemGroup item_group;
 
-  Item({
+  const Item({
     required this.id_oitm,
     required this.item_description,
     required this.spesification,
-    required this.weight
+    required this.weight,
+    required this.item_group
   });
 
   Map<String, dynamic> toMap() {
@@ -531,63 +549,82 @@ class Item {
       'item_description': item_description,
       'spesification': spesification,
       'weight': weight,
+      'item_group': item_group,
     };
   }
 
-  // TODO: Cachce Brands Item -> Get the Names From Database
-  static Map<String, AsyncMemoizer<List?>> listItemsMemoizer =
-  {
-    'Indostar': AsyncMemoizer<List?>(),
-    'ECO': AsyncMemoizer<List?>()
-  };
+  static Map<String, AsyncMemoizer<List?>> itemsMemoizer = {};
+  static List<ItemGroup> itemGroups = List.empty(growable: true);
+
+  static Future<Map<String, AsyncMemoizer<List?>>> itemGroupMemoizer() async {
+    if (itemsMemoizer.isEmpty && itemGroups.isEmpty) {
+      await SQL.retrieveAll(api: 'sim/item/name').then((value) {
+        for (Map itemGroup in value) {
+          final item = <String, AsyncMemoizer<List?>>{itemGroup['brn_group']: AsyncMemoizer<List?>()};
+          itemsMemoizer.addEntries(item.entries);
+
+          itemGroups.add(
+            ItemGroup(
+              id_brn1: itemGroup['id_brn1'],
+              description: itemGroup['description'],
+              brn_group: itemGroup['brn_group']
+            )
+          );
+        }
+      });
+    }
+
+    return itemsMemoizer;
+  }
 
   static Future<List?> getItems({required String brand}) {
-    return listItemsMemoizer[brand]!.runOnce(() {
-      FutureOr<List?> list = fetchItems(brand: brand);
-      return list;
-    })
-    .onError((error, stackTrace) {
-      return fetchItems(brand: brand);
-    })
-    .then((value) {
-      if (value == null) {
+    return itemGroupMemoizer().then((itemsMemoizer) {
+      return itemsMemoizer[brand.toUpperCase()]!.runOnce(() {
+        FutureOr<List?> list = fetchItems(brand: brand);
+        return list;
+      })
+      .onError((error, stackTrace) {
         return fetchItems(brand: brand);
-      }
+      })
+      .then((value) {
+        if (value == null) {
+          return fetchItems(brand: brand);
+        }
 
-      return value;
+        return value;
+      });
     });
+  }
+
+  static FutureOr<List?> fetchItems({required String brand}) {
+    var brandGroups = itemGroups.where((element) => element.brn_group == brand.toUpperCase()).toList();
+    List listParam = List.empty(growable: true);
+
+    for (ItemGroup element in brandGroups) {
+      listParam.add(element.id_brn1);
+    }
+
+    String? param = listParam.join(',');
+    print(param);
+    return SQL.retrieveJoin(api: 'sim/item', param: param, query: 'id_brn1');
   }
 
   static Map<String, AsyncMemoizer<Map>> itemMemoizer = {};
   static Future<Map> getItem({required String id_oitm}) {
     if (itemMemoizer.containsKey(id_oitm)) {
       return itemMemoizer[id_oitm]!.runOnce(() {
-        return SQL.retrieve(api: 'sim/oitm', query: 'id_oitm=$id_oitm').then((value) {
+        return SQL.retrieve(api: 'sim/item/description', query: 'id_oitm=$id_oitm').then((value) {
           return value;
         });
       });
     } else {
       itemMemoizer.addAll({id_oitm: AsyncMemoizer<Map>()});
       return itemMemoizer[id_oitm]!.runOnce(() {
-        return SQL.retrieve(api: 'sim/oitm', query: 'id_oitm=$id_oitm').then((value) {
+        return SQL.retrieve(api: 'sim/item/description', query: 'id_oitm=$id_oitm').then((value) {
           return value;
         });
       });
     }
-  }
-
-  static FutureOr<List?> fetchItems({required String brand}) {
-    String? param;
-    switch (brand.toUpperCase()) {
-      case 'INDOSTAR':
-        param = '9,10,11,23,29,30';
-        break;
-      case 'ECO':
-        param = '4,5,6,42,43,52';
-      default:
-    }
-
-    return SQL.retrieveJoin(api: 'sim/brn1', param: param, query: 'id_brn1');
   }
 
   static String defineName(String value) {
@@ -595,11 +632,11 @@ class Item {
   }
 
   static String defineDimension(String value) {
-    return value.replaceAll('IN ', '').replaceAll('PP', '').replaceAll('PM', '').replaceAll('BES', '').replaceAll('EC', '').trim();
+    return value.replaceAll('IN ', '').replaceAll('PP', '').replaceAll('PM', '').replaceAll('BES', '').replaceAll('EC', '').replaceAll('BT', '').trim();
   }
 
   static List splitDimension(String value) {
-    String string = value.replaceAll('IN ', '').replaceAll('PP', '').replaceAll('PM', '').replaceAll('BES', '').replaceAll('EC', '').trim();
+    String string = value.replaceAll('IN ', '').replaceAll('PP', '').replaceAll('PM', '').replaceAll('BES', '').replaceAll('EC', '').replaceAll('BT', '').trim();
     return string.split(' x ');
   }
 

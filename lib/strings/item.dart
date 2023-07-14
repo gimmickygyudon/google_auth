@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 
 class ItemDescription{
 
+  // FIXME: USE STRING.CONTAINS GETTER
   static String getImage(String value) {
     String string = value.toUpperCase().replaceAll('INDOSTAR', '').replaceAll('ECO', '').trim();
+
     switch (string) {
       case 'IMPERIAL':
         return 'assets/Indostar Board Imperial.png';
