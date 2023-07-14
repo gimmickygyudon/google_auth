@@ -76,7 +76,6 @@ class _DropdownCustomerSelectState extends State<DropdownCustomerSelect> {
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.background,
               borderRadius: BorderRadius.circular(25.7),
-              border: Border.all(color: Theme.of(context).colorScheme.primary)
             ),
             child: const LinearProgressIndicator(backgroundColor: Colors.transparent)
           );
@@ -87,7 +86,6 @@ class _DropdownCustomerSelectState extends State<DropdownCustomerSelect> {
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.primary,
               borderRadius: BorderRadius.circular(25.7),
-              border: Border.all(color: Theme.of(context).colorScheme.primary)
             ),
             child: ValueListenableBuilder(
               valueListenable: Customer.defaultCustomer,

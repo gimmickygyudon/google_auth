@@ -8,6 +8,7 @@ import 'package:google_auth/routes/beranda/dashboard.dart';
 import 'package:google_auth/routes/gallery/dashboard.dart';
 import 'package:google_auth/routes/keluhan/dashboard.dart';
 import 'package:google_auth/styles/theme.dart';
+import 'package:google_auth/widgets/dropdown.dart';
 import 'package:google_auth/widgets/navigationbar.dart';
 import 'package:google_auth/widgets/cart.dart';
 import 'package:google_auth/widgets/notification.dart';
@@ -64,26 +65,6 @@ class _DashboardRouteState extends State<DashboardRoute> {
       const KeluhanRoute(),
       Container(),
     ];
-  }
-
-  Widget setTitle() {
-    switch (currentPage) {
-      default:
-        return Row(
-          children: [
-            IconButton(
-              style: const ButtonStyle(visualDensity: VisualDensity.compact),
-              onPressed: () {}, icon: const Icon(Icons.search), color: Colors.white
-            ),
-            const SizedBox(width: 4),
-            Text('Hi, ${currentUser['user_name']}',
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                color: Colors.white
-              )
-            ),
-          ],
-        );
-    }
   }
 
   void changePage(int page) {
@@ -181,7 +162,32 @@ class _DashboardRouteState extends State<DashboardRoute> {
                 )
               )
             ),
-            title: setTitle(),
+            title: Stack(
+              children: [
+                Visibility(
+                  visible: currentPage == 0 || currentPage == 2 ? false : true,
+                  child: Row(
+                    children: [
+                      IconButton(
+                        style: const ButtonStyle(visualDensity: VisualDensity.compact),
+                        onPressed: () {}, icon: const Icon(Icons.search), color: Colors.white
+                      ),
+                      const SizedBox(width: 4),
+                      Text('Hi, ${currentUser['user_name']}',
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          color: Colors.white
+                        )
+                      ),
+                    ],
+                  ),
+                ),
+                Visibility(
+                  maintainState: true,
+                  visible: currentPage == 0 || currentPage == 2 ? true : false,
+                  child: const DropdownCustomerSelect()
+                )
+              ],
+            ),
             titleSpacing: 12,
             actions: const [
               CartWidget(color: Colors.white),

@@ -470,8 +470,9 @@ class CreditDueChartState extends State<CreditDueChart> {
 
 class DeliveryChartWidget extends StatelessWidget {
   final DeliveryOrder sectors;
+  final bool showOutstanding;
 
-  const DeliveryChartWidget(this.sectors, {Key? key}) : super(key: key);
+  const DeliveryChartWidget(this.sectors, {Key? key, required this.showOutstanding}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -479,7 +480,7 @@ class DeliveryChartWidget extends StatelessWidget {
       aspectRatio: 1.0,
       child: PieChart(
         swapAnimationCurve: Curves.easeOutQuart,
-        swapAnimationDuration: const Duration(milliseconds: 600),
+        swapAnimationDuration: const Duration(milliseconds: 800),
         PieChartData(
           sections: _chartSections(context, sectors),
           centerSpaceRadius: 45.0,
@@ -493,7 +494,7 @@ class DeliveryChartWidget extends StatelessWidget {
     final List sectorsList = [sectors.tonage, sectors.outstanding_tonage, (sectors.target - sectors.tonage < 0.0 ? 0.0 : sectors.target - sectors.tonage)];
 
     for (var i = 0; i < sectorsList.length; i++) {
-      const double radius = 30.0;
+      const double radius = 35.0;
       final data = PieChartSectionData(
         color: DeliveryOrder.description(context: context)[i]['color'],
         value: sectorsList[i],
@@ -501,7 +502,7 @@ class DeliveryChartWidget extends StatelessWidget {
         showTitle: false,
         title: DeliveryOrder.description(context: context)[i]['name'],
       );
-      list.add(data);
+      if (i != 1 || showOutstanding) list.add(data);
     }
     return list;
   }
@@ -511,11 +512,11 @@ class DeliveryChartWidget extends StatelessWidget {
 class POBarChart extends StatefulWidget {
   const POBarChart({
     super.key,
-    required this.dark,
-    required this.normal,
-    required this.light,
+    required this.dark, required this.normal, required this.light,
     required this.titlebottom,
-    required this.colors, required this.borderRadius, required this.sectors
+    required this.colors, required this.borderRadius,
+    required this.sectors,
+    required this.showOutstanding
   });
 
   final DeliveryOrder sectors;
@@ -528,12 +529,18 @@ class POBarChart extends StatefulWidget {
   final List titlebottom;
   final BorderRadius borderRadius;
 
+  final bool showOutstanding;
+
   @override
   State<StatefulWidget> createState() => POBarChartState();
 }
 
 class POBarChartState extends State<POBarChart> {
   Widget bottomTitles(double value, TitleMeta meta) {
+    if (value.toInt() == 1 && widget.showOutstanding == false) {
+      return Container();
+    }
+
     TextStyle? style = Theme.of(context).textTheme.bodySmall?.copyWith(
       fontSize: 9,
       letterSpacing: 0,
@@ -644,7 +651,9 @@ class POBarChartState extends State<POBarChart> {
                       barsWidth: barsWidth,
                       barsSpace: barsSpace,
                       light: widget.light,
-                      borderRadius: widget.borderRadius
+                      borderRadius: widget.borderRadius,
+
+                      showOutstanding: widget.showOutstanding
                     ),
                   ),
                 );
@@ -655,7 +664,7 @@ class POBarChartState extends State<POBarChart> {
         const SizedBox(height: 20),
         IntrinsicHeight(
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
@@ -675,28 +684,40 @@ class POBarChartState extends State<POBarChart> {
                   ],
                 ),
               ),
-              Row(
+              Stack(
                 children: [
-                  const VerticalDivider(indent: 8, endIndent: 8),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(widget.titlebottom[1], style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.secondary,
-                          height: 2,
-                          letterSpacing: 0
-                        )),
-                        Text('${widget.sectors.outstanding_tonage}', style: Theme.of(context).textTheme.labelLarge)
-                      ],
+                  AnimatedSize(
+                    duration: const Duration(milliseconds: 400),
+                    curve: Curves.ease,
+                    child: SizedBox(
+                      width: widget.showOutstanding ? null : 0,
+                      child: Row(
+                        children: [
+                          const VerticalDivider(indent: 8, endIndent: 8),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(widget.titlebottom[1], style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: Theme.of(context).colorScheme.secondary,
+                                  height: 2,
+                                  letterSpacing: 0
+                                )),
+                                Text('${widget.sectors.outstanding_tonage}', style: Theme.of(context).textTheme.labelLarge)
+                              ],
+                            ),
+                          ),
+                          const VerticalDivider(indent: 8, endIndent: 8),
+                        ],
+                      ),
                     ),
                   ),
+                  if (widget.showOutstanding == false) const VerticalDivider(indent: 8, endIndent: 8),
                 ],
               ),
               Row(
                 children: [
-                  const VerticalDivider(indent: 8, endIndent: 8),
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
                     child: Column(
@@ -726,6 +747,8 @@ class POBarChartState extends State<POBarChart> {
     required Color light,
     required BorderRadius borderRadius,
     required DeliveryOrder sectors,
+
+    required bool showOutstanding
   }) {
     return [
       BarChartGroupData(
@@ -746,17 +769,17 @@ class POBarChartState extends State<POBarChart> {
       ),
       BarChartGroupData(
         x: 1,
-        barsSpace: barsSpace,
+        barsSpace: showOutstanding ? barsSpace : null,
         barRods: [
           BarChartRodData(
             color: Colors.transparent,
             borderSide: BorderSide(color: widget.normal),
-            toY: sectors.outstanding_tonage,
+            toY: showOutstanding ? sectors.outstanding_tonage : 0,
             rodStackItems: [
               BarChartRodStackItem(0, sectors.outstanding_tonage, widget.normal),
             ],
             borderRadius: borderRadius,
-            width: barsWidth,
+            width: showOutstanding ? barsWidth : 0,
           ),
         ],
       ),

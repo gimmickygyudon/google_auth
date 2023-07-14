@@ -20,7 +20,7 @@ class ReportDeliveryWidget extends StatefulWidget {
 }
 
 class _ReportDeliveryWidgetState extends State<ReportDeliveryWidget> {
-  bool isOffline = false;
+  bool isOffline = false, showOutstanding = true;
 
   late List<String> datesRange;
   late String dateRange;
@@ -61,6 +61,7 @@ class _ReportDeliveryWidgetState extends State<ReportDeliveryWidget> {
       switch (dateRange.toUpperCase()) {
         case 'MINGGU INI':
           date = '${getCurrentStartEndWeek(DateTime.now(), format: 'dd MMMM').keys.first}  -  ${getCurrentStartEndWeek(DateTime.now(), format: 'dd MMMM').values.first}';
+          showOutstanding = false;
           deliveryOrder = DeliveryOrder.retrieveWeek(id_ocst: id_ocst, date: DateTime.now());
         break;
 
@@ -68,6 +69,7 @@ class _ReportDeliveryWidgetState extends State<ReportDeliveryWidget> {
           LastDateFrom lastDate = LastDateFrom.months(interval: 0);
 
           date = DateFormat('MMMM ''yyyy', 'id').format(lastDate.to);
+          showOutstanding = true;
           deliveryOrder = DeliveryOrder.retrieveLastMonth(id_ocst: id_ocst, from: lastDate.from, to: lastDate.to);
         break;
 
@@ -75,6 +77,7 @@ class _ReportDeliveryWidgetState extends State<ReportDeliveryWidget> {
           LastDateFrom lastDate = LastDateFrom.months(interval: 3);
 
           date = '${DateFormat('MMMM ''yyyy', 'id').format(lastDate.from)}  -  ${DateFormat('MMMM ''yyyy', 'id').format(lastDate.to)}';
+          showOutstanding = false;
           deliveryOrder = DeliveryOrder.retrieveLastMonth(id_ocst: id_ocst, from: lastDate.from, to: lastDate.to);
         break;
 
@@ -82,6 +85,7 @@ class _ReportDeliveryWidgetState extends State<ReportDeliveryWidget> {
           LastDateFrom lastDate = LastDateFrom.months(interval: 6);
 
           date = '${DateFormat('MMMM ''yyyy', 'id').format(lastDate.from)}  -  ${DateFormat('MMMM ''yyyy', 'id').format(lastDate.to)}';
+          showOutstanding = false;
           deliveryOrder = DeliveryOrder.retrieveLastMonth(id_ocst: id_ocst, from: lastDate.from, to: lastDate.to);
         break;
 
@@ -124,7 +128,7 @@ class _ReportDeliveryWidgetState extends State<ReportDeliveryWidget> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 360,
+      height: 320,
       width: null,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
@@ -276,8 +280,9 @@ class _ReportDeliveryWidgetState extends State<ReportDeliveryWidget> {
                                   children: [
                                     Center(
                                       child: Padding(
-                                        padding: const EdgeInsets.only(top: 30),
+                                        padding: const EdgeInsets.only(top: 20),
                                         child: DeliveryChartWidget(
+                                          showOutstanding: showOutstanding,
                                           DeliveryOrder(
                                             tonage: total[0],
                                             outstanding_tonage: total[1],
@@ -309,10 +314,13 @@ class _ReportDeliveryWidgetState extends State<ReportDeliveryWidget> {
                                               label: '${percent[0]} %',
                                               labelColor: Theme.of(context).colorScheme.surface
                                             ),
-                                            ChipSmall(
-                                              bgColor: DeliveryOrder.description(context: context)[1]['color'],
-                                              label: '${percent[1]} %',
-                                              labelColor: Theme.of(context).colorScheme.inverseSurface
+                                            Visibility(
+                                              visible: showOutstanding,
+                                              child: ChipSmall(
+                                                bgColor: DeliveryOrder.description(context: context)[1]['color'],
+                                                label: '${percent[1]} %',
+                                                labelColor: Theme.of(context).colorScheme.inverseSurface
+                                              ),
                                             ),
                                           ],
                                         ),
@@ -325,40 +333,47 @@ class _ReportDeliveryWidgetState extends State<ReportDeliveryWidget> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: <Widget>[
                                   for (var i = 0; i < total.length; i++)
-                                  Column(
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  AnimatedSize(
+                                    curve: Curves.ease,
+                                    duration: const Duration(milliseconds: 200),
+                                    child: SizedBox(
+                                      height: (i != 1 || showOutstanding) ? null : 0,
+                                      child: Column(
                                         children: [
-                                          Expanded(
-                                            flex: 3,
-                                            child: Row(
-                                              children: [
-                                                Container(
-                                                  height: 14,
-                                                  width: 14,
-                                                  decoration: BoxDecoration(
-                                                    color: DeliveryOrder.description(context: context)[i]['color'],
-                                                    borderRadius: BorderRadius.circular(4)
-                                                  ),
+                                          Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Expanded(
+                                                flex: 3,
+                                                child: Row(
+                                                  children: [
+                                                    Container(
+                                                      height: 14,
+                                                      width: 14,
+                                                      decoration: BoxDecoration(
+                                                        color: DeliveryOrder.description(context: context)[i]['color'],
+                                                        borderRadius: BorderRadius.circular(4)
+                                                      ),
+                                                    ),
+                                                    const SizedBox(width: 8),
+                                                    Text(DeliveryOrder.description(context: context)[i]['name'], style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                                      letterSpacing: 0
+                                                    )),
+                                                  ],
                                                 ),
-                                                const SizedBox(width: 8),
-                                                Text(DeliveryOrder.description(context: context)[i]['name'], style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                              ),
+                                              Padding(
+                                                padding: const EdgeInsets.only(right: 8),
+                                                child: Text('${total[i]} Ton', style: Theme.of(context).textTheme.labelSmall?.copyWith(
                                                   letterSpacing: 0
                                                 )),
-                                              ],
-                                            ),
+                                              ),
+                                              Icon(Icons.bar_chart, size: 16, color: DeliveryOrder.description(context: context)[i]['color'])
+                                            ],
                                           ),
-                                          Padding(
-                                            padding: const EdgeInsets.only(right: 8),
-                                            child: Text('${total[i]} Ton', style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                              letterSpacing: 0
-                                            )),
-                                          ),
-                                          Icon(Icons.bar_chart, size: 16, color: DeliveryOrder.description(context: context)[i]['color'])
                                         ],
                                       ),
-                                    ],
+                                    ),
                                   )
                                 ]
                               )
@@ -371,11 +386,8 @@ class _ReportDeliveryWidgetState extends State<ReportDeliveryWidget> {
                           removeLeft: true,
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.end,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            mainAxisAlignment: MainAxisAlignment.end,
                             children: [
-                              DropdownCustomerSelect(onChanged: () {
-                                setReportDelivery();
-                              }),
                               Align(
                                 alignment: Alignment.centerRight,
                                 child: TextButtonOpen(

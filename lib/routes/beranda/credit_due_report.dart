@@ -217,12 +217,31 @@ class _CreditDueWidgetState extends State<CreditDueWidget> {
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Badge(
+                                  double.parse(creditDueLastData!.umur_piutang) != 0
+                                  ? Badge(
                                     offset: const Offset(24, 1),
                                     backgroundColor: CreditDueReport.description(context)[1]['color'].withOpacity(0.1),
                                     label: Text(' ${double.parse(creditDueLastData!.umur_piutang).toStringAsFixed(0)} Hari ',
                                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
                                         color: CreditDueReport.description(context)[1]['color'],
+                                        fontSize: 8,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      NumberFormat.compactSimpleCurrency(locale: 'id-ID', decimalDigits: 2).format(double.parse(creditDueLastData!.balance_due)),
+                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 9
+                                      ),
+                                    ),
+                                  )
+                                  : Badge(
+                                    offset: const Offset(30, -2),
+                                    largeSize: 20,
+                                    backgroundColor: CreditDueReport.description(context)[0]['color'].withOpacity(0.1),
+                                    label: Text(' Hari Ini ',
+                                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                        color: CreditDueReport.description(context)[0]['color'],
                                         fontSize: 8,
                                       ),
                                     ),

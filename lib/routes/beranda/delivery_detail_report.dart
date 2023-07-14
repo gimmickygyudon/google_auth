@@ -23,7 +23,7 @@ class _DetailReportRouteState extends State<DetailReportRoute> {
   ValueNotifier<List<int>> count = ValueNotifier([0, 0]);
   late Future<DeliveryOrder> _deliveryOrder;
 
-  bool noData = false;
+  bool noData = false, showOutstanding = true ;
 
   @override
   void initState() {
@@ -36,6 +36,12 @@ class _DetailReportRouteState extends State<DetailReportRoute> {
 
     int month = Date.months.indexOf(Date.selectedMonth);
     if (id_ocst != null) {
+      if (Date.now.month == month + 1 && DateTime.now().year == int.parse(Date.selectedYears)) {
+        showOutstanding = true;
+      } else {
+        showOutstanding = false;
+      }
+
       return await DeliveryOrder.retrieveMonth(id_ocst: id_ocst, date: DateTime(int.parse(Date.selectedYears), month + 1)).then((value) async {
         return await defineValueTonase(value: value);
       })
@@ -114,26 +120,33 @@ class _DetailReportRouteState extends State<DetailReportRoute> {
                         builder: (context, count, child) {
                           return Row(
                             children: List.generate(count.length, (index) {
-                              return Row(
-                                children: [
-                                  Container(
-                                    height: 10,
-                                    width: 10,
-                                    decoration: BoxDecoration(
-                                      color: DeliveryOrder.description(context: context)[index]['color'],
-                                      borderRadius: BorderRadius.circular(2)
-                                    ),
+                              return AnimatedSize(
+                                curve: Curves.ease,
+                                duration: const Duration(milliseconds: 200),
+                                child: SizedBox(
+                                  width: (index != 1 || showOutstanding) ? null : 0,
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        height: 10,
+                                        width: 10,
+                                        decoration: BoxDecoration(
+                                          color: DeliveryOrder.description(context: context)[index]['color'],
+                                          borderRadius: BorderRadius.circular(2)
+                                        ),
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        count[index].toString(),
+                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                        fontSize: 9,
+                                        height: 0,
+                                        letterSpacing: 0
+                                      )),
+                                      const SizedBox(width: 8),
+                                    ],
                                   ),
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    count[index].toString(),
-                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    fontSize: 9,
-                                    height: 0,
-                                    letterSpacing: 0
-                                  )),
-                                  const SizedBox(width: 8),
-                                ],
+                                ),
                               );
                             }).toList(),
                           );
@@ -198,7 +211,9 @@ class _DetailReportRouteState extends State<DetailReportRoute> {
 
                         dark: DeliveryOrder.description(context: context)[0]['color'],
                         normal: DeliveryOrder.description(context: context)[1]['color'],
-                        light: DeliveryOrder.description(context: context)[2]['color']
+                        light: DeliveryOrder.description(context: context)[2]['color'],
+
+                        showOutstanding: showOutstanding,
                       ),
                     );
                   } else {
