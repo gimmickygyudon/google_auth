@@ -54,7 +54,6 @@ class Customer extends Equatable {
     if (jsonData != null) {
       Map jsondata = jsonDecode(jsonData);
 
-      // HACK: Validate Data Local and DB
       final Customer? data = await Customer.retrieve(id_ousr: currentUser['id_ousr']).then((customers) {
         if (customers.isEmpty) return null;
 
@@ -332,10 +331,23 @@ class PaymentDueData {
   final String invoice_code;
   final String payment_date;
   final String total_payment;
+  final String payment_duration;
 
   const PaymentDueData({
     required this.invoice_code,
     required this.payment_date,
-    required this.total_payment
+    required this.total_payment,
+    required this.payment_duration
   });
+
+  static PaymentDueData toObject(Map value) {
+    var data = PaymentDueData(
+      invoice_code: value['invoice_code'],
+      payment_date: value['payment_date'],
+      payment_duration: value['payment_duration'].toString(),
+      total_payment: value['total_payment'],
+    );
+
+    return data;
+  }
 }

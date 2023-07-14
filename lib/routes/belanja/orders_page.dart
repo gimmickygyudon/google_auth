@@ -136,7 +136,6 @@ class _OrderPageState extends State<OrderPage> {
         AddressRoute.locations.value['locations'] = value;
       });
 
-      print(value);
       return value;
     });
   }
@@ -165,7 +164,6 @@ class _OrderPageState extends State<OrderPage> {
     });
   }
 
-  // TODO: Dirty Code Fix Duplicate Later
   void setCheckedList() {
     checkedItems = List.empty(growable: true);
     Cart.getItems().then((value) {
@@ -486,14 +484,7 @@ class _OrderHistoryPageState extends State<OrderHistoryPage> with AutomaticKeepA
   @override
   bool get wantKeepAlive => keepAlive;
 
-  void setKeepAlive(bool value) {
-    // FIXME: Loops prints ?
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      setState(() {
-        keepAlive = value;
-      });
-    });
-  }
+  void setKeepAlive(bool value) => WidgetsBinding.instance.addPostFrameCallback((_) => setState(() => keepAlive = value));
 
   @override
   Widget build(BuildContext context) {
@@ -651,8 +642,6 @@ class _ListOrderHistoryState extends State<ListOrderHistory> {
                             return FutureBuilder(
                               future: _getItem[index],
                               builder: (context, snapshot) {
-                                print(widget.item['POR1s'][index]['count']);
-                                // FIXME: variable naming
                                 String? count() {
                                   if (widget.item['POR1s'][index]['order_qty'] != null) {
                                     return widget.item['POR1s'][index]['order_qty'].toString();

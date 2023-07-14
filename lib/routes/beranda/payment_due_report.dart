@@ -109,11 +109,7 @@ class _PaymentDueWidgetState extends State<PaymentDueWidget> {
   definePaymentDue(Map value) {
     setState(() {
       var data = value['data'].map<PaymentDueData>((e) {
-        return PaymentDueData(
-          invoice_code: e['invoice_code'],
-          payment_date: e['payment_date'],
-          total_payment: e['total_payment']
-        );
+        return PaymentDueData.toObject(e);
       }).toList();
 
       paymentDueReport = PaymentDueReport(

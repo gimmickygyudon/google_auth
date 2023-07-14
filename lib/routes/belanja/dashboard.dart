@@ -17,7 +17,7 @@ class BelanjaRoute extends StatefulWidget {
   State<BelanjaRoute> createState() => _BelanjaRouteState();
 }
 
-List<Map> recommendItems = Item.recommenditems;
+List<Map> recommendItems = ItemDescription.recommenditems;
 
 class _BelanjaRouteState extends State<BelanjaRoute>  with AutomaticKeepAliveClientMixin {
   late Future _getItems;

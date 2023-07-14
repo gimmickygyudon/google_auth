@@ -589,7 +589,6 @@ class _AddAddressDialogState extends State<AddAddressDialog> {
               inputDecorationTheme: Themes.inputDecorationThemeForm(context: context)
             ),
             // TODO: Add Upload Photo Image
-            // FIXME: Janky Double Context
             child: AlertDialog(
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
               titleTextStyle: Theme.of(context).textTheme.titleLarge?.copyWith(

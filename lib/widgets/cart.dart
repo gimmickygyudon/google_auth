@@ -216,7 +216,7 @@ class CartListWidget extends StatelessWidget {
 
     int selectedIndex = item?['dimensions'].indexOf(item?['dimension']);
 
-    // TODO: may error in future
+    // FIXME: Assuming Item 'dimensions' and 'weights' has same index?
     List<String> spesifications = List.generate(item?['dimensions'].length, (index) {
       return '${item?['dimensions'][index] + '  •  *' + setWeight(weight: double.parse(item?['weights'][index]), count: double.parse(item?['count']))}';
     });

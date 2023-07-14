@@ -84,7 +84,7 @@ class _AddressAddRouteState extends State<AddressAddRoute> with WidgetsBindingOb
           if (distance.abs() >= 10.0) {
             return userLocation = await UserLocation.redefineLocationName(currentPosition);
           } else {
-            // TODO move this to class location
+            // FIXME: Use Class Location instead of Map
             return userLocation = await UserLocation.defineLocationName(currentPosition).then((value) {
               setState(() {
                 currentLocation = {
@@ -170,7 +170,7 @@ class _AddressAddRouteState extends State<AddressAddRoute> with WidgetsBindingOb
   }
 
   void setLocationValue({required String value, required int index}) {
-    // FIXME: bad coding
+    // FIXME: Location Steps Dropdown Dirty Code
     if (index == 4) {
       locations[index]['value'] = value;
     } else {

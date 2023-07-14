@@ -12,13 +12,13 @@ class Authentication {
   static Future<FirebaseApp> initializeFirebase() async {
     final firebaseApp = await Firebase.initializeApp();
     User? user = FirebaseAuth.instance.currentUser;
-    
+
     // User already Logged In
     if (user != null) {
       debugPrint(user.displayName);
     }
 
-    // TODO: DO THIS LATER (debug purpose)
+    // TODO: Google Authentication
     // Authentication.signOutGoogle();
     return firebaseApp;
   }
@@ -28,15 +28,15 @@ class Authentication {
     String? loginSession = prefs.getString('Login Session');
     Map? jsonData;
 
-    if (loginSession != '{}' && loginSession != null) {      
+    if (loginSession != '{}' && loginSession != null) {
       jsonData = jsonDecode(loginSession);
-      
+
       currentUser = currentUserFormat(
-        id_ousr: jsonData?['id_ousr'], 
-        login_type: jsonData?['login_type'], 
-        user_email: jsonData?['user_email'], 
-        user_name: jsonData?['user_name'], 
-        phone_number: jsonData?['phone_number'], 
+        id_ousr: jsonData?['id_ousr'],
+        login_type: jsonData?['login_type'],
+        user_email: jsonData?['user_email'],
+        user_name: jsonData?['user_name'],
+        phone_number: jsonData?['phone_number'],
         user_password: jsonData?['user_password']
       );
     }
@@ -52,7 +52,7 @@ class Authentication {
 
   static Future<void> signOut() async {
     final prefs = await SharedPreferences.getInstance();
-    
+
     initializeUser().then((value) {
       value?.containsValue('Google');
       signOutGoogle();
@@ -77,7 +77,7 @@ class Authentication {
         user = userCredential.user;
       } catch (e) {
         debugPrint(e.toString());
-      } 
+      }
     } else {
       final GoogleSignIn googleSignIn = GoogleSignIn();
 
@@ -104,7 +104,7 @@ class Authentication {
           } catch (e) {
               debugPrint('Error occurred using Google Sign In. Try again.');
               return null;
-          } 
+          }
         }
         return null;
       });

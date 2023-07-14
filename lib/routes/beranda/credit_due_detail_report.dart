@@ -297,30 +297,37 @@ class CreditDueTable extends DataTableSource {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  Badge(
-                    offset: const Offset(24, 1),
-                    label: Text(' ${double.parse(data![index].umur_piutang).toStringAsFixed(0)} Hari ',
-                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: due ? error : CreditDueReport.description(context)[1]['color'],
-                        fontSize: 8,
-                      ),
-                    ),
-                    backgroundColor: due ? CreditDueReport.description(context)[0]['color'].withOpacity(0.1) : CreditDueReport.description(context)[1]['color'].withOpacity(0.1),
-                    child: Text(data![index].due_date, style: TextStyle(
-                      color: due ? error : null,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 10,
-                    )),
-                  ),
-                ],
-              ),
+              Text(DateFormat('EEEE, dd MMMM ''yyyy', 'id').format(DateTime.parse(data![index].due_date)), style: TextStyle(
+                color: due ? error : null,
+                fontWeight: FontWeight.w500,
+                fontSize: 9,
+              )),
               const SizedBox(height: 4),
-              Text(data![index].invoice_code, style: TextStyle(
-                color: due ? CreditDueReport.description(context)[0]['color'] : Theme.of(context).colorScheme.secondary,
-                fontSize: 8,
-              ))
+              Container(
+                padding: const EdgeInsets.all(1),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(4),
+                  color: due
+                  ? CreditDueReport.description(context)[0]['color'].withOpacity(
+                    double.parse(data![index].umur_piutang) != 0
+                    ? 0.1
+                    : 1.0
+                  )
+                  : CreditDueReport.description(context)[1]['color'].withOpacity(0.1)
+                ),
+                child: Text(double.parse(data![index].umur_piutang) != 0
+                ? ' ${double.parse(data![index].umur_piutang).toStringAsFixed(0)} Hari '
+                : ' Hari Ini ',
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: due
+                    ? double.parse(data![index].umur_piutang) != 0
+                      ? error
+                      : Theme.of(context).colorScheme.surface
+                    : CreditDueReport.description(context)[1]['color'],
+                    fontSize: 8,
+                  ),
+                ),
+              ),
             ],
           )
         ),
@@ -335,10 +342,10 @@ class CreditDueTable extends DataTableSource {
                 fontSize: 10,
               )),
               const SizedBox(height: 2),
-              Text(NumberFormat.compactSimpleCurrency(locale: 'id-ID', decimalDigits: 0, name: '').format(double.parse(data![index].balance_due)), style: TextStyle(
-                color: due ? error.withOpacity(0.75) : Theme.of(context).colorScheme.secondary,
+              Text(data![index].invoice_code, style: TextStyle(
+                color: due ? CreditDueReport.description(context)[0]['color'] : Theme.of(context).colorScheme.secondary,
                 fontSize: 8,
-              )),
+              ))
             ],
           )
         ),

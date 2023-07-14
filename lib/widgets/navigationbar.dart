@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-// TODO: Depecrated Class
 class BottomNavigation extends StatefulWidget {
   const BottomNavigation({super.key, required this.currentPage, required this.pageController, required this.changePage});
 
@@ -13,7 +12,6 @@ class BottomNavigation extends StatefulWidget {
 }
 
 class _BottomNavigationState extends State<BottomNavigation> {
-  // TODO: move somewhere
   final List<Map<String, dynamic>> bottomMenu = [
     {
       'value': 0,
@@ -114,6 +112,7 @@ class _BottomNavigationState extends State<BottomNavigation> {
   }
 }
 
+// TODO: Depecrated Class
 class NavigationBarBottom extends StatefulWidget {
   const NavigationBarBottom({
     super.key,

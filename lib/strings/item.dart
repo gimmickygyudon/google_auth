@@ -1,10 +1,9 @@
-class ItemDescription{
+import 'package:flutter/material.dart';
 
-  // TODO: still on item description beacuse its still using local string
+class ItemDescription{
 
   static String getImage(String value) {
     String string = value.toUpperCase().replaceAll('INDOSTAR', '').replaceAll('ECO', '').trim();
-    // TODO: need diff sub category image
     switch (string) {
       case 'IMPERIAL':
         return 'assets/Indostar Board Imperial.png';
@@ -102,6 +101,108 @@ class ItemDescription{
         return '';
     }
   }
+
+  static const List<Map> recommenditems = [{
+    'name': 'Indostar',
+    'subitem': [
+      {
+        'name': 'Indostar Board',
+        'img': 'assets/Indostar Board.png',
+        'icon': 'assets/INDOSTAR LOGO POST.png',
+        'type': [
+          {
+            'name': 'Board Imperial',
+            'description': ItemDescription.imperial,
+            'diff': ['Tebal']
+          }, {
+            'name': 'Board Matric',
+            'description': ItemDescription.matric,
+            'diff': ['Tebal']
+          }, {
+            'name': 'Board Square',
+            'description': ItemDescription.square,
+            'diff': ['Panjang']
+          }
+        ]
+      }, {
+        'name': 'Indostar Bes',
+        'img': 'assets/Indostar Bes.png',
+        'icon': 'assets/Logo IndostarBes.png',
+        'type': [
+          {
+            'name': 'Gelombang 14',
+            'description': ItemDescription.indostarbes14,
+            'diff': ['Panjang']
+          }, {
+            'name': 'Gelombang 11',
+            'description': ItemDescription.indostarbes11,
+            'diff': ['Panjang']
+          }
+        ]
+      },{
+        'name': 'Indostar Plank',
+        'img': 'assets/Indostar Plank.png',
+        'icon': 'assets/Logo Indostar Plank.png',
+        'type': [
+          {
+            'name': 'Plank',
+            'description': ItemDescription.plank,
+            'diff': ['Panjang', 'Lebar']
+          }, {
+            'name': 'Plank Texture',
+            'description': ItemDescription.plankTexture,
+            'diff': ['Panjang', 'Lebar']
+          }
+        ]
+      },
+    ],
+    'img': 'assets/Logo Indostar.png',
+    'bg': 'assets/background-1a.jpg',
+    'color': Colors.blueGrey
+  },
+  {
+    'name': 'ECO',
+    'subitem': [
+      {
+        'name': 'ECO Board',
+        'img': 'assets/Indostar Board.png',
+        'icon': 'assets/Logo Merk ECO Board.png',
+        'type': [
+          {
+            'name': 'Board Imperial',
+            'description': ItemDescription.imperial,
+            'diff': ['Tebal']
+          }, {
+            'name': 'Board Matric',
+            'description': ItemDescription.matric,
+            'diff': ['Tebal']
+          }, {
+            'name': 'Board Square',
+            'description': ItemDescription.square,
+            'diff': ['Panjang']
+          }
+        ]
+      }, {
+        'name': 'ECObes',
+        'img': 'assets/Indostar Bes.png',
+        'icon': 'assets/Logo ECObes.png',
+        'type': [
+          {
+            'name': 'Gelombang 14',
+            'description': ItemDescription.indostarbes14,
+            'diff': ['Panjang']
+          }, {
+            'name': 'Gelombang 11',
+            'description': ItemDescription.indostarbes11,
+            'diff': ['Panjang']
+          }
+        ]
+      }
+    ],
+    'img': 'assets/Logo Merk ECO.png',
+    'bg': 'assets/background-3a.png',
+    'color': Colors.lightGreen
+  }];
 
   static const String imperial = 'Indostar Board Imperial sangat cocok digunakan sebagai plafon maupun partisi untuk bangunan dengan konsep menengah dan keatas, seperti kantor, rumah sakit, hotel dan sarana publik lainnya. dengan ketebalan 3.5 - 6 mm, Indostar Imperial dapat diaplikasikan dengan menggunakan rangka kayu atau hollow.';
   static const String matric = 'Indostar Board Matric sangat cocok untuk digunakan sebagai plafon maupun partisi untuk bangunan dengan konsep menengah, seperti kantor, rumah sakit, hotel, toko, dan sarana publik lainnya. Indostar Board Matric memiliki kekuatan, kelenturan dan dimensi yang stabil.';

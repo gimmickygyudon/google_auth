@@ -238,10 +238,10 @@ class _CreditDueWidgetState extends State<CreditDueWidget> {
                                   : Badge(
                                     offset: const Offset(30, -2),
                                     largeSize: 20,
-                                    backgroundColor: CreditDueReport.description(context)[0]['color'].withOpacity(0.1),
+                                    backgroundColor: CreditDueReport.description(context)[0]['color'],
                                     label: Text(' Hari Ini ',
                                       style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                        color: CreditDueReport.description(context)[0]['color'],
+                                        color: Theme.of(context).colorScheme.surface,
                                         fontSize: 8,
                                       ),
                                     ),

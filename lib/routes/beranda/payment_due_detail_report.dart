@@ -25,13 +25,23 @@ class _PaymentDueDetailReportState extends State<PaymentDueDetailReport> {
   late Future<PaymentDueReport> _paymentDueReport;
   late PaymentDueReport paymentDueReport;
 
-  bool showAll = true, noData = false;
+  bool showAll = false, noData = false;
   String paymentTotal = '0.0', date = DateNow();
 
   @override
   initState() {
+    setInitialTotal();
     _paymentDueReport = setPaymentDueReport();
     super.initState();
+  }
+
+  setInitialTotal() async {
+    String? id_ocst = await Customer.getDefaultCustomer().then((customer) => customer?.id_ocst);
+    if (id_ocst != null) {
+      PaymentDueReport.retrieveTotal(id_osct: id_ocst).then((value) {
+        paymentTotal = value['total'].toString();
+      });
+    }
   }
 
   Future<PaymentDueReport> setPaymentDueReport() async {
@@ -66,11 +76,7 @@ class _PaymentDueDetailReportState extends State<PaymentDueDetailReport> {
 
   definePaymentDue(Map value) {
     List<PaymentDueData> data = value['data'].map<PaymentDueData>((e) {
-      return PaymentDueData(
-        invoice_code: e['invoice_code'],
-        payment_date: e['payment_date'],
-        total_payment: e['total_payment']
-      );
+      return PaymentDueData.toObject(e);
     }).toList();
 
     setState(() {
@@ -84,7 +90,9 @@ class _PaymentDueDetailReportState extends State<PaymentDueDetailReport> {
   defineError() {
     setState(() {
       noData = true;
-      paymentDueReport = PaymentDueReport(total: '0', count: 0, data: [PaymentDueData(invoice_code: '', payment_date: DateFormat('y-MM-d').format(DateTime.now()), total_payment: '0')]);
+      paymentDueReport = PaymentDueReport(total: '0', count: 0,
+        data: [PaymentDueData(invoice_code: '', payment_date: DateFormat('y-MM-d').format(DateTime.now()), total_payment: '0', payment_duration: '0')]
+      );
     });
 
     return paymentDueReport;
@@ -289,10 +297,30 @@ class PaymentDueTable extends DataTableSource {
     return DataRow(
       cells: [
         DataCell(
-          Text(data![index].invoice_code, style: const TextStyle(
-            fontWeight: FontWeight.w500,
-            fontSize: 10,
-          ))
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(DateFormat('EEEE, dd MMMM ''yyyy', 'id').format(DateTime.parse(data![index].payment_date)), style: const TextStyle(
+                fontWeight: FontWeight.w500,
+                fontSize: 9,
+              )),
+              const SizedBox(height: 4),
+              Container(
+                padding: const EdgeInsets.all(1),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(4),
+                  color: Theme.of(context).colorScheme.secondaryContainer.withOpacity(0.5)
+                ),
+                child: Text(' ${data![index].payment_duration} Hari ',
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: Theme.of(context).colorScheme.secondary,
+                    fontSize: 8,
+                  ),
+                ),
+              ),
+            ],
+          )
         ),
         DataCell(
           Column(
@@ -304,7 +332,7 @@ class PaymentDueTable extends DataTableSource {
                 fontSize: 10,
               )),
               const SizedBox(height: 2),
-              Text(DateFormat('EEEE, dd MMMM ''yyyy', 'id').format(DateTime.parse(data![index].payment_date)), style: TextStyle(
+              Text(data![index].invoice_code, style: TextStyle(
                 color: Theme.of(context).colorScheme.secondary,
                 fontSize: 8,
               )),

@@ -187,7 +187,7 @@ class _DetailItemRouteState extends State<DetailItemRoute> {
                                   hero: widget.hero,
                                   color: widget.color,
                                   type: typePrev!,
-                                  item: {  } // TODO: next item
+                                  item: {  } // TODO: Add Suggestion Previous Item
                                 );
                               },
                               style: ButtonStyle(
@@ -212,7 +212,7 @@ class _DetailItemRouteState extends State<DetailItemRoute> {
                                   hero: widget.hero,
                                   color: widget.color,
                                   type: typeNext!,
-                                  item: {  } // TODO: next item
+                                  item: {  } // TODO: Add Suggestion Next Item
                                 );
                               },
                               style: ButtonStyle(

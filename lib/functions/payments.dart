@@ -90,7 +90,7 @@ class Payment {
     Database database;
 
     // Check if the database exists
-    await databaseExists(path).then((value) async => print(value));
+    await databaseExists(path).then((value) async => debugPrint('Local Database: $value'));
 
     database = await openDatabase(
       join(await getDatabasesPath(), 'mis.db'),
@@ -161,7 +161,7 @@ class Payment {
   static Future<void> deletePaymentHistoryLocal({required int id}) async {
     final db = await initializeDatabaseLocal();
 
-    await db.delete('payment', where: 'id_opor = ?', whereArgs: [id]).whenComplete(() => print('local database deleted!'));
+    await db.delete('payment', where: 'id_opor = ?', whereArgs: [id]).whenComplete(() => debugPrint('Local Database Deleted!'));
   }
 
   static Future<List> syncPaymentHistory({required String id_ousr}) {

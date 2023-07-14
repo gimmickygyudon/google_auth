@@ -6,6 +6,7 @@ import 'package:google_auth/styles/scroll.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_framework/responsive_framework.dart';
+// ignore: depend_on_referenced_packages
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import 'functions/notification.dart';
@@ -140,7 +141,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     Authentication.initializeUser().then((user) async {
       if (user != null) {
-        // TODO: problem later when user already deleted.
+        // TODO: Check If User Not Deleted.
         Authentication.signIn(user as Map<String, dynamic>).whenComplete(() => pushDashboard(context));
       }
       setState(() => _isLoggedIn = false);

@@ -168,8 +168,6 @@ class SQL {
     String queryParameters = '?$query';
     var url = Uri.parse('$server/api/$api$queryParameters');
 
-    print(url);
-
     final response = await client.delete(url, headers: requestHeaders)
       .timeout(const Duration(seconds: clienTimeout), onTimeout: () {
         return Future.error('Periksa Koneksi Internet Anda');

@@ -14,7 +14,6 @@ import 'package:crypto/crypto.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
-import '../strings/item.dart';
 import 'sql_client.dart';
 
 class SQLite {
@@ -50,7 +49,7 @@ class SQLite {
 
   static Future<Map> insert({required String table, required Map<String, dynamic> item}) async {
     await initializeDatabaseLocal().then((db) {
-      db.insert(table, item).then((value) => print('Insert Succeed: $value'));
+      db.insert(table, item).then((value) => debugPrint('Insert Local Succeed: $value'));
     });
 
     return item;
@@ -108,7 +107,7 @@ class UserLog {
     Database database;
 
     // Check if the database exists
-    await databaseExists(path).then((value) async => print(value));
+    await databaseExists(path).then((value) async => debugPrint('Local Database Exists: $value'));
 
     database = await openDatabase(
       join(await getDatabasesPath(), 'olog.db'),
@@ -342,8 +341,6 @@ class UserRegister {
     var userMap = user.toMap();
     userMap['user_password'] = md5.convert(utf8.encode(user.user_password)).toString();
 
-    print('sqlite(insert): $userMap');
-
     await UserRegister.initializeDatabase().then((db) async {
       db.insert(
         'ousr',
@@ -537,7 +534,7 @@ class Item {
     };
   }
 
-  // TODO: Need Rework
+  // TODO: Cachce Brands Item -> Get the Names From Database
   static Map<String, AsyncMemoizer<List?>> listItemsMemoizer =
   {
     'Indostar': AsyncMemoizer<List?>(),
@@ -613,107 +610,4 @@ class Item {
 
     return s;
   }
-
-  // TODO: move this to strings.dart
-  static const List<Map> recommenditems = [{
-    'name': 'Indostar',
-    'subitem': [
-      {
-        'name': 'Indostar Board',
-        'img': 'assets/Indostar Board.png',
-        'icon': 'assets/INDOSTAR LOGO POST.png',
-        'type': [
-          {
-            'name': 'Board Imperial',
-            'description': ItemDescription.imperial,
-            'diff': ['Tebal']
-          }, {
-            'name': 'Board Matric',
-            'description': ItemDescription.matric,
-            'diff': ['Tebal']
-          }, {
-            'name': 'Board Square',
-            'description': ItemDescription.square,
-            'diff': ['Panjang']
-          }
-        ]
-      }, {
-        'name': 'Indostar Bes',
-        'img': 'assets/Indostar Bes.png',
-        'icon': 'assets/Logo IndostarBes.png',
-        'type': [
-          {
-            'name': 'Gelombang 14',
-            'description': ItemDescription.indostarbes14,
-            'diff': ['Panjang']
-          }, {
-            'name': 'Gelombang 11',
-            'description': ItemDescription.indostarbes11,
-            'diff': ['Panjang']
-          }
-        ]
-      },{
-        'name': 'Indostar Plank',
-        'img': 'assets/Indostar Plank.png',
-        'icon': 'assets/Logo Indostar Plank.png',
-        'type': [
-          {
-            'name': 'Plank',
-            'description': ItemDescription.plank,
-            'diff': ['Panjang', 'Lebar']
-          }, {
-            'name': 'Plank Texture',
-            'description': ItemDescription.plankTexture,
-            'diff': ['Panjang', 'Lebar']
-          }
-        ]
-      },
-    ],
-    'img': 'assets/Logo Indostar.png',
-    'bg': 'assets/background-1a.jpg',
-    'color': Colors.blueGrey
-  },
-  {
-    'name': 'ECO',
-    'subitem': [
-      {
-        'name': 'ECO Board',
-        'img': 'assets/Indostar Board.png',
-        'icon': 'assets/Logo Merk ECO Board.png',
-        'type': [
-          {
-            'name': 'Board Imperial',
-            'description': ItemDescription.imperial,
-            'diff': ['Tebal']
-          }, {
-            'name': 'Board Matric',
-            'description': ItemDescription.matric,
-            'diff': ['Tebal']
-          }, {
-            'name': 'Board Square',
-            'description': ItemDescription.square,
-            'diff': ['Panjang']
-          }
-        ]
-      }, {
-        'name': 'ECObes',
-        'img': 'assets/Indostar Bes.png',
-        'icon': 'assets/Logo ECObes.png',
-        'type': [
-          {
-            'name': 'Gelombang 14',
-            'description': ItemDescription.indostarbes14,
-            'diff': ['Panjang']
-          }, {
-            'name': 'Gelombang 11',
-            'description': ItemDescription.indostarbes11,
-            'diff': ['Panjang']
-          }
-        ]
-      }
-    ],
-    'img': 'assets/Logo Merk ECO.png',
-    'bg': 'assets/background-3a.png',
-    'color': Colors.lightGreen
-  }];
 }
