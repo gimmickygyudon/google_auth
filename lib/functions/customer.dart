@@ -159,16 +159,18 @@ class Customer extends Equatable {
 
 class Tonage {
   final double weight;
+  final int count;
   final String name = 'Realisasi';
 
-  Tonage({required this.weight});
+  Tonage({required this.weight, required this.count});
 }
 
 class Outstanding {
   final double weight;
+  final int count;
   final String name = 'Outstanding';
 
-  Outstanding({required this.weight});
+  Outstanding({required this.weight, required this.count});
 }
 
 class DeliveryOrder {
@@ -186,8 +188,14 @@ class DeliveryOrder {
 
   static DeliveryOrder toObject(Map value) {
     return DeliveryOrder(
-      tonage: Tonage(weight: double.parse(value['realisasi'])),
-      outstanding_tonage: Outstanding(weight: double.parse(value['outstanding'])),
+      tonage: Tonage(
+        weight: double.parse(value['realisasi']),
+        count: value['realisasi_count']
+      ),
+      outstanding_tonage: Outstanding(
+        weight: double.parse(value['outstanding']),
+        count: value['outstanding_count']
+      ),
       target: 1000.0 // FIXME: Target Value on Database Aware
     );
   }

@@ -181,6 +181,7 @@ class _DashboardRouteState extends State<DashboardRoute> {
                     ],
                   ),
                 ),
+                // FIXME: ADD REFRESH. WIDGET NOT RELOAD WHEN NO CONNECTION
                 Visibility(
                   maintainState: true,
                   visible: currentPage == 0 || currentPage == 2 ? true : false,

@@ -19,9 +19,9 @@ class DetailReportRoute extends StatefulWidget {
 }
 
 class _DetailReportRouteState extends State<DetailReportRoute> {
-  late double realisasi, outstanding, total;
   ValueNotifier<List<int>> count = ValueNotifier([0, 0]);
   late Future<DeliveryOrder> _deliveryOrder;
+  late DeliveryOrder deliveryOrder;
 
   bool noData = false, showOutstanding = true ;
 
@@ -53,21 +53,15 @@ class _DetailReportRouteState extends State<DetailReportRoute> {
   }
 
   Future<DeliveryOrder> defineError() async {
-    return await defineValueTonase(value: {'realisasi': '0.0', 'outstanding': '0.0', 'realisasi_count': 0, 'outstanding_count': 0})
+    deliveryOrder = await defineValueTonase(value: {'realisasi': '0.0', 'outstanding': '0.0', 'realisasi_count': 0, 'outstanding_count': 0})
     .whenComplete(() => setState(() => noData = true));
+    return deliveryOrder;
   }
 
   Future<DeliveryOrder> defineValueTonase({required Map value}) async {
-    realisasi = double.parse(value['realisasi']);
-    outstanding = double.parse(value['outstanding']);
     count.value = [value['realisasi_count'], value['outstanding_count']];
-    total = 500.0;
-
-    return DeliveryOrder(
-      tonage: Tonage(weight: realisasi),
-      outstanding_tonage: Outstanding(weight: outstanding),
-      target: total
-    );
+    deliveryOrder = DeliveryOrder.toObject(value);
+    return deliveryOrder;
   }
 
   @override
@@ -111,7 +105,7 @@ class _DetailReportRouteState extends State<DetailReportRoute> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Total Order', style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                      Text('Total Delivery', style: Theme.of(context).textTheme.labelMedium?.copyWith(
                         letterSpacing: 0
                       )),
                       const SizedBox(height: 4),
@@ -198,12 +192,8 @@ class _DetailReportRouteState extends State<DetailReportRoute> {
                           ),
                         );
                       },
-                      child: POBarChart(
-                        deliveryReport: DeliveryOrder(
-                          tonage: Tonage(weight: realisasi),
-                          outstanding_tonage: Outstanding(weight: outstanding),
-                          target: total
-                        ),
+                      child: PurchaseOrderBarChart(
+                        deliveryOrder: deliveryOrder,
 
                         titlebottom: DeliveryOrder.description(context: context).map((element) => element['name']).toList(),
                         colors: DeliveryOrder.description(context: context).map<Color>((element) => element['color']).toList(),

@@ -116,7 +116,7 @@ class _ReportDeliveryWidgetState extends State<ReportDeliveryWidget> {
 
   Future<DeliveryOrder> defineError() async {
     setState(() => isOffline = true);
-    return deliveryOrder = DeliveryOrder(tonage: Tonage(weight: 99.9), outstanding_tonage: Outstanding(weight: 99.9), target: 99.9);
+    return deliveryOrder = DeliveryOrder(tonage: Tonage(weight: 0.0, count: 0), outstanding_tonage: Outstanding(weight: 0.0, count: 0), target: 0.0);
   }
 
   @override

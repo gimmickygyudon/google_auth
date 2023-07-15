@@ -1,7 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:google_auth/functions/customer.dart';
-import 'package:google_auth/widgets/chip.dart';
+import 'package:google_auth/widgets/badge.dart';
 import 'package:intl/intl.dart';
 
 class LineChartSample2 extends StatefulWidget {
@@ -410,7 +410,7 @@ class CreditDueChartState extends State<CreditDueChart> {
               fontWeight: FontWeight.w500,
               color: Theme.of(context).colorScheme.surface
             ),
-            badgeWidget: _badge(
+            badgeWidget: BadgePie(
               label: widget.creditDueReport!.total_balance_due,
               iconColor: CreditDueReport.description(context)[0]['color']
             ),
@@ -427,7 +427,7 @@ class CreditDueChartState extends State<CreditDueChart> {
               fontWeight: FontWeight.w500,
               color: Theme.of(context).colorScheme.surface
             ),
-            badgeWidget: _badge(
+            badgeWidget: BadgePie(
               label: widget.creditDueReport!.total_balance,
               iconColor: CreditDueReport.description(context)[1]['color']
             ),
@@ -437,33 +437,6 @@ class CreditDueChartState extends State<CreditDueChart> {
           throw Exception('Oh no');
       }
     });
-  }
-
-  Widget _badge({required String label, required Color iconColor}) {
-    return PhysicalModel(
-      color: Colors.transparent,
-      shadowColor: Theme.of(context).colorScheme.shadow.withOpacity(0.25),
-      elevation: 6,
-      borderRadius: BorderRadius.circular(4),
-      child: ChipSmall(
-        leading: Container(
-          height: 10,
-          width: 10,
-          margin: const EdgeInsets.only(right: 6),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(2),
-            color: iconColor,
-          ),
-        ),
-        label: label,
-        textStyle: Theme.of(context).textTheme.labelSmall?.copyWith(
-          fontSize: 10
-        ),
-        borderRadius: BorderRadius.circular(4),
-        bgColor: Theme.of(context).colorScheme.background,
-        labelColor: Theme.of(context).colorScheme.inverseSurface
-      ),
-    );
   }
 }
 
@@ -492,6 +465,7 @@ class DeliveryChartWidget extends StatelessWidget {
   List<PieChartSectionData> _chartSections(BuildContext context, DeliveryOrder sectors) {
     final List<PieChartSectionData> list = [];
     final List sectorsList = [sectors.tonage.weight, sectors.outstanding_tonage.weight, (sectors.target - sectors.tonage.weight < 0.0 ? 0.0 : sectors.target - sectors.tonage.weight)];
+    final List sectorsCount = [sectors.tonage.count, sectors.outstanding_tonage.count];
 
     for (var i = 0; i < sectorsList.length; i++) {
       const double radius = 35.0;
@@ -500,6 +474,11 @@ class DeliveryChartWidget extends StatelessWidget {
         value: sectorsList[i],
         radius: radius,
         showTitle: false,
+        badgePositionPercentageOffset: 1,
+        badgeWidget: (i != 2) ? BadgePie(
+          label: '${sectorsCount[i]} Delivery',
+          iconColor: DeliveryOrder.description(context: context)[i]['color']
+        ) : null,
         title: DeliveryOrder.description(context: context)[i]['name'],
       );
       if (i != 1 || showOutstanding) list.add(data);
@@ -509,17 +488,17 @@ class DeliveryChartWidget extends StatelessWidget {
 }
 
 
-class POBarChart extends StatefulWidget {
-  const POBarChart({
+class PurchaseOrderBarChart extends StatefulWidget {
+  const PurchaseOrderBarChart({
     super.key,
     required this.dark, required this.normal, required this.light,
     required this.titlebottom,
     required this.colors, required this.borderRadius,
-    required this.deliveryReport,
+    required this.deliveryOrder,
     required this.showOutstanding
   });
 
-  final DeliveryOrder deliveryReport;
+  final DeliveryOrder deliveryOrder;
 
   final Color dark;
   final Color normal;
@@ -532,10 +511,10 @@ class POBarChart extends StatefulWidget {
   final bool showOutstanding;
 
   @override
-  State<StatefulWidget> createState() => POBarChartState();
+  State<StatefulWidget> createState() => PurchaseOrderBarChartState();
 }
 
-class POBarChartState extends State<POBarChart> {
+class PurchaseOrderBarChartState extends State<PurchaseOrderBarChart> {
   Widget bottomTitles(double value, TitleMeta meta) {
     if (value.toInt() == 1 && widget.showOutstanding == false) {
       return Container();
@@ -647,7 +626,7 @@ class POBarChartState extends State<POBarChart> {
                     ),
                     groupsSpace: barsSpace,
                     barGroups: getData(
-                      sectors: widget.deliveryReport,
+                      sectors: widget.deliveryOrder,
                       barsWidth: barsWidth,
                       barsSpace: barsSpace,
                       light: widget.light,
@@ -680,7 +659,7 @@ class POBarChartState extends State<POBarChart> {
                         )),
                       ],
                     ),
-                    Text('${widget.deliveryReport.tonage}', style: Theme.of(context).textTheme.labelLarge)
+                    Text('${widget.deliveryOrder.tonage.weight}', style: Theme.of(context).textTheme.labelLarge)
                   ],
                 ),
               ),
@@ -704,7 +683,7 @@ class POBarChartState extends State<POBarChart> {
                                   height: 2,
                                   letterSpacing: 0
                                 )),
-                                Text('${widget.deliveryReport.outstanding_tonage}', style: Theme.of(context).textTheme.labelLarge)
+                                Text('${widget.deliveryOrder.outstanding_tonage.weight}', style: Theme.of(context).textTheme.labelLarge)
                               ],
                             ),
                           ),
@@ -728,7 +707,7 @@ class POBarChartState extends State<POBarChart> {
                           height: 2,
                           letterSpacing: 0
                         )),
-                        Text('${widget.deliveryReport.target}', style: Theme.of(context).textTheme.labelLarge)
+                        Text('${widget.deliveryOrder.target}', style: Theme.of(context).textTheme.labelLarge)
                       ],
                     ),
                   ),
