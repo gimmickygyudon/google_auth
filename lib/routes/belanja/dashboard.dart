@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'dart:math';
 import 'dart:ui';
 
@@ -9,6 +11,8 @@ import 'package:google_auth/strings/item.dart';
 import 'package:google_auth/widgets/card.dart';
 import 'package:google_auth/widgets/handle.dart';
 import 'package:google_auth/widgets/label.dart';
+
+import '../../functions/customer.dart';
 
 class BelanjaRoute extends StatefulWidget {
   const BelanjaRoute({super.key});
@@ -26,9 +30,34 @@ class _BelanjaRouteState extends State<BelanjaRoute>  with AutomaticKeepAliveCli
 
   @override
   void initState() {
-    brand = 'BINTANG';
-    _getItems = Item.getItems(brand: brand);
+    _getItems = getItems();
+    _defaultCustomerListener();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  _defaultCustomerListener() {
+    Customer.defaultCustomer.addListener(() {
+      if (mounted) _getItems = getItems().whenComplete(() => setState(() {}));
+    });
+  }
+
+  Future getItems() async {
+    String? id_ocst = await Customer.getDefaultCustomer().then((customer) => customer?.id_ocst);
+
+    if (id_ocst != null) {
+      return Item.getGroupName(id_ocst: id_ocst).then((brands) {
+        brand = brands.first;
+        return Item.getItems(brand: brands.first);
+      });
+    } else {
+      brand = 'Indostar';
+      return Item.getItems(brand: 'Indostar');
+    }
   }
 
   List getSuggestions(List value, {required int count}) {
@@ -149,7 +178,7 @@ class _BelanjaRouteState extends State<BelanjaRoute>  with AutomaticKeepAliveCli
                       }
                     }
                   ),
-                  Divider(color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.75), height: 36),
+                  Divider(color: Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.75), height: 36, thickness: 0.5),
                   Padding(
                     padding: const EdgeInsets.only(left: 30),
                     child: Row(

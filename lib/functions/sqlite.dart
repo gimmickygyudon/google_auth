@@ -512,6 +512,8 @@ class Cart {
   }
 }
 
+
+// TODO: Move this class to new file
 class ItemGroup {
   final String brn_group;
   final int id_brn1;
@@ -551,6 +553,14 @@ class Item {
       'weight': weight,
       'item_group': item_group,
     };
+  }
+
+  static Future<List> getGroupName({required String id_ocst}) async {
+    return await SQL.retrieve(api: 'sim/customer/item', query: 'id_ocst=$id_ocst').then((value) {
+      if (value is String) return [value];
+
+      return value;
+    });
   }
 
   static Map<String, AsyncMemoizer<List?>> itemsMemoizer = {};
@@ -605,7 +615,6 @@ class Item {
     }
 
     String? param = listParam.join(',');
-    print(param);
     return SQL.retrieveJoin(api: 'sim/item', param: param, query: 'id_brn1');
   }
 
@@ -627,17 +636,24 @@ class Item {
     }
   }
 
+  // FIXME: Dirty code regex may fail in future.
   static String defineName(String value) {
     return value.replaceAll(RegExp(r'[0-9]'), '').toTitleCase().replaceAll(' X', '').replaceAll(' .', '');
   }
 
   static String defineDimension(String value) {
-    return value.replaceAll('IN ', '').replaceAll('PP', '').replaceAll('PM', '').replaceAll('BES', '').replaceAll('EC', '').replaceAll('BT', '').trim();
+    return value.replaceAll('IN ', '').replaceAll('PP', '').replaceAll('PM', '').replaceAll('BES', '').replaceAll('EC', '').replaceAll('BT', '').replaceAll('BI', '').replaceAll('CH', '').replaceAll('PT', '').trim();
   }
 
   static List splitDimension(String value) {
-    String string = value.replaceAll('IN ', '').replaceAll('PP', '').replaceAll('PM', '').replaceAll('BES', '').replaceAll('EC', '').replaceAll('BT', '').trim();
-    return string.split(' x ');
+    String string = value.replaceAll('IN ', '').replaceAll('PP', '').replaceAll('PM', '').replaceAll('BES', '').replaceAll('EC', '').replaceAll('BT', '').replaceAll('BI', '').replaceAll('CH', '').replaceAll('PT', '').trim();
+    List split = string.split(' x ');
+
+    if (split.length <= 1) {
+      split = string.split(' X ');
+    }
+
+    return split;
   }
 
   static String defineWeight(dynamic value) {

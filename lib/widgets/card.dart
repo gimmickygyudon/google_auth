@@ -95,10 +95,16 @@ class CardItemSmall extends StatelessWidget {
                     padding: const EdgeInsets.fromLTRB(0, 6, 0, 4),
                     clipBehavior: Clip.antiAlias,
                     decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.surfaceTint,
-                    ),
-                    foregroundDecoration: BoxDecoration(
-                      border: Border(top: BorderSide(color: Theme.of(context).colorScheme.inversePrimary, width: 2))
+                      color: Theme.of(context).colorScheme.primary,
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Theme.of(context).colorScheme.surfaceVariant,
+                          Theme.of(context).colorScheme.primary,
+                          Theme.of(context).colorScheme.primary
+                        ]
+                      )
                     ),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8),

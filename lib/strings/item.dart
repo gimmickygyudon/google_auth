@@ -1,107 +1,49 @@
 import 'package:flutter/material.dart';
 
-class ItemDescription{
+class ItemDescription {
 
-  // FIXME: USE STRING.CONTAINS GETTER
-  static String getImage(String value) {
-    String string = value.toUpperCase().replaceAll('INDOSTAR', '').replaceAll('ECO', '').trim();
+  static String getImage(String name) {
+    if (name.contains('IMPERIAL')) return 'assets/Indostar Board Imperial.png';
+    if (name.contains('MATRIC')) return 'assets/Indostar Board Matric.png';
+    if (name.contains('SQUARE')) return 'assets/Indostar Board Square.png';
+    if (name.contains('PLANK POLOS')) return 'assets/Indostar Plank 1.png';
+    if (name.contains('PLANK MOTIF')) return 'assets/Indostar Plank Texture.png';
+    if (name.contains('BES')) return 'assets/Indostar Bes.png';
 
-    switch (string) {
-      case 'IMPERIAL':
-        return 'assets/Indostar Board Imperial.png';
-      case 'MATRIC':
-        return 'assets/Indostar Board Matric.png';
-      case 'SQUARE':
-        return 'assets/Indostar Board Square.png';
-      case 'PLANK POLOS':
-        return 'assets/Indostar Plank 1.png';
-      case 'PLANK MOTIF':
-        return 'assets/Indostar Plank Texture.png';
-      case 'BES':
-        return 'assets/Indostar Bes.png';
-      default:
-        return '';
-    }
+    return 'assets/Indostar Board.png';
   }
 
-  static String getLogo(String value) {
-    if (value.contains('ECO')) {
-      String string = value.toUpperCase().replaceAll('INDOSTAR', '').replaceAll('ECO', '').trim();
-      switch (string) {
-        case 'IMPERIAL':
-          return 'assets/Logo Merk ECO Board.png';
-        case 'MATRIC':
-          return 'assets/Logo Merk ECO Board.png';
-        case 'SQUARE':
-          return 'assets/Logo Merk ECO Board.png';
-        case 'PLANK POLOS':
-          return 'assets/Logo ECOplank.png';
-        case 'PLANK MOTIF':
-          return 'assets/Logo ECOplank.png';
-        case 'BES':
-          return 'assets/Logo ECObes.png';
-        default:
-          return '';
-      }
-    } else {
-      String string = value.toUpperCase().replaceAll('INDOSTAR', '').replaceAll('ECO', '').trim();
-      switch (string) {
-        case 'IMPERIAL':
-          return 'assets/INDOSTAR LOGO POST.png';
-        case 'MATRIC':
-          return 'assets/INDOSTAR LOGO POST.png';
-        case 'SQUARE':
-          return 'assets/INDOSTAR LOGO POST.png';
-        case 'PLANK POLOS':
-          return 'assets/Logo Indostar Plank.png';
-        case 'PLANK MOTIF':
-          return 'assets/Logo Indostar Plank.png';
-        case 'BES':
-          return 'assets/Logo IndostarBes.png';
-        default:
-          return '';
-      }
-    }
+  static String getLogo(String name) {
+    if (name.contains('IMPERIAL')) return 'assets/INDOSTAR LOGO POST.png';
+    if (name.contains('MATRIC')) 'assets/INDOSTAR LOGO POST.png';
+    if (name.contains('SQUARE')) return 'assets/INDOSTAR LOGO POST.png';
+    if (name.contains('PLANK POLOS')) return 'assets/Logo Indostar Plank.png';
+    if (name.contains('PLANK MOTIF')) return 'assets/Logo Indostar Plank.png';
+    if (name.contains('BES')) return 'assets/Logo IndostarBes.png';
+
+    return 'assets/logo IBM p C.png';
   }
 
-  static List getDiff(String value) {
-    String string = value.toUpperCase().replaceAll('INDOSTAR', '').replaceAll('ECO', '').trim();
-    switch (string) {
-      case 'IMPERIAL':
-        return ['Tebal'];
-      case 'MATRIC':
-        return ['Tebal'];
-      case 'SQUARE':
-        return ['Panjang'];
-      case 'PLANK POLOS':
-        return ['Panjang', 'Lebar'];
-      case 'PLANK MOTIF':
-        return ['Panjang', 'Lebar'];
-      case 'BES':
-        return ['Panjang'];
-      default:
-        return [];
-    }
+  static List getDiff(String name) {
+    if (name.contains('IMPERIAL')) return ['Tebal'];
+    if (name.contains('MATRIC')) return ['Tebal'];
+    if (name.contains('SQUARE')) return ['Panjang'];
+    if (name.contains('PLANK POLOS')) return ['Panjang', 'Lebar'];
+    if (name.contains('PLANK MOTIF')) return ['Panjang', 'Lebar'];
+    if (name.contains('BES')) return ['Panjang'];
+
+    return [];
   }
 
   static String getDescription(String value) {
-    String string = value.toUpperCase().replaceAll('INDOSTAR', '').replaceAll('ECO', '').trim();
-    switch (string) {
-      case 'IMPERIAL':
-        return imperial;
-      case 'MATRIC':
-        return matric;
-      case 'SQUARE':
-        return square;
-      case 'PLANK POLOS':
-        return plank;
-      case 'PLANK MOTIF':
-        return plankTexture;
-      case 'BES':
-        return indostarbes14;
-      default:
-        return '';
-    }
+    if (value.contains('IMPERIAL')) return imperial;
+    if (value.contains('MATRIC')) return matric;
+    if (value.contains('SQUARE')) return square;
+    if (value.contains('PLANK POLOS')) return plank;
+    if (value.contains('PLANK MOTIF')) return plankTexture;
+    if (value.contains('BES')) return indostarbes14;
+
+    return error;
   }
 
   static const List<Map> recommenditems = [{
@@ -213,4 +155,5 @@ class ItemDescription{
   static const String plankTexture = 'Indostar Board Plank Texture cocok digunakan sebagai list plank maupun sidding plank untuk rumah dengan konsep klasik dan berseni. Indostar Board Plank Texture memiliki kekuatan, kelenturan dan dimensi yang stabil.';
   static const String indostarbes14 = 'Indostarbes adalah lembaran papan semen berstandar SNI yang berbentuk gelombang 14 simetris dengan kualitas produk yang kuat, stabil, presisi, tahan terhadap perubahan cuaca, dan mudah dalam pengaplikasiannya. sangat cocok untuk aplikasi atap bangunan rumah, selasar, garasi, teras, bangunan sarana publik, ataupun industri';
   static const String indostarbes11 = 'Indostarbes adalah lembaran papan semen berstandar SNI yang berbentuk gelombang 11 simetris dengan kualitas produk yang kuat, stabil, presisi, tahan terhadap perubahan cuaca, dan mudah dalam pengaplikasiannya. sangat cocok untuk aplikasi atap bangunan rumah, selasar, garasi, teras, bangunan sarana publik, ataupun industri';
+  static const String error = 'Produk tidak memiliki keterangan';
 }
