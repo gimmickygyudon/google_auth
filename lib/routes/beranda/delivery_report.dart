@@ -10,7 +10,6 @@ import 'package:intl/intl.dart';
 
 import '../../functions/customer.dart';
 import '../../widgets/chart.dart';
-import '../../widgets/dropdown.dart';
 
 class ReportDeliveryWidget extends StatefulWidget {
   const ReportDeliveryWidget({super.key});
@@ -117,7 +116,7 @@ class _ReportDeliveryWidgetState extends State<ReportDeliveryWidget> {
 
   Future<DeliveryOrder> defineError() async {
     setState(() => isOffline = true);
-    return DeliveryOrder(tonage: Tonage(weight: 99.9), outstanding_tonage: Outstanding(weight: 99.9), target: 99.9);
+    return deliveryOrder = DeliveryOrder(tonage: Tonage(weight: 99.9), outstanding_tonage: Outstanding(weight: 99.9), target: 99.9);
   }
 
   @override
@@ -138,15 +137,6 @@ class _ReportDeliveryWidgetState extends State<ReportDeliveryWidget> {
               child: isOffline ? Stack(
                 children: [
                   const HandleNoData(),
-                  Align(
-                    alignment: Alignment.bottomLeft,
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 6),
-                      child: DropdownCustomerSelect(onChanged: () {
-                        setReportDelivery();
-                      }),
-                    ),
-                  ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(16, 12, 16, 6),
                     child: Column(

@@ -136,9 +136,11 @@ class _DropdownCustomerSelectState extends State<DropdownCustomerSelect> {
             onPressed: () => pushAddCustomer(context),
             style: ButtonStyle(
               visualDensity: const VisualDensity(horizontal: -4, vertical: -2),
-              side: MaterialStatePropertyAll(
-                BorderSide(color: Theme.of(context).colorScheme.primary)
+              side: const MaterialStatePropertyAll(
+                BorderSide(color: Colors.transparent, width: 0)
               ),
+              backgroundColor: MaterialStatePropertyAll(Theme.of(context).colorScheme.background),
+              minimumSize: const MaterialStatePropertyAll(Size(160, 40)),
               iconSize: const MaterialStatePropertyAll(20),
               textStyle: MaterialStatePropertyAll(
                 Theme.of(context).textTheme.labelSmall?.copyWith(
@@ -146,7 +148,7 @@ class _DropdownCustomerSelectState extends State<DropdownCustomerSelect> {
                 )
               )
             ),
-            icon: const Icon(Icons.add_circle),
+            icon: const Icon(Icons.person_add),
             label: const Text('Tambah Pelanggan')
           );
         }
